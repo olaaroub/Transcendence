@@ -1,0 +1,76 @@
+
+export type Message = {
+	id: string;
+	senderId: string;
+	senderName: string;
+	avatar: string;
+	content: string;
+	timestamp: string;
+	isMine: boolean;
+};
+
+export const mockMessages: Message[] = [
+{
+	id: "1",
+	senderId: "u1",
+	senderName: "Yassine",
+	avatar: "/avatars/yassine.png",
+	content: "Yo, wach ready l tournament dyal lyoum?",
+	timestamp: "2025-10-18T09:40:00Z",
+	isMine: false,
+},
+{
+	id: "2",
+	senderId: "u2",
+	senderName: "Mohamed",
+	avatar: "/avatars/mohamed.png",
+	content: "Ayeee, rah dert warm-up mn sbah 🔥",
+	timestamp: "2025-10-18T09:41:10Z",
+	isMine: true,
+},
+{
+	id: "3",
+	senderId: "u1",
+	senderName: "Yassine",
+	avatar: "/avatars/yassine.png",
+	content: "Nice! ana mazal kan setup stream",
+	timestamp: "2025-10-18T09:42:30Z",
+	isMine: false,
+},
+{
+	id: "4",
+	senderId: "u3",
+	senderName: "Sara",
+	avatar: "/avatars/sara.png",
+	content: "Ma tnsawch ndir screenshot mn match lwal 😎",
+	timestamp: "2025-10-18T09:43:55Z",
+	isMine: false,
+},
+{
+	id: "5",
+	senderId: "u2",
+	senderName: "Mohamed",
+	avatar: "/avatars/mohamed.png",
+	content: "Of course 😂 ana ghadi ndir montage b stats",
+	timestamp: "2025-10-18T09:45:12Z",
+	isMine: true,
+},
+{
+	id: "6",
+	senderId: "u3",
+	senderName: "Sara",
+	avatar: "/avatars/sara.png",
+	content: "Perfect! btw hadchi ghadi ykoun streamed?",
+	timestamp: "2025-10-18T09:46:40Z",
+	isMine: false,
+},
+{
+	id: "7",
+	senderId: "u2",
+	senderName: "Mohamed",
+	avatar: "/avatars/mohamed.png",
+	content: "Yes, twitch.tv/ft_pong 😏",
+	timestamp: "2025-10-18T09:47:22Z",
+	isMine: true,
+},
+];

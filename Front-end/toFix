@@ -1,0 +1,29 @@
+fix : non printable chars in search bar
+add keyboard scrolling to the searchbar
+home page responsive design
+target just brikol comment
+
+to learn more about it  : Record<string, string>
+
+main one : fix dashboard
+
+
+
+
+
+
+
+
+structure done : 
+
+- home      page
+- login     page
+- sign-up   page
+- dashboard page
+- settings  page
+- game      page
+
+pages in waiting proccess : 
+
+- chat page
+- profile
