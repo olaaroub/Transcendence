@@ -129,11 +129,11 @@ document.body.addEventListener("submit", (e) => {
 
 	const form = e.target as HTMLFormElement;
 	const inputs = form.querySelectorAll("input");
-	let path: string = 'auth/login';
+	let path: string = 'login';
 
 	if (inputs.length == 4)
 	{
-		path = 'auth/register';
+		path = 'signUp';
 		if (inputs[2].value !== inputs[3].value)
 		{
 			renderAuthPage(true, "Passwords do not match");
