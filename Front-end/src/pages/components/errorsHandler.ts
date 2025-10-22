@@ -6,7 +6,6 @@ export async function isUserAuthenticated(): Promise<boolean> {
     const token = localStorage.getItem('token');
     if (!id || !token) {
         console.warn('Missing credentials');
-        navigate('/');
         return false;
     }
     try
