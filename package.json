@@ -9,9 +9,9 @@
   "scripts": {
     "dev": "node ./app/app.js",
     "start": "node ./app/app.js"
-
   },
   "dependencies": {
+    "@fastify/cors": "^11.1.0",
     "better-sqlite3": "^12.4.1",
     "fastify": "^5.6.1",
     "sqlite": "^5.1.1",

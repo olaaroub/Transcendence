@@ -7,9 +7,9 @@ const sign_up = async (fastify) => {
         schema: {
           body: {
             type: "object",
-            required: ["user", "password", "email"],
+            required: ["username", "password", "email"],
             properties: {
-              user: { type: "string" },
+              username: { type: "string" },
               email: {type: "string", format: 'email'},
               password: { type: "string"}
             }
@@ -34,7 +34,7 @@ const sign_up = async (fastify) => {
       async (request, reply) => {
         let data = request.body;
         try {
-          await fastify.db.run("INSERT INTO users(user, password, email) VALUES (?, ?, ?)", [data.user, data.password, data.email]);
+          await fastify.db.run("INSERT INTO users(user, password, email) VALUES (?, ?, ?)", [data.username, data.password, data.email]);
           reply.code(201)
                .send("created");
         } catch (err) {
@@ -76,9 +76,9 @@ const login = async (fastify) => {
       schema: {
         body: {
           type: "object",
-          required: ["user", "password"],
+          required: ["username", "password"],
             properties: {
-              user: { type: "string" },
+              username: { type: "string" },
               password: { type: "string"}
             }
         }
@@ -87,7 +87,7 @@ const login = async (fastify) => {
     async(req, reply) => {
         const body = req.body;
         try {
-          const user = await fastify.db.get('SELECT user FROM users WHERE user = ?', [body.user]);
+          const user = await fastify.db.get('SELECT user FROM users WHERE user = ?', [body.username]);
           if (user)
             reply.code(200).send({message: "login successfully"});
           else
