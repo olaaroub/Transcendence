@@ -15,7 +15,7 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 		const result = await response.json();
 		if (result.success)
 		{
-			if (path == 'auth/login')
+			if (path == 'login')
 			{
 				localStorage.setItem("token", result.token);
 				localStorage.setItem("id", result.id);
