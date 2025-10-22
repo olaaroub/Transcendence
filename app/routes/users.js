@@ -36,11 +36,11 @@ const sign_up = async (fastify) => {
         try {
           await fastify.db.run("INSERT INTO users(user, password, email) VALUES (?, ?, ?)", [data.username, data.password, data.email]);
           reply.code(201)
-               .send("created");
+               .send({message: "created"});
         } catch (err) {
           console.error('Error inserting user:', err.message);
           reply.code(500)
-               .send("this user is alredy exist !");
+               .send({message: "this user is alredy exist !"});
         }
     });
   }
