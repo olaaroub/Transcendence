@@ -23,16 +23,16 @@ export async function initDashboard(isDashboard: boolean = true) {
 try {
 		const id = localStorage.getItem('id');
 		const token = localStorage.getItem('token');
-	
+		console.log(id);
 		if (!id || !token) {
 			console.warn('Missing credentials');
 			navigate('/sign-up');
 			return;
 		}
+
 		const response = await fetch(`http://127.0.0.1:3000/users/${id}`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
-	
 		if (response.status === 401 || response.status === 403) {
 			localStorage.clear();
 			navigate('/login');

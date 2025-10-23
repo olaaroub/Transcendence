@@ -38,6 +38,7 @@ export async function renderProfile()
 		await data.initDashboard(false);
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
+		console.log(data.imageUrl);
 		dashContent.innerHTML = `
 			<div class="profile-card w-full flex flex-col gap-4">
 				<div class="sm:px-4 bg-color4 mx-auto w-full rounded-3xl p-6 flex gap-5 items-center

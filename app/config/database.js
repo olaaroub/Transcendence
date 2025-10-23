@@ -10,7 +10,7 @@ const creatTable = async () =>
 
     await db.exec(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user TEXT UNIQUE,
+        username TEXT UNIQUE,
         password TEXT,
         email TEXT UNIQUE
     );`);
@@ -18,7 +18,7 @@ const creatTable = async () =>
     await db.exec(`CREATE TABLE IF NOT EXISTS infos (
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
-        image BLOB,
+        profileImage BLOB,
         FOREIGN KEY(user_id) REFERENCES users(id)
     );`);
     return db;
