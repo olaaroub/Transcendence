@@ -7,14 +7,14 @@ const getProfileImages = async (fastify) => {
     console.log(__dirname);
     fastify.register(fastify_static , {
         root: path.join(__dirname, '../../static'),
-        prefix: '/static/',
+        prefix: '/public/',
     });
     fastify.get(`/users/:id/image`, async (req, reply) => {
       const id = req.params.id;
       const img = await fastify.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
-      console.log("/static/" + img.profileImage);
-    //   reply.send(`http://127.0.0.1:3000/static/${img.profileImage}`);
-      return reply.sendFile(img.profileImage);
+      console.log("/public/" + img.profileImage);
+      reply.send(`http://127.0.0.1:3000/public/${img.profileImage}`);
+      // return reply.sendFile(img.profileImage);
     });
   }
 

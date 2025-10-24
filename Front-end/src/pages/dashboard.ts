@@ -48,7 +48,8 @@ try {
 		const userImage = await fetch(`http://127.0.0.1:3000/users/${id}/image`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
-		imageUrl = URL.createObjectURL(await userImage.blob());
+		imageUrl = await userImage.text();
+		console.log('User Image URL:', imageUrl);
 		renderDashboard(isDashboard);
 	} catch (err) {
 		console.error('Network error:', err);
