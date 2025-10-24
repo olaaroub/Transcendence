@@ -18,7 +18,7 @@ const creatTable = async () =>
     await db.exec(`CREATE TABLE IF NOT EXISTS infos (
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
-        profileImage BLOB,
+        profileImage TEXT,
         FOREIGN KEY(user_id) REFERENCES users(id)
     );`);
     return db;

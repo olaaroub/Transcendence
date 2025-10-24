@@ -1,4 +1,4 @@
-const fastify = require("fastify");
+// const fastify = require("fastify");
 const fs = require("fs");
 
 const sign_up = async (fastify) => {
@@ -35,11 +35,10 @@ const sign_up = async (fastify) => {
 			async (request, reply) => {
 				let data = request.body;
 				try {
-          			const imgbuf = fs.readFileSync("/home/ohammou-/Desktop/Transcendence/app/Default_pfp.jpg");
+          			const DefaultImg = `Default_pfp.jpg`;
 					await fastify.db.run("INSERT INTO users(username, password, email) VALUES (?, ?, ?)", [data.username, data.password, data.email]);
           			const user_id = await fastify.db.get("SELECT id FROM users WHERE username = ?", [data.username]);
-          			console.log(user_id);
-          			await fastify.db.run("INSERT INTO infos(profileImage, user_id) VALUES (?, ?)", [imgbuf, user_id.id]);
+          			await fastify.db.run("INSERT INTO infos(profileImage, user_id) VALUES (?, ?)", [DefaultImg , user_id.id]);
 
 					reply.code(201)
 							.send({message: "created", success: true});
@@ -92,6 +91,7 @@ const login = async (fastify) => {
 			}
 		},
 		async(req, reply) => {
+				console.log(" ============================================== " + req.user)
 				const body = req.body;
 				try {
 					const user = await fastify.db.get('SELECT username, id FROM users WHERE username = ?', [body.username]);
@@ -106,21 +106,10 @@ const login = async (fastify) => {
 		});
 }
 
-// users/${id}/image
-const profileImages = async (fastify) => {
-  fastify.get("/users/:id/image", async (req, reply) => {
-    const id = req.params.id;
-    // console.log()
-    const img = await fastify.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
-    reply.type("data:image/jpeg").send(img.profileImage);
-  });
-}
+module.exports = {
+	sign_up,
+	login,
+	getUsers
+  };
 
-const Routes = async (fastify) => {
-		await sign_up(fastify);
-		await login(fastify);
-		await getUsers(fastify);
-    await profileImages(fastify);
-}
-
-module.exports = Routes;
+// module.exports = getUsers;
