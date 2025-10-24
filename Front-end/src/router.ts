@@ -19,7 +19,7 @@ const routes: Route[] = [
         path: "/about",
         render: async () => {
             const { renderAbout } = await import("./pages/about");
-            renderAbout(app!);
+            renderAbout();
         },
     },
     {

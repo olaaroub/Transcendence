@@ -28,4 +28,5 @@ export async function renderHome(app: HTMLElement)
 	`
 	document.getElementById('go-sign-in')!.addEventListener('click',_ => {navigate("/login")})
 	document.getElementById('go-sign-up')!.addEventListener('click',_ => {navigate("/sign-up")})
+	document.getElementById('about-us')!.addEventListener('click',_ => {navigate("/about")})
 }
