@@ -7,6 +7,7 @@ const Routes = async (fastify) => {
     await users.login(fastify);
     await users.getUsers(fastify);
     await images.getProfileImages(fastify);
+    await images.modifyAvatar(fastify);
     await search_bar(fastify);
   
 }

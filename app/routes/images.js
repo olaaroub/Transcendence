@@ -1,5 +1,7 @@
 const path = require('path');
+const fs = require('fs');
 const fastify_static = require('@fastify/static');
+const fastifyMultipart = require('@fastify/multipart');
 // const fastify = require('fastify');
 
 // const search = async (fastify) =>
@@ -27,10 +29,21 @@ const getProfileImages = async (fastify) => {
 
 
 const modifyAvatar = async (fastify) => {
+    await fastify.register(fastifyMultipart);
     fastify.put(`/users/:id/image`, async (req, reply) => {
         const id = req.params.id;
-        await fastify.db.run("UPDATE infos SET profileImage = ?", );
+        const data = await req.file();
+        const file_name =  '_' + data.filename;
+
+        const file_path = path.join(__dirname, '../../static', file_name);
+        console.log(file_path);
+        await fs.promises.writeFile(file_path, await data.toBuffer());
+
+        const imageUri = `http://127.0.0.1:3000/public/${file_name}`;
+
+        await fastify.db.run("UPDATE infos SET profileImage = ?", [imageUri]);
+        reply.code(201).send({success: true, message: "your update the profile image successfully"});
     });
 }
 
-module.exports =  {getProfileImages};
+module.exports =  {getProfileImages, modifyAvatar};
