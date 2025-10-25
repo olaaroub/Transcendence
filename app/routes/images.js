@@ -1,6 +1,14 @@
 const path = require('path');
 const fastify_static = require('@fastify/static');
-const fastify = require('fastify');
+// const fastify = require('fastify');
+
+// const search = async (fastify) =>
+//   {
+//     fastify.get(`users/search`,   (req, reply) => {
+//       //  console.log(`query : ${req.query}`);
+//       //  reply.send({username: "ana"});
+//     })
+//   }
 
 const getProfileImages = async (fastify) => {
 
@@ -13,10 +21,10 @@ const getProfileImages = async (fastify) => {
       const id = req.params.id;
       const img = await fastify.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
       console.log("/public/" + img.profileImage);
-      reply.send(`http://127.0.0.1:3000/public/${img.profileImage}`);
-      // return reply.sendFile(img.profileImage);
+      reply.code(200).send(`http://127.0.0.1:3000/public/${img.profileImage}`);
     });
   }
+
 
 const modifyAvatar = async (fastify) => {
     fastify.put(`/users/:id/image`, async (req, reply) => {

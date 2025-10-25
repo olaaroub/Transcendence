@@ -1,4 +1,4 @@
-const fastify = require('fastify')( {logger: true} )
+const fastify = require('fastify')( {logger: false} )
 const routes = require('./routes/mainRoutes');
 const creatTable = require('./config/database');
 const fastifyCors = require('@fastify/cors');
@@ -9,7 +9,7 @@ const start = async () => {
 
 
     await fastify.register(fastifyCors, {
-      origin: 'http://0.0.0.0:5173',
+      origin: ' http://localhost:5173',
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
       // allowedHeaders: ['Content-Type', 'Authorization'],
     });
