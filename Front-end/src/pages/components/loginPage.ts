@@ -8,7 +8,7 @@ function inputField(label: string, type: string, placeholder: string) {
 		<input
         type="${type}"
         placeholder="${placeholder}"
-        class="w-full rounded-md bg-transparent border border-[#00D9FF] focus:outline-none
+        class="w-full rounded-md bg-transparent border border-color1 focus:outline-none
 		text-[#F0F0F0] pl-4 py-2 md:py-3 text-sm md:text-base placeholder-gray-400" required
 		/>
     </li>
@@ -18,8 +18,8 @@ function inputField(label: string, type: string, placeholder: string) {
 function mainButton(label: string) {
 	return `
     <button
-		class="text-center w-full bg-[#00D9FF] text-[#0B0B0B] font-semibold
-		rounded-md md:rounded-lg py-2 md:py-3 hover:bg-[#00bde0] transition-all duration-200"
+		class="text-center w-full bg-color1 text-[#0B0B0B] font-semibold
+		rounded-md md:rounded-lg py-2 md:py-3 hover:bg-[rgb(237_111_48_/_82%)] transition-all duration-200"
 		type="submit"
     >
 	${label}
@@ -30,9 +30,9 @@ function mainButton(label: string) {
 function socialIcons() {
 	return `
     <div class="flex justify-center gap-4 mt-4">
-		<button class="border justify-center items-center flex border-[#00D9FF] w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/googleIcon.png""></button>
-		<button class="border justify-center items-center flex border-[#00D9FF] w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/gitIcon.png""></button>
-		<button class="border justify-center items-center flex border-[#00D9FF] w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/42Icon.png""></button>
+		<button class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/googleIcon.svg"></button>
+		<button class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/gitIcon.svg"></button>
+		<button class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/42Icon.svg"></button>
     </div>
 	`;
 }
@@ -60,8 +60,8 @@ function footer(isSignup: boolean) {
     <p class="w-full text-center text-[#F0F0F0] text-sm md:text-base mt-4">
 		${
         isSignup
-			? `Already have an account? <a class="font-bold text-[#00D9FF] cursor-pointer hover:underline" data-action="login">Login</a>`
-			: `Don't have an account yet? <a class="font-bold text-[#00D9FF] cursor-pointer hover:underline" data-action="signup">Sign up Now!</a>`
+			? `Already have an account? <a class="font-bold text-color1 cursor-pointer hover:underline" data-action="login">Login</a>`
+			: `Don't have an account yet? <a class="font-bold text-color1 cursor-pointer hover:underline" data-action="signup">Sign up Now!</a>`
 	}
     </p>
 	`;
@@ -77,23 +77,14 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 		login absolute z-20 top-1/2 left-1/2
 		rounded-2xl md:rounded-3xl px-8 md:px-12 xl:px-14 py-10
 		w-[320px] md:w-[400px] xl:w-[450px] 2xl:w-[500px] 4k:w-[600px]
-		bg-[#0B0B0B]/80 backdrop-blur-lg
-		flex flex-col justify-center
-		text-white
-	`;
+		flex flex-col justify-center text-white border-[2px] border-transparent rounded-lg
+		bg-[linear-gradient(#0B0B0B,#0B0B0B),linear-gradient(135deg,#121212,#ed6f30)]
+		opacity-0 translate-x-[-50%] translate-y-[-60%]`;
 
-	container.style.border = '2px solid transparent';
-	container.style.borderRadius = '16px';
-	container.style.backgroundImage = `
-		linear-gradient(#0B0B0B, #0B0B0B),
-		linear-gradient(135deg, #121212, #00D9FF)
-	`;
 	container.style.backgroundOrigin = 'border-box';
 	container.style.backgroundClip = 'padding-box, border-box';
-	container.style.boxShadow = '0 0 20px rgba(0, 217, 255, 0.4)';
+	container.style.boxShadow = '0 0 20px rgba(237, 111, 48, 0.4)';
 
-	container.style.opacity = '0';
-	container.style.transform = 'translate(-50%, -60%)';
 	container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
 	setTimeout(() => {
 		container.style.opacity = '1';

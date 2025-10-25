@@ -2,7 +2,6 @@ import { navigate } from "../router";
 
 export async function renderAbout() {
 	const cardsData = [
-
 		{
 			name: 'mmondad',
 			role: 'Front-End',
@@ -55,7 +54,9 @@ export async function renderAbout() {
 
 				<div class="relative w-full h-[520px]">
 					${cardsData.map((card, index) => `
-						<div class="absolute inset-0 flex flex-col overflow-hidden rounded-xl shadow-2xl animate-slideCard ${delayClasses[index]} bg-gradient-to-b from-[${card.gradientFrom}]/90 to-[${card.gradientTo}]/70">
+						<div class="absolute inset-0 flex flex-col overflow-hidden rounded-xl
+						shadow-2xl animate-slideCard ${delayClasses[index]} bg-gradient-to-b
+						from-[${card.gradientFrom}]/90 to-[${card.gradientTo}]/70">
 							<img class="block object-cover w-full h-[75%] rounded-t-xl" src="${card.image}" alt="">
 							<div class="flex flex-col items-center justify-center h-[25%] gap-1">
 								<p class="px-5 py-1 bg-white/20 text-white text-lg font-bold rounded-full shadow-md backdrop-blur-sm">
