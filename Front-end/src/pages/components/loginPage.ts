@@ -39,8 +39,8 @@ function socialIcons() {
 
 function authForm(isSignup: boolean) {
 	return `
-    <form class="space-y-4 md:space-y-5">
-		<ul class="space-y-3 md:space-y-4">
+    <form class="space-y-3 md:space-y-5">
+		<ul class="space-y-2 md:space-y-3 xl:space-y-4 ">
         ${inputField("Username", "text", "Username")}
 		${isSignup ? inputField("Email", "email", "Email") : ""}
         ${inputField("Password", "password", "Password")}
@@ -74,11 +74,12 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 
 	const container = document.createElement("div");
 	container.className = `
-		login absolute z-20 top-1/2 left-1/2
-		rounded-2xl md:rounded-3xl px-8 md:px-12 xl:px-14 py-10
-		w-[320px] md:w-[400px] xl:w-[450px] 2xl:w-[500px] 4k:w-[600px]
+		login absolute z-20 top-[45%] left-1/2
+		rounded-2xl md:rounded-3xl px-8 md:px-12 xl:px-14
+		w-[90vw] sm:w-[320px] md:w-[400px] xl:w-[450px] 2xl:w-[500px] 4k:w-[600px]
 		flex flex-col justify-center text-white border-[2px] border-transparent rounded-lg
 		bg-[linear-gradient(#0B0B0B,#0B0B0B),linear-gradient(135deg,#121212,#ed6f30)]
+		max-h-[90vh] sm:max-h-[80vh] overflow-y-hidden
 		opacity-0 translate-x-[-50%] translate-y-[-60%]`;
 
 	container.style.backgroundOrigin = 'border-box';
@@ -92,8 +93,8 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 	}, 250);
 
 	container.innerHTML = `
-		<div class="my-8 md:my-12 xl:my-16">
-			<h2 class="font-bold text-3xl md:text-4xl xl:text-5xl text-[#F0F0F0] text-center mb-6">
+		<div class="my-6 md:my-8 xl:my-10">
+			<h2 class="font-bold text-3xl md:text-4xl xl:text-5xl text-[#F0F0F0] text-center mb-4 2xl:mb-6">
 				${isSignup ? "Sign Up" : "Login"}
 				${!isValid ? `<p class="text-red-500 text-xs mt-4">${errorMSG}</p>` : ""}
 			</h2>
