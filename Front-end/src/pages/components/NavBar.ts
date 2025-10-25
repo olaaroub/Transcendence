@@ -7,17 +7,17 @@ export function renderNavBar (isLoged: boolean)
 {
     return `
 		<nav class="flex justify-between items-center p-6 sm:p-10">
-			<img class="w-[120px] sm:w-[155px] h-auto" src="/images/logo.png" alt="pong" />
+			<img id="navBar-logo" class="w-[120px] sm:w-[155px] h-auto cursor-pointer" src="/images/logo.png" alt="pong" />
 			<div  class=" ${isLoged ? "hidden" : ""} gap-3 sm:gap-5 flex">
 				<button id="go-sign-up"
-					class="py-2 px-4 sm:px-6 border text-[#00D9FF] border-[#00D9FF]
-					rounded-lg transition-all opacity-70 duration-500 hover:bg-[#00D9FF]
+					class="py-2 px-4 sm:px-6 border text-color2 border-color2
+					rounded-lg transition-all opacity-70 duration-500 hover:bg-color2
 					hover:text-black font-bold text-sm sm:text-base">
 					Sign Up
 				</button>
 				<button id="go-sign-in"
 				class="py-2 px-4 sm:px-6 bg-[#F0F0F0] rounded-lg
-				transition-all opacity-70 duration-500 hover:bg-[#00D9FF]
+				transition-all opacity-70 duration-500 hover:bg-color2
 				font-bold text-sm sm:text-base">
 				Login</button>
 			</div>

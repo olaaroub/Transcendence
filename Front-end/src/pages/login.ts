@@ -19,5 +19,6 @@ export function renderLogin (isLoged: boolean)
 			${renderFooter()}
 		</footer>
     `;
+	document.getElementById('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
     renderAuthPage(isLoged);
 }

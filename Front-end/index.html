@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>VOID SPACE</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+	<meta charset="UTF-8">
+	<title>VOID SPACE</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		.glow-stroke {
+			-webkit-text-stroke: 1px rgba(6,95,70,0.7);
+			text-shadow:
+			0 0 6px rgba(34,197,94,0.9),
+			0 0 12px rgba(34,197,94,0.6);
+		}
+	</style>
+
+
 </head>
 <body class="overflow-hidden bg-black relative">
-  <div class="relative w-screen h-screen overflow-hidden">
-    <!-- Glow circle -->
-    <div class="absolute w-[45vw] h-[45vw] rounded-full
-      right-[-10vw] top-[15vh]
-      bg-[radial-gradient(circle_at_center,rgba(0,217,255,0.7)_0%,rgba(0,217,255,0.1)_70%,transparent_100%)]
-      blur-[306px]">
-    </div>
-  </div>
+	<span class="text-5xl font-extrabold text-green-400 glow-stroke">Glow title</span>
 </body>
 </html>

@@ -6,15 +6,21 @@ import { isUserAuthenticated } from "./components/errorsHandler";
 
 export async function renderHome(app: HTMLElement)
 {
-	const isAuth = await isUserAuthenticated();
-	if (isAuth) {
-		navigate('/dashboard');
-		return;
-	}
+	// const isAuth = await isUserAuthenticated();
+	// if (isAuth) {
+	// 	navigate('/dashboard');
+	// 	return;
+	// }
 	const existing = document.querySelector(".login");
 	if (existing) existing.remove();
 	document.body.innerHTML = `
-		<div id="app" class="flex-grow w-[90%]  mx-auto">
+		<div id="app" class="flex-grow w-[90%] mx-auto">
+			<div class="absolute w-[45vw] h-[45vw] -z-10 rounded-full
+				right-0 top-[10vh] translate-x-1/2
+				bg-color1
+				animate-animateSlow
+				blur-[306px]">
+			</div>
 			<div class=" content mx-auto">
 				${renderNavBar(false)}
 				${renderHomeText(false)}
@@ -26,6 +32,8 @@ export async function renderHome(app: HTMLElement)
 			${renderFooter()}
 		</footer>
 	`
+
+	document.getElementById('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
 	document.getElementById('go-sign-in')!.addEventListener('click',_ => {navigate("/login")})
 	document.getElementById('go-sign-up')!.addEventListener('click',_ => {navigate("/sign-up")})
 	document.getElementById('about-us')!.addEventListener('click',_ => {navigate("/about")})

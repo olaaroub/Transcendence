@@ -38,10 +38,15 @@ module.exports = {
 					'60%': { content: '"..."'},
 					'80%, 100%': { content: '""' },
 				},
+				animateSlow: {
+					'0%': { transform: 'translateX(100%)', opacity: '0'},
+					'100%': { transform: 'translateX(50%)', opacity: '1' },
+				},
 			},
 			animation: {
+				animateSlow: 'animateSlow 1.2s ease-out forwards',
 				slideCard: 'slideCard 25s linear infinite both',
-				dots: 'dots 1.5s steps(4, end) infinite',
+				dots: 'dots 3s steps(4, end) infinite',
 			},
 		},
 	},
