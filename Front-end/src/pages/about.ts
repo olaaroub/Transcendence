@@ -33,12 +33,13 @@ export async function renderAbout() {
 		},
 		{
 			name: 'olaaroub',
-			role: 'Devops',
+			role: 'DevOps',
 			image: 'images/olaaroub.jpeg',
 			gradientFrom: '#d18a10',
 			gradientTo: '#1B1A1DD6',
 		},
 	]
+	const delayClasses = ["anim-delay-0", "anim-delay-5s", "anim-delay-10s", "anim-delay-15s", "anim-delay-20s"];
 	document.body.innerHTML = `
 
 	<div class="w-full min-h-screen bg-[#1B1A1DD6] flex flex-col items-center pt-32">
@@ -54,7 +55,7 @@ export async function renderAbout() {
 
 				<div class="relative w-full h-[520px]">
 					${cardsData.map((card, index) => `
-						<div class="absolute inset-0 flex flex-col overflow-hidden rounded-xl shadow-2xl animate-slideCard anim-delay-${index * 5}s bg-gradient-to-b from-[${card.gradientFrom}]/90 to-[${card.gradientTo}]/70">
+						<div class="absolute inset-0 flex flex-col overflow-hidden rounded-xl shadow-2xl animate-slideCard ${delayClasses[index]} bg-gradient-to-b from-[${card.gradientFrom}]/90 to-[${card.gradientTo}]/70">
 							<img class="block object-cover w-full h-[75%] rounded-t-xl" src="${card.image}" alt="">
 							<div class="flex flex-col items-center justify-center h-[25%] gap-1">
 								<p class="px-5 py-1 bg-white/20 text-white text-lg font-bold rounded-full shadow-md backdrop-blur-sm">
