@@ -6,7 +6,9 @@ function search_bar(fastify)
         const data = await fastify.db.all(`SELECT users.id, users.username, infos.profileImage
                                            FROM users
                                            INNER JOIN infos ON users.id=infos.user_id
-                                           WHERE LOWER(users.username) LIKE LOWER(?)`,[`%${query}%`]);
+                                           WHERE LOWER(users.username) LIKE LOWER(?)
+                                           ORDER BY users.username ASC
+                                           LIMIT 15`,[`%${query}%`]);
         reply.code(200).send(data);
     })
 }

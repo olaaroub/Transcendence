@@ -2,6 +2,8 @@ const fastify = require('fastify')( {logger: false} )
 const routes = require('./routes/mainRoutes');
 const creatTable = require('./config/database');
 const fastifyCors = require('@fastify/cors');
+const fastifyJwt = require('@fastify/jwt');
+
 
 const start = async () => {
 
@@ -9,16 +11,22 @@ const start = async () => {
 
 
     await fastify.register(fastifyCors, {
-      origin: ' http://localhost:5173',
+      origin: true, // ba9i khasni npisifi frontend ip
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
       // allowedHeaders: ['Content-Type', 'Authorization'],
+    });
+
+    fastify.register(fastifyJwt, {
+      secret: 'supersecret'
     });
 
     fastify.decorate('db', db);
 
     fastify.addHook('onRequest', (request, reply, done) => {
-      const token = "aiman";
-      request.user = token;
+      // const token = "aiman";
+      // request.user = token;
+      if (request.routerPath === '/login' || request.routerPath === '/signUp')
+          return ;
       done();
     });
 
