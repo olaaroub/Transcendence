@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const fastify_static = require('@fastify/static');
-const fastifyMultipart = require('@fastify/multipart');
 // const fastify = require('fastify');
 
 // const search = async (fastify) =>
@@ -23,9 +22,10 @@ const getProfileImages = async (fastify) => {
       const id = req.params.id;
       const img = await fastify.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
       console.log("/public/" + img.profileImage);
-      reply.code(200).send(img.profileImage);
+      reply.code(200).send(`http://127.0.0.1:3000/public/${img.profileImage}`);
     });
   }
+
 
 
 const modifyAvatar = async (fastify) => {
