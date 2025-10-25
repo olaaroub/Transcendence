@@ -137,6 +137,5 @@ document.body.addEventListener("submit", (e) => {
 		if (input.placeholder.toLowerCase() != 'confirm password')
 			data[input.placeholder.toLowerCase()] = input.value;
 	});
-
 	sendAuthData(data, path);
 });

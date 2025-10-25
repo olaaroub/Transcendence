@@ -1,29 +1,19 @@
 fix : non printable chars in search bar
 add keyboard scrolling to the searchbar
-home page responsive design
-target just brikol comment
 
+
+target just brikol comment
 to learn more about it  : Record<string, string>
 
-main one : fix dashboard
+main : 
+    add more options in settings
+    logout logic
+    merge search bar
 
-
-tailwind : what content is 
+tailwind : 
+what content is
 show backdrop-blur-lg effect
-
-
-
-
-structure done : 
-
-- home      page
-- login     page
-- sign-up   page
-- dashboard page
-- settings  page
-- game      page
-
+-------------------------------
 pages in waiting proccess : 
 
 - chat page
-- profile
