@@ -67,29 +67,23 @@ function avatarSettings() : string
 function render2FA() : string
 {
 	return `
-		<div class="flex flex-col gap-7">
-			<div class="flex justify-between">
-				<div class="logo flex gap-3">
-					<img src="images/2FA.svg" alt="">
-					<h3 class="text-sm text-txtColor" >Activate 2FA <p class="text-xs
-					text-color3" >Authentication (2FA) adds an extra layer of security to your account.</p></h3>
+		<div class="flex justify-between mb-6">
+			<div class="logo flex gap-3">
+				<img src="images/2FA.svg" alt="">
+				<h3 class="text-sm text-txtColor" >Activate 2FA <p class="text-xs
+				text-color3" >Authentication (2FA) adds an extra layer of security to your account.</p></h3>
+			</div>
+			<label class="relative inline-flex  cursor-pointer">
+				<input type="checkbox" class="sr-only peer" />
+				<div
+					class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer
+					peer-checked:bg-color1 transition-all duration-300">
 				</div>
-				<label class="relative inline-flex  cursor-pointer">
-					<input type="checkbox" class="sr-only peer" />
-					<div
-						class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer
-						peer-checked:bg-color1 transition-all duration-300">
-					</div>
-					<div
-						class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full
-						transition-all duration-300 peer-checked:translate-x-5">
-					</div>
-				</label>
-			</div>
-			<div class="mb-6">
-				<button class="inline w-[106px] h-[25px] rounded-3xl text-black text-sm bg-txtColor hover:scale-105">cancel</button>
-				<button class="inline w-[106px] h-[25px] rounded-3xl text-black text-sm bg-color1 ml-2 hover:scale-105">save</button>
-			</div>
+				<div
+					class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full
+					transition-all duration-300 peer-checked:translate-x-5">
+				</div>
+			</label>
 		</div>
 	`
 }
@@ -100,21 +94,57 @@ function editingProfile() : string
 		<div class="avatar-settings px-5 border border-color2 rounded-2xl mb-3 flex bg-color4 flex-col gap-4">
 			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Account Settings</p>
 			<div class="settings-name flex flex-col gap-2">
-				<p class="text-txtColor text-sm">Your name*</p>
-				<input 
-				type="text"
-				placeholder="Enter your name"
-				class="bg-transparent border placeholder:text-sm border-color2 rounded-2xl p-3"
-				>
+				${input("Change username", 'text')}
 			</div>
-			<div class="settings-name flex flex-col gap-2">
+			<div class="settings-name flex flex-col gap-2 mb-6">
 				<p class="text-txtColor text-sm">Your Bio</p>
 				<textarea
 					placeholder="Say something about yourself"
-					class="bg-transparent placeholder:text-sm border border-color2 rounded-2xl h-[160px] p-3 resize-none"
+					class="bg-transparent placeholder:text-sm text-txtColor border
+					border-color2 rounded-2xl h-[100px] p-3 focus:outline-none resize-none focus:border-color1 focus:border-[2px]"
 				></textarea>
 			</div>
+		</div>
+	`
+}
+
+function input(placeholder: string, type: string) : string
+{
+	return `
+		<input
+		type="${type}"
+		placeholder="${placeholder}"
+		class="bg-transparent border focus:outline-none focus:border-color1 focus:border-[2px] text-txtColor w-full placeholder:text-sm border-color2 rounded-2xl p-3"
+		>
+	`
+}
+
+function security() : string
+{
+	return `
+		<div class="avatar-settings px-5 border border-color2 rounded-2xl mb-3 flex bg-color4 flex-col gap-4">
+			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Security</p>
+			<div class="flex flex-col gap-2">
+				<p class="text-txtColor text-sm">Password</p>
+				<div class="flex gap-6 flex-col md:flex-row">
+					${input("Current Password", "password")}
+					${input("New Password", "password")}
+					${input("Confirm Password", "password")}
+				</div>
+			</div>
 			${render2FA()}
+		</div>
+	`
+
+}
+
+function Account() : string
+{
+	return `
+		<div class="avatar-settings px-5 border border-color2 rounded-2xl mb-3 flex bg-color4 flex-col gap-4">
+			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Account</p>
+			<p class="text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
+			<button class="bg-red-500 text-white w-full md:w-[40%] rounded-xl py-2 px-4 mb-6 hover:bg-red-600">Delete Account</button>
 		</div>
 	`
 }
@@ -130,6 +160,9 @@ export async function renderSettings()
 			<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl mb-[30px]">Settings</h1>
 			${avatarSettings()}
 			${editingProfile()}
+			${security()}
+			${Account()}
+			<button class="w-[160px] h-[40px] mb-6 rounded-3xl font-bold text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
 		</div>
 	`;
 	sendAvatar();
