@@ -91,7 +91,7 @@ const login = async (fastify) => {
 			}
 		},
 		async(req, reply) => {
-				console.log(" ============================================== " + req.user)
+				// console.log(" ============================================== " + req.user)
 				const body = req.body;
 				try {
 					const user = await fastify.db.get('SELECT username, id FROM users WHERE username = ?', [body.username]);
