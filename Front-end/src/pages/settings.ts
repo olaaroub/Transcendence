@@ -94,7 +94,8 @@ function editingProfile() : string
 		<div class="avatar-settings px-5 border border-color2 rounded-2xl mb-3 flex bg-color4 flex-col gap-4">
 			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Account Settings</p>
 			<div class="settings-name flex flex-col gap-2">
-				${input("Change username", 'text')}
+				<p class="text-txtColor text-sm">username</p>
+				${input("Change username", 'text', data.userData?.username)}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
 				<p class="text-txtColor text-sm">Your Bio</p>
@@ -108,13 +109,15 @@ function editingProfile() : string
 	`
 }
 
-function input(placeholder: string, type: string) : string
+function input(placeholder: string, type: string, value: string = "") : string
 {
 	return `
 		<input
+		value="${value}"
 		type="${type}"
 		placeholder="${placeholder}"
-		class="bg-transparent border focus:outline-none focus:border-color1 focus:border-[2px] text-txtColor w-full placeholder:text-sm border-color2 rounded-2xl p-3"
+		class="bg-transparent border focus:outline-none focus:border-color1
+		focus:border-[2px] text-txtColor w-full placeholder:text-sm border-color2 rounded-2xl p-3"
 		>
 	`
 }
@@ -162,7 +165,8 @@ export async function renderSettings()
 			${editingProfile()}
 			${security()}
 			${Account()}
-			<button class="w-[160px] h-[40px] mb-6 rounded-3xl font-bold text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
+			<button class="w-[160px] h-[40px] mb-6 rounded-3xl font-bold
+			text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
 		</div>
 	`;
 	sendAvatar();
