@@ -35,7 +35,7 @@ const sign_up = async (fastify) => {
 			async (request, reply) => {
 				let data = request.body;
 				try {
-          			const DefaultImg = `Default_pfp.jpg`;
+          			const DefaultImg = `http://127.0.0.1:3000/public/Default_pfp.jpg`;
 					await fastify.db.run("INSERT INTO users(username, password, email) VALUES (?, ?, ?)", [data.username, data.password, data.email]);
           			const user_id = await fastify.db.get("SELECT id FROM users WHERE username = ?", [data.username]);
           			await fastify.db.run("INSERT INTO infos(profileImage, user_id) VALUES (?, ?)", [DefaultImg , user_id.id]);
@@ -91,12 +91,15 @@ const login = async (fastify) => {
 			}
 		},
 		async(req, reply) => {
-				console.log(" ============================================== " + req.user)
+				// console.log(" ============================================== " + req.user)
 				const body = req.body;
 				try {
 					const user = await fastify.db.get('SELECT username, id FROM users WHERE username = ?', [body.username]);
 					if (user)
-						reply.code(200).send({message: "login successfully", success: true, id: user.id});
+					{
+						const token = fastify.jwt.sign({userId: user.id, username: user.username}, { expiresIn: '1h' })
+						reply.code(200).send({message: "login successfully", success: true, id: user.id, token: token});
+					}
 					else
 						reply.code(401).send({message: "go to signUp", success: false });
 				}

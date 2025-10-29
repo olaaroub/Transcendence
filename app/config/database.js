@@ -19,6 +19,10 @@ const creatTable = async () =>
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
         profileImage TEXT,
+        TotalWins INTEGER,
+        WinRate FLOAT,
+        CurrentStreak INTEGER,
+        Rating INTEGER,
         FOREIGN KEY(user_id) REFERENCES users(id)
     );`);
     return db;

@@ -1,11 +1,10 @@
 fix : non printable chars in search bar
 add keyboard scrolling to the searchbar
 
-
 target just brikol comment
 to learn more about it  : Record<string, string>
 
-main : 
+main :
     add more options in settings
     logout logic
     merge search bar
@@ -13,19 +12,18 @@ main :
 for ouss : add bio in settings
 for ouss : add delete account
 
-<<<<<<< HEAD
-tailwind : 
+tailwind :
+
 what content is
 show backdrop-blur-lg effect
 -------------------------------
-=======
-tailwind : what content is 
+tailwind : what content is
 show backdrop-blur-lg effect
 
 
 
 
-structure done : 
+structure done :
 
 - home      page
 - login     page
@@ -34,7 +32,6 @@ structure done :
 - settings  page
 - game      page
 
->>>>>>> 2ba3c7d (sign in sign up colors updates)
-pages in waiting proccess : 
+pages in waiting proccess :
 
 - chat page
