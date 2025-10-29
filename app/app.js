@@ -25,13 +25,14 @@ const start = async () => {
     fastify.addHook('preHandler', async (request, reply) => {
       console.log(request.routeOptions.url);
       //console.log(request.)
-      if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp')
+      if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp' || request.routeOptions.url.startsWith('/public'))
       {
         console.log("in login");
         return ;
       }
       try
       {
+        console.log("in try");
         await request.jwtVerify();
       } 
       catch {
