@@ -10,9 +10,10 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 			body: JSON.stringify(data),
 		});
 
-		if (!response.ok && response.status != 401){throw new Error("Request failed");}
+		// if (!response.ok && response.status != 401){throw new Error("Request failed");}
 
 		const result = await response.json();
+		console.log(result);
 		if (result.success)
 		{
 			if (path == 'login')

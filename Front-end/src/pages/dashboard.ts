@@ -23,7 +23,7 @@ export async function initDashboard(isDashboard: boolean = true) {
 try {
 		const id = localStorage.getItem('id');
 		const token = localStorage.getItem('token');
-		console.log(id);
+		console.log("hammou token : ", token);
 		if (!id || !token) {
 			console.warn('Missing credentials');
 			navigate('/sign-up');
