@@ -24,7 +24,7 @@ const start = async () => {
 
     fastify.addHook('preHandler', async (request, reply) => {
       console.log(request.routeOptions.url);
-      console.log(request.)
+      //console.log(request.)
       if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp')
       {
         console.log("in login");
