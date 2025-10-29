@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const fastify_static = require('@fastify/static');
+const fastifyMultipart = require('@fastify/multipart');
 // const fastify = require('fastify');
 
 // const search = async (fastify) =>

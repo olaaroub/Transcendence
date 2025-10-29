@@ -22,7 +22,6 @@ const start = async () => {
 
     fastify.decorate('db', db);
 
-<<<<<<< HEAD
     fastify.addHook('onRequest', async (request, reply) => {
       if (request.routerPath === '/login' || request.routerPath === '/signUp')
           return ;
@@ -34,14 +33,7 @@ const start = async () => {
         console.log("No token provided");
         reply.code(401).send({ error: 'No token provided' });
       }
-=======
-    fastify.addHook('onRequest', (request, reply, done) => {
-      // const token = "aiman";
-      // request.user = token;
-      if (request.routerPath === '/login' || request.routerPath === '/signUp')
-          return ;
-      done();
->>>>>>> 0d78964 (fix the error of  cros policy ( I allowed all ips to request my backend ))
+
     });
 
     await routes(fastify);
