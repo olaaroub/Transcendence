@@ -22,14 +22,20 @@ const start = async () => {
 
     fastify.decorate('db', db);
 
-    fastify.addHook('onRequest', async (request, reply) => {
-      if (request.routerPath === '/login' || request.routerPath === '/signUp')
-          return ;
+    fastify.addHook('preHandler', async (request, reply) => {
+      console.log(request.routeOptions.url);
+      console.log(request.)
+      if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp')
+      {
+        console.log("in login");
+        return ;
+      }
       try
       {
         await request.jwtVerify();
       } 
       catch {
+        // console.log(err);
         console.log("No token provided");
         reply.code(401).send({ error: 'No token provided' });
       }

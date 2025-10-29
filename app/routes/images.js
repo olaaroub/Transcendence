@@ -22,7 +22,7 @@ const getProfileImages = async (fastify) => {
     fastify.get(`/users/:id/image`, async (req, reply) => {
       const id = req.params.id;
       const img = await fastify.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
-      console.log("/public/" + img.profileImage);
+      console.log(img.profileImage);
       reply.code(200).send(img.profileImage);
     });
   }
