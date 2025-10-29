@@ -13,10 +13,28 @@ main :
 for ouss : add bio in settings
 for ouss : add delete account
 
+<<<<<<< HEAD
 tailwind : 
 what content is
 show backdrop-blur-lg effect
 -------------------------------
+=======
+tailwind : what content is 
+show backdrop-blur-lg effect
+
+
+
+
+structure done : 
+
+- home      page
+- login     page
+- sign-up   page
+- dashboard page
+- settings  page
+- game      page
+
+>>>>>>> 2ba3c7d (sign in sign up colors updates)
 pages in waiting proccess : 
 
 - chat page

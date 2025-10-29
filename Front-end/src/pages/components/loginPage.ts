@@ -74,14 +74,20 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 
 	const container = document.createElement("div");
 	container.className = `
-		login absolute z-20 top-[45%] left-1/2
-		rounded-2xl md:rounded-3xl px-8 md:px-12 xl:px-14
-		w-[90vw] sm:w-[320px] md:w-[400px] xl:w-[450px] 2xl:w-[500px] 4k:w-[600px]
-		flex flex-col justify-center text-white border-[2px] border-transparent rounded-lg
-		bg-[linear-gradient(#0B0B0B,#0B0B0B),linear-gradient(135deg,#121212,#ed6f30)]
-		max-h-[90vh] sm:max-h-[80vh] overflow-y-hidden
-		opacity-0 translate-x-[-50%] translate-y-[-60%]`;
+		login absolute z-20 top-1/2 left-1/2
+		rounded-2xl md:rounded-3xl px-8 md:px-12 xl:px-14 py-10
+		w-[320px] md:w-[400px] xl:w-[450px] 2xl:w-[500px] 4k:w-[600px]
+		bg-[#0B0B0B]/80 backdrop-blur-lg
+		flex flex-col justify-center
+		text-white
+	`;
 
+	container.style.border = '2px solid transparent';
+	container.style.borderRadius = '16px';
+	container.style.backgroundImage = `
+		linear-gradient(#0B0B0B, #0B0B0B),
+		linear-gradient(135deg, #121212, #00D9FF)
+	`;
 	container.style.backgroundOrigin = 'border-box';
 	container.style.backgroundClip = 'padding-box, border-box';
 	container.style.boxShadow = '0 0 20px rgba(237, 111, 48, 0.4)';
