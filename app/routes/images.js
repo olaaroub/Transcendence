@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 const fastify_static = require('@fastify/static');
 const fastifyMultipart = require('@fastify/multipart');
 // const fastify = require('fastify');
@@ -31,7 +32,9 @@ const modifyAvatar = async (fastify) => {
     fastify.put(`/users/:id/image`, async (req, reply) => {
         const id = req.params.id;
         const data = await req.file();
-        const file_name =  '_' + data.filename;
+        const ext = path.extname(data.filename);
+        const file_name = uuidv4() + ext;
+        // const file_name =  Date() + '_' + data.filename;
 
         const file_path = path.join(__dirname, '../../static', file_name);
         await fs.promises.writeFile(file_path, await data.toBuffer());
