@@ -1,5 +1,6 @@
 
 import * as data from "./dashboard"
+import { imageUrl } from "./dashboard";
 
 
 function sendAvatar()
@@ -25,6 +26,8 @@ function sendAvatar()
 				body : formData,
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			})
+
+			renderSettings();
 			console.log('upload success');
 		}
 		catch(err)
@@ -41,7 +44,7 @@ function avatarSettings() : string
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
 			<div class="flex gap-16">
 				<div class="flex flex-col items-center gap-2">
-					<img src="${data.imageUrl}" class=" w-[200px] h-[200px] rounded-full border-2
+					<img id="userAvatar" src="${data.imageUrl}" class=" w-[200px] h-[200px] rounded-full border-2
 					border-color1" alt="user" />
 				<span class="text-sm text-color3">max size 2MB</span>
 				</div>
@@ -137,7 +140,6 @@ function security() : string
 			${render2FA()}
 		</div>
 	`
-
 }
 
 function Account() : string
@@ -155,8 +157,7 @@ function Account() : string
 
 export async function renderSettings()
 {
-	if (!data.userData || !data.userData.id || !data.userData.username)
-		await data.initDashboard(false);
+	await data.initDashboard(false);
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = `
