@@ -2,6 +2,8 @@ import { navigate } from "../../router";
 
 export function logout()
 {
+    localStorage.removeItem('token');
+    localStorage.removeItem('id');
 	navigate('/login');
 }
 
