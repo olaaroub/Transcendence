@@ -1,2 +1,4 @@
 node_modules
 database.db
+static/*
+!static/Default_pfp.jpg
