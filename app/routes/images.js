@@ -13,8 +13,6 @@ const fastifyMultipart = require('@fastify/multipart');
 //   }
 
 const getProfileImages = async (fastify) => {
-
-    console.log(__dirname);
     fastify.register(fastify_static , {
         root: path.join(__dirname, '../../static'),
         prefix: '/public/',
@@ -22,7 +20,6 @@ const getProfileImages = async (fastify) => {
     fastify.get(`/users/:id/image`, async (req, reply) => {
       const id = req.params.id;
       const img = await fastify.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
-      console.log(img.profileImage);
       reply.code(200).send(img.profileImage);
     });
   }
@@ -37,7 +34,6 @@ const modifyAvatar = async (fastify) => {
         const file_name =  '_' + data.filename;
 
         const file_path = path.join(__dirname, '../../static', file_name);
-        console.log(file_path);
         await fs.promises.writeFile(file_path, await data.toBuffer());
 
         const imageUri = `http://127.0.0.1:3000/public/${file_name}`;

@@ -67,7 +67,6 @@ const getUsers = async (fastify) => {
 		fastify.get('/users/:id', async (req, reply) => {
 			try {
 				const responseData = await fastify.db.get('SELECT id, username, email FROM users WHERE id = ?', [req.params.id]);
-				console.log(responseData);
 				reply.code(200).send(responseData);
 			}
 			catch {
@@ -91,14 +90,18 @@ const login = async (fastify) => {
 			}
 		},
 		async(req, reply) => {
-				// console.log(" ============================================== " + req.user)
 				const body = req.body;
 				try {
-					const user = await fastify.db.get('SELECT username, id FROM users WHERE username = ?', [body.username]);
+					const user = await fastify.db.get('SELECT username, password, id FROM users WHERE username = ? OR email = ?', [body.username, body.username]);
 					if (user)
 					{
-						const token = fastify.jwt.sign({userId: user.id, username: user.username}, { expiresIn: '1h' })
-						reply.code(200).send({message: "login successfully", success: true, id: user.id, token: token});
+						if (user.password != body.password)
+							reply.code(401).send({message: "password not correct", success: false});
+						else
+						{
+							const token = fastify.jwt.sign({userId: user.id, username: user.username}, { expiresIn: '1h' })
+							reply.code(200).send({message: "login successfully", success: true, id: user.id, token: token});
+						}
 					}
 					else
 						reply.code(401).send({message: "go to signUp", success: false });
@@ -114,5 +117,3 @@ module.exports = {
 	login,
 	getUsers
   };
-
-// module.exports = getUsers;
