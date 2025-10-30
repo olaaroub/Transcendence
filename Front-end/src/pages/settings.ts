@@ -20,8 +20,8 @@ function sendAvatar()
 		try
 		{
 			console.log(data.userData?.id);
-			const response = await fetch(`http://127.0.0.1:3000/users/${data.userData?.id}/update-image`, {
-				method : 'POST',
+			const response = await fetch(`http://127.0.0.1:3000/users/${data.userData?.id}/image`, {
+				method : 'PUT',
 				body : formData,
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			})
