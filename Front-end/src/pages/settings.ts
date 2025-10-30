@@ -25,8 +25,6 @@ function sendAvatar()
 				body : formData,
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			})
-			if (!response.ok) throw new Error("Upload Failed");
-			document.getElementById('file-name')!.textContent = file.name; // must handle too large name
 			console.log('upload success');
 		}
 		catch(err)
