@@ -18,7 +18,7 @@ module.exports = {
 				color1 : '#ed6f30',
 				color2 : '#d18a10',
 				color3 : '#878787',
-				color4 : '#1B1A1DD6',  
+				color4 : '#1B1A1DD6',
 			},
 			backgroundImage: theme => ({
 				'backgroundGradient': `linear-gradient(to bottom right, black 0%, black 40%, ${theme('colors.color1')} 100%)`,

@@ -39,25 +39,26 @@ function sendAvatar()
 function avatarSettings() : string
 {
 	return `
-		<div class="avatar-settings px-5 border border-color2 rounded-2xl bg-color4 mb-3">
-			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Edit your avatar</p>
-			<div class="flex gap-3 mb-6">
-				<img src="${data.imageUrl}" class=" w-[80px] h-[80px] rounded-full border-2
-				border-color1" alt="user" />
-				<div class="flex flex-col gap-2">
-					<p class="text-xs 2xl:text-sm text-txtColor">Upload a new avatar</p>
-					<div class=" space-x-3 rounded-2xl p-2 px-3 border border-color2">
-						<label class="bg-color1 rounded-3xl text-black px-3 py-1 text-xs cursor-pointer" for="upload-avatar">
+		<div class="avatar-settings px-10 py-6 rounded-2xl bg-color4 flex-1 flex flex-col gap-6">
+			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
+			<div class="flex gap-16">
+				<div class="flex flex-col items-center gap-2">
+					<img src="${data.imageUrl}" class=" w-[200px] h-[200px] rounded-full border-2
+					border-color1" alt="user" />
+				<span class="text-sm text-color3">max size 2MB</span>
+				</div>
+				<div class="flex justify-center flex-col gap-6">
+						<label class="bg-color1 relative flex items-center
+						justify-center gap-2 w-[250px] h-[55px] rounded-2xl text-black px-2 py-1 text-xs cursor-pointer" for="upload-avatar">
 							<input
 							id = "upload-avatar"
 							type="file"
-							class="hidden"
-							><img class="inline relative transform -translate-y-[10%]" src="images/upload.svg" alt="">
-							<span>Choose file</span>
+							class="hidden">
+							<img class="inline relative transform -translate-y-[10%]" src="images/upload.svg" alt="">
+							<span class="text-sm font-bold">Upload New Avatar</span>
 						</label>
-						<span id="file-name" class="sm:inline text-xs hidden text-txtColor">No files selected<span>
-					</div>
-					<p class="text-[#878787] text-xs">JPEG 100x100</p>
+						<button class="border border-color2 h-[55px] w-[250px] font-bold
+						rounded-2xl text-txtColor px-3 py-1 text-sm cursor-pointer">Delete Picture</button>
 				</div>
 			</div>
 		</div>
@@ -88,13 +89,13 @@ function render2FA() : string
 	`
 }
 
-function editingProfile() : string
+function accountSettings() : string
 {
 	return `
-		<div class="avatar-settings px-5 border border-color2 rounded-2xl mb-3 flex bg-color4 flex-col gap-4">
-			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Account Settings</p>
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col flex-1 gap-6">
+			<p class="text-color1 font-bold text-lg xl:text-2xl">Account Settings</p>
 			<div class="settings-name flex flex-col gap-2">
-				<p class="text-txtColor text-sm">username</p>
+				<p class="text-txtColor text-sm ">username</p>
 				${input("Change username", 'text', data.userData?.username)}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
@@ -125,8 +126,8 @@ function input(placeholder: string, type: string, value: string = "") : string
 function security() : string
 {
 	return `
-		<div class="avatar-settings px-5 border border-color2 rounded-2xl mb-3 flex bg-color4 flex-col gap-4">
-			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Security</p>
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col gap-6 flex-1">
+			<p class=" text-color1 font-bold text-lg xl:text-2xl">Security</p>
 			<div class="flex flex-col gap-2">
 				<p class="text-txtColor text-sm">Password</p>
 				<div class="flex gap-6 flex-col md:flex-row">
@@ -144,10 +145,12 @@ function security() : string
 function Account() : string
 {
 	return `
-		<div class="avatar-settings px-5 border border-color2 rounded-2xl mb-3 flex bg-color4 flex-col gap-4">
-			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Account</p>
-			<p class="text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
-			<button class="bg-red-500 text-white w-full md:w-[40%] rounded-xl py-2 px-4 mb-6 hover:bg-red-600">Delete Account</button>
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col gap-6 flex-1">
+			<p class="text-color1 font-bold text-lg xl:text-2xl">Account</p>
+			<div class="flex flex-col gap-4">
+				<p class="lg:w-[60%] text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
+				<button class="bg-red-500 text-white w-full md:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
+			</div>
 		</div>
 	`
 }
@@ -159,14 +162,20 @@ export async function renderSettings()
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = `
-		<div class="sm:px-16 settings flex-1">
-			<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl mb-[30px]">Settings</h1>
-			${avatarSettings()}
-			${editingProfile()}
-			${security()}
-			${Account()}
-			<button class="w-[160px] h-[40px] mb-6 rounded-3xl font-bold
-			text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
+		<div class="sm:px-16 settings flex-1 flex flex-col gap-6">
+			<div class=" flex flex-row justify-between">
+				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Settings</h1>
+				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
+				text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
+			</div>
+			<div class="flex flex-col lg:flex-row gap-6">
+				${avatarSettings()}
+				${accountSettings()}
+			</div>
+			<div class="flex flex-col lg:flex-row gap-6">
+				${security()}
+				${Account()}
+			</div>
 		</div>
 	`;
 	sendAvatar();
