@@ -23,20 +23,13 @@ const start = async () => {
     fastify.decorate('db', db);
 
     fastify.addHook('preHandler', async (request, reply) => {
-      console.log(request.routeOptions.url);
-      //console.log(request.)
       if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp' || request.routeOptions.url.startsWith('/public'))
-      {
-        console.log("in login");
         return ;
-      }
       try
       {
-        console.log("in try");
         await request.jwtVerify();
       } 
       catch {
-        // console.log(err);
         console.log("No token provided");
         reply.code(401).send({ error: 'No token provided' });
       }
