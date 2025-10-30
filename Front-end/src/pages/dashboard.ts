@@ -254,7 +254,7 @@ function renderStatistics(): string {
 
 function renderAnalyticsSection(): string {
 	return `
-		<div class="w-full md:w-2/3">
+		<div class="w-full md:w-[47%]">
 			${renderLeaderboard()}
 			${renderStatistics()}
 		</div>
@@ -263,7 +263,7 @@ function renderAnalyticsSection(): string {
 
 function renderDashboardContent(): string {
 	return `
-		<div class="flex flex-row gap-6 mt-6">
+		<div class="flex gap-6 mt-6" >
 			${renderAnalyticsSection()}
 			${renderGroupChat()}
 		</div>
