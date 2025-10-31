@@ -28,7 +28,6 @@ try {
 			navigate('/login');
 			return;
 		}
-
 		const response = await fetch(`http://127.0.0.1:3000/users/${id}`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
@@ -50,7 +49,8 @@ try {
 		imageUrl = await userImage.text();
 		console.log('User Image URL:', imageUrl);
 		renderDashboard(isDashboard);
-	} catch (err) {
+	}	
+	catch (err) {
 		console.error('Network error:', err);
 		showErrorMessage('Server unreachable. Try again later.', 503);
 	}

@@ -4,6 +4,7 @@ import { navigate } from "../router";
 export async function sendAuthData(data: Record<string, string>, path:string) {
 	try 
 	{
+		const isSignup = (path === 'signUp');
 		const response = await fetch("http://127.0.0.1:3000/" + path, {
 			method: "POST",
 			headers: {"Content-Type": "application/json",},
@@ -16,6 +17,7 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 		console.log(result);
 		if (result.success)
 		{
+			console.log("Authentication successful by simo");
 			if (path == 'login')
 			{
 				localStorage.setItem("token", result.token);
@@ -26,7 +28,9 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 				navigate('/login');
 		}
 		else
-			renderAuthPage(false, "Oops, this password or email seems invalid");
+		{
+			renderAuthPage(isSignup, result.message || "Authentication failed");
+		}
 	}
 	catch (error)
 	{
