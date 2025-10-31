@@ -2,6 +2,31 @@
 import * as data from "./dashboard"
 import { imageUrl } from "./dashboard";
 
+function deleteAvatar()
+{
+	const deleteAvatarBtn = document.getElementById('delete-avatar');
+	if(!deleteAvatarBtn)
+			return ;
+	deleteAvatarBtn.addEventListener('click', async ()=> {
+		try
+		{
+			const response = await fetch(`http://127.0.0.1:3000/users/${data.userData?.id}/image`, {
+				method: 'DELETE',
+				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
+			});
+			if (response.ok) {
+				console.log('Avatar deleted successfully');
+				renderSettings();
+			} else {
+				console.error('Error deleting avatar');
+			}
+		}
+		catch(err)
+		{
+			console.log("Delete Error", err);
+		}
+	});
+}
 
 function sendAvatar()
 {
@@ -58,7 +83,7 @@ function avatarSettings() : string
 							<img class="inline relative transform -translate-y-[10%]" src="images/upload.svg" alt="">
 							<span class="text-sm font-bold">Upload New Avatar</span>
 						</label>
-						<button class="border border-color2 h-[55px] w-[250px] font-bold
+						<button id="delete-avatar" class="border border-color2 h-[55px] w-[250px] font-bold
 						rounded-2xl text-txtColor px-3 py-1 text-sm cursor-pointer">Delete Picture</button>
 				</div>
 			</div>
@@ -178,4 +203,5 @@ export async function renderSettings()
 		</div>
 	`;
 	sendAvatar();
+	deleteAvatar();
 }
