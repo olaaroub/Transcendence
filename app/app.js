@@ -5,7 +5,8 @@ const fastifyCors = require('@fastify/cors');
 const fastifyJwt = require('@fastify/jwt');
 
 
-const start = async () => {
+async function start() 
+{
 
     const db = await creatTable();
 
@@ -23,7 +24,8 @@ const start = async () => {
     fastify.decorate('db', db);
 
     fastify.addHook('preHandler', async (request, reply) => {
-      if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp' || request.routeOptions.url.startsWith('/public'))
+      if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp'
+        || request.routeOptions.url.startsWith('/public'))
         return ;
       try
       {
@@ -48,4 +50,3 @@ const start = async () => {
 }
 
 start();
-// console.log ("ddd");

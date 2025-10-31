@@ -1,7 +1,6 @@
-// const fastify = require("fastify");
-const fs = require("fs");
 
-const sign_up = async (fastify) => {
+async function sign_up(fastify)
+{
 	try
 	{
 		fastify.post("/signUp", {
@@ -55,7 +54,8 @@ const sign_up = async (fastify) => {
 	}
 }
 
-const getUsers = async (fastify) => {
+async function getUsers (fastify)
+{
 		fastify.get("/users", async (req, reply) => {
 			try {
 				const data =  await fastify.db.all("SELECT id, username, email FROM users");
@@ -76,7 +76,8 @@ const getUsers = async (fastify) => {
 }
 
 
-const login = async (fastify) => {
+async function login (fastify)
+{
 		fastify.post("/login", {
 			schema: {
 				body: {
@@ -111,6 +112,11 @@ const login = async (fastify) => {
 				}
 		});
 }
+
+// async function routes(fastify) 
+// {
+
+// }
 
 module.exports = {
 	sign_up,

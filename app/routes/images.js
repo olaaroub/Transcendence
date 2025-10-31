@@ -4,17 +4,11 @@ const { v4: uuidv4 } = require('uuid');
 const fastify_static = require('@fastify/static');
 const fastifyMultipart = require('@fastify/multipart');
 const { URL } = require('url');
-// const fastify = require('fastify');
 
-// const search = async (fastify) =>
-//   {
-//     fastify.get(`users/search`,   (req, reply) => {
-//       //  console.log(`query : ${req.query}`);
-//       //  reply.send({username: "ana"});
-//     })
-//   }
 
-const getProfileImages = async (fastify) => {
+
+async function getProfileImages(fastify)
+{
     fastify.register(fastify_static , {
         root: path.join(__dirname, '../../static'),
         prefix: '/public/',
@@ -28,7 +22,8 @@ const getProfileImages = async (fastify) => {
 
 
 
-const modifyAvatar = async (fastify) => {
+async function modifyAvatar(fastify)
+{
     await fastify.register(fastifyMultipart);
     fastify.put(`/users/:id/image`, async (req, reply) => {
         const id = req.params.id;
@@ -57,7 +52,7 @@ const modifyAvatar = async (fastify) => {
     });
 }
 
-function deleteAvatar(fastify)
+async function deleteAvatar(fastify)
 {
   fastify.delete('/users/:id/image', async (req, reply) => {
     const id = req.params.id;

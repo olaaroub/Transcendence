@@ -2,7 +2,8 @@ const users = require('./users');
 const images = require("./images");
 const search_bar = require("./search");
 
-const Routes = async (fastify) => {
+async function Routes  (fastify)
+{
     await users.sign_up(fastify);
     await users.login(fastify);
     await users.getUsers(fastify);
