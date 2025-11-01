@@ -34,10 +34,10 @@ async function sign_up(fastify)
 			async (request, reply) => {
 				let data = request.body;
 				try {
-          			const DefaultImg = `http://127.0.0.1:3000/public/Default_pfp.jpg`;
+          			// const DefaultImg = `http://127.0.0.1:3000/public/Default_pfp.jpg`;
 					await fastify.db.run("INSERT INTO users(username, password, email) VALUES (?, ?, ?)", [data.username, data.password, data.email]);
           			const user_id = await fastify.db.get("SELECT id FROM users WHERE username = ?", [data.username]);
-          			await fastify.db.run("INSERT INTO infos(profileImage, user_id) VALUES (?, ?)", [DefaultImg , user_id.id]);
+          			await fastify.db.run("INSERT INTO infos(user_id) VALUES (?)", [user_id.id]);
 
 					reply.code(201)
 							.send({message: "created", success: true});

@@ -11,7 +11,7 @@ async function Routes  (fastify)
     await images.modifyAvatar(fastify);
     await images.deleteAvatar(fastify);
     await search_bar(fastify);
-  
+    fastify.register(require('./settings'));
 }
 
 module.exports = Routes;

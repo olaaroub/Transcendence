@@ -18,8 +18,9 @@ const creatTable = async () =>
     await db.exec(`CREATE TABLE IF NOT EXISTS infos (
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
-        profileImage TEXT,
+        profileImage TEXT DEFAULT 'http://127.0.0.1:3000/public/Default_pfp.jpg',
         TotalWins INTEGER,
+        bio TEXT DEFAULT '--',
         WinRate FLOAT,
         CurrentStreak INTEGER,
         Rating INTEGER,
