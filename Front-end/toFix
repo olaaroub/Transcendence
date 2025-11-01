@@ -3,7 +3,6 @@ test searchbar
 test front in firefox
 
 main :
-    read more about how to test responsivenes
     make settings responsive 100%
     to learn more about it  : Record<string, string>
     tailwind : what content is

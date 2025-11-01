@@ -94,13 +94,14 @@ function avatarSettings() : string
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
 			<div class="flex gap-16">
 				<div class="flex flex-col items-center gap-2">
-					<img id="userAvatar" src="${data.imageUrl}" class=" w-[200px] h-[200px] rounded-full border-2
+					<img id="userAvatar" src="${data.imageUrl}" class=" w-[150px] h-[150px] xl:w-[200px] xl:h-[200px] rounded-full border-2
 					border-color1" alt="user" />
 				<span class="text-sm text-color3">max size 2MB</span>
 				</div>
 				<div class="flex justify-center flex-col gap-6">
 						<label class="bg-color1 relative flex items-center
-						justify-center gap-2 w-[250px] h-[55px] rounded-2xl text-black px-2 py-1 text-xs cursor-pointer" for="upload-avatar">
+						justify-center gap-2 2xl:w-[250px] 2xl:h-[55px] w-[200px] h-[45px] font-bold
+						rounded-2xl text-black px-2 py-1 text-xs cursor-pointer" for="upload-avatar">
 							<input
 							id = "upload-avatar"
 							type="file"
@@ -108,8 +109,8 @@ function avatarSettings() : string
 							<img class="inline relative transform -translate-y-[10%]" src="images/upload.svg" alt="">
 							<span class="text-sm font-bold">Upload New Avatar</span>
 						</label>
-						<button id="delete-avatar" class="border border-color2 h-[55px] w-[250px] font-bold
-						rounded-2xl text-txtColor px-3 py-1 text-sm cursor-pointer">Delete Picture</button>
+						<button id="delete-avatar" class="border border-color2 2xl:w-[250px] 2xl:h-[55px] w-[200px] h-[45px]
+						font-bold rounded-2xl text-txtColor px-3 py-1 text-sm cursor-pointer">Delete Picture</button>
 				</div>
 			</div>
 		</div>
@@ -181,7 +182,7 @@ function security() : string
 			<p class=" text-color1 font-bold text-lg xl:text-2xl">Security</p>
 			<div class="flex flex-col gap-2">
 				<p class="text-txtColor text-sm">Password</p>
-				<div class="flex gap-6 flex-col md:flex-row">
+				<div class="flex gap-6 flex-col 2xl:flex-row">
 					${input("Current Password", "password")}
 					${input("New Password", "password")}
 					${input("Confirm Password", "password")}
@@ -198,8 +199,8 @@ function Account() : string
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col gap-6 flex-1">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account</p>
 			<div class="flex flex-col gap-4">
-				<p class="lg:w-[60%] text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
-				<button class="bg-red-500 text-white w-full md:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
+				<p class="2xl:w-[60%] w-full text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
+				<button class="bg-red-500 text-white w-full lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
 			</div>
 		</div>
 	`
@@ -217,11 +218,11 @@ export async function renderSettings()
 				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
 				text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
 			</div>
-			<div class="flex flex-col lg:flex-row gap-6">
+			<div class="flex flex-col xl:flex-row gap-6">
 				${avatarSettings()}
 				${accountSettings()}
 			</div>
-			<div class="flex flex-col lg:flex-row gap-6">
+			<div class="flex flex-col xl:flex-row gap-6">
 				${security()}
 				${Account()}
 			</div>
