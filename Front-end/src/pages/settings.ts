@@ -83,7 +83,6 @@ function sendAvatar()
 				return ;
 			}
 			renderSettings();
-			console.log('upload success');
 		}
 		catch(err)
 		{
@@ -99,7 +98,8 @@ function avatarSettings() : string
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
 			<div class="flex gap-16">
 				<div class="flex flex-col items-center gap-2">
-					<img id="userAvatar" src="${data.imageUrl}" class=" w-[150px] h-[150px] xl:w-[200px] xl:h-[200px] rounded-full border-2
+					<img id="userAvatar" src="${userData.profileImage}" class="
+					w-[150px] h-[150px] xl:w-[200px] xl:h-[200px] rounded-full border-2
 					border-color1" alt="user" />
 				<span class="text-sm text-color3">max size 2MB</span>
 				</div>
@@ -161,7 +161,7 @@ function accountSettings() : string
 					placeholder="Say something about yourself"
 					class="bg-transparent placeholder:text-sm text-txtColor border
 					border-color2 rounded-2xl h-[100px] p-3 focus:outline-none resize-none focus:border-color1 focus:border-[2px]"
-				></textarea>
+				>${userData.bio}</textarea>
 			</div>
 		</div>
 	`
