@@ -2,12 +2,43 @@
 import * as data from "./dashboard"
 import { imageUrl } from "./dashboard";
 
-function deleteAvatar()
+function confirmPopUp(message: string) : Promise<boolean>
+{
+	return new Promise((resolve) => {
+		const deletePopUp = document.createElement('div');
+		deletePopUp.className = `h-screen absolute w-screen`;
+		deletePopUp.innerHTML = `
+			<div class="bg-white top-1/2 left-1/2 absolute z-20 transform -translate-x-1/2
+			-translate-y-1/2 rounded-2xl p-6 flex flex-col gap-4">
+				<p>${message}</p>
+				<button id="confirm-btn" class="bg-color1 hover:scale-105 transition-all duration-300 rounded-2xl p-2" id="confirm-delete">Yes</button>
+				<button id="cancel-btn" class="bg-color1 hover:scale-105 transition-all duration-300 rounded-2xl p-2" id="cancel-delete">No</button>
+			</div>
+		`;
+		document.body.appendChild(deletePopUp);
+		const confirmBtn = deletePopUp.querySelector("#confirm-btn") as HTMLButtonElement;
+		const cancelBtn = deletePopUp.querySelector("#cancel-btn") as HTMLButtonElement;
+
+		confirmBtn.addEventListener("click", () => {
+			deletePopUp.remove();
+			resolve(true);
+		});
+
+		cancelBtn.addEventListener("click", () => {
+			deletePopUp.remove();
+			resolve(false);
+		});
+	});
+}
+
+async function deleteAvatar()
 {
 	const deleteAvatarBtn = document.getElementById('delete-avatar');
 	if(!deleteAvatarBtn)
 			return ;
 	deleteAvatarBtn.addEventListener('click', async ()=> {
+		const confirmed = await confirmPopUp('Are you sure you want to delete your avatar?');
+		if (!confirmed) return;
 		try
 		{
 			const response = await fetch(`http://127.0.0.1:3000/users/${data.userData?.id}/image`, {
@@ -17,14 +48,9 @@ function deleteAvatar()
 			if (response.ok) {
 				console.log('Avatar deleted successfully');
 				renderSettings();
-			} else {
-				console.error('Error deleting avatar');
-			}
+			} else {console.error('Error deleting avatar');}
 		}
-		catch(err)
-		{
-			console.log("Delete Error", err);
-		}
+		catch(err) {console.log("Delete Error", err);}
 	});
 }
 
