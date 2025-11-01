@@ -10,10 +10,8 @@ import { IUserData, setUserData, getUserData} from "./store"
 
 (window as any).navigate = navigate;
 
-export let userData: IUserData | null = null;
-export let userImage: Response | null = null;
-export let imageUrl: string | null = null;
-export let response: Response | null = null;
+export let userData: IUserData | null = getUserData();
+export let response: Response  | null = null;
 
 export async function initDashboard(isDashboard: boolean = true) {
 try {
@@ -27,24 +25,20 @@ try {
 		const response = await fetch(`http://127.0.0.1:3000/users/${id}/profile`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
-		console.log('API Response :', response);
 		if (response.status === 401 || response.status === 403) {
 			localStorage.clear();
 			navigate('/login');
 			return;
 		}
 		try {
-			userData = await response.json();
+			const tmpUserData = await response.json();
+			setUserData(tmpUserData);
+			userData = getUserData();
 		} catch (parseErr) {
 			console.error('Invalid JSON from API:', parseErr);
 			showErrorMessage('Unexpected server response.', 502); // to test later
 			return;
 		}
-		const userImage = await fetch(`http://127.0.0.1:3000/users/${id}/image`, {
-			headers: { "Authorization": `Bearer ${token}` },
-		});
-		imageUrl = await userImage.text();
-		console.log('User Image URL:', imageUrl);
 		renderDashboard(isDashboard);
 	}	
 	catch (err) {
@@ -52,7 +46,6 @@ try {
 		showErrorMessage('Server unreachable. Try again later.', 503);
 	}
 }
-
 
 function renderButton(nb: number) : string
 {
@@ -286,7 +279,7 @@ export function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
 		<div class=" bg-black min-h-screen">
-			${renderDashboardNavBar(userData, imageUrl)}
+			${renderDashboardNavBar(userData, userData!.profileImage)}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
 				${isDashboard ? renderMain() : ''}
 			</main>
