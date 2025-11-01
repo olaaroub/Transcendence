@@ -1,12 +1,12 @@
 add keyboard scrolling to the searchbar
+test searchbar
+test front in firefox
 
 main :
-    fix non printable chars in search bar
-    handle search bar bugs
-    to learn more about it  : Record<string, string>
-    tailwind : what content is
     read more about how to test responsivenes
     make settings responsive 100%
+    to learn more about it  : Record<string, string>
+    tailwind : what content is
 
 
 tailwind :

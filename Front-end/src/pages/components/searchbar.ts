@@ -34,8 +34,11 @@ export async function searchbar() {
 	const input = searchBar.querySelector('input');
 	if (!input) return;
 	input.addEventListener('keyup',async (e) => {
-		const	value = input.value;
+		const	value = input.value.trim();
+		if (e.key.length > 1 && e.key !== 'Backspace' && e.key !== 'Delete') return;
 		document.getElementById('search-results')?.remove();
+		console.log('Searching for:', value);
+		console.log('value length:', value.length);
 		if (value.length <= 0) return;
 		const div = document.createElement('div');
 		div.id = 'search-results';
