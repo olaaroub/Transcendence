@@ -1,37 +1,13 @@
-fix : non printable chars in search bar
 add keyboard scrolling to the searchbar
 
-target just brikol comment
-to learn more about it  : Record<string, string>
-
 main :
-    add more options in settings
-    logout logic
-    merge search bar
+    fix non printable chars in search bar
+    handle search bar bugs
+    to learn more about it  : Record<string, string>
+    tailwind : what content is
+    read more about how to test responsivenes
+    make settings responsive 100%
 
-for ouss : add bio in settings
-for ouss : add delete account
 
 tailwind :
-
-what content is
-show backdrop-blur-lg effect
--------------------------------
-tailwind : what content is
-show backdrop-blur-lg effect
-
-
-
-
-structure done :
-
-- home      page
-- login     page
-- sign-up   page
-- dashboard page
-- settings  page
-- game      page
-
-pages in waiting proccess :
-
-- chat page
+    show backdrop-blur-lg effect
