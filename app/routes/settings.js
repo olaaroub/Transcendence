@@ -37,22 +37,28 @@ async function change_password(req, reply)
     }   
 }
 
-// async function getProfileData(req, reply)
-// {
-//     try {
-//         await this.db.get("SELECT ",  );
-//     } catch (err)
-//     {
-
-//     }
-// }
+async function getProfileData(req, reply)
+{
+    try {
+        const id = req.params.id;
+        const responceData = await this.db.get(`SELECT users.id, users.email, users.username, infos.profileImage,infos.bio
+                                                FROM users
+                                                INNER JOIN infos ON users.id = infos.user_id
+                                                WHERE users.id = ?`, [id]);
+        // console.log(responceData);
+        reply.code(200).send(responceData);
+    } catch (err)
+    {
+        reply.code(500).send({success: false, message: "can't getProfileData"});
+    }
+}
 
 function settingsRoutes(fastify) 
 {
     fastify.put("/users/:id/settings-username", change_username);
     fastify.put("/users/:id/setting-bio", change_bio);
     fastify.put("/users/:id/change-password", change_password);
-    // fastify.get("/users/:id/profile", getProfileData);
+    fastify.get("/users/:id/profile", getProfileData);
 }
 
 
