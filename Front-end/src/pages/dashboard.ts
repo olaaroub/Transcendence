@@ -6,15 +6,11 @@ import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
 import { renderLeaderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
+import { IUserData, setUserData, getUserData} from "./store"
 
 (window as any).navigate = navigate;
 
-interface UserData {
-	id: string;
-	username: string;
-}
-
-export let userData: UserData | null = null;
+export let userData: IUserData | null = null;
 export let userImage: Response | null = null;
 export let imageUrl: string | null = null;
 export let response: Response | null = null;
@@ -28,9 +24,10 @@ try {
 			navigate('/login');
 			return;
 		}
-		const response = await fetch(`http://127.0.0.1:3000/users/${id}`, {
+		const response = await fetch(`http://127.0.0.1:3000/users/${id}/profile`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
+		console.log('API Response :', response);
 		if (response.status === 401 || response.status === 403) {
 			localStorage.clear();
 			navigate('/login');
@@ -287,7 +284,6 @@ function renderMain() : string
 
 export function renderDashboard(isDashboard: boolean = true)
 {
-	console.log('Rendering dashboard: ', isDashboard);
 	document.body.innerHTML = `
 		<div class=" bg-black min-h-screen">
 			${renderDashboardNavBar(userData, imageUrl)}

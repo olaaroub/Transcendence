@@ -1,5 +1,8 @@
 
 import * as data from "./dashboard"
+import { IUserData, setUserData, getUserData} from "./store"
+
+const userData : IUserData = getUserData();
 
 function confirmPopUp(message: string) : Promise<boolean>
 {
@@ -40,7 +43,7 @@ async function deleteAvatar()
 		if (!confirmed) return;
 		try
 		{
-			const response = await fetch(`http://127.0.0.1:3000/users/${data.userData?.id}/image`, {
+			const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/image`, {
 				method: 'DELETE',
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			});
@@ -70,13 +73,15 @@ function sendAvatar()
 		formData.append("avatar", file);
 		try
 		{
-			console.log(data.userData?.id);
-			const response = await fetch(`http://127.0.0.1:3000/users/${data.userData?.id}/image`, {
+			const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/image`, {
 				method : 'PUT',
 				body : formData,
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			})
-
+			if (!response.ok) {
+				console.error('Error uploading avatar');
+				return ;
+			}
 			renderSettings();
 			console.log('upload success');
 		}
@@ -148,7 +153,7 @@ function accountSettings() : string
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account Settings</p>
 			<div class="settings-name flex flex-col gap-2">
 				<p class="text-txtColor text-sm ">username</p>
-				${input("Change username", 'text', data.userData?.username)}
+				${input("Change username", 'text', userData?.username ?? "")}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
 				<p class="text-txtColor text-sm">Your Bio</p>
