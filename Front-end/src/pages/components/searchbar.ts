@@ -6,6 +6,27 @@ interface UserData {
 async function ViewProfile(username: string) {
 	
 }
+	
+function listUsers(users: UserData[], div: HTMLElement) {
+	users.forEach(user => {
+		const divp = document.createElement('div');
+		divp.className = `flex justify-between p-4 text-gray-200 p-4 hover:bg-[#ffffff10]
+						cursor-pointer transition-colors duration-200`;
+
+		const view  = document.createElement('button');
+		view.textContent = 'view';
+		view.className = "font-bold text-color2 hover:scale-110 hover:text-white";
+		view.addEventListener('click', _=> {
+			ViewProfile(user.id);
+		});
+
+		const p = document.createElement('p');
+		p.textContent = user.username;
+
+		divp.append(p, view);
+		div.appendChild(divp);
+	});
+}
 
 export async function searchbar() {
 	const searchBar = document.getElementById('search-bar');
@@ -33,24 +54,7 @@ export async function searchbar() {
 				searchBar.appendChild(div);
 				return;
 			}
-			users.forEach(user => {
-				const divp = document.createElement('div');
-				divp.className = `flex justify-between p-4 text-gray-200 p-4 hover:bg-[#ffffff10]
-								cursor-pointer transition-colors duration-200`;
-
-				const view  = document.createElement('button');
-				view.textContent = 'view';
-				view.className = "font-bold text-color2 hover:scale-110 hover:text-white";
-
-				const p = document.createElement('p');
-				p.textContent = user.username;
-
-				view.addEventListener('click', _=> {
-					ViewProfile(user.id);
-				});
-				divp.append(p, view);
-				div.appendChild(divp);
-			});
+			listUsers(users, div);
 			searchBar.appendChild(div);
 		});
 		document.addEventListener('click', (e) => {
