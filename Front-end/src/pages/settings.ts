@@ -4,7 +4,7 @@ import { IUserData, setUserData, getUserData} from "./store"
 
 const 	userData : IUserData = getUserData();
 let newUserData: Partial<IUserData> = {};
-
+let body: BodyInit = ""; // to learn about this type
 
 function SaveChanges()
 {
@@ -13,7 +13,36 @@ function SaveChanges()
 	const saveBtn = settingsPage.querySelector('button');
 	if (!saveBtn) return;
 	saveBtn.addEventListener('click', async () => {
-		console.log("New Data to update:", newUserData);
+		if (Object.keys(newUserData).length === 0) {
+			alert('No changes to save.');
+			return;
+		}
+		try {
+				let path: string | null;
+				for (const key of Object.keys(newUserData)) {
+					const value = newUserData[key as keyof IUserData];
+					if (value === undefined || value === null) {
+						delete newUserData[key as keyof IUserData];
+						continue;
+					}
+					body = JSON.stringify({ [key]: value });
+					console.log('fetching : ', `http://127.0.0.1:3000/users/${userData?.id}/settings-${key}`)
+					const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-${key}`, {
+						method : 'PUT',
+						body,
+						headers: {
+							"Authorization": `Bearer ${localStorage.getItem('token')}`,
+							"Content-Type": "application/json"
+						},
+						
+					})
+					if (!response.ok)
+						console.error('server error');
+				}
+		}catch (err) {
+			console.error("Error saving changes", err);
+			return;
+		}
 	});
 }
 
