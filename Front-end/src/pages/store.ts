@@ -1,5 +1,5 @@
 export interface IUserData {
-	id: number | null;
+	id: number | string | null;
 	email: string | null;
 	username: string | null;
 	profileImage: string | null;

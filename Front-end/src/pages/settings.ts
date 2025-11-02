@@ -2,7 +2,41 @@
 import * as data from "./dashboard"
 import { IUserData, setUserData, getUserData} from "./store"
 
-const userData : IUserData = getUserData();
+const 	userData : IUserData = getUserData();
+let newUserData: Partial<IUserData> = {};
+
+
+function SaveChanges()
+{
+	const settingsPage = document.getElementById('settings-page');
+	if (!settingsPage) return;
+	const saveBtn = settingsPage.querySelector('button');
+	if (!saveBtn) return;
+	saveBtn.addEventListener('click', async () => {
+		console.log("New Data to update:", newUserData);
+	});
+}
+
+function addInputListeners()
+{
+	document.querySelectorAll('input, textarea, select').forEach((el) => {
+		const settingsPage = document.getElementById('settings-page');
+		if (!settingsPage) return;
+		const element = el as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+		element.addEventListener('change', () => {
+			const name = element.name;
+			const value = element.value;
+			if (value !== userData[name as keyof IUserData]) {
+				if (name === 'id')
+					newUserData[name] = Number(value);
+				else
+					newUserData[name as keyof IUserData] = value;
+			}
+			else
+				delete newUserData[name as keyof IUserData];
+		});
+	});
+}
 
 function confirmPopUp(message: string) : Promise<boolean>
 {
@@ -108,6 +142,7 @@ function avatarSettings() : string
 						justify-center gap-2 2xl:w-[250px] 2xl:h-[55px] w-[200px] h-[45px] font-bold
 						rounded-2xl text-black px-2 py-1 text-xs cursor-pointer" for="upload-avatar">
 							<input
+							name="avatar"
 							id = "upload-avatar"
 							type="file"
 							class="hidden">
@@ -153,11 +188,12 @@ function accountSettings() : string
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account Settings</p>
 			<div class="settings-name flex flex-col gap-2">
 				<p class="text-txtColor text-sm ">username</p>
-				${input("Change username", 'text', userData?.username ?? "")}
+				${input("Change username", 'text', userData?.username ?? "", "username")}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
 				<p class="text-txtColor text-sm">Your Bio</p>
 				<textarea
+					name="bio"
 					placeholder="Say something about yourself"
 					class="bg-transparent placeholder:text-sm text-txtColor border
 					border-color2 rounded-2xl h-[100px] p-3 focus:outline-none resize-none focus:border-color1 focus:border-[2px]"
@@ -167,12 +203,13 @@ function accountSettings() : string
 	`
 }
 
-function input(placeholder: string, type: string, value: string = "") : string
+function input(placeholder: string, type: string, value: string = "", name: string) : string
 {
 	return `
 		<input
 		value="${value}"
 		type="${type}"
+		name="${name}"
 		placeholder="${placeholder}"
 		class="bg-transparent border focus:outline-none focus:border-color1
 		focus:border-[2px] text-txtColor w-full placeholder:text-sm border-color2 rounded-2xl p-3"
@@ -188,9 +225,9 @@ function security() : string
 			<div class="flex flex-col gap-2">
 				<p class="text-txtColor text-sm">Password</p>
 				<div class="flex gap-6 flex-col 2xl:flex-row">
-					${input("Current Password", "password")}
-					${input("New Password", "password")}
-					${input("Confirm Password", "password")}
+					${input("Current Password", "password", "", "current-password")}
+					${input("New Password", "password", "", "new-password")}
+					${input("Confirm Password", "password", "", "confirm-password")}
 				</div>
 			</div>
 			${render2FA()}
@@ -217,7 +254,7 @@ export async function renderSettings()
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = `
-		<div class="sm:px-16 settings flex-1 flex flex-col gap-6">
+		<div id="settings-page" class="sm:px-16 flex-1 flex flex-col gap-6">
 			<div class=" flex flex-row justify-between">
 				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Settings</h1>
 				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
@@ -233,6 +270,8 @@ export async function renderSettings()
 			</div>
 		</div>
 	`;
-	sendAvatar();
-	deleteAvatar();
+	addInputListeners();
+	SaveChanges();
+	// sendAvatar();
+	// deleteAvatar();
 }
