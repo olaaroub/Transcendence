@@ -38,7 +38,7 @@ async function start()
 
     });
 
-    await routes(fastify);
+    fastify.register(routes);
     
     try {
         fastify.listen({ port: 3000 });
