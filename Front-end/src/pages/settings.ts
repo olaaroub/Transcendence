@@ -4,7 +4,7 @@ import { IUserData, setUserData, getUserData} from "./store"
 
 const 	userData : IUserData = getUserData();
 let newUserData: Partial<IUserData> = {};
-
+let body: BodyInit | null = ""; // to learn about this type
 
 function SaveChanges()
 {
@@ -13,7 +13,37 @@ function SaveChanges()
 	const saveBtn = settingsPage.querySelector('button');
 	if (!saveBtn) return;
 	saveBtn.addEventListener('click', async () => {
-		console.log("New Data to update:", newUserData);
+		if (Object.keys(newUserData).length === 0) {
+			alert('No changes to save.');
+			return;
+		}
+		try {
+				let path: string | null;
+				for (const key of Object.keys(newUserData)) {
+					const value = newUserData[key as keyof IUserData];
+					if (value === undefined || value === null) {
+						delete newUserData[key as keyof IUserData];
+						continue;
+					}
+					if (key === 'avatar')
+						body = sendAvatar();
+					body = JSON.stringify({ [key]: value });
+					const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-${key}`, {
+						method : 'PUT',
+						body,
+						headers: {
+							"Authorization": `Bearer ${localStorage.getItem('token')}`,
+							"Content-Type": "application/json"
+						},
+						
+					})
+					if (!response.ok)
+						console.error('server error');
+				}
+		}catch (err) {
+			console.error("Error saving changes", err);
+			return;
+		}
 	});
 }
 
@@ -31,6 +61,7 @@ function addInputListeners()
 					newUserData[name] = Number(value);
 				else
 					newUserData[name as keyof IUserData] = value;
+				console.log('value : ', value);
 			}
 			else
 				delete newUserData[name as keyof IUserData];
@@ -90,39 +121,20 @@ async function deleteAvatar()
 	});
 }
 
-function sendAvatar()
+function sendAvatar() : FormData | null
 {
-	const uploadAvatar = document.getElementById('upload-avatar');
+	const uploadAvatar = document.getElementById('upload-avatar') as HTMLInputElement;
 	if(!uploadAvatar)
-			return ;
-	uploadAvatar.addEventListener('change', async (e)=> {
-		const target = e.target as HTMLInputElement;
-		if (!target.files || target.files.length === 0) return ;
-		const file = target.files[0];
-		if (file.size > 2097152) {
-			alert("Image is too large. Max size 2MB.");
-			return;
-		}
-		const formData = new FormData;
-		formData.append("avatar", file);
-		try
-		{
-			const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/image`, {
-				method : 'PUT',
-				body : formData,
-				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
-			})
-			if (!response.ok) {
-				console.error('Error uploading avatar');
-				return ;
-			}
-			renderSettings();
-		}
-		catch(err)
-		{
-			console.log("Upload Error", err);
-		}
-	})
+			return null;
+	if (!uploadAvatar.files || uploadAvatar.files.length === 0) return null;
+	const file = uploadAvatar.files[0];
+	if (file.size > 2097152) {
+		alert("Image is too large. Max size 2MB.");
+		return null;
+	}
+	const formData = new FormData;
+	formData.append("avatar", file); // to learn about it
+	return formData;
 }
 
 function avatarSettings() : string
