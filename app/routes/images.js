@@ -80,9 +80,9 @@ async function routes (fastify)
     prefix: '/public/',
   });
   await fastify.register(fastifyMultipart);
-  fastify.delete('/users/:id/image', deleteAvatar);
-  fastify.put(`/users/:id/image`, modifyAvatar);
-  fastify.get(`/users/:id/image`, getProfileImages);
+  fastify.delete('/users/:id/settings-avatar', deleteAvatar);
+  fastify.put(`/users/:id/settings-avatar`, modifyAvatar);
+  fastify.get(`/users/:id/settings-avatar`, getProfileImages);
 }
 
 module.exports =  routes;
