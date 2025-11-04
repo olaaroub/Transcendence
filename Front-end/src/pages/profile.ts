@@ -14,7 +14,7 @@ function UserStats() : string
 			${stats.map(
 				(stat)=>
 					`
-					<div class="${stat.label==="MATCHES" ? "w-[60%]" : "w-full"} rounded-2xl 
+					<div class="${stat.label==="MATCHES" ? "w-[60%]" : "w-full"} rounded-2xl hover:bg-[#ff6a2071]
 					bg-color4 py-9 flex items-center flex-col hover:scale-105 transition-all duration-200">
 						<p class="text-gray-400 text-lg lg:text-xl">${stat.label}</p>
 						<p class="text-txtColor text-lg lg:text-3xl font-bold">${stat.value}</p>
@@ -51,7 +51,8 @@ export async function renderProfile()
 						<p class="text-color3 mb-4 w-[70%]">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat magnam quisquam 
 						hic atque quaerat, cum, odit ad eligendi aliquam optio tenetur deserunt, saepe ex sit officia corporis ullam dolore ab!</p>
 						<button class="bg-gradient-to-r from-color1  to-[#af4814]
-						w-[200px] rounded-xl text-lg font-bold p-3">add friend</button>
+						w-[200px] rounded-xl text-lg font-bold p-3 flex gap-2 justify-center">
+						<img class="inline" src="images/addFriend.svg" alt="add friend"> Add Friend</button>
 					</div>
 				</div>
 				${UserStats()}
@@ -62,8 +63,8 @@ export async function renderProfile()
 		profile_card?.querySelector('button')?.addEventListener('click', el=>{
 			const target = el.target as HTMLButtonElement;
 			const list = target.classList;
-			list.contains('from-color1') ? list.replace('from-color1', 'from-color2') : list.replace('from-color2', 'from-color1');
-			list.contains('from-color1') ? target.textContent = 'FOLLOW' : target.textContent = 'FOLLOWED';
+			// list.contains('from-color1') ? list.replace('from-color1', 'from-color2') : list.replace('from-color2', 'from-color1');
+			// list.contains('from-color1') ? target.textContent = 'FOLLOW' : target.textContent = 'FOLLOWED';
 		})
 	}
 }
