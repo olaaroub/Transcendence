@@ -1,9 +1,7 @@
 function renderRank() : string
 {
 	return `
-		<div class="rank grid grid-cols-2 p-6 grid-rows-2
-        w-full h-auto  flex-1
-         gap-4">
+		<div class="rank grid grid-cols-2 p-6 grid-rows-2 w-full h-auto  flex-1 gap-4">
             <div class="bg-color9 transition-all duration-500 hover:bg-color10 rounded-2xl p-6">
                 <p class="text-sm">Total Wins</p>
                 <p class="text-4xl font-bold text-txtColor">127</p>

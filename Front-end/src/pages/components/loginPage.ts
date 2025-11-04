@@ -78,7 +78,7 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 		rounded-2xl md:rounded-3xl px-8 md:px-12 xl:px-14
 		w-[90vw] sm:w-[320px] md:w-[400px] xl:w-[450px] 2xl:w-[500px] 4k:w-[600px]
 		flex flex-col justify-center text-white border-[2px] border-transparent rounded-lg
-		bg-[linear-gradient(#0B0B0B,#0B0B0B),linear-gradient(135deg,#121212,#ed6f30)]
+		bg-[linear-gradient(#1F2937,#1F2937),linear-gradient(135deg,#121212,#ed6f30)]
 		max-h-[90vh] sm:max-h-[80vh] overflow-y-hidden
 		opacity-0 translate-x-[-50%] translate-y-[-60%]`;
 

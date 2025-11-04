@@ -278,7 +278,7 @@ function renderMain() : string
 export function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
-		<div class=" bg-black min-h-screen">
+		<div class=" bg-bgColor min-h-screen">
 			${renderDashboardNavBar(userData, userData!.profileImage)}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
 				${isDashboard ? renderMain() : ''}
