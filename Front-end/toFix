@@ -8,4 +8,5 @@ main :
 
 
 tailwind :
+    truncate
     show backdrop-blur-lg effect

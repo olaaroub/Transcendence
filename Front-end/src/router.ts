@@ -61,7 +61,7 @@ const routes: Route[] = [
         path: "/profile",
         render: async () => {
             const { renderProfile }  = await import("./pages/profile");
-            renderProfile();
+            renderProfile(true);
         }
     },
 ];
