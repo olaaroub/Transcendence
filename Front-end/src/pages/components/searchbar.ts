@@ -1,12 +1,16 @@
+import { userData } from "../store";
+import { navigate } from "../../router";
+
 interface UserData {
     id: string;
     username: string;
 }
 
-async function ViewProfile(username: string) {
-	
+async function ViewProfile() {
+	document.querySelector('#search-results')?.remove();
+	navigate('/profile');
 }
-	
+
 function listUsers(users: UserData[], div: HTMLElement) {
 	users.forEach(user => {
 		const divp = document.createElement('div');
@@ -17,7 +21,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		view.textContent = 'view';
 		view.className = "font-bold text-color2 hover:scale-110 hover:text-white";
 		view.addEventListener('click', _=> {
-			ViewProfile(user.id);
+			ViewProfile();
 		});
 
 		const p = document.createElement('p');
@@ -37,8 +41,6 @@ export async function searchbar() {
 		const	value = input.value.trim();
 		if (e.key.length > 1 && e.key !== 'Backspace' && e.key !== 'Delete') return;
 		document.getElementById('search-results')?.remove();
-		console.log('Searching for:', value);
-		console.log('value length:', value.length);
 		if (value.length <= 0) return;
 		const div = document.createElement('div');
 		div.id = 'search-results';

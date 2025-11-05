@@ -284,6 +284,10 @@ export function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
+	document.getElementById('main-logo')?.addEventListener('click', _=>{
+		console.log('clicked on main-logo');
+		navigate('/dashboard');
+	})
 	if (isDashboard)
 		slidingLogic();
 	const avatar = document.getElementById('avatar');

@@ -49,8 +49,7 @@ export async function renderProfile(isMyProfile: boolean, userData: IUserData | 
 					<img src="${userData?.profileImage}" alt="avatar" class="w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
 					<div class="flex flex-col gap-2">
 						<h2 class="font-bold text-txtColor text-3xl">${userData?.username}</h2>
-						<p class="text-color3 mb-4 w-[70%]">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat magnam quisquam 
-						hic atque quaerat, cum, odit ad eligendi aliquam optio tenetur deserunt, saepe ex sit officia corporis ullam dolore ab!</p>
+						<p class="text-color3 mb-4 w-[70%]">${userData?.bio}</p>
 						<button class="bg-gradient-to-r from-color1 to-[#af4814]
 						w-[150px] rounded-xl text-lg font-bold p-3 flex gap-2 justify-center">
 						<img class="inline" src="images/addFriend.svg" alt="add friend">Add Friend</button>

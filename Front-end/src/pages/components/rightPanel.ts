@@ -1,6 +1,6 @@
 export function renderRightPanel(): string {
 	return `
-		<div class="flex flex-col gap-3 py-3 px-3 group bg-color4 rounded-[20px] transition-all
+		<div class="flex flex-col gap-3 py-3 px-3 group bg-color4 rounded-[25px] transition-all
 		duration-200 h-[400px] overflow-y-auto">
 			${Array(6)
 			.fill("")

@@ -5,6 +5,10 @@ import { IUserData, setUserData, getUserData} from "./store"
 const 	userData : IUserData = getUserData();
 let newUserData: Partial<IUserData> = {};
 let body: BodyInit | null = ""; // to learn about this type
+let headers : Record<string, string> = {
+	"Authorization": `Bearer ${localStorage.getItem('token')}`
+}
+let avatar : FormData | null = null;
 
 function SaveChanges()
 {
@@ -17,6 +21,7 @@ function SaveChanges()
 			alert('No changes to save.');
 			return;
 		}
+		if (!await confirmPopUp('Do you want to apply these changes?')) return;
 		try {
 				let path: string | null;
 				for (const key of Object.keys(newUserData)) {
@@ -25,20 +30,26 @@ function SaveChanges()
 						delete newUserData[key as keyof IUserData];
 						continue;
 					}
-					if (key === 'avatar')
-						body = sendAvatar();
-					body = JSON.stringify({ [key]: value });
+					if (key === 'avatar' && avatar)
+					{
+						body = avatar;
+						console.log(avatar);
+					}
+					else
+					{
+						body = JSON.stringify({ [key]: value });
+						headers["Content-Type"] = "application/json";
+					}
 					const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-${key}`, {
 						method : 'PUT',
 						body,
-						headers: {
-							"Authorization": `Bearer ${localStorage.getItem('token')}`,
-							"Content-Type": "application/json"
-						},
+						headers,
 						
 					})
 					if (!response.ok)
 						console.error('server error');
+					newUserData = {};
+					renderSettings();
 				}
 		}catch (err) {
 			console.error("Error saving changes", err);
@@ -53,20 +64,24 @@ function addInputListeners()
 		const settingsPage = document.getElementById('settings-page');
 		if (!settingsPage) return;
 		const element = el as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-		element.addEventListener('change', () => {
+		element.addEventListener('change', (event) => {
 			const name = element.name;
 			const value = element.value;
-			if (value !== userData[name as keyof IUserData]) {
-				if (name === 'id')
-					newUserData[name] = Number(value);
-				else
-					newUserData[name as keyof IUserData] = value;
-				console.log('value : ', value);
+			if (name === 'avatar')
+			{
+				avatar = sendAvatar();
+				const upload_avatar = event.target as HTMLInputElement;
+				const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
+				if (userAvatar && upload_avatar && upload_avatar.files)
+					userAvatar.src = URL.createObjectURL(upload_avatar.files[0]); // to learn about it
 			}
+			if (value !== userData[name as keyof IUserData])
+				newUserData[name as keyof IUserData] = value;
 			else
 				delete newUserData[name as keyof IUserData];
 		});
 	});
+	SaveChanges();
 }
 
 function confirmPopUp(message: string) : Promise<boolean>
@@ -78,8 +93,8 @@ function confirmPopUp(message: string) : Promise<boolean>
 			<div class="bg-white top-1/2 left-1/2 absolute z-20 transform -translate-x-1/2
 			-translate-y-1/2 rounded-2xl p-6 flex flex-col gap-4">
 				<p class="font-bold">${message}</p>
-				<button id="confirm-btn" class="bg-color1 hover:scale-105 transition-all duration-300 rounded-2xl p-2" id="confirm-delete">Yes</button>
-				<button id="cancel-btn" class="bg-color1 hover:scale-105 transition-all duration-300 rounded-2xl p-2" id="cancel-delete">No</button>
+				<button id="confirm-btn" class="bg-color1 hover:bg-orange-600  transition-all duration-200 hover:scale-[1.01] rounded-2xl p-2" id="confirm-delete">Yes</button>
+				<button id="cancel-btn" class="bg-color1  hover:bg-orange-600 transition-all duration-200 hover:scale-[1.01] rounded-2xl p-2" id="cancel-delete">No</button>
 			</div>
 		`;
 		document.body.appendChild(deletePopUp);
@@ -87,11 +102,13 @@ function confirmPopUp(message: string) : Promise<boolean>
 		const cancelBtn = deletePopUp.querySelector("#cancel-btn") as HTMLButtonElement;
 
 		confirmBtn.addEventListener("click", () => {
+			console.log('click on confirm');
 			deletePopUp.remove();
 			resolve(true);
 		});
 
 		cancelBtn.addEventListener("click", () => {
+			console.log('click on cancel');
 			deletePopUp.remove();
 			resolve(false);
 		});
@@ -283,7 +300,6 @@ export async function renderSettings()
 		</div>
 	`;
 	addInputListeners();
-	SaveChanges();
 	// sendAvatar();
 	// deleteAvatar();
 }
