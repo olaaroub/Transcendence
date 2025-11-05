@@ -79,7 +79,7 @@ function gameOne() : string
 				animation-play-state: paused;
 			}
 		</style>
-		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 
+		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 h-[400px]
 		flex flex-col md:flex-row items-center md:items-start gap-8 overflow-visible
 		transition-all duration-500 transform hover:-translate-y-2 relative">
 			<div class="flex-1 min-w-0 space-y-5 md:space-y-6 md:pr-8 lg:pr-12 z-10">
@@ -111,9 +111,8 @@ function gameOne() : string
 function gameTwo() : string
 {
 	return `
-		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col
-		md:flex-row items-center md:items-start gap-8 overflow-visible shadow-xl hover:shadow-2xl
-		transition-all duration-500 transform hover:-translate-y-2 relative" style="animation-delay: 0.5s;">
+		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col h-[400px]
+		md:flex-row items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
 			<div class="flex-1 min-w-0 space-y-5 md:space-y-6 md:pr-8 lg:pr-12 z-10">
 				${renderButton(2)}
 				<h2 class="text-txtColor text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight
