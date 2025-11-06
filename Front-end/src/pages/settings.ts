@@ -1,63 +1,185 @@
 
 import * as data from "./dashboard"
+import { IUserData, setUserData, getUserData} from "./store"
 
+const 	userData : IUserData = getUserData();
+let newUserData: Partial<IUserData> = {};
+let body: BodyInit | null = ""; // to learn about this type
+let headers : Record<string, string> = {
+	"Authorization": `Bearer ${localStorage.getItem('token')}`
+}
+let avatar : FormData | null = null;
 
-function sendAvatar()
+function SaveChanges()
 {
-	const uploadAvatar = document.getElementById('upload-avatar');
-	if(!uploadAvatar)
-			return ;
-	uploadAvatar.addEventListener('change', async (e)=> {
-		const target = e.target as HTMLInputElement;
-		if (!target.files || target.files.length === 0) return ;
-		const file = target.files[0];
-		if (file.size > 2097152) {
-			alert("Image is too large. Max size 2MB.");
+	const settingsPage = document.getElementById('settings-page');
+	if (!settingsPage) return;
+	const saveBtn = settingsPage.querySelector('button');
+	if (!saveBtn) return;
+	saveBtn.addEventListener('click', async () => {
+		if (Object.keys(newUserData).length === 0) {
+			alert('No changes to save.');
 			return;
 		}
-		const formData = new FormData;
-		formData.append("avatar", file);
+		if (!await confirmPopUp('Do you want to apply these changes?')) return;
+		try {
+				let path: string | null;
+				for (const key of Object.keys(newUserData)) {
+					const value = newUserData[key as keyof IUserData];
+					if (value === undefined || value === null) {
+						delete newUserData[key as keyof IUserData];
+						continue;
+					}
+					if (key === 'avatar' && avatar)
+					{
+						body = avatar;
+						console.log(avatar);
+					}
+					else
+					{
+						body = JSON.stringify({ [key]: value });
+						headers["Content-Type"] = "application/json";
+					}
+					const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-${key}`, {
+						method : 'PUT',
+						body,
+						headers,
+						
+					})
+					if (!response.ok)
+						console.error('server error');
+					newUserData = {};
+					renderSettings();
+				}
+		}catch (err) {
+			console.error("Error saving changes", err);
+			return;
+		}
+	});
+}
+
+function addInputListeners()
+{
+	document.querySelectorAll('input, textarea, select').forEach((el) => {
+		const settingsPage = document.getElementById('settings-page');
+		if (!settingsPage) return;
+		const element = el as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+		element.addEventListener('change', (event) => {
+			const name = element.name;
+			const value = element.value;
+			if (name === 'avatar')
+			{
+				avatar = sendAvatar();
+				const upload_avatar = event.target as HTMLInputElement;
+				const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
+				if (userAvatar && upload_avatar && upload_avatar.files)
+					userAvatar.src = URL.createObjectURL(upload_avatar.files[0]); // to learn about it
+			}
+			if (value !== userData[name as keyof IUserData])
+				newUserData[name as keyof IUserData] = value;
+			else
+				delete newUserData[name as keyof IUserData];
+		});
+	});
+	SaveChanges();
+}
+
+function confirmPopUp(message: string) : Promise<boolean>
+{
+	return new Promise((resolve) => {
+		const deletePopUp = document.createElement('div');
+		deletePopUp.className = `h-screen absolute w-screen`;
+		deletePopUp.innerHTML = `
+			<div class="bg-white top-1/2 left-1/2 absolute z-20 transform -translate-x-1/2
+			-translate-y-1/2 rounded-2xl p-6 flex flex-col gap-4">
+				<p class="font-bold">${message}</p>
+				<button id="confirm-btn" class="bg-color1 hover:bg-orange-600  transition-all duration-200 hover:scale-[1.01] rounded-2xl p-2" id="confirm-delete">Yes</button>
+				<button id="cancel-btn" class="bg-color1  hover:bg-orange-600 transition-all duration-200 hover:scale-[1.01] rounded-2xl p-2" id="cancel-delete">No</button>
+			</div>
+		`;
+		document.body.appendChild(deletePopUp);
+		const confirmBtn = deletePopUp.querySelector("#confirm-btn") as HTMLButtonElement;
+		const cancelBtn = deletePopUp.querySelector("#cancel-btn") as HTMLButtonElement;
+
+		confirmBtn.addEventListener("click", () => {
+			console.log('click on confirm');
+			deletePopUp.remove();
+			resolve(true);
+		});
+
+		cancelBtn.addEventListener("click", () => {
+			console.log('click on cancel');
+			deletePopUp.remove();
+			resolve(false);
+		});
+	});
+}
+
+async function deleteAvatar()
+{
+	const deleteAvatarBtn = document.getElementById('delete-avatar');
+	if(!deleteAvatarBtn)
+			return ;
+	deleteAvatarBtn.addEventListener('click', async ()=> {
+		const confirmed = await confirmPopUp('Are you sure you want to delete your avatar?');
+		if (!confirmed) return;
 		try
 		{
-			console.log(data.userData?.id);
-			const response = await fetch(`http://127.0.0.1:3000/users/${data.userData?.id}/update-image`, {
-				method : 'POST',
-				body : formData,
+			const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/image`, {
+				method: 'DELETE',
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
-			})
-			if (!response.ok) throw new Error("Upload Failed");
-			document.getElementById('file-name')!.textContent = file.name; // must handle too large name
-			console.log('upload success');
+			});
+			if (response.ok) {
+				console.log('Avatar deleted successfully');
+				renderSettings();
+			} else {console.error('Error deleting avatar');}
 		}
-		catch(err)
-		{
-			console.log("Upload Error", err);
-		}
-	})
+		catch(err) {console.log("Delete Error", err);}
+	});
+}
+
+function sendAvatar() : FormData | null
+{
+	const uploadAvatar = document.getElementById('upload-avatar') as HTMLInputElement;
+	if(!uploadAvatar)
+			return null;
+	if (!uploadAvatar.files || uploadAvatar.files.length === 0) return null;
+	const file = uploadAvatar.files[0];
+	if (file.size > 2097152) {
+		alert("Image is too large. Max size 2MB.");
+		return null;
+	}
+	const formData = new FormData;
+	formData.append("avatar", file); // to learn about it
+	return formData;
 }
 
 function avatarSettings() : string
 {
 	return `
-		<div class="avatar-settings px-5 border border-color2 rounded-2xl bg-color4 mb-3">
-			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Edit your avatar</p>
-			<div class="flex gap-3 mb-6">
-				<img src="${data.imageUrl}" class=" w-[80px] h-[80px] rounded-full border-2
-				border-color1" alt="user" />
-				<div class="flex flex-col gap-2">
-					<p class="text-xs 2xl:text-sm text-txtColor">Upload a new avatar</p>
-					<div class=" space-x-3 rounded-2xl p-2 px-3 border border-color2">
-						<label class="bg-color1 rounded-3xl text-black px-3 py-1 text-xs cursor-pointer" for="upload-avatar">
+		<div class="avatar-settings px-10 py-6 rounded-2xl bg-color4 flex-1 flex flex-col gap-6">
+			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
+			<div class="flex gap-16">
+				<div class="flex flex-col items-center gap-2">
+					<img id="userAvatar" src="${userData.profileImage}" class="
+					w-[150px] h-[150px] xl:w-[200px] xl:h-[200px] rounded-full border-2
+					border-color1" alt="user" />
+				<span class="text-sm text-color3">max size 2MB</span>
+				</div>
+				<div class="flex justify-center flex-col gap-6">
+						<label class="bg-color1 relative flex items-center
+						justify-center gap-2 2xl:w-[250px] 2xl:h-[55px] w-[200px] h-[45px] font-bold
+						rounded-2xl text-black px-2 py-1 text-xs cursor-pointer" for="upload-avatar">
 							<input
+							name="avatar"
 							id = "upload-avatar"
 							type="file"
-							class="hidden"
-							><img class="inline relative transform -translate-y-[10%]" src="images/upload.svg" alt="">
-							<span>Choose file</span>
+							class="hidden">
+							<img class="inline relative transform -translate-y-[10%]" src="images/upload.svg" alt="">
+							<span class="text-sm font-bold">Upload New Avatar</span>
 						</label>
-						<span id="file-name" class="sm:inline text-xs hidden text-txtColor">No files selected<span>
-					</div>
-					<p class="text-[#878787] text-xs">JPEG 100x100</p>
+						<button id="delete-avatar" class="border border-color2 2xl:w-[250px] 2xl:h-[55px] w-[200px] h-[45px]
+						font-bold rounded-2xl text-txtColor px-3 py-1 text-sm cursor-pointer">Delete Picture</button>
 				</div>
 			</div>
 		</div>
@@ -88,33 +210,35 @@ function render2FA() : string
 	`
 }
 
-function editingProfile() : string
+function accountSettings() : string
 {
 	return `
-		<div class="avatar-settings px-5 border border-color2 rounded-2xl mb-3 flex bg-color4 flex-col gap-4">
-			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Account Settings</p>
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col flex-1 gap-6">
+			<p class="text-color1 font-bold text-lg xl:text-2xl">Account Settings</p>
 			<div class="settings-name flex flex-col gap-2">
-				<p class="text-txtColor text-sm">username</p>
-				${input("Change username", 'text', data.userData?.username)}
+				<p class="text-txtColor text-sm ">username</p>
+				${input("Change username", 'text', userData?.username ?? "", "username")}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
 				<p class="text-txtColor text-sm">Your Bio</p>
 				<textarea
+					name="bio"
 					placeholder="Say something about yourself"
 					class="bg-transparent placeholder:text-sm text-txtColor border
 					border-color2 rounded-2xl h-[100px] p-3 focus:outline-none resize-none focus:border-color1 focus:border-[2px]"
-				></textarea>
+				>${userData.bio}</textarea>
 			</div>
 		</div>
 	`
 }
 
-function input(placeholder: string, type: string, value: string = "") : string
+function input(placeholder: string, type: string, value: string = "", name: string) : string
 {
 	return `
 		<input
 		value="${value}"
 		type="${type}"
+		name="${name}"
 		placeholder="${placeholder}"
 		class="bg-transparent border focus:outline-none focus:border-color1
 		focus:border-[2px] text-txtColor w-full placeholder:text-sm border-color2 rounded-2xl p-3"
@@ -125,49 +249,57 @@ function input(placeholder: string, type: string, value: string = "") : string
 function security() : string
 {
 	return `
-		<div class="avatar-settings px-5 border border-color2 rounded-2xl mb-3 flex bg-color4 flex-col gap-4">
-			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Security</p>
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col gap-6 flex-1">
+			<p class=" text-color1 font-bold text-lg xl:text-2xl">Security</p>
 			<div class="flex flex-col gap-2">
 				<p class="text-txtColor text-sm">Password</p>
-				<div class="flex gap-6 flex-col md:flex-row">
-					${input("Current Password", "password")}
-					${input("New Password", "password")}
-					${input("Confirm Password", "password")}
+				<div class="flex gap-6 flex-col 2xl:flex-row">
+					${input("Current Password", "password", "", "current-password")}
+					${input("New Password", "password", "", "new-password")}
+					${input("Confirm Password", "password", "", "confirm-password")}
 				</div>
 			</div>
 			${render2FA()}
 		</div>
 	`
-
 }
 
 function Account() : string
 {
 	return `
-		<div class="avatar-settings px-5 border border-color2 rounded-2xl mb-3 flex bg-color4 flex-col gap-4">
-			<p class="border-b text-color1 font-bold text-sm 2xl:text-lg border-color2 py-4 mb-5">Account</p>
-			<p class="text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
-			<button class="bg-red-500 text-white w-full md:w-[40%] rounded-xl py-2 px-4 mb-6 hover:bg-red-600">Delete Account</button>
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col gap-6 flex-1">
+			<p class="text-color1 font-bold text-lg xl:text-2xl">Account</p>
+			<div class="flex flex-col gap-4">
+				<p class="2xl:w-[60%] w-full text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
+				<button class="bg-red-500 text-white w-full lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
+			</div>
 		</div>
 	`
 }
 
 export async function renderSettings()
 {
-	if (!data.userData || !data.userData.id || !data.userData.username)
-		await data.initDashboard(false);
+	await data.initDashboard(false);
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = `
-		<div class="sm:px-16 settings flex-1">
-			<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl mb-[30px]">Settings</h1>
-			${avatarSettings()}
-			${editingProfile()}
-			${security()}
-			${Account()}
-			<button class="w-[160px] h-[40px] mb-6 rounded-3xl font-bold
-			text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
+		<div id="settings-page" class="sm:px-16 flex-1 flex flex-col gap-6">
+			<div class=" flex flex-row justify-between">
+				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Settings</h1>
+				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
+				text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
+			</div>
+			<div class="flex flex-col xl:flex-row gap-6">
+				${avatarSettings()}
+				${accountSettings()}
+			</div>
+			<div class="flex flex-col xl:flex-row gap-6">
+				${security()}
+				${Account()}
+			</div>
 		</div>
 	`;
-	sendAvatar();
+	addInputListeners();
+	// sendAvatar();
+	// deleteAvatar();
 }

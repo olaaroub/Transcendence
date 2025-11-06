@@ -5,7 +5,8 @@ const fastifyCors = require('@fastify/cors');
 const fastifyJwt = require('@fastify/jwt');
 
 
-const start = async () => {
+async function start() 
+{
 
     const db = await creatTable();
 
@@ -23,27 +24,21 @@ const start = async () => {
     fastify.decorate('db', db);
 
     fastify.addHook('preHandler', async (request, reply) => {
-      console.log(request.routeOptions.url);
-      //console.log(request.)
-      if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp' || request.routeOptions.url.startsWith('/public'))
-      {
-        console.log("in login");
+      if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp'
+        || request.routeOptions.url.startsWith('/public'))
         return ;
-      }
       try
       {
-        console.log("in try");
         await request.jwtVerify();
       } 
       catch {
-        // console.log(err);
         console.log("No token provided");
         reply.code(401).send({ error: 'No token provided' });
       }
 
     });
 
-    await routes(fastify);
+    fastify.register(routes);
     
     try {
         fastify.listen({ port: 3000 });
@@ -55,4 +50,3 @@ const start = async () => {
 }
 
 start();
-// console.log ("ddd");

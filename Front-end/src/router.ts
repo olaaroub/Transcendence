@@ -61,7 +61,7 @@ const routes: Route[] = [
         path: "/profile",
         render: async () => {
             const { renderProfile }  = await import("./pages/profile");
-            renderProfile();
+            renderProfile(true);
         }
     },
 ];
@@ -69,7 +69,6 @@ const routes: Route[] = [
 export function     navigate(path: string) {
     const current = window.location.pathname;
     if (current === path) return;
-    console.log("navigate called ->", path);
     window.history.pushState({}, "", path);
     router();
 }

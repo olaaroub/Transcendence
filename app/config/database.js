@@ -10,20 +10,36 @@ const creatTable = async () =>
 
     await db.exec(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        password TEXT,
-        email TEXT UNIQUE
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL
     );`);
 
     await db.exec(`CREATE TABLE IF NOT EXISTS infos (
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
-        profileImage TEXT,
+        profileImage TEXT DEFAULT 'http://127.0.0.1:3000/public/Default_pfp.jpg',
         TotalWins INTEGER,
+        bio TEXT DEFAULT '--',
         WinRate FLOAT,
         CurrentStreak INTEGER,
         Rating INTEGER,
-        FOREIGN KEY(user_id) REFERENCES users(id)
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+    );`);
+
+    await db.exec(`CREATE TABLE IF NOT EXISTS friendships (
+        id INTEGER PRIMARY KEY,
+        userRequester INTEGER,
+        userReceiver INTEGER,
+
+        status TEXT NOT NULL DEFAULT 'PENDING'
+        CHECK(status IN ('PENDING', 'ACCEPTED', 'REJECTED', 'BLOCKED')),
+    
+        FOREIGN KEY(userRequester) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY(userReceiver) REFERENCES users(id) ON DELETE CASCADE,
+
+        CHECK (userRequester <> userReceiver),
+        UNIQUE (userRequester, userReceiver)
     );`);
     return db;
 }

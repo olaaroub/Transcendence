@@ -2,6 +2,8 @@ import { navigate } from "../../router";
 
 export function logout()
 {
+    localStorage.removeItem('token');
+    localStorage.removeItem('id');
 	navigate('/login');
 }
 
@@ -22,6 +24,8 @@ export function renderProfileMenu () : HTMLElement
 
         div.className = `${item.lable} flex items-center gap-4 text-white`;
         div.addEventListener('click', _=>{
+            let menu = document.querySelector('.profile-menu');
+				if (menu) menu.remove();
             if (item.lable === 'Logout')
                 logout();
             else

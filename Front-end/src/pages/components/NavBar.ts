@@ -1,3 +1,5 @@
+import { IUserData } from "../store";
+
 interface UserData {
 	id: string;
 	username: string;
@@ -52,10 +54,10 @@ function searchBar() : string
 	`
 }
 
-export function renderDashboardNavBar(user: UserData | null, imageUrl: string | null): string {
+export function renderDashboardNavBar(user: IUserData | null, imageUrl: string | null): string {
 	return `
 	<nav class="flex justify-between items-center py-14 w-full m-auto md:px-10 h-[70px] mb-7">
-		<img onclick="navigate('/dashboard')" src="/images/logo.png"
+		<img id="main-logo" src="/images/logo.png"
 		class="w-[100px] xl:w-[130px] my-10 xl:my-14 block cursor-pointer" />
 		${searchBar()}
 		<div class="flex items-center gap-3 mr-6">
