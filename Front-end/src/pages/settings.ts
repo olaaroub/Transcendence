@@ -86,7 +86,7 @@ function SaveChanges()
 						headers,
 					})
 					if (!response.ok) {
-						console.error('server error');
+						alert(`Failed to update ${key}.`);
 					} else {
 						delete newUserData[key as keyof IUserData];
 					}
@@ -325,8 +325,12 @@ export async function renderSettings()
 		<div id="settings-page" class="sm:px-16 flex-1 flex flex-col gap-6">
 			<div class=" flex flex-row justify-between">
 				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Settings</h1>
+				<div class="flex gap-4">
+				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold text-txtColor
+				border border-color1 text-sm  hover:scale-105">Cancel Changes</button>
 				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
 				text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
+				</div>
 			</div>
 			<div class="flex flex-col xl:flex-row gap-6">
 				${avatarSettings()}
