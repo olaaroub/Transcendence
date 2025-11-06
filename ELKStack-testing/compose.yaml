@@ -30,7 +30,7 @@ services:
       - elasticsearch
 
   fluent-bit:
-    image: fluent/fluentbit
+    image: fluent/fluent-bit:4.1.1
     container_name: fluent-bit
     networks:
       - elk-net
