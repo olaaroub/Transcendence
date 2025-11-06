@@ -13,36 +13,38 @@ let avatar : FormData | null = null;
 async function checkPasswordChange() : Promise<boolean>
 {
 	const value = newUserData["new-password" as keyof IUserData];
-	if (value) {
-		const currentPassword = newUserData["current-password" as keyof IUserData] as string | undefined;
-		try {
-			if (!currentPassword) {
-				alert('Current password is required to change the password.');
-				return false;
-			}
-			console.log(JSON.stringify({ currentPassword, newPassword: value }));
-			const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-password`, {
-				method: 'PUT',
-				body: JSON.stringify({ currentPassword, newPassword: value }),
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": `Bearer ${localStorage.getItem('token')}`
-				}
-			});
-			if (!response.ok) {
-				alert('Failed to change password.');
-				return false;
-			}
-		} catch (error) {
-			console.error('Error changing password:', error);
-			return false;
-		}
-		const confirmPass = newUserData["confirm-password" as keyof IUserData] as string | undefined;
-		if (!confirmPass || value !== confirmPass) {
-			alert('New password and confirm password do not match.');
-			return false;
-		}
+	const currentPassword = newUserData["current-password" as keyof IUserData];
+	const confirmPassword = newUserData["confirm-password" as keyof IUserData];
+	if (!value && !currentPassword && !confirmPassword) {
+		return true;
 	}
+	if (!currentPassword) {
+		alert('Current password is required to change the password.');
+		return false;
+	}
+	if (!confirmPassword || value !== confirmPassword) {
+		alert('Invalid password confirmation.');
+		return false;
+	}
+	try {
+		console.log(JSON.stringify({ currentPassword, newPassword: value }));
+		const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-password`, {
+			method: 'PUT',
+			body: JSON.stringify({ currentPassword, newPassword: value }),
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${localStorage.getItem('token')}`
+			}
+		});
+		if (!response.ok) {
+			alert('Current password is incorrect.');
+			return false;
+		}
+	} catch (error) {
+		console.error('Error changing password:', error);
+		return false;
+	}
+
 	return true;
 }
 
