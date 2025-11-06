@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node ./app/app.js",
     "start": "node ./app/app.js",
-    "test": "tap tests/**/*.test.js --reporter=spec",
+    "test": "tap tests/**/*.test.js",
     "test:watch": "tap tests/**/*.test.js --watch",
     "test:coverage": "tap tests/**/*.test.js --coverage-report=html"
   },
