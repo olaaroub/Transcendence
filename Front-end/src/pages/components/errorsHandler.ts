@@ -30,7 +30,7 @@ export function showErrorMessage(message: string, statusCode: number) : void
     if (!body) return;
 
     body.innerHTML = `
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="fixed inset-0 bg-bgColor bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-96">
             <h2 class="text-xl font-bold mb-4 text-red-600">Error
             <span class="font-bold">${statusCode}</span></h2>

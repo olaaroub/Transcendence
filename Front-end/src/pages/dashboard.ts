@@ -6,31 +6,23 @@ import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
 import { renderLeaderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
+import { IUserData, setUserData, getUserData} from "./store"
 
 (window as any).navigate = navigate;
 
-interface UserData {
-	id: string;
-	username: string;
-}
-
-export let userData: UserData | null = null;
-export let userImage: Response | null = null;
-export let imageUrl: string | null = null;
-export let response: Response | null = null;
+export let userData: IUserData | null = getUserData();
+export let response: Response  | null = null;
 
 export async function initDashboard(isDashboard: boolean = true) {
 try {
 		const id = localStorage.getItem('id');
 		const token = localStorage.getItem('token');
-		console.log("hammou token : ", token);
 		if (!id || !token) {
 			console.warn('Missing credentials');
-			navigate('/sign-up');
+			navigate('/login');
 			return;
 		}
-
-		const response = await fetch(`http://127.0.0.1:3000/users/${id}`, {
+		const response = await fetch(`http://127.0.0.1:3000/users/${id}/profile`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
 		if (response.status === 401 || response.status === 403) {
@@ -39,24 +31,21 @@ try {
 			return;
 		}
 		try {
-			userData = await response.json();
+			const tmpUserData = await response.json();
+			setUserData(tmpUserData);
+			userData = getUserData();
 		} catch (parseErr) {
 			console.error('Invalid JSON from API:', parseErr);
 			showErrorMessage('Unexpected server response.', 502); // to test later
 			return;
 		}
-		const userImage = await fetch(`http://127.0.0.1:3000/users/${id}/image`, {
-			headers: { "Authorization": `Bearer ${token}` },
-		});
-		imageUrl = await userImage.text();
-		console.log('User Image URL:', imageUrl);
 		renderDashboard(isDashboard);
-	} catch (err) {
+	}	
+	catch (err) {
 		console.error('Network error:', err);
 		showErrorMessage('Server unreachable. Try again later.', 503);
 	}
 }
-
 
 function renderButton(nb: number) : string
 {
@@ -90,7 +79,7 @@ function gameOne() : string
 				animation-play-state: paused;
 			}
 		</style>
-		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 
+		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 h-[400px]
 		flex flex-col md:flex-row items-center md:items-start gap-8 overflow-visible
 		transition-all duration-500 transform hover:-translate-y-2 relative">
 			<div class="flex-1 min-w-0 space-y-5 md:space-y-6 md:pr-8 lg:pr-12 z-10">
@@ -122,9 +111,8 @@ function gameOne() : string
 function gameTwo() : string
 {
 	return `
-		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col
-		md:flex-row items-center md:items-start gap-8 overflow-visible shadow-xl hover:shadow-2xl
-		transition-all duration-500 transform hover:-translate-y-2 relative" style="animation-delay: 0.5s;">
+		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col h-[400px]
+		md:flex-row items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
 			<div class="flex-1 min-w-0 space-y-5 md:space-y-6 md:pr-8 lg:pr-12 z-10">
 				${renderButton(2)}
 				<h2 class="text-txtColor text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight
@@ -254,7 +242,7 @@ function renderStatistics(): string {
 
 function renderAnalyticsSection(): string {
 	return `
-		<div class="w-full md:w-2/3">
+		<div class="w-full md:w-[47%]">
 			${renderLeaderboard()}
 			${renderStatistics()}
 		</div>
@@ -263,7 +251,7 @@ function renderAnalyticsSection(): string {
 
 function renderDashboardContent(): string {
 	return `
-		<div class="flex flex-row gap-6 mt-6">
+		<div class="flex gap-6 mt-6" >
 			${renderAnalyticsSection()}
 			${renderGroupChat()}
 		</div>
@@ -288,15 +276,18 @@ function renderMain() : string
 
 export function renderDashboard(isDashboard: boolean = true)
 {
-	console.log('Rendering dashboard: ', isDashboard);
 	document.body.innerHTML = `
-		<div class=" bg-black min-h-screen">
-			${renderDashboardNavBar(userData, imageUrl)}
+		<div class=" bg-bgColor min-h-screen">
+			${renderDashboardNavBar(userData, userData!.profileImage)}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
 				${isDashboard ? renderMain() : ''}
 			</main>
 		</div>
 	`;
+	document.getElementById('main-logo')?.addEventListener('click', _=>{
+		console.log('clicked on main-logo');
+		navigate('/dashboard');
+	})
 	if (isDashboard)
 		slidingLogic();
 	const avatar = document.getElementById('avatar');
