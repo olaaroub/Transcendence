@@ -102,13 +102,16 @@ test('Settings Routes', async (t) => {
     });
 
     await t.test('PUT /users/:id/settings-password - successful update', async (t) => {
+        mockDb.get.resolves({ password: '1234' });
         mockDb.run.resolves();
 
         const response = await app.inject({
             method: 'PUT',
             url: '/users/1/settings-password',
             headers: createAuthHeader(),
-            payload: { password: 'newpassword123' }
+            payload: { 
+                currentPassword: '1234', 
+                newPassword: '12354' }
         });
 
         t.equal(response.statusCode, 200, 'should return 200 status');
