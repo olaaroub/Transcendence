@@ -29,7 +29,6 @@ async function checkPasswordChange() : Promise<boolean>
 					"Authorization": `Bearer ${localStorage.getItem('token')}`
 				}
 			});
-			console.log('response', response);
 			if (!response.ok) {
 				alert('Failed to change password.');
 				return false;
