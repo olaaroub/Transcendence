@@ -10,33 +10,72 @@ let headers : Record<string, string> = {
 }
 let avatar : FormData | null = null;
 
+async function checkPasswordChange() : Promise<boolean>
+{
+	const value = newUserData["new-password" as keyof IUserData];
+	if (value) {
+		const currentPassword = newUserData["current-password" as keyof IUserData] as string | undefined;
+		try {
+			if (!currentPassword) {
+				alert('Current password is required to change the password.');
+				return false;
+			}
+			console.log(JSON.stringify({ currentPassword, newPassword: value }));
+			const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-password`, {
+				method: 'PUT',
+				body: JSON.stringify({ currentPassword, newPassword: value }),
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${localStorage.getItem('token')}`
+				}
+			});
+			console.log('response', response);
+			if (!response.ok) {
+				alert('Failed to change password.');
+				return false;
+			}
+		} catch (error) {
+			console.error('Error changing password:', error);
+			return false;
+		}
+		const confirmPass = newUserData["confirm-password" as keyof IUserData] as string | undefined;
+		if (!confirmPass || value !== confirmPass) {
+			alert('New password and confirm password do not match.');
+			return false;
+		}
+	}
+	return true;
+}
+
 function SaveChanges()
 {
 	const settingsPage = document.getElementById('settings-page');
 	if (!settingsPage) return;
 	const saveBtn = settingsPage.querySelector('button');
 	if (!saveBtn) return;
-	saveBtn.addEventListener('click', async () => {
-		if (Object.keys(newUserData).length === 0) {
-			alert('No changes to save.');
-			return;
-		}
-		if (!await confirmPopUp('Do you want to apply these changes?')) return;
-		try {
-				let path: string | null;
+		saveBtn.addEventListener('click', async () => {
+			if (Object.keys(newUserData).length === 0) {
+				alert('No changes to save.');
+				return;
+			}
+			if (!await checkPasswordChange()) return;
+			if (!await confirmPopUp('Do you want to apply these changes?')) return;
+			try {
 				for (const key of Object.keys(newUserData)) {
 					const value = newUserData[key as keyof IUserData];
 					if (value === undefined || value === null) {
 						delete newUserData[key as keyof IUserData];
 						continue;
 					}
-					if (key === 'avatar' && avatar)
-					{
-						body = avatar;
-						console.log(avatar);
+					if (key === 'current-password' || key === 'new-password' || key === 'confirm-password') {
+						delete newUserData[key as keyof IUserData];
+						continue;
 					}
-					else
-					{
+					else if (key === 'avatar' && avatar) {
+						body = avatar;
+						delete headers["Content-Type"];
+					}
+					else {
 						body = JSON.stringify({ [key]: value });
 						headers["Content-Type"] = "application/json";
 					}
@@ -44,12 +83,13 @@ function SaveChanges()
 						method : 'PUT',
 						body,
 						headers,
-						
 					})
-					if (!response.ok)
+					if (!response.ok) {
 						console.error('server error');
-					newUserData = {};
-					renderSettings();
+					} else {
+						delete newUserData[key as keyof IUserData];
+					}
+					if (Object.keys(newUserData).length === 0) renderSettings();
 				}
 		}catch (err) {
 			console.error("Error saving changes", err);
@@ -102,13 +142,11 @@ function confirmPopUp(message: string) : Promise<boolean>
 		const cancelBtn = deletePopUp.querySelector("#cancel-btn") as HTMLButtonElement;
 
 		confirmBtn.addEventListener("click", () => {
-			console.log('click on confirm');
 			deletePopUp.remove();
 			resolve(true);
 		});
 
 		cancelBtn.addEventListener("click", () => {
-			console.log('click on cancel');
 			deletePopUp.remove();
 			resolve(false);
 		});

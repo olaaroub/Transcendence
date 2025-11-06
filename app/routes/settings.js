@@ -28,11 +28,18 @@ async function change_bio(req, reply)
 async function change_password(req, reply)
 {
 	const id = req.params.id;
-	const body = req.body;
+	const data = req.body;
 	try {
-		await this.db.run("UPDATE users SET password = ? WHERE id = ?", [body.password, id]);
-		reply.code(200).send({ message: "updating successfly password", success: true });
-	} catch {
+		const currentPassword = await this.db.get("SELECT password FROM users WHERE id = ?", [id]);
+		if (currentPassword.password == data.currentPassword)
+		{
+			await this.db.run("UPDATE users SET password = ? WHERE id = ?", [data.newPassword, id]);
+			reply.code(200).send({ message: "updating successfly password", success: true });
+		}
+		else
+		reply.code(401).send({ message: "you can't updating password", success: false });
+	} catch (err) {
+		console.log(err);
 		reply.code(500).code({ message: "Error updating password", success: false });
 	}
 }
