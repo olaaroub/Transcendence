@@ -12,7 +12,7 @@ async function getProfileImages(req, reply)
   try
   {
     const id = req.params.id;
-    const img = await fastify.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
+    const img = await req.server.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
     reply.code(200).send(img.profileImage);
   }
   catch (err)
