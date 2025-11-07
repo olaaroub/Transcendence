@@ -2,7 +2,7 @@ import { renderAuthPage } from "./components/loginPage"
 import { navigate } from "../router";
 
 export async function sendAuthData(data: Record<string, string>, path:string) {
-	try 
+	try
 	{
 		const isSignup = (path === 'signUp');
 		const response = await fetch("http://127.0.0.1:3000/" + path, {
