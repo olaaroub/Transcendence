@@ -22,21 +22,22 @@ async function start()
     });
 
     fastify.decorate('db', db);
+    // fastify.register(require('@fastify/websocket'));
+    fastify.register(require('@fastify/websocket'))
+    // fastify.addHook('preHandler', async (request, reply) => {
+    //   if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp' || request.routeOptions.url === '/'
+    //     || request.routeOptions.url.startsWith('/public'))
+    //     return ;
+    //   try
+    //   {
+    //     await request.jwtVerify();
+    //   } 
+    //   catch {
+    //     console.log("No token provided");
+    //     reply.code(401).send({ error: 'No token provided' });
+    //   }
 
-    fastify.addHook('preHandler', async (request, reply) => {
-      if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp'
-        || request.routeOptions.url.startsWith('/public'))
-        return ;
-      try
-      {
-        await request.jwtVerify();
-      } 
-      catch {
-        console.log("No token provided");
-        reply.code(401).send({ error: 'No token provided' });
-      }
-
-    });
+    // });
 
     fastify.register(routes);
     
