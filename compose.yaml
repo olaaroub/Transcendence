@@ -3,7 +3,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile.backend
-    image: backend:42
+    image: backend:1337
     container_name: backend
     networks:
       - transcendence-net
@@ -16,7 +16,7 @@ services:
     build:
       context: ./Front-end
       dockerfile: Dockerfile
-    image: frontend:42
+    image: frontend:1337
     container_name: frontend
     ports:
       - "8080:80"
