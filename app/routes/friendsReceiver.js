@@ -4,13 +4,17 @@
         accept: true/false,
         id: 4
     }
+    ,i.profileImage
+                                INNERE JOIN
+                                infos AS i ON f.userReceiver = i.user_id
 */
 
 async function getPendingRequestes(req, reply)
 {
     try
     {
-        const data = await this.db.all(`SELECT u.username, u.id ,i.profileImage
+        const id = req.params.id
+        const data = await this.db.all(`SELECT u.username, u.id
                           FROM
                             users AS u
                             INNER JOIN
@@ -21,15 +25,14 @@ async function getPendingRequestes(req, reply)
                                 )
                                 WHERE
                                     f.userReceiver = ? AND f.status = 'PENDING'
-                            INNERE JOIN
-                                infos AS i ON f.userReceiver = f.user_id
-                        `);
+                        `, [id, id]);
         console.log(data);
         reply.code(200).send(data);
 
     }
     catch (err) {
-        reply.code(500).code({"message": "internal server error"});
+        console.log(err);
+        reply.code(500).send({"message": "internal server error"});
     }
 }
 
