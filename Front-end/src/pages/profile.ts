@@ -1,5 +1,5 @@
 import * as data from "./dashboard"
-import { IUserData } from "./store";
+import { getUserData, IUserData } from "./store";
 
 const stats = [
 	{ label: "XP", value: "2500" },
@@ -36,8 +36,21 @@ function recentMatches() : string
 	`
 }
 
-export async function renderProfile(isMyProfile: boolean, userData: IUserData | null = data.userData)
+async function getUserDataById(userId: string | null) : Promise<IUserData | null>
 {
+	if (!userId)
+		return null;
+	const userData = await getUserData();
+	return userData;
+}
+
+export async function renderProfile(isMyProfile: boolean, userId: string | null = null)
+{
+	let userData : IUserData | null = null;
+	if (isMyProfile)
+		userData = data.userData;
+	else
+		userData = await getUserDataById(userId);
 	if (!data.userData || !data.userData.id || !data.userData.username)
 		await data.initDashboard(false);
 	const dashContent = document.getElementById('dashboard-content');

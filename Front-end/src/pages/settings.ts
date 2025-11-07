@@ -28,7 +28,7 @@ async function checkPasswordChange() : Promise<boolean>
 	}
 	try {
 		console.log(JSON.stringify({ currentPassword, newPassword: value }));
-		const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-password`, {
+		const response = await fetch(`api/users/${userData?.id}/settings-password`, {
 			method: 'PUT',
 			body: JSON.stringify({ currentPassword, newPassword: value }),
 			headers: {
@@ -80,7 +80,7 @@ function SaveChanges()
 						body = JSON.stringify({ [key]: value });
 						headers["Content-Type"] = "application/json";
 					}
-					const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-${key}`, {
+					const response = await fetch(`api/users/${userData?.id}/settings-${key}`, {
 						method : 'PUT',
 						body,
 						headers,
@@ -164,7 +164,7 @@ async function deleteAvatar()
 		if (!confirmed) return;
 		try
 		{
-			const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/image`, {
+			const response = await fetch(`api/users/${userData?.id}/image`, {
 				method: 'DELETE',
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			});
