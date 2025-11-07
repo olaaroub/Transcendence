@@ -5,12 +5,13 @@
   "license": "ISC",
   "author": "",
   "type": "commonjs",
-  "main": "app/app.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "node ./app/app.js",
-    "test": "tap tests/**/*.test.js",
-    "test:watch": "tap tests/**/*.test.js --watch",
-    "test:coverage": "tap tests/**/*.test.js --coverage-report=html"
+    "start": "node app.js",
+    "dev": "node app.js",
+    "test": "tap ../tests/**/*.test.js",
+    "test:watch": "tap ../tests/**/*.test.js --watch",
+    "test:coverage": "tap ../tests/**/*.test.js --coverage-report=html"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
