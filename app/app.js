@@ -1,56 +1,60 @@
-const fastify = require('fastify')( {logger: false} )
+const fastify = require('fastify')({ logger: true })
 const routes = require('./routes/mainRoutes');
 const creatTable = require('./config/database');
 const fastifyCors = require('@fastify/cors');
 const fastifyJwt = require('@fastify/jwt');
 
 
-async function start()
-{
+async function start() {
 
-    const db = await creatTable();
+  const db = await creatTable();
 
+  await fastify.register(fastifyCors, {
+    origin: true, // ba9i khasni npisifi frontend ip
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    // allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
-    await fastify.register(fastifyCors, {
-      origin: true, // ba9i khasni npisifi frontend ip
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      // allowedHeaders: ['Content-Type', 'Authorization'],
-    });
+  fastify.register(fastifyJwt, {
+    secret: 'supersecret'
+  });
 
-    fastify.register(fastifyJwt, {
-      secret: 'supersecret'
-    });
+  fastify.decorate('db', db);
+  // fastify.register(require('@fastify/websocket'));
+  fastify.register(require('@fastify/websocket'))
 
-    fastify.decorate('db', db);
+  fastify.addHook('preHandler', async (request, reply) => {
+    const url = request.url;
+    console.log("Requested URL:", url);
 
-    fastify.addHook('preHandler', async (request, reply) => {
-      if (request.routeOptions.url === '/login' || request.routeOptions.url === '/signUp'
-        || request.routeOptions.url.startsWith('/public'))
-        return ;
-      try
-      {
-        await request.jwtVerify();
-      }
-      catch {
-        console.log("No token provided");
-        reply.code(401).send({ error: 'No token provided' });
-      }
+    // Normalize double slashes to single slash
+    const normalizedUrl = url.replace(/\/+/g, '/');
 
-    });
-
-    fastify.register(routes);
-
+    if (normalizedUrl.includes('/login') || normalizedUrl.includes('/signUp') || normalizedUrl === '/'
+      || normalizedUrl.startsWith('/public'))
+      return;
     try {
-        fastify.listen({
-            port: process.env.PORT || 3000,
-            host: process.env.HOST || '0.0.0.0'
-        });
-        console.log(`Server listening on ${process.env.HOST || '0.0.0.0'}:${process.env.PORT || 3000}`);
-    } catch(err)
-    {
-      fastify.log.error(err)
-      process.exit(1)
+      await request.jwtVerify();
     }
+    catch {
+      console.log("No token provided");
+      reply.code(401).send({ error: 'No token provided' });
+    }
+
+  });
+
+  fastify.register(routes);
+
+  try {
+    fastify.listen({
+      port: process.env.PORT || 3000,
+      host: process.env.HOST || '0.0.0.0'
+    });
+    console.log(`Server listening on ${process.env.HOST || '0.0.0.0'}:${process.env.PORT || 3000}`);
+  } catch (err) {
+    fastify.log.error(err)
+    process.exit(1)
+  }
 }
 
 start();
