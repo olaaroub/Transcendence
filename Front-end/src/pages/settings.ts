@@ -13,37 +13,38 @@ let avatar : FormData | null = null;
 async function checkPasswordChange() : Promise<boolean>
 {
 	const value = newUserData["new-password" as keyof IUserData];
-	if (value) {
-		const currentPassword = newUserData["current-password" as keyof IUserData] as string | undefined;
-		try {
-			if (!currentPassword) {
-				alert('Current password is required to change the password.');
-				return false;
-			}
-			console.log(JSON.stringify({ currentPassword, newPassword: value }));
-			const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-password`, {
-				method: 'PUT',
-				body: JSON.stringify({ currentPassword, newPassword: value }),
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": `Bearer ${localStorage.getItem('token')}`
-				}
-			});
-			console.log('response', response);
-			if (!response.ok) {
-				alert('Failed to change password.');
-				return false;
-			}
-		} catch (error) {
-			console.error('Error changing password:', error);
-			return false;
-		}
-		const confirmPass = newUserData["confirm-password" as keyof IUserData] as string | undefined;
-		if (!confirmPass || value !== confirmPass) {
-			alert('New password and confirm password do not match.');
-			return false;
-		}
+	const currentPassword = newUserData["current-password" as keyof IUserData];
+	const confirmPassword = newUserData["confirm-password" as keyof IUserData];
+	if (!value && !currentPassword && !confirmPassword) {
+		return true;
 	}
+	if (!currentPassword) {
+		alert('Current password is required to change the password.');
+		return false;
+	}
+	if (!confirmPassword || value !== confirmPassword) {
+		alert('Invalid password confirmation.');
+		return false;
+	}
+	try {
+		console.log(JSON.stringify({ currentPassword, newPassword: value }));
+		const response = await fetch(`api/users/${userData?.id}/settings-password`, {
+			method: 'PUT',
+			body: JSON.stringify({ currentPassword, newPassword: value }),
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${localStorage.getItem('token')}`
+			}
+		});
+		if (!response.ok) {
+			alert('Current password is incorrect.');
+			return false;
+		}
+	} catch (error) {
+		console.error('Error changing password:', error);
+		return false;
+	}
+
 	return true;
 }
 
@@ -79,13 +80,13 @@ function SaveChanges()
 						body = JSON.stringify({ [key]: value });
 						headers["Content-Type"] = "application/json";
 					}
-					const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-${key}`, {
+					const response = await fetch(`api/users/${userData?.id}/settings-${key}`, {
 						method : 'PUT',
 						body,
 						headers,
 					})
 					if (!response.ok) {
-						console.error('server error');
+						alert(`Failed to update ${key}.`);
 					} else {
 						delete newUserData[key as keyof IUserData];
 					}
@@ -163,7 +164,7 @@ async function deleteAvatar()
 		if (!confirmed) return;
 		try
 		{
-			const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/image`, {
+			const response = await fetch(`api/users/${userData?.id}/image`, {
 				method: 'DELETE',
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			});
@@ -324,8 +325,12 @@ export async function renderSettings()
 		<div id="settings-page" class="sm:px-16 flex-1 flex flex-col gap-6">
 			<div class=" flex flex-row justify-between">
 				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Settings</h1>
+				<div class="flex gap-4">
+				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold text-txtColor
+				border border-color1 text-sm  hover:scale-105">Cancel Changes</button>
 				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
 				text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
+				</div>
 			</div>
 			<div class="flex flex-col xl:flex-row gap-6">
 				${avatarSettings()}
