@@ -27,11 +27,9 @@ async function start() {
     const url = request.url;
     console.log("Requested URL:", url);
 
-    // Normalize double slashes to single slash
-    const normalizedUrl = url.replace(/\/+/g, '/');
 
-    if (normalizedUrl.includes('/login') || normalizedUrl.includes('/signUp') || normalizedUrl === '/'
-      || normalizedUrl.startsWith('/public'))
+    if (url.includes('/login') || url.includes('/signUp') || url === '/'
+      || url.startsWith('/public'))
       return;
     try {
       await request.jwtVerify();
