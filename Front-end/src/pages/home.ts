@@ -4,7 +4,7 @@ import { renderHomeText } from "./components/ForTexts"
 import { renderFooter } from "./components/footer"
 import { isUserAuthenticated } from "./components/errorsHandler";
 
-export async function renderHome(app: HTMLElement)
+export async function renderHome()
 {
 	// const isAuth = await isUserAuthenticated();
 	// if (isAuth) {

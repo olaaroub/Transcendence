@@ -1,5 +1,5 @@
 import * as data from "./dashboard"
-import { getUserData, IUserData, getImageUrl } from "./store";
+import { userData, IUserData, getImageUrl } from "./store";
 
 const stats = [
 	{ label: "XP", value: "2500" },
@@ -36,23 +36,30 @@ function recentMatches() : string
 	`
 }
 
-async function getUserDataById(userId: string | null) : Promise<IUserData | null>
-{
-	if (!userId)
-		return null;
-	const userData = await getUserData();
-	return userData;
-}
+// async function getUserDataById(userId: string | null) : Promise<IUserData | null>
+// {
+// 	if (!userId)
+// 		return null;
+// 	const userData = await getUserData();
+// 	return userData;
+// }
 
-export async function renderProfile(isMyProfile: boolean, userId: string | null = null)
+export async function renderProfile(userId: string | null = null)
 {
-	let userData : IUserData | null = null;
-	if (isMyProfile)
-		userData = data.userData;
-	else
-		userData = await getUserDataById(userId);
-	if (!data.userData || !data.userData.id || !data.userData.username)
+	if (!userData || !userData.id || !userData.username)
 		await data.initDashboard(false);
+
+	let tmpUserData : IUserData | null = null;
+	console.log("renderProfile", userId, userData);
+	console.log("userId : ", userId, "data.userData.id : ", userData?.id);
+	if (userData && userData.id == userId)
+		tmpUserData = userData;
+	else
+	{
+		return ;
+		// userData = await getUserDataById(userId);
+	}
+
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
 		const imageUrl = getImageUrl(userData?.profileImage); // hada howa l fix li sherni 4 sway3
@@ -67,7 +74,7 @@ export async function renderProfile(isMyProfile: boolean, userId: string | null 
 						<p class="text-color3 mb-4 w-[70%]">${userData?.bio}</p>
 						<button class="bg-gradient-to-r from-color1 to-[#af4814]
 						w-[150px] rounded-xl text-lg font-bold p-3 flex gap-2 justify-center">
-						<img class="inline" src="images/addFriend.svg" alt="add friend">Add Friend</button>
+						<img class="inline" src="images/addFriend.svg">Add Friend</button>
 					</div>
 				</div>
 				${UserStats()}

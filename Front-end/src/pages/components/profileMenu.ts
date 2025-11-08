@@ -10,9 +10,9 @@ export function logout()
 export function renderProfileMenu () : HTMLElement 
 {
     const profileMenu = [
-        {icon: '/images/profile.svg', lable: "Profile"},
-        {icon: '/images/settings.svg', lable: "Settings"},
-        {icon: '/images/logout.svg', lable: "Logout"},
+        {icon: '/images/profile.svg', label: "Profile"},
+        {icon: '/images/settings.svg', label: "Settings"},
+        {icon: '/images/logout.svg', label: "Logout"},
     ]
 
     const divMenu = document.createElement('div');
@@ -22,21 +22,23 @@ export function renderProfileMenu () : HTMLElement
     profileMenu.forEach(item => {
         const div = document.createElement('div');
 
-        div.className = `${item.lable} flex items-center gap-4 text-white`;
+        div.className = `${item.label} flex items-center gap-4 text-white`;
         div.addEventListener('click', _=>{
             let menu = document.querySelector('.profile-menu');
 				if (menu) menu.remove();
-            if (item.lable === 'Logout')
+            if (item.label === 'Logout')
                 logout();
+            else if (item.label === 'Profile')
+                navigate(`/profile/${localStorage.getItem('id')}`);
             else
-                navigate(`/${item.lable}`.toLowerCase());
+                navigate(`/${item.label}`.toLowerCase());
         })
         const img = document.createElement('img');
         img.className = "w-[20px] h-[20px]";
         img.src = item.icon;
 
         const span = document.createElement('span');
-        span.textContent = item.lable;
+        span.textContent = item.label;
         span.className = "hover:text-color1 trasition-colors duration-200";
 
         div.appendChild(img);

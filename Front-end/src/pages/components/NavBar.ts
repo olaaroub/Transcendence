@@ -74,7 +74,7 @@ export function renderDashboardNavBar(user: IUserData | null, imageUrl: string |
 				<div id="avatar" class=" relative cursor-pointer
 				transition-transform duration-300">
 					<img src="${imageUrl}" class=" w-[50px] h-[50px] rounded-full
-					border-2 border-transparent" alt="user" />
+					border-2 border-transparent" alt="userAvatar"/>
 					<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500
 					border-2 border-[#0f2a3a] rounded-full"></span>
 				</div>
