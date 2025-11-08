@@ -62,21 +62,23 @@ export function notifications()
 	if (!notificationIcon) return;
 		notificationIcon.addEventListener('click', () => {
 			const result = document.createElement('div');
-			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-6
-			border border-color2 rounded-lg shadow-lg p-3 z-50 max-h-[300px] items-center`;
+			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-4
+			border border-[#87878766] rounded-lg shadow-lg py-3 px-6 z-50 max-h-[300px] items-center`;
 			result.id = "notifications-result";
 			result.innerHTML = `
-				<p class="text-txtColor text-lg font-bold text-center
+				<p class="text-txtColor w-full text-lg font-bold text-center
 				border-b border-color3 pb-3">Notifications</p>
 			`
 			for(const user of mockData)
 			{
 				const pandingUser = document.createElement('div');
-				pandingUser.className = `flex gap-3 bg-color4`;
+				pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
 				pandingUser.innerHTML = `
-					<img class="w-[30px] h-[30px] rounded-full" src="images/mmondad.jpeg" alt="">
-					<span class="text-txtColor">${user}</span>
-					<button class="bg-color1 rounded-2xl text-black">accept</button>
+					<div class="flex gap-3 items-center">
+						<img class="w-[45px] h-[45px] rounded-full" src="images/mmondad.jpeg" alt="">
+						<span class="text-txtColor text-lg">${user}</span>
+					</div>
+					<button class="bg-color1 text-sm px-4 h-8 font-bold rounded-xl text-black">accept</button>
 				`
 				result.append(pandingUser);
 			}
@@ -91,7 +93,7 @@ export function notifications()
 
 export function renderDashboardNavBar(user: IUserData | null, imageUrl: string | null): string {
 	return `
-	<nav class="flex justify-between items-center py-14 w-full m-auto md:px-10 h-[70px] mb-7">
+	<nav class="relative z-50 flex justify-between items-center py-14 w-full m-auto md:px-10 h-[70px] mb-7">
 		<img id="main-logo" src="/images/logo.png"
 		class="w-[100px] xl:w-[130px] my-10 xl:my-14 block cursor-pointer" />
 		${searchBar()}
