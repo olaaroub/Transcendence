@@ -1,10 +1,12 @@
 const sqlite3 = require('sqlite3').verbose();
 const open = require('sqlite').open;
 
+const DB_PATH = process.env.DB_PATH || '/app/db/database.db';
+
 const creatTable = async () =>
 {
     const db = await open({
-        filename: 'database.db',
+        filename: DB_PATH,
         driver: sqlite3.Database
     });
 
@@ -18,7 +20,7 @@ const creatTable = async () =>
     await db.exec(`CREATE TABLE IF NOT EXISTS infos (
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
-        profileImage TEXT DEFAULT 'http://127.0.0.1:3000/public/Default_pfp.jpg',
+        profileImage TEXT DEFAULT '/public/Default_pfp.jpg',
         TotalWins INTEGER,
         bio TEXT DEFAULT '--',
         WinRate FLOAT,
@@ -34,7 +36,7 @@ const creatTable = async () =>
 
         status TEXT NOT NULL DEFAULT 'PENDING'
         CHECK(status IN ('PENDING', 'ACCEPTED', 'REJECTED', 'BLOCKED')),
-    
+
         FOREIGN KEY(userRequester) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY(userReceiver) REFERENCES users(id) ON DELETE CASCADE,
 

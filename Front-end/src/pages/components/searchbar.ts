@@ -6,7 +6,7 @@ interface UserData {
     username: string;
 }
 
-async function ViewProfile() {
+async function ViewProfile(userId: string) {
 	document.querySelector('#search-results')?.remove();
 	navigate('/profile');
 }
@@ -21,7 +21,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		view.textContent = 'view';
 		view.className = "font-bold text-color2 hover:scale-110 hover:text-white";
 		view.addEventListener('click', _=> {
-			ViewProfile();
+			ViewProfile(user.id);
 		});
 
 		const p = document.createElement('p');
@@ -47,7 +47,7 @@ export async function searchbar() {
 		div.className = `absolute z-10 top-[44px] left-0 w-full max-h-[300px]
 		overflow-y-auto bg-color4 border border-[#87878766] rounded-xl `;
 		// const filteredUsers = mockUsers.filter(user => user.toLowerCase().includes(value.toLowerCase()));
-			const response = await fetch(`http://127.0.0.1:3000/users/search?username=${value}`, { // i must add try catch
+			const response = await fetch(`api/users/search?username=${value}`, { // i must add try catch
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			});
 			const users: UserData[] = await response.json();

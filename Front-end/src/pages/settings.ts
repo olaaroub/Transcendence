@@ -1,6 +1,6 @@
 
 import * as data from "./dashboard"
-import { IUserData, setUserData, getUserData} from "./store"
+import { IUserData, setUserData, getUserData, getImageUrl} from "./store"
 
 const 	userData : IUserData = getUserData();
 let newUserData: Partial<IUserData> = {};
@@ -10,46 +10,87 @@ let headers : Record<string, string> = {
 }
 let avatar : FormData | null = null;
 
+async function checkPasswordChange() : Promise<boolean>
+{
+	const value = newUserData["new-password" as keyof IUserData];
+	const currentPassword = newUserData["current-password" as keyof IUserData];
+	const confirmPassword = newUserData["confirm-password" as keyof IUserData];
+	if (!value && !currentPassword && !confirmPassword) {
+		return true;
+	}
+	if (!currentPassword) {
+		alert('Current password is required to change the password.');
+		return false;
+	}
+	if (!confirmPassword || value !== confirmPassword) {
+		alert('Invalid password confirmation.');
+		return false;
+	}
+	try {
+		console.log(JSON.stringify({ currentPassword, newPassword: value }));
+		const response = await fetch(`api/users/${userData?.id}/settings-password`, {
+			method: 'PUT',
+			body: JSON.stringify({ currentPassword, newPassword: value }),
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${localStorage.getItem('token')}`
+			}
+		});
+		if (!response.ok) {
+			alert('Current password is incorrect.');
+			return false;
+		}
+	} catch (error) {
+		console.error('Error changing password:', error);
+		return false;
+	}
+
+	return true;
+}
+
 function SaveChanges()
 {
 	const settingsPage = document.getElementById('settings-page');
 	if (!settingsPage) return;
 	const saveBtn = settingsPage.querySelector('button');
 	if (!saveBtn) return;
-	saveBtn.addEventListener('click', async () => {
-		if (Object.keys(newUserData).length === 0) {
-			alert('No changes to save.');
-			return;
-		}
-		if (!await confirmPopUp('Do you want to apply these changes?')) return;
-		try {
-				let path: string | null;
+		saveBtn.addEventListener('click', async () => {
+			if (Object.keys(newUserData).length === 0) {
+				alert('No changes to save.');
+				return;
+			}
+			if (!await checkPasswordChange()) return;
+			if (!await confirmPopUp('Do you want to apply these changes?')) return;
+			try {
 				for (const key of Object.keys(newUserData)) {
 					const value = newUserData[key as keyof IUserData];
 					if (value === undefined || value === null) {
 						delete newUserData[key as keyof IUserData];
 						continue;
 					}
-					if (key === 'avatar' && avatar)
-					{
-						body = avatar;
-						console.log(avatar);
+					if (key === 'current-password' || key === 'new-password' || key === 'confirm-password') {
+						delete newUserData[key as keyof IUserData];
+						continue;
 					}
-					else
-					{
+					else if (key === 'avatar' && avatar) {
+						body = avatar;
+						delete headers["Content-Type"];
+					}
+					else {
 						body = JSON.stringify({ [key]: value });
 						headers["Content-Type"] = "application/json";
 					}
-					const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/settings-${key}`, {
+					const response = await fetch(`api/users/${userData?.id}/settings-${key}`, {
 						method : 'PUT',
 						body,
 						headers,
-						
 					})
-					if (!response.ok)
-						console.error('server error');
-					newUserData = {};
-					renderSettings();
+					if (!response.ok) {
+						alert(`Failed to update ${key}.`);
+					} else {
+						delete newUserData[key as keyof IUserData];
+					}
+					if (Object.keys(newUserData).length === 0) renderSettings();
 				}
 		}catch (err) {
 			console.error("Error saving changes", err);
@@ -102,13 +143,11 @@ function confirmPopUp(message: string) : Promise<boolean>
 		const cancelBtn = deletePopUp.querySelector("#cancel-btn") as HTMLButtonElement;
 
 		confirmBtn.addEventListener("click", () => {
-			console.log('click on confirm');
 			deletePopUp.remove();
 			resolve(true);
 		});
 
 		cancelBtn.addEventListener("click", () => {
-			console.log('click on cancel');
 			deletePopUp.remove();
 			resolve(false);
 		});
@@ -125,7 +164,7 @@ async function deleteAvatar()
 		if (!confirmed) return;
 		try
 		{
-			const response = await fetch(`http://127.0.0.1:3000/users/${userData?.id}/image`, {
+			const response = await fetch(`api/users/${userData?.id}/image`, {
 				method: 'DELETE',
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			});
@@ -161,7 +200,7 @@ function avatarSettings() : string
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
 			<div class="flex gap-16">
 				<div class="flex flex-col items-center gap-2">
-					<img id="userAvatar" src="${userData.profileImage}" class="
+					<img id="userAvatar" src="${getImageUrl(userData.profileImage)}" class="
 					w-[150px] h-[150px] xl:w-[200px] xl:h-[200px] rounded-full border-2
 					border-color1" alt="user" />
 				<span class="text-sm text-color3">max size 2MB</span>
@@ -286,8 +325,12 @@ export async function renderSettings()
 		<div id="settings-page" class="sm:px-16 flex-1 flex flex-col gap-6">
 			<div class=" flex flex-row justify-between">
 				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Settings</h1>
+				<div class="flex gap-4">
+				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold text-txtColor
+				border border-color1 text-sm  hover:scale-105">Cancel Changes</button>
 				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
 				text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
+				</div>
 			</div>
 			<div class="flex flex-col xl:flex-row gap-6">
 				${avatarSettings()}

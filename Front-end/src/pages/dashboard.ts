@@ -6,7 +6,7 @@ import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
 import { renderLeaderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
-import { IUserData, setUserData, getUserData} from "./store"
+import { IUserData, setUserData, getUserData, getImageUrl} from "./store"
 
 (window as any).navigate = navigate;
 
@@ -22,7 +22,7 @@ try {
 			navigate('/login');
 			return;
 		}
-		const response = await fetch(`http://127.0.0.1:3000/users/${id}/profile`, {
+		const response = await fetch(`/api/users/${id}/profile`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
 		if (response.status === 401 || response.status === 403) {
@@ -40,7 +40,7 @@ try {
 			return;
 		}
 		renderDashboard(isDashboard);
-	}	
+	}
 	catch (err) {
 		console.error('Network error:', err);
 		showErrorMessage('Server unreachable. Try again later.', 503);
@@ -56,9 +56,9 @@ function renderButton(nb: number) : string
 				<img class="w-[25px] h-[25px]" src="images/populareIcon.svg" alt="">
 				<button class="text-black">Game${nb}</button>
 			</div>
-			<img class="w-[30px] h-[30px] bg-[#D9CEAF] translate-y-[5px] 
+			<img class="w-[30px] h-[30px] bg-[#D9CEAF] translate-y-[5px]
 			hover:scale-110 transition-all duration-300 rounded-full p-1" src="images/gamepadIcon.svg" alt="">
-			<img class="w-[30px] h-[30px] bg-[#D9CEAF] translate-y-[5px] 
+			<img class="w-[30px] h-[30px] bg-[#D9CEAF] translate-y-[5px]
 			hover:scale-110 transition-all duration-300 rounded-full p-1" src="images/instagramIcon.svg" alt="">
 		</div>
 	`
@@ -88,7 +88,7 @@ function gameOne() : string
 				font-bold leading-tight tracking-tight">Pong</h2>
 				<p class="text-txtColor text-sm sm:text-base lg:text-lg leading-relaxed
 				opacity-90 max-w-md">Lorem ipsum, dolor sitLorem ipsum, dolor sit
-				Lorem ipsum, dolor sit amet consectetur 
+				Lorem ipsum, dolor sit amet consectetur
 				adipisicing elit. Quis aspernatur velit ex modi.</p>
 
 				<div onclick="navigate('/game')" class="inline-flex items-center gap-3 bg-gradient-to-r
@@ -119,9 +119,9 @@ function gameTwo() : string
 				tracking-tight">Chess</h2>
 				<p class="text-txtColor text-sm sm:text-base lg:text-lg leading-relaxed opacity-90
 				max-w-md">Lorem ipsum, dolor sitLorem ipsum, dolor sit
-				Lorem ipsum, dolor sit amet consectetur 
+				Lorem ipsum, dolor sit amet consectetur
 				adipisicing elit. Quis aspernatur velit ex modi.</p>
-				
+
 				<div onclick="navigate('/game')" class="inline-flex items-center gap-3 bg-gradient-to-r
 				from-color1 to-[#af4814] px-6 py-3 font-bold rounded-full cursor-pointer transition-all
 				duration-300 hover:scale-110 hover:shadow-lg shadow-md mt-4">
@@ -153,19 +153,19 @@ function slidingLogic()
 	const slider = document.getElementById('slider');
 	const nextBtn = document.getElementById('next');
 	const prevBtn = document.getElementById('prev');
-	
+
 	if (!slider || !nextBtn || !prevBtn) return;
-	
+
 	let currentIndex = 0;
 	const cards = slider.querySelectorAll('div');
 	const totalCards = cards.length;
-	
+
 	const getCardWidth = () => {
 		const card = cards[0];
 		if (!card) return 0;
 		return card.offsetWidth + 40;
 	};
-	
+
 	const getMaxIndex = () => {
 		const containerWidth = slider.parentElement?.offsetWidth || 0;
 		const cardWidth = getCardWidth();
@@ -173,12 +173,12 @@ function slidingLogic()
 		const visibleCards = Math.floor(containerWidth / cardWidth);
 		return Math.max(0, totalCards - visibleCards);
 	};
-	
+
 	const updateSlider = () => {
 		const cardWidth = getCardWidth();
 		slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
 	};
-	
+
 	nextBtn.addEventListener('click', () => {
 		const maxIndex = getMaxIndex();
 		currentIndex++;
@@ -196,7 +196,7 @@ function slidingLogic()
 		}
 		updateSlider();
 	});
-	
+
 	let resizeTimeout: number;
 	window.addEventListener('resize', () => {
 		clearTimeout(resizeTimeout);
@@ -278,16 +278,13 @@ export function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
 		<div class=" bg-bgColor min-h-screen">
-			${renderDashboardNavBar(userData, userData!.profileImage)}
+			${renderDashboardNavBar(userData, getImageUrl(userData?.profileImage))}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
 				${isDashboard ? renderMain() : ''}
 			</main>
 		</div>
 	`;
-	document.getElementById('main-logo')?.addEventListener('click', _=>{
-		console.log('clicked on main-logo');
-		navigate('/dashboard');
-	})
+	document.getElementById('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
 	if (isDashboard)
 		slidingLogic();
 	const avatar = document.getElementById('avatar');

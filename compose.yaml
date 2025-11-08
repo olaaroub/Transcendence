@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.backend
+    image: backend:1337
+    container_name: backend
+    networks:
+      - transcendence-net
+    expose:
+      - "3000"
+    volumes:
+      - ./app/static:/app/static
+      - ./db:/app/db
+
+  frontend:
+    build:
+      context: ./Front-end
+      dockerfile: Dockerfile
+    image: frontend:1337
+    container_name: frontend
+    ports:
+      - "8080:80"
+    networks:
+      - transcendence-net
+    depends_on:
+      - backend
+
+networks:
+  transcendence-net:
+    name: transcendence-net
+    driver: bridge

@@ -6,6 +6,33 @@
     }
 */
 
+async function getPendingRequestes(req, reply)
+{
+    try
+    {
+        const data = await this.db.all(`SELECT u.username, u.id ,i.profileImage
+                          FROM
+                            users AS u
+                            INNER JOIN
+                                friendships AS f ON u.id = (
+                                    CASE
+                                        WHEN userReceiver = ? THEN userRequester
+                                    END
+                                )
+                                WHERE
+                                    f.userReceiver = ? AND f.status = 'PENDING'
+                            INNERE JOIN
+                                infos AS i ON f.userReceiver = f.user_id
+                        `);
+        console.log(data);
+        reply.code(200).send(data);
+
+    }
+    catch (err) {
+        reply.code(500).code({"message": "internal server error"});
+    }
+}
+
 async function handleFriendRequest(req, reply)
 {
     try
@@ -28,6 +55,7 @@ async function handleFriendRequest(req, reply)
 async function routes(fastify)
 {
     fastify.post("/users/:id/friend-request", handleFriendRequest);
+    fastify.get("/users/:id/getPendingRequestes", getPendingRequestes);
 }
 
 module.exports = routes;

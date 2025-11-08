@@ -1,4 +1,16 @@
-node_modules
+# Dependencies
+node_modules/
 database.db
+*.db
+.env
 static/*
 !static/Default_pfp.jpg
+.tap/
+logs/
+*.log
+.vscode/
+tmp/
+*.tmp
+dist/
+build/
+*.tsbuildinfo
