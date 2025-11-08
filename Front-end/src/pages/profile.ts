@@ -53,7 +53,8 @@ export async function renderProfile(userId: string | null = null)
 	if (!userData || !userData.id || !userData.username)
 		await data.initDashboard(false);
 	let tmpUserData : IUserData | null = null;
-	if (userData && userData.id == userId)
+	const isMyProfile = userId == userData.id;
+	if (isMyProfile)
 		tmpUserData = userData;
 	else
 		tmpUserData = await getUserDataById(userId);
@@ -70,9 +71,9 @@ export async function renderProfile(userId: string | null = null)
 					<div class="flex flex-col gap-2">
 						<h2 class="font-bold text-txtColor text-3xl">${tmpUserData?.username}</h2>
 						<p class="text-color3 mb-4 w-[70%]">${tmpUserData?.bio}</p>
-						<button class="bg-gradient-to-r from-color1 to-[#af4814]
-						w-[150px] rounded-xl text-lg font-bold p-3 flex gap-2 justify-center">
-						<img class="inline" src="images/addFriend.svg">Add Friend</button>
+						<button id="${isMyProfile ? 'edit-profile' : 'add-friend'}" class="bg-gradient-to-r from-color1 to-[#af4814]
+						min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center">
+					<img class="inline" src="images/addFriend.svg">${isMyProfile ? 'Edit My Profile' : 'Add Friend'}</button>
 					</div>
 				</div>
 				${UserStats()}
