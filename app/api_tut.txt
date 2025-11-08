@@ -1,0 +1,6 @@
+
+/users/:id/add-friend --> to add_friend
+/users/:id/friends    --> to getFriends
+
+/users/:id/friend-request --> to accept or rufuse friend
+/users/:id/getPendingRequestes --> to getPendingRequestes
