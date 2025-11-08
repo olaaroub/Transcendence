@@ -1,5 +1,5 @@
 import * as data from "./dashboard"
-import { getUserData, IUserData } from "./store";
+import { getUserData, IUserData, getImageUrl } from "./store";
 
 const stats = [
 	{ label: "XP", value: "2500" },
@@ -31,7 +31,7 @@ function recentMatches() : string
 	return `
 		<div class="w-full sm:px-4 p-6 bg-color4 rounded-3xl">
 			<h2 class="text-txtColor text-2xl font-bold">Recent Matches</h2>
-			
+
 		</div>
 	`
 }
@@ -55,11 +55,13 @@ export async function renderProfile(isMyProfile: boolean, userId: string | null 
 		await data.initDashboard(false);
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
+		const imageUrl = getImageUrl(userData?.profileImage); // hada howa l fix li sherni 4 sway3
+
 		dashContent.innerHTML = `
 			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8">
 				<div class="bg-color4 mx-auto w-full rounded-3xl p-6 2xl:pl-12 flex gap-5 items-center
 				border-t-4 border-color1">
-					<img src="${userData?.profileImage}" alt="avatar" class="w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
+					<img src="${imageUrl}" alt="avatar" class="w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
 					<div class="flex flex-col gap-2">
 						<h2 class="font-bold text-txtColor text-3xl">${userData?.username}</h2>
 						<p class="text-color3 mb-4 w-[70%]">${userData?.bio}</p>

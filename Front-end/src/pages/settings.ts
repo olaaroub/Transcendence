@@ -1,6 +1,6 @@
 
 import * as data from "./dashboard"
-import { IUserData, setUserData, getUserData} from "./store"
+import { IUserData, setUserData, getUserData, getImageUrl} from "./store"
 
 const 	userData : IUserData = getUserData();
 let newUserData: Partial<IUserData> = {};
@@ -200,7 +200,7 @@ function avatarSettings() : string
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
 			<div class="flex gap-16">
 				<div class="flex flex-col items-center gap-2">
-					<img id="userAvatar" src="${userData.profileImage}" class="
+					<img id="userAvatar" src="${getImageUrl(userData.profileImage)}" class="
 					w-[150px] h-[150px] xl:w-[200px] xl:h-[200px] rounded-full border-2
 					border-color1" alt="user" />
 				<span class="text-sm text-color3">max size 2MB</span>

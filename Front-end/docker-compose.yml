@@ -11,3 +11,5 @@ services: # rak mhyeb akha simo mni khdemti bhad tari9a
       - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
