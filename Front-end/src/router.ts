@@ -68,7 +68,7 @@ const routes: Route[] = [
 
 
 
-export function     navigate(path: string) {
+export function navigate(path: string) {
 	const current = window.location.pathname;
 	if (current === path) return;
 	window.history.pushState({}, "", path);

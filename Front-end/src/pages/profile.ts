@@ -1,5 +1,6 @@
 import * as data from "./dashboard"
 import { userData, IUserData, getImageUrl } from "./store";
+import { navigate } from "../router";
 
 const stats = [
 	{ label: "XP", value: "2500" },
@@ -82,10 +83,11 @@ export async function renderProfile(userId: string | null = null)
 		`;
 		const profile_card = document.querySelector('.profile-card');
 		profile_card?.querySelector('button')?.addEventListener('click', el=>{
-			const target = el.target as HTMLButtonElement;
-			const list = target.classList;
-			// list.contains('from-color1') ? list.replace('from-color1', 'from-color2') : list.replace('from-color2', 'from-color1');
-			// list.contains('from-color1') ? target.textContent = 'FOLLOW' : target.textContent = 'FOLLOWED';
+			if (isMyProfile) {
+				navigate('/settings');
+				return;
+			}
+			
 		})
 	}
 }
