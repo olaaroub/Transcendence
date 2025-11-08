@@ -49,6 +49,20 @@ async function getUserDataById(userId: string | null) : Promise<IUserData | null
 	return tmpUserData;
 }
 
+async function sendFriendRequest (recieverId: string | number | null) : Promise<void>{
+	if (!recieverId) {
+		alert('Invalid user ID');
+		return;
+	}
+	const response = await fetch(`/api/users/${userData.id}/add-friend/?receiver_id=${recieverId}`, {
+		method: 'PUT',
+	})
+	if (!response.ok) {
+		const errorData = await response.json();
+		throw new Error(errorData.message || 'Failed to send friend request');
+	}
+}
+
 export async function renderProfile(userId: string | null = null)
 {
 	if (!userData || !userData.id || !userData.username)
@@ -82,12 +96,17 @@ export async function renderProfile(userId: string | null = null)
 			</div>
 		`;
 		const profile_card = document.querySelector('.profile-card');
-		profile_card?.querySelector('button')?.addEventListener('click', el=>{
+		profile_card?.querySelector('button')?.addEventListener('click', async el=>{
 			if (isMyProfile) {
 				navigate('/settings');
 				return;
 			}
-			
+			try {
+				await sendFriendRequest(tmpUserData!.id);
+			} catch (error) {
+				alert('Error sending friend request: ' + error);
+			}
 		})
+
 	}
 }
