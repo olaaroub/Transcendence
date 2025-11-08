@@ -54,6 +54,41 @@ function searchBar() : string
 	`
 }
 
+const mockData = ["simo", "hamid", "karim"]
+
+export function notifications()
+{
+	const notificationIcon = document.getElementById('notification-icon');
+	if (!notificationIcon) return;
+		notificationIcon.addEventListener('click', () => {
+			const result = document.createElement('div');
+			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-6
+			border border-color2 rounded-lg shadow-lg p-3 z-50 max-h-[300px] items-center`;
+			result.id = "notifications-result";
+			result.innerHTML = `
+				<p class="text-txtColor text-lg font-bold text-center
+				border-b border-color3 pb-3">Notifications</p>
+			`
+			for(const user of mockData)
+			{
+				const pandingUser = document.createElement('div');
+				pandingUser.className = `flex gap-3 bg-color4`;
+				pandingUser.innerHTML = `
+					<img class="w-[30px] h-[30px] rounded-full" src="images/mmondad.jpeg" alt="">
+					<span class="text-txtColor">${user}</span>
+					<button class="bg-color1 rounded-2xl text-black">accept</button>
+				`
+				result.append(pandingUser);
+			}
+			notificationIcon.append(result);
+		});
+		document.addEventListener('click', (e) => {
+			const el = e.target as HTMLElement;
+			if (!notificationIcon.contains(el))
+				notificationIcon.querySelector('#notifications-result')?.remove();
+		});
+}
+
 export function renderDashboardNavBar(user: IUserData | null, imageUrl: string | null): string {
 	return `
 	<nav class="flex justify-between items-center py-14 w-full m-auto md:px-10 h-[70px] mb-7">
@@ -65,7 +100,8 @@ export function renderDashboardNavBar(user: IUserData | null, imageUrl: string |
 				<img src="images/messageIcon.svg" class="w-[25px] h-[25px] invert
 				sepia saturate-200 hue-rotate-[330deg]">
 			</div>
-			<div class="bg-color4 translate-y-[2px] rounded-full p-2">
+			<div id="notification-icon"
+			class="relative bg-color4 cursor-pointer translate-y-[2px] rounded-full p-2">
 				<img src="images/notificationIcon.svg" class="w-[25px] h-[25px] invert
 				sepia saturate-200 hue-rotate-[330deg]">
 			</div>

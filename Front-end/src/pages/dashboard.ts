@@ -1,5 +1,5 @@
 import { renderRightPanel } from "./components/rightPanel";
-import { renderDashboardNavBar } from "./components/NavBar";
+import { notifications, renderDashboardNavBar } from "./components/NavBar";
 import { navigate } from "../router";
 import { renderGroupChat } from "./chat/groupChat";
 import { renderProfileMenu } from "./components/profileMenu";
@@ -288,6 +288,7 @@ export function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
+	notifications();
 	document.getElementById('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
 	if (isDashboard)
 		slidingLogic();

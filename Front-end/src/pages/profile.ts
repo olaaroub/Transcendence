@@ -32,7 +32,6 @@ function recentMatches() : string
 	return `
 		<div class="w-full sm:px-4 p-6 bg-color4 rounded-3xl">
 			<h2 class="text-txtColor text-2xl font-bold">Recent Matches</h2>
-
 		</div>
 	`
 }
