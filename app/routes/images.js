@@ -30,8 +30,7 @@ async function modifyAvatar(req, reply)
   try
   {
     const data = await this.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
-    const imgpath = path.basename(new URL(data.profileImage).pathname);
-    console.log(path.join(__dirname, '../static', imgpath));
+    const imgpath = path.basename(data.profileImage);
     if (imgpath != `Default_pfp.jpg`)
       await fs.promises.unlink(path.join(__dirname, '../static', imgpath));
     const datafile = await req.file();

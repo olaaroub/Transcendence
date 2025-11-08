@@ -8,12 +8,16 @@ down:
 	docker compose down
 
 logs:
-	docker compose logs
+	docker compose logs -f
 
 clean:
 	docker compose down -v
 
 re: clean up
+
+restart-back:
+	docker compose restart backend
+	docker compose start front
 
 front:
 	docker compose -f Front-end/docker-compose.yml up
