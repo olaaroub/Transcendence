@@ -10,7 +10,8 @@ services:
     expose:
       - "3000"
     volumes:
-      - ./static:/app/static
+      - ./app/static:/app/static
+      - ./db:/app/db
 
   frontend:
     build:

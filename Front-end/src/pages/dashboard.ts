@@ -6,7 +6,7 @@ import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
 import { renderLeaderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
-import { IUserData, setUserData, getUserData} from "./store"
+import { IUserData, setUserData, getUserData, getImageUrl} from "./store"
 
 (window as any).navigate = navigate;
 
@@ -278,7 +278,7 @@ export function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
 		<div class=" bg-bgColor min-h-screen">
-			${renderDashboardNavBar(userData, userData!.profileImage)}
+			${renderDashboardNavBar(userData, getImageUrl(userData?.profileImage))}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
 				${isDashboard ? renderMain() : ''}
 			</main>
