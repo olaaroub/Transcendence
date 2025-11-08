@@ -1,8 +1,7 @@
 
 import * as data from "./dashboard"
-import { IUserData, setUserData, getUserData, getImageUrl} from "./store"
+import { IUserData, setUserData, userData, getImageUrl} from "./store"
 
-const 	userData : IUserData = getUserData();
 let newUserData: Partial<IUserData> = {};
 let body: BodyInit | null = ""; // to learn about this type
 let headers : Record<string, string> = {
@@ -52,7 +51,7 @@ function SaveChanges()
 {
 	const settingsPage = document.getElementById('settings-page');
 	if (!settingsPage) return;
-	const saveBtn = settingsPage.querySelector('button');
+	const saveBtn = settingsPage.querySelector('#save-changes') as HTMLButtonElement;
 	if (!saveBtn) return;
 		saveBtn.addEventListener('click', async () => {
 			if (Object.keys(newUserData).length === 0) {
@@ -73,6 +72,9 @@ function SaveChanges()
 						continue;
 					}
 					else if (key === 'avatar' && avatar) {
+						for (const [key, value] of avatar.entries()) {
+							console.log(key, value);
+						}
 						body = avatar;
 						delete headers["Content-Type"];
 					}
@@ -111,6 +113,7 @@ function addInputListeners()
 			if (name === 'avatar')
 			{
 				avatar = sendAvatar();
+				console.log('avatar by simo : ', avatar);
 				const upload_avatar = event.target as HTMLInputElement;
 				const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
 				if (userAvatar && upload_avatar && upload_avatar.files)
@@ -328,7 +331,7 @@ export async function renderSettings()
 				<div class="flex gap-4">
 				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold text-txtColor
 				border border-color1 text-sm  hover:scale-105">Cancel Changes</button>
-				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
+				<button id="save-changes" class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
 				text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
 				</div>
 			</div>

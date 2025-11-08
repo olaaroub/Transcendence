@@ -97,7 +97,6 @@ export async function router() {
 
 	for (const route of routes) {
 		const { matched, params: routeParams } = matchRoute(path, route.path);
-		console.log(`Matching ${path} with ${route.path}: ${matched}`);
 		if (matched) {
 			matchedRoute = route;
 			params = routeParams || {};
