@@ -15,6 +15,10 @@ clean:
 
 re: clean up
 
+restart-back:
+	docker compose restart backend
+	docker compose start front
+
 front:
 	docker compose -f Front-end/docker-compose.yml up
 
