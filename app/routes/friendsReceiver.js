@@ -8,7 +8,7 @@
                                 INNERE JOIN
                                 infos AS i ON f.userReceiver = i.user_id
 */
-
+// 2
 async function getPendingRequestes(req, reply)
 {
     try
@@ -59,6 +59,17 @@ async function routes(fastify)
 {
     fastify.post("/users/:id/friend-request", handleFriendRequest);
     fastify.get("/users/:id/getPendingRequestes", getPendingRequestes);
+    fastify.get("/test", async (req, reply) => {
+        try
+        {
+            const data = await fastify.db.all("SELECT userRequester, userReceiver, status FROM friendships");
+            reply.code(200).send(data);
+        }
+        catch (err)
+        {
+            reply.code(500).send({success: false});
+        }
+    })
 }
 
 module.exports = routes;

@@ -31,13 +31,13 @@ async function start() {
     if (url.includes('/login') || url.includes('/signUp') || url === '/'
       || url.startsWith('/public'))
       return;
-    try {
-      await request.jwtVerify();
-    }
-    catch {
-      console.log("No token provided");
-      reply.code(401).send({ error: 'No token provided' });
-    }
+    // try {
+    //   await request.jwtVerify();
+    // }
+    // catch {
+    //   console.log("No token provided");
+    //   reply.code(401).send({ error: 'No token provided' });
+    // }
 
   });
 
