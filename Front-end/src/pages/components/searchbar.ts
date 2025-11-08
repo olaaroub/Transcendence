@@ -8,7 +8,7 @@ interface UserData {
 
 async function ViewProfile(userId: string) {
 	document.querySelector('#search-results')?.remove();
-	navigate('/profile');
+	navigate('/profile/' + userId);
 }
 
 function listUsers(users: UserData[], div: HTMLElement) {

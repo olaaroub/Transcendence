@@ -1,9 +1,27 @@
+import { navigate } from "../router";
+
 export interface IUserData {
 	id: number | string | null;
 	email: string | null;
 	username: string | null;
 	profileImage: string | null;
 	bio: string | null;
+}
+
+export const credentials = {
+	id: localStorage.getItem('id'),
+	token: localStorage.getItem('token'),
+};
+
+export function setCredentials()
+{	
+	credentials.id = localStorage.getItem('id');
+	credentials.token = localStorage.getItem('token');
+}
+
+if (!credentials.id || !credentials.token) {
+	console.warn('Missing credentials in store');
+	navigate('/login');
 }
 
 export const userData : IUserData = {

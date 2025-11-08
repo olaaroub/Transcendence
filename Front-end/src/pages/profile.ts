@@ -36,33 +36,31 @@ function recentMatches() : string
 	`
 }
 
-// async function getUserDataById(userId: string | null) : Promise<IUserData | null>
-// {
-// 	if (!userId)
-// 		return null;
-// 	const userData = await getUserData();
-// 	return userData;
-// }
+async function getUserDataById(userId: string | null) : Promise<IUserData | null>
+{
+	if (!userId)
+		return null;
+	const tmpUserData = await data.fetchProfile(userId);
+	if (!tmpUserData) {
+		alert('User data not found for ID: ' + userId);
+		return null;
+	}
+	return tmpUserData;
+}
 
 export async function renderProfile(userId: string | null = null)
 {
 	if (!userData || !userData.id || !userData.username)
 		await data.initDashboard(false);
-
 	let tmpUserData : IUserData | null = null;
-	console.log("renderProfile", userId, userData);
-	console.log("userId : ", userId, "data.userData.id : ", userData?.id);
 	if (userData && userData.id == userId)
 		tmpUserData = userData;
 	else
-	{
-		return ;
-		// userData = await getUserDataById(userId);
-	}
+		tmpUserData = await getUserDataById(userId);
 
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
-		const imageUrl = getImageUrl(userData?.profileImage); // hada howa l fix li sherni 4 sway3
+		const imageUrl = getImageUrl(tmpUserData?.profileImage);
 
 		dashContent.innerHTML = `
 			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8">
@@ -70,8 +68,8 @@ export async function renderProfile(userId: string | null = null)
 				border-t-4 border-color1">
 					<img src="${imageUrl}" alt="avatar" class="w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
 					<div class="flex flex-col gap-2">
-						<h2 class="font-bold text-txtColor text-3xl">${userData?.username}</h2>
-						<p class="text-color3 mb-4 w-[70%]">${userData?.bio}</p>
+						<h2 class="font-bold text-txtColor text-3xl">${tmpUserData?.username}</h2>
+						<p class="text-color3 mb-4 w-[70%]">${tmpUserData?.bio}</p>
 						<button class="bg-gradient-to-r from-color1 to-[#af4814]
 						w-[150px] rounded-xl text-lg font-bold p-3 flex gap-2 justify-center">
 						<img class="inline" src="images/addFriend.svg">Add Friend</button>
