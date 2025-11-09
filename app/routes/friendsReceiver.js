@@ -6,7 +6,7 @@
     }
     ,i.profileImage
                                 INNERE JOIN
-                                infos AS i ON f.userReceiver = i.user_id
+                                infos AS i ON f.userReceiver = i.user_i                               
 */
 // 2
 async function getPendingRequestes(req, reply)
@@ -14,15 +14,16 @@ async function getPendingRequestes(req, reply)
     try
     {
         const id = req.params.id
-        const data = await this.db.all(`SELECT u.username, u.id
+        const data = await this.db.all(`SELECT u.username, u.id, i.profileImage
                           FROM
                             users AS u
                             INNER JOIN
                                 friendships AS f ON u.id = f.userRequester
-                                WHERE
-                                    f.userReceiver = ? AND f.status = 'PENDING'
+                            INNER JOIN
+                                infos AS i ON f.userRequester = i.user_id
+                            WHERE
+                                f.userReceiver = ? AND f.status = 'PENDING'
                         `, [id]);
-        console.log(data);
         reply.code(200).send(data);
 
     }
