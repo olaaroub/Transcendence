@@ -3,7 +3,6 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const fastify_static = require('@fastify/static');
 const fastifyMultipart = require('@fastify/multipart');
-const { URL } = require('url');
 
 
 
@@ -26,9 +25,9 @@ async function getProfileImages(req, reply)
 
 async function modifyAvatar(req, reply)
 {
-  const id = req.params.id;
   try
   {
+    const id = req.params.id;
     const data = await this.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
     const imgpath = path.basename(data.profileImage);
     if (imgpath != `Default_pfp.jpg`)

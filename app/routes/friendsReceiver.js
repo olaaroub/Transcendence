@@ -70,3 +70,13 @@ async function routes(fastify)
 }
 
 module.exports = routes;
+
+
+/*
+ /api/users/:id/friend-request -> to accept or refese amie;
+ Body be like:
+ {
+    accept: true/false,
+    id: the requester id (hadak li sift lik talab sada9a)
+ }
+*/
