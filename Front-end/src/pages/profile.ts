@@ -87,7 +87,7 @@ export async function renderProfile(userId: string | null = null)
 						<p class="text-color3 mb-4 w-[70%]">${tmpUserData?.bio}</p>
 						<button id="${isMyProfile ? 'edit-profile' : 'add-friend'}" class="bg-gradient-to-r from-color1 to-[#af4814]
 						min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center">
-					<img class="inline" src="images/addFriend.svg">${isMyProfile ? 'Edit My Profile' : 'Add Friend'}</button>
+					<img class="inline w-[24px] h-[24px]" src="${isMyProfile ? 'images/edit.svg' : 'images/addFriend.svg'}">${isMyProfile ? 'Edit My Profile' : 'Add Friend'}</button>
 					</div>
 				</div>
 				${UserStats()}

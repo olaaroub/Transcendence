@@ -319,6 +319,19 @@ function Account() : string
 	`
 }
 
+function cancelChanges()
+{
+	const cancelButton = document.getElementById('cancel-changes');
+	if (cancelButton) {
+		cancelButton.addEventListener('click', () => {
+			if (Object.keys(newUserData).length === 0)
+				return;
+			newUserData = {};
+			renderSettings();
+		});
+	}
+}
+
 export async function renderSettings()
 {
 	await data.initDashboard(false);
@@ -329,7 +342,7 @@ export async function renderSettings()
 			<div class=" flex flex-row justify-between">
 				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Settings</h1>
 				<div class="flex gap-4">
-				<button class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold text-txtColor
+				<button id="cancel-changes" class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold text-txtColor
 				border border-color1 text-sm  hover:scale-105">Cancel Changes</button>
 				<button id="save-changes" class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
 				text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
@@ -346,6 +359,5 @@ export async function renderSettings()
 		</div>
 	`;
 	addInputListeners();
-	// sendAvatar();
-	// deleteAvatar();
+	cancelChanges();
 }
