@@ -86,12 +86,16 @@ export function notifications()
 			`;
 			notificationIcon.append(result);
 			const pendingUsers : IUserData[] | null = await getPendingUsers();
-			console.log('pendingUsers:', pendingUsers);
 			if (!pendingUsers || pendingUsers.length === 0)
+			{
+				const noNotifications = document.createElement('p');
+				noNotifications.className = "text-gray-400 text-sm mt-4";
+				noNotifications.textContent = "No new notifications";
+				result.append(noNotifications);
 				return;
+			}
 			for(const user of pendingUsers)
 			{
-				console.log("profileimage", user.profileImage);
 				const pandingUser = document.createElement('div');
 				pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
 				pandingUser.innerHTML = `
@@ -99,7 +103,10 @@ export function notifications()
 						<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(user.profileImage)}" alt="">
 						<span class="text-txtColor">${user.username}</span>
 					</div>
-					<button class="bg-color1 text-xs px-3 h-8 font-bold rounded-xl text-black">accept</button>
+					<div class="flex gap-3 items-center">
+						<img class="w-[24px] h-[24px]" src="images/refuse.svg" alt="">
+						<img class="w-[40px] h-[40px]" src="images/accept.svg" alt="">
+					</div>
 				`
 				result.append(pandingUser);
 			}
