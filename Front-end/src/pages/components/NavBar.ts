@@ -63,7 +63,7 @@ export function notifications()
 	if (!notificationIcon) return;
 		notificationIcon.addEventListener('click', () => {
 			const result = document.createElement('div');
-			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-4 overflow-y-auto
+			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-2 overflow-y-auto
 			border border-[#87878766] rounded-lg shadow-lg py-3 px-3 z-50 max-h-[300px] items-center
 			scrollbar-custom`;
 			result.id = "notifications-result";
