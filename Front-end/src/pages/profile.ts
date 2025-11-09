@@ -53,7 +53,7 @@ async function sendFriendRequest (recieverId: string | number | null) : Promise<
 		alert('Invalid user ID');
 		return;
 	}
-	const response = await fetch(`/api/users/${userData.id}/add-friend/?receiver_id=${recieverId}`, {
+	const response = await fetch(`/api/users/${userData.id}/add-friend?receiver_id=${recieverId}`, {
 		method: 'PUT',
 	})
 	if (!response.ok) {

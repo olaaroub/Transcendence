@@ -18,14 +18,10 @@ async function getPendingRequestes(req, reply)
                           FROM
                             users AS u
                             INNER JOIN
-                                friendships AS f ON u.id = (
-                                    CASE
-                                        WHEN userReceiver = ? THEN userRequester
-                                    END
-                                )
+                                friendships AS f ON u.id = f.userRequester
                                 WHERE
                                     f.userReceiver = ? AND f.status = 'PENDING'
-                        `, [id, id]);
+                        `, [id]);
         console.log(data);
         reply.code(200).send(data);
 

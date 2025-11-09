@@ -41,7 +41,9 @@ async function start() {
 
   });
 
-  fastify.register(routes);
+  fastify.register(routes, {
+    prefix: '/api'
+  });
 
   try {
     fastify.listen({
