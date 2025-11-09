@@ -54,7 +54,7 @@ function searchBar() : string
 	`
 }
 
-const mockData = ["simo", "hamid", "karim"]
+const mockData = ["simo", "hamid", "karim", "abd", "ahmed"];
 
 export function notifications()
 {
@@ -62,12 +62,12 @@ export function notifications()
 	if (!notificationIcon) return;
 		notificationIcon.addEventListener('click', () => {
 			const result = document.createElement('div');
-			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-4
+			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-4 overflow-y-auto
 			border border-[#87878766] rounded-lg shadow-lg py-3 px-6 z-50 max-h-[300px] items-center`;
 			result.id = "notifications-result";
 			result.innerHTML = `
 				<p class="text-txtColor w-full text-lg font-bold text-center
-				border-b border-color3 pb-3">Notifications</p>
+				border-b border-color3 pb-2">Notifications</p>
 			`
 			for(const user of mockData)
 			{
