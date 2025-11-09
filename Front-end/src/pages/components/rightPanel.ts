@@ -1,16 +1,38 @@
-export function renderRightPanel(): string {
+import { credentials, getImageUrl, IUserData } from "../store";
+
+async function getFriends(): Promise<IUserData[] | null> {
+	try {
+		const response = await fetch(`/api/users/${credentials.id}/friends`, {
+			headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
+		});
+		if (!response.ok) {
+			console.error('Failed to fetch friends:', response.statusText);
+			return null;
+		}
+		const friends: IUserData[] = await response.json();
+		return friends;
+	} catch (err) {
+		console.error('Error fetching friends:', err);
+		return null;
+	}
+}
+
+export async function renderRightPanel(): Promise<string> {
+	const friends = await getFriends();
+	if (!friends || friends.length === 0)
+		return `<p class="text-gray-400">No friends yet</p>`;
+	console.log(friends);
 	return `
 		<div class="flex flex-col gap-3 py-3 px-3 group bg-color4 rounded-[25px] transition-all
-		duration-200 h-[400px] overflow-y-auto">
-			${Array(6)
-			.fill("")
+		duration-200 h-[400px] overflow-y-auto scrollbar-custom">
+			${friends
 			.map(
-			(_, i) => `
+			(friend) => `
 				<div class="flex items-center group-hover:space-x-3 cursor-pointer hover:scale-105 transition-all duration-150">
-					<img class=" w-[45px] h-[45px] rounded-full flex-shrink-0 border-[2px] border-color1" src="/images/1.png" />
+					<img class="w-[45px] h-[45px] rounded-full flex-shrink-0 border-[2px] border-color1" src="${getImageUrl(friend.profileImage)}" />
 					<p class="opacity-0 max-w-0 text-txtColor transition-all duration-500 group-hover:opacity-100
 					group-hover:max-w-[150px] font-semibold text-xs sm:text-sm 3xl:text-lg truncate">
-						Propw
+						${friend.username}
 					</p>
 				</div>
 			`

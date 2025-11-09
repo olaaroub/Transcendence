@@ -263,7 +263,7 @@ function renderDashboardContent(): string {
 }
 
 
-function renderMain() : string
+async function renderMain() : Promise<string>
 {
 	return `
 		<div class="w-full">
@@ -271,20 +271,20 @@ function renderMain() : string
 			<span class="text-txtColor text-3xl"> ${userData?.username}</span></h2>
 			<div class="flex w-full gap-6">
 				<div class="flex-1">${renderWelcome()}</div>
-				<div class="flex-[0.01]">${renderRightPanel()}</div>
+				<div class="flex-[0.01]">${await renderRightPanel()}</div>
 			</div>
 			${renderDashboardContent()}
 		</div>
 	`
 }
 
-export function renderDashboard(isDashboard: boolean = true)
+export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
 		<div class=" bg-bgColor min-h-screen">
 			${renderDashboardNavBar(userData, getImageUrl(userData?.profileImage))}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
-				${isDashboard ? renderMain() : ''}
+				${isDashboard ? await renderMain() : ''}
 			</main>
 		</div>
 	`;

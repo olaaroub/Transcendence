@@ -97,6 +97,11 @@ export function notifications()
 	const notificationIcon = document.getElementById('notification-icon');
 	if (!notificationIcon) return;
 		notificationIcon.addEventListener('click',async  () => {
+			const existingResult = document.getElementById('notifications-result');
+			if (existingResult) {
+				existingResult.remove();
+				return;
+			}
 			const result = document.createElement('div');
 			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-2 overflow-y-auto
 			border border-[#87878766] rounded-2xl shadow-lg py-3 pl-3 pr-1 z-50 max-h-[300px] items-center
