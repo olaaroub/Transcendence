@@ -55,8 +55,6 @@ export async function searchbar() {
 			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 		});
 		const users: UserData[] = await response.json();
-		console.log('users:', users);
-		
 		if (users.length === 0) {
 			const p = document.createElement('p');
 			p.className = "text-gray-400 p-4";

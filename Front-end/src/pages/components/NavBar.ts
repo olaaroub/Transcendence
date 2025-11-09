@@ -1,10 +1,5 @@
 import { mockMessages } from "../chat/mockMessages";
-import { IUserData } from "../store";
-
-interface UserData {
-	id: string;
-	username: string;
-}
+import { credentials, getImageUrl, IUserData } from "../store";
 
 export function renderNavBar (isLoged: boolean)
 {
@@ -55,36 +50,59 @@ function searchBar() : string
 	`
 }
 
-
+async function getPendingUsers() : Promise<IUserData[] | null>
+{
+	try
+	{
+		const response = await fetch(`api/users/${credentials.id}/getPendingRequestes`, {
+			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
+		});
+		if (!response.ok)
+		{
+			console.error('Failed to fetch pending users:', response.statusText);
+			return null;
+		}
+		const users: IUserData[] = await response.json();
+		return users;
+	} catch(err){
+		console.error('Error fetching pending users:', err);
+		return null;
+	}
+}
 
 export function notifications()
 {
 	const notificationIcon = document.getElementById('notification-icon');
 	if (!notificationIcon) return;
-		notificationIcon.addEventListener('click', () => {
+		notificationIcon.addEventListener('click',async  () => {
 			const result = document.createElement('div');
 			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-2 overflow-y-auto
-			border border-[#87878766] rounded-lg shadow-lg py-3 px-3 z-50 max-h-[300px] items-center
+			border border-[#87878766] rounded-2xl shadow-lg py-3 pl-3 pr-1 z-50 max-h-[300px] items-center
 			scrollbar-custom`;
 			result.id = "notifications-result";
 			result.innerHTML = `
 				<p class="text-txtColor w-full text-lg font-bold text-center
 				border-b border-color3 pb-2">Notifications</p>
-			`
-			for(const user of mockMessages)
+			`;
+			notificationIcon.append(result);
+			const pendingUsers : IUserData[] | null = await getPendingUsers();
+			console.log('pendingUsers:', pendingUsers);
+			if (!pendingUsers || pendingUsers.length === 0)
+				return;
+			for(const user of pendingUsers)
 			{
+				console.log("profileimage", user.profileImage);
 				const pandingUser = document.createElement('div');
 				pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
 				pandingUser.innerHTML = `
 					<div class="flex gap-3 items-center">
-						<img class="w-[45px] h-[45px] rounded-full" src="${user.avatar}" alt="">
-						<span class="text-txtColor">${user.senderName}</span>
+						<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(user.profileImage)}" alt="">
+						<span class="text-txtColor">${user.username}</span>
 					</div>
 					<button class="bg-color1 text-xs px-3 h-8 font-bold rounded-xl text-black">accept</button>
 				`
 				result.append(pandingUser);
 			}
-			notificationIcon.append(result);
 		});
 		document.addEventListener('click', (e) => {
 			const el = e.target as HTMLElement;

@@ -60,6 +60,7 @@ async function sendFriendRequest (recieverId: string | number | null) : Promise<
 		const errorData = await response.json();
 		throw new Error(errorData.message || 'Failed to send friend request');
 	}
+	alert('Friend request sent successfully!');
 }
 
 export async function renderProfile(userId: string | null = null)
