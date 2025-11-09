@@ -1,4 +1,3 @@
-import { mockMessages } from "../chat/mockMessages";
 import { credentials, getImageUrl, IUserData } from "../store";
 
 export function renderNavBar (isLoged: boolean)
@@ -70,6 +69,29 @@ async function getPendingUsers() : Promise<IUserData[] | null>
 	}
 }
 
+async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement) {
+	try {
+		const response = await fetch(`/api/users/${credentials.id}/friend-request`, {
+			method: 'POST',
+			headers: {
+				"Authorization": `Bearer ${credentials.token}`,
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				id: requesterId,
+				accept: accept
+			})
+		});
+		if (response.ok) {
+			userElement.remove();
+		} else {
+			console.error('Failed to handle friend request');
+		}
+	} catch (err) {
+		console.error('Error handling friend request:', err);
+	}
+}
+
 export function notifications()
 {
 	const notificationIcon = document.getElementById('notification-icon');
@@ -103,11 +125,33 @@ export function notifications()
 						<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(user.profileImage)}" alt="">
 						<span class="text-txtColor">${user.username}</span>
 					</div>
-					<div class="flex gap-3 items-center">
-						<img class="w-[24px] h-[24px]" src="images/refuse.svg" alt="">
-						<img class="w-[40px] h-[40px]" src="images/accept.svg" alt="">
+					<div class="flex gap-2 items-center">
+						<button class="refuse-btn hover:scale-110 transition-transform" data-user-id="${user.id}">
+							<svg class="w-[24px] h-[24px]" fill="#ef4444" viewBox="0 0 24 24">
+								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+							</svg>
+						</button>
+						<button class="accept-btn hover:scale-110 transition-transform" data-user-id="${user.id}">
+							<svg class="w-[28px] h-[28px]" fill="#22c55e" viewBox="0 0 24 24">
+								<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+							</svg>
+						</button>
 					</div>
-				`
+				`;
+				
+				const acceptBtn = pandingUser.querySelector('.accept-btn');
+				const refuseBtn = pandingUser.querySelector('.refuse-btn');
+				
+				if (user.id) {
+					acceptBtn?.addEventListener('click', () => {
+						handleFriendRequest(String(user.id), true, pandingUser);
+					});
+					
+					refuseBtn?.addEventListener('click', () => {
+						handleFriendRequest(String(user.id), false, pandingUser);
+					});
+				}
+				
 				result.append(pandingUser);
 			}
 		});
