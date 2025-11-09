@@ -8,7 +8,7 @@ down:
 	docker compose down
 
 logs:
-	docker compose logs -f
+	docker compose logs
 
 clean:
 	docker compose down -v
@@ -21,6 +21,9 @@ restart-back:
 
 front:
 	docker compose -f Front-end/docker-compose.yml up
+
+clean-front:
+	docker compose -f Front-end/docker-compose.yml down -v
 
 back: # hada ila bghiti testi lback bo7do b postman ( makayn lach t runi l containers )
 	DB_PATH=../db/database.db npm --prefix ./app run dev

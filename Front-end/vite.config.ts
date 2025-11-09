@@ -22,7 +22,7 @@ export default defineConfig({
 
         changeOrigin: true,
 
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        // rewrite: (path) => path.replace(/^\/api/, ''),
         // hadi b7al rewrite dial nginx (blast ma tsift /api/signUp tatsift /signUp bo7dha l backend)
       }
     }
