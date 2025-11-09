@@ -1,3 +1,4 @@
+import { mockMessages } from "../chat/mockMessages";
 import { IUserData } from "../store";
 
 interface UserData {
@@ -54,7 +55,7 @@ function searchBar() : string
 	`
 }
 
-const mockData = ["simo", "hamid", "karim", "abd", "ahmed"];
+
 
 export function notifications()
 {
@@ -63,22 +64,23 @@ export function notifications()
 		notificationIcon.addEventListener('click', () => {
 			const result = document.createElement('div');
 			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-4 overflow-y-auto
-			border border-[#87878766] rounded-lg shadow-lg py-3 px-6 z-50 max-h-[300px] items-center`;
+			border border-[#87878766] rounded-lg shadow-lg py-3 px-3 z-50 max-h-[300px] items-center
+			scrollbar-custom`;
 			result.id = "notifications-result";
 			result.innerHTML = `
 				<p class="text-txtColor w-full text-lg font-bold text-center
 				border-b border-color3 pb-2">Notifications</p>
 			`
-			for(const user of mockData)
+			for(const user of mockMessages)
 			{
 				const pandingUser = document.createElement('div');
 				pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
 				pandingUser.innerHTML = `
 					<div class="flex gap-3 items-center">
-						<img class="w-[45px] h-[45px] rounded-full" src="images/mmondad.jpeg" alt="">
-						<span class="text-txtColor text-lg">${user}</span>
+						<img class="w-[45px] h-[45px] rounded-full" src="${user.avatar}" alt="">
+						<span class="text-txtColor">${user.senderName}</span>
 					</div>
-					<button class="bg-color1 text-sm px-4 h-8 font-bold rounded-xl text-black">accept</button>
+					<button class="bg-color1 text-xs px-3 h-8 font-bold rounded-xl text-black">accept</button>
 				`
 				result.append(pandingUser);
 			}

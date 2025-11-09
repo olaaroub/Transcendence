@@ -1,11 +1,11 @@
 import { mockMessages } from "./mockMessages";
 
 function renderChat() : string
-{
+{ 
     return `
-        <div class="bg-color4 py-6 px-12 flex flex-col rounded-3xl h-[509px]">
-            <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-color1 bg-[#172232] scrollbar-track-color4 
-            hover:scrollbar-thumb-color2 scrollbar-thumb-rounded rounded-2xl pt-6 px-3 pr-2">
+        <div class="bg-color4 py-6 px-6 flex flex-col rounded-3xl h-[509px]">
+            <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-color1 scrollbar-track-color4
+            hover:scrollbar-thumb-color2 pr-2">
                 ${mockMessages.map(msg => `
                     <div class="mb-4">
                         <div class="flex items-start gap-3">

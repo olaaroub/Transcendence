@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "@types/node": "^24.10.0"
+  },
+  "dependencies": {
+    "tailwind-scrollbar": "^4.0.2"
   }
 }
