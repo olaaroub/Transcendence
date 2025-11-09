@@ -26,9 +26,7 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 				navigate('/login');
 		}
 		else
-		{
 			renderAuthPage(isSignup, result.message || "Authentication failed");
-		}
 	}
 	catch (error)
 	{
