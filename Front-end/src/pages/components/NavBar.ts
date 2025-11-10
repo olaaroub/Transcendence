@@ -69,7 +69,7 @@ async function getPendingUsers() : Promise<IUserData[] | null>
 	}
 }
 
-async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement) {
+async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement) : Promise<boolean> {
 	try {
 		const response = await fetch(`/api/users/${credentials.id}/friend-request`, {
 			method: 'POST',
@@ -84,12 +84,14 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 		});
 		if (response.ok) {
 			userElement.remove();
+			return accept ? true : false;
 		} else {
 			console.error('Failed to handle friend request');
 		}
 	} catch (err) {
 		console.error('Error handling friend request:', err);
 	}
+	return false
 }
 
 export function notifications()
@@ -104,7 +106,7 @@ export function notifications()
 			}
 			const result = document.createElement('div');
 			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-2 overflow-y-auto
-			border border-[#87878766] rounded-2xl shadow-lg py-3 pl-3 pr-1 z-50 max-h-[300px] items-center
+			border border-[#87878766] rounded-2xl shadow-lg py-3 pl-3 pr-1 z-50 max-h-[300px] items-center 
 			scrollbar-custom`;
 			result.id = "notifications-result";
 			result.innerHTML = `
@@ -148,8 +150,23 @@ export function notifications()
 				const refuseBtn = pandingUser.querySelector('.refuse-btn');
 				
 				if (user.id) {
-					acceptBtn?.addEventListener('click', () => {
-						handleFriendRequest(String(user.id), true, pandingUser);
+					acceptBtn?.addEventListener('click', async () => {
+						const isValid = await handleFriendRequest(String(user.id), true, pandingUser);
+						const friendList = document.getElementById('friends-list');
+						console.log("Friend list element : ", friendList + " isValid : ", isValid);
+						if (friendList && isValid) {
+							console.log("Adding new friend to the list : ", isValid);
+							const newFriendDiv = document.createElement('div');
+							newFriendDiv.className = "flex items-center group-hover:space-x-3 cursor-pointer hover:scale-105 transition-all duration-150";
+							newFriendDiv.innerHTML = `
+								<img class="w-[45px] h-[45px] rounded-full flex-shrink-0 border-[2px] border-color1" src="${getImageUrl(user.profileImage)}" />
+								<p class="opacity-0 max-w-0 text-txtColor transition-all duration-500 group-hover:opacity-100
+								group-hover:max-w-[150px] font-semibold text-xs sm:text-sm 3xl:text-lg truncate">
+									${user.username}
+								</p>
+							`;
+							friendList.appendChild(newFriendDiv);
+						}
 					});
 					
 					refuseBtn?.addEventListener('click', () => {

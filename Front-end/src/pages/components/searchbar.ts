@@ -1,5 +1,6 @@
 import { getImageUrl, userData } from "../store";
 import { navigate } from "../../router";
+import { sendFriendRequest } from "../profile";
 
 interface UserData {
     id: string;
@@ -23,14 +24,28 @@ function listUsers(users: UserData[], div: HTMLElement) {
 				<p class="font-bold">${user.username}</p>
 			</div>
 		</div>`;
+		const buttonsDiv = document.createElement('div');
+		buttonsDiv.className = "flex gap-6 items-center";
+		const addFriend = document.createElement('img');
+		addFriend.src = `/images/addFriends.svg`;
+		addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110`;
+		addFriend.title = "Add Friend";
+		buttonsDiv.appendChild(addFriend);
+		addFriend.addEventListener('click', async _=> {
+		try {
+			await sendFriendRequest(user!.id);
+		} catch (error) {
+			alert('Error sending friend request: ' + error);
+		}
+		});
 		const view  = document.createElement('button');
 		view.textContent = 'view';
 		view.className = "font-bold text-color2 hover:scale-110 hover:text-white";
+		buttonsDiv.appendChild(view);
 		view.addEventListener('click', _=> {
 			ViewProfile(user.id);
 		});
-
-		divp.append(view);
+		divp.append(buttonsDiv);
 		div.appendChild(divp);
 	});
 }

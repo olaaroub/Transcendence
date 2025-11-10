@@ -48,12 +48,12 @@ async function getUserDataById(userId: string | null) : Promise<IUserData | null
 	return tmpUserData;
 }
 
-async function sendFriendRequest (recieverId: string | number | null) : Promise<void>{
-	if (!recieverId) {
+export async function sendFriendRequest (receiverId: string | number | null) : Promise<void>{
+	if (!receiverId) {
 		alert('Invalid user ID');
 		return;
 	}
-	const response = await fetch(`/api/users/${userData.id}/add-friend?receiver_id=${recieverId}`, {
+	const response = await fetch(`/api/users/${userData.id}/add-friend?receiver_id=${receiverId}`, {
 		method: 'PUT',
 	})
 	if (!response.ok) {

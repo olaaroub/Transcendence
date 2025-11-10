@@ -1,29 +1,26 @@
 import { credentials, getImageUrl, IUserData } from "../store";
 
-async function getFriends(): Promise<IUserData[] | null> {
+async function getFriends(): Promise<IUserData[]> {
 	try {
 		const response = await fetch(`/api/users/${credentials.id}/friends`, {
 			headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
 		});
 		if (!response.ok) {
 			console.error('Failed to fetch friends:', response.statusText);
-			return null;
+			return [];
 		}
 		const friends: IUserData[] = await response.json();
 		return friends;
 	} catch (err) {
 		console.error('Error fetching friends:', err);
-		return null;
+		return [];
 	}
 }
 
 export async function renderRightPanel(): Promise<string> {
 	const friends = await getFriends();
-	if (!friends || friends.length === 0)
-		return `<p class="text-gray-400">No friends yet</p>`;
-	console.log(friends);
 	return `
-		<div class="flex flex-col gap-3 py-3 px-3 group bg-color4 rounded-[25px] transition-all
+		<div id="friends-list" class="flex flex-col gap-3 py-3 px-3 group bg-color4 rounded-[25px] transition-all
 		duration-200 h-[400px] overflow-y-auto scrollbar-custom">
 			${friends
 			.map(
