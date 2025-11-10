@@ -2,23 +2,23 @@ services:
   backend:
     build:
       context: ./app
-      dockerfile: Dockerfile.backend
+      dockerfile: Dockerfile.backend.prod
     image: backend:1337
-    container_name: backend
+    container_name: backend-prod
     networks:
       - transcendence-net
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     volumes:
       - ./app/static:/app/static
-      - ./db:/app/db
+      - ./db:data
 
   frontend:
     build:
       context: ./Front-end
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.frontend.prod
     image: frontend:1337
-    container_name: frontend
+    container_name: frontend-prod
     ports:
       - "8080:80"
     networks:

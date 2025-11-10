@@ -8,7 +8,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "node app.js",
+    "dev": "nodemon --delay 2s app.js",
     "test": "tap ../tests/**/*.test.js",
     "test:watch": "tap ../tests/**/*.test.js --watch",
     "test:coverage": "tap ../tests/**/*.test.js --coverage-report=html"
@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",
+    "nodemon": "^3.1.10",
     "sinon": "^21.0.0",
     "tap": "^21.1.3"
   }

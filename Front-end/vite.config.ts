@@ -18,7 +18,7 @@ export default defineConfig({
 
         // host.docker.internal is a special DNS name that
         // docker provides to containers so they can reach the host machine.
-        target: 'http://host.docker.internal:3000',
+        target: 'http://backend-dev:3000',
 
         changeOrigin: true,
 

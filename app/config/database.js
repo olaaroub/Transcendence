@@ -1,8 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const open = require('sqlite').open;
 
-const DB_PATH = process.env.DB_PATH || '/app/db/database.db';
-
+const DB_PATH = process.env.DB_PATH || '/data/database.db';
 const creatTable = async () =>
 {
     const db = await open({
