@@ -11,13 +11,27 @@ export function chatEventHandler() {
 
 function renderMessages() : string {
     return `
-        <div class="relative w-[70%] bg-color4 rounded-2xl p-6">
-            <h2 class="text-txtColor text-2xl font-bold mb-4">Messages</h2>
-            <div class="h-[1px] bg-gray-700 mb-4"></div>
-            <p class="text-txtColor">No messages to display.</p>
+        <div class="relative w-[70%] bg-color4 rounded-2xl min-h-[calc(100vh-200px)]
+        p-6 flex flex-col justify-between">
+            <div>
+                <h2 class="text-txtColor text-2xl font-bold mb-6">Messages</h2>
+                <div class="h-[1px] bg-gray-700 mb-4"></div>
+            </div>
+
+            <div class="h-full bg-bgColor rounded-2xl flex items-center justify-center">
+                <p class="text-txtColor text-center">No messages to display.</p>
+            </div>
+
+            <div class="flex justify-center gap-2 mt-4 w-full items-center">
+                <input type="text" placeholder="Type a message..."
+                class=" bg-bgColor text-txtColor px-4 py-2 rounded-full w-[60%] 
+                outline-none border border-color3 focus:border-color1 transition-colors">
+                <img class="h-10 w-10" src="images/sentIcon.svg" alt="sent">
+            </div>
         </div>
         `;
 }
+
 export async function renderChat() {
     await data.initDashboard(false);
     const dashContent = document.getElementById('dashboard-content');
@@ -26,13 +40,13 @@ export async function renderChat() {
         <div class="w-full h-full flex ">
             <div class="w-[30%] bg-color4 rounded-2xl p-6 mr-4">
                 <div id="search-chat" class="relative mx-2 bg-color4
-                    border border-color1 rounded-full
+                    border border-color1 rounded-full mb-3
                     flex items-center">
                     <input
                         id="search-input-chat"
                         type="text"
                         autocomplete="off" 
-                        autocorrect="off" 
+                        autocorrect="off"
                         autocapitalize="off" 
                         spellcheck="false"
                         placeholder="Search, users..."
@@ -45,7 +59,8 @@ export async function renderChat() {
                     d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z" />
                     </svg>
                 </div>
-                <div class="h-[1px] bg-gray-700 mt-6"></div>
+                <div class="h-[1px] bg-gray-700 mb-4"></div>
+                <p class="pt-24 text-txtColor text-center">No friends to display.</p>
             </div>
             ${renderMessages()}
         </div>
