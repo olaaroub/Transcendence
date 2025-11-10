@@ -1,0 +1,39 @@
+services:
+  backend-dev:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.backend.dev
+    image: backend-dev:1337
+    container_name: backend-dev
+    volumes:
+      - ./app:/app
+      - ./db:/data
+      - ./app/static:/app/static
+      - /app/node_modules
+    networks:
+      - transcendence-dev-net
+    expose:
+      - "3000"
+
+  frontend-dev:
+    build:
+      context: ./Front-end
+      dockerfile: Dockerfile.frontend.dev
+    image: frontend-dev:1337
+    container_name: frontend-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./Front-end:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - transcendence-dev-net
+    depends_on:
+      - backend-dev
+
+networks:
+  transcendence-dev-net:
+    name: transcendence-dev-net
+    driver: bridge

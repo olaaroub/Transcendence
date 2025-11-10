@@ -15,17 +15,14 @@ clean:
 
 re: clean up
 
-restart-back:
-	docker compose restart backend
-	docker compose start front
+dev:
+	docker compose -f compose.dev.yaml up
 
-front:
-	docker compose -f Front-end/docker-compose.yml up
+dev-down:
+	docker compose -f compose.dev.yaml down
 
-clean-front:
-	docker compose -f Front-end/docker-compose.yml down -v
+logs-dev:
+	docker compose -f compose.dev.yaml logs
 
-back: # hada ila bghiti testi lback bo7do b postman ( makayn lach t runi l containers )
-	DB_PATH=../db/database.db npm --prefix ./app run dev
-
-# DB_PATH should be in the .env drto hna gha bac nod n3es mafiach li yzid lkhdma
+clean-dev:
+	docker compose -f compose.dev.yaml down -v
