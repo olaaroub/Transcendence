@@ -1,5 +1,5 @@
 
-services: # rak mhyeb akha simo mni khdemti bhad tari9a
+services:
   frontend:
     build:
       context: .

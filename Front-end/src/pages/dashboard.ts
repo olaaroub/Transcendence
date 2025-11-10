@@ -1,50 +1,54 @@
 import { renderRightPanel } from "./components/rightPanel";
-import { renderDashboardNavBar } from "./components/NavBar";
+import { notifications, renderDashboardNavBar } from "./components/NavBar";
 import { navigate } from "../router";
 import { renderGroupChat } from "./chat/groupChat";
 import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
 import { renderLeaderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
-import { IUserData, setUserData, getUserData, getImageUrl} from "./store"
+import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
 
 (window as any).navigate = navigate;
 
-export let userData: IUserData | null = getUserData();
 export let response: Response  | null = null;
 
-export async function initDashboard(isDashboard: boolean = true) {
-try {
-		const id = localStorage.getItem('id');
-		const token = localStorage.getItem('token');
-		if (!id || !token) {
-			console.warn('Missing credentials');
-			navigate('/login');
-			return;
-		}
-		const response = await fetch(`/api/users/${id}/profile`, {
-			headers: { "Authorization": `Bearer ${token}` },
+export async function fetchProfile(userId: string | number | null) : Promise<IUserData | null> {
+	if (!userId) {
+		console.warn('User ID is null or undefined');
+		return null;
+	}
+	let tmpUserData: IUserData | null = null;
+	try {
+		const response = await fetch(`/api/users/${userId}/profile`, {
+			headers: { "Authorization": `Bearer ${credentials.token}` },
 		});
 		if (response.status === 401 || response.status === 403) {
 			localStorage.clear();
 			navigate('/login');
-			return;
+			return null;
 		}
 		try {
-			const tmpUserData = await response.json();
-			setUserData(tmpUserData);
-			userData = getUserData();
+			tmpUserData = await response.json();
+			if (tmpUserData && userId == credentials.id)
+				setUserData(tmpUserData);
 		} catch (parseErr) {
 			console.error('Invalid JSON from API:', parseErr);
 			showErrorMessage('Unexpected server response.', 502); // to test later
-			return;
+			return null;
 		}
-		renderDashboard(isDashboard);
 	}
 	catch (err) {
 		console.error('Network error:', err);
 		showErrorMessage('Server unreachable. Try again later.', 503);
 	}
+	return tmpUserData;
+}
+
+export async function initDashboard(isDashboard: boolean = true) {
+	setCredentials();
+	const profileResponse = await fetchProfile(credentials.id);
+	if (profileResponse)
+		renderDashboard(isDashboard);
 }
 
 function renderButton(nb: number) : string
@@ -284,6 +288,7 @@ export function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
+	notifications();
 	document.getElementById('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
 	if (isDashboard)
 		slidingLogic();

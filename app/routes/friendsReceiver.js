@@ -4,32 +4,31 @@
         accept: true/false,
         id: 4
     }
+    ,i.profileImage
+                                INNERE JOIN
+                                infos AS i ON f.userReceiver = i.user_id
 */
-
+// 2
 async function getPendingRequestes(req, reply)
 {
     try
     {
-        const data = await this.db.all(`SELECT u.username, u.id ,i.profileImage
+        const id = req.params.id
+        const data = await this.db.all(`SELECT u.username, u.id
                           FROM
                             users AS u
                             INNER JOIN
-                                friendships AS f ON u.id = (
-                                    CASE
-                                        WHEN userReceiver = ? THEN userRequester
-                                    END
-                                )
+                                friendships AS f ON u.id = f.userRequester
                                 WHERE
                                     f.userReceiver = ? AND f.status = 'PENDING'
-                            INNERE JOIN
-                                infos AS i ON f.userReceiver = f.user_id
-                        `);
+                        `, [id]);
         console.log(data);
         reply.code(200).send(data);
 
     }
     catch (err) {
-        reply.code(500).code({"message": "internal server error"});
+        console.log(err);
+        reply.code(500).send({"message": "internal server error"});
     }
 }
 
@@ -56,6 +55,17 @@ async function routes(fastify)
 {
     fastify.post("/users/:id/friend-request", handleFriendRequest);
     fastify.get("/users/:id/getPendingRequestes", getPendingRequestes);
+    fastify.get("/test", async (req, reply) => {
+        try
+        {
+            const data = await fastify.db.all("SELECT userRequester, userReceiver, status FROM friendships");
+            reply.code(200).send(data);
+        }
+        catch (err)
+        {
+            reply.code(500).send({success: false});
+        }
+    })
 }
 
 module.exports = routes;

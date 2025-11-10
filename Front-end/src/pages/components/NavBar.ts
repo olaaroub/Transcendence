@@ -1,3 +1,4 @@
+import { mockMessages } from "../chat/mockMessages";
 import { IUserData } from "../store";
 
 interface UserData {
@@ -54,9 +55,47 @@ function searchBar() : string
 	`
 }
 
+
+
+export function notifications()
+{
+	const notificationIcon = document.getElementById('notification-icon');
+	if (!notificationIcon) return;
+		notificationIcon.addEventListener('click', () => {
+			const result = document.createElement('div');
+			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-2 overflow-y-auto
+			border border-[#87878766] rounded-lg shadow-lg py-3 px-3 z-50 max-h-[300px] items-center
+			scrollbar-custom`;
+			result.id = "notifications-result";
+			result.innerHTML = `
+				<p class="text-txtColor w-full text-lg font-bold text-center
+				border-b border-color3 pb-2">Notifications</p>
+			`
+			for(const user of mockMessages)
+			{
+				const pandingUser = document.createElement('div');
+				pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
+				pandingUser.innerHTML = `
+					<div class="flex gap-3 items-center">
+						<img class="w-[45px] h-[45px] rounded-full" src="${user.avatar}" alt="">
+						<span class="text-txtColor">${user.senderName}</span>
+					</div>
+					<button class="bg-color1 text-xs px-3 h-8 font-bold rounded-xl text-black">accept</button>
+				`
+				result.append(pandingUser);
+			}
+			notificationIcon.append(result);
+		});
+		document.addEventListener('click', (e) => {
+			const el = e.target as HTMLElement;
+			if (!notificationIcon.contains(el))
+				notificationIcon.querySelector('#notifications-result')?.remove();
+		});
+}
+
 export function renderDashboardNavBar(user: IUserData | null, imageUrl: string | null): string {
 	return `
-	<nav class="flex justify-between items-center py-14 w-full m-auto md:px-10 h-[70px] mb-7">
+	<nav class="relative z-50 flex justify-between items-center py-14 w-full m-auto md:px-10 h-[70px] mb-7">
 		<img id="main-logo" src="/images/logo.png"
 		class="w-[100px] xl:w-[130px] my-10 xl:my-14 block cursor-pointer" />
 		${searchBar()}
@@ -65,7 +104,8 @@ export function renderDashboardNavBar(user: IUserData | null, imageUrl: string |
 				<img src="images/messageIcon.svg" class="w-[25px] h-[25px] invert
 				sepia saturate-200 hue-rotate-[330deg]">
 			</div>
-			<div class="bg-color4 translate-y-[2px] rounded-full p-2">
+			<div id="notification-icon"
+			class="relative bg-color4 cursor-pointer translate-y-[2px] rounded-full p-2">
 				<img src="images/notificationIcon.svg" class="w-[25px] h-[25px] invert
 				sepia saturate-200 hue-rotate-[330deg]">
 			</div>
@@ -74,7 +114,7 @@ export function renderDashboardNavBar(user: IUserData | null, imageUrl: string |
 				<div id="avatar" class=" relative cursor-pointer
 				transition-transform duration-300">
 					<img src="${imageUrl}" class=" w-[50px] h-[50px] rounded-full
-					border-2 border-transparent" alt="user" />
+					border-2 border-transparent" alt="userAvatar"/>
 					<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500
 					border-2 border-[#0f2a3a] rounded-full"></span>
 				</div>

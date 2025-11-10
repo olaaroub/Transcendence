@@ -1,5 +1,6 @@
 import * as data from "./dashboard"
-import { getUserData, IUserData, getImageUrl } from "./store";
+import { userData, IUserData, getImageUrl } from "./store";
+import { navigate } from "../router";
 
 const stats = [
 	{ label: "XP", value: "2500" },
@@ -31,7 +32,6 @@ function recentMatches() : string
 	return `
 		<div class="w-full sm:px-4 p-6 bg-color4 rounded-3xl">
 			<h2 class="text-txtColor text-2xl font-bold">Recent Matches</h2>
-
 		</div>
 	`
 }
@@ -40,22 +40,42 @@ async function getUserDataById(userId: string | null) : Promise<IUserData | null
 {
 	if (!userId)
 		return null;
-	const userData = await getUserData();
-	return userData;
+	const tmpUserData = await data.fetchProfile(userId);
+	if (!tmpUserData) {
+		alert('User data not found for ID: ' + userId);
+		return null;
+	}
+	return tmpUserData;
 }
 
-export async function renderProfile(isMyProfile: boolean, userId: string | null = null)
+async function sendFriendRequest (recieverId: string | number | null) : Promise<void>{
+	if (!recieverId) {
+		alert('Invalid user ID');
+		return;
+	}
+	const response = await fetch(`/api/users/${userData.id}/add-friend?receiver_id=${recieverId}`, {
+		method: 'PUT',
+	})
+	if (!response.ok) {
+		const errorData = await response.json();
+		throw new Error(errorData.message || 'Failed to send friend request');
+	}
+}
+
+export async function renderProfile(userId: string | null = null)
 {
-	let userData : IUserData | null = null;
-	if (isMyProfile)
-		userData = data.userData;
-	else
-		userData = await getUserDataById(userId);
-	if (!data.userData || !data.userData.id || !data.userData.username)
+	if (!userData || !userData.id || !userData.username)
 		await data.initDashboard(false);
+	let tmpUserData : IUserData | null = null;
+	const isMyProfile = userId == userData.id;
+	if (isMyProfile)
+		tmpUserData = userData;
+	else
+		tmpUserData = await getUserDataById(userId);
+
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
-		const imageUrl = getImageUrl(userData?.profileImage); // hada howa l fix li sherni 4 sway3
+		const imageUrl = getImageUrl(tmpUserData?.profileImage);
 
 		dashContent.innerHTML = `
 			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8">
@@ -63,11 +83,11 @@ export async function renderProfile(isMyProfile: boolean, userId: string | null 
 				border-t-4 border-color1">
 					<img src="${imageUrl}" alt="avatar" class="w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
 					<div class="flex flex-col gap-2">
-						<h2 class="font-bold text-txtColor text-3xl">${userData?.username}</h2>
-						<p class="text-color3 mb-4 w-[70%]">${userData?.bio}</p>
-						<button class="bg-gradient-to-r from-color1 to-[#af4814]
-						w-[150px] rounded-xl text-lg font-bold p-3 flex gap-2 justify-center">
-						<img class="inline" src="images/addFriend.svg" alt="add friend">Add Friend</button>
+						<h2 class="font-bold text-txtColor text-3xl">${tmpUserData?.username}</h2>
+						<p class="text-color3 mb-4 w-[70%]">${tmpUserData?.bio}</p>
+						<button id="${isMyProfile ? 'edit-profile' : 'add-friend'}" class="bg-gradient-to-r from-color1 to-[#af4814]
+						min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center">
+					<img class="inline w-[24px] h-[24px]" src="${isMyProfile ? 'images/edit.svg' : 'images/addFriend.svg'}">${isMyProfile ? 'Edit My Profile' : 'Add Friend'}</button>
 					</div>
 				</div>
 				${UserStats()}
@@ -75,11 +95,17 @@ export async function renderProfile(isMyProfile: boolean, userId: string | null 
 			</div>
 		`;
 		const profile_card = document.querySelector('.profile-card');
-		profile_card?.querySelector('button')?.addEventListener('click', el=>{
-			const target = el.target as HTMLButtonElement;
-			const list = target.classList;
-			// list.contains('from-color1') ? list.replace('from-color1', 'from-color2') : list.replace('from-color2', 'from-color1');
-			// list.contains('from-color1') ? target.textContent = 'FOLLOW' : target.textContent = 'FOLLOWED';
+		profile_card?.querySelector('button')?.addEventListener('click', async el=>{
+			if (isMyProfile) {
+				navigate('/settings');
+				return;
+			}
+			try {
+				await sendFriendRequest(tmpUserData!.id);
+			} catch (error) {
+				alert('Error sending friend request: ' + error);
+			}
 		})
+
 	}
 }

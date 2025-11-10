@@ -61,6 +61,7 @@ module.exports = {
 				'.anim-delay-20s': { 'animationDelay': '20s' },
 			};
 			addUtilities(newUtils, ['responsive']);
-		}
+		},
+		require('tailwind-scrollbar'),
 	],
 }

@@ -30,8 +30,7 @@ async function modifyAvatar(req, reply)
   try
   {
     const data = await this.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
-    const imgpath = path.basename(new URL(data.profileImage).pathname);
-    console.log(path.join(__dirname, '../static', imgpath));
+    const imgpath = path.basename(data.profileImage);
     if (imgpath != `Default_pfp.jpg`)
       await fs.promises.unlink(path.join(__dirname, '../static', imgpath));
     const datafile = await req.file();
@@ -59,13 +58,16 @@ async function deleteAvatar(req, reply)
   try
   {
     const data = await this.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
-    const imgpath = path.basename(new URL(data.profileImage).pathname);
+    const imgpath = path.basename(data.profileImage);
     console.log(path.join(__dirname, '../static', imgpath));
     if (imgpath == `Default_pfp.jpg`)
       reply.code(401).send({success: false, message: "can't delete the default img"});
-    await fs.promises.unlink(path.join(__dirname, '../static', imgpath));
-    await this.db.run("UPDATE infos SET profileImage = ? WHERE user_id = ?", ["/public/Default_pfp.jpg", id]);
-    reply.code(201).send({success: true, message: "your delete the profile image successfully"});
+    else
+    {
+      await fs.promises.unlink(path.join(__dirname, '../static', imgpath));
+      await this.db.run("UPDATE infos SET profileImage = ? WHERE user_id = ?", ["/public/Default_pfp.jpg", id]);
+      reply.code(201).send({success: true, message: "your delete the profile image successfully"});
+    }
   }
   catch (err) {
     reply.code(500).send({success: false, message: err});

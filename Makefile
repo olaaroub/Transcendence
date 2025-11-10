@@ -15,8 +15,15 @@ clean:
 
 re: clean up
 
+restart-back:
+	docker compose restart backend
+	docker compose start front
+
 front:
 	docker compose -f Front-end/docker-compose.yml up
+
+clean-front:
+	docker compose -f Front-end/docker-compose.yml down -v
 
 back: # hada ila bghiti testi lback bo7do b postman ( makayn lach t runi l containers )
 	DB_PATH=../db/database.db npm --prefix ./app run dev
