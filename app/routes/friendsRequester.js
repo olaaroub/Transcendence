@@ -20,9 +20,12 @@ async function getFriends(req, reply)
     try
     {
         const id = req.params.id;
-        const friends = await this.db.all(`SELECT u.id, u.username
+        const friends = await this.db.all(`SELECT u.id, u.username, i.profileImage
                                            FROM
-                                            friendships f JOIN users u ON u.id = (
+                                            infos AS i 
+                                            INNER JOIN users u ON i.user_id = u.id
+
+                                            INNER JOIN friendships f ON i.user_id = (
                                                     CASE
                                                         WHEN f.userRequester = ? THEN f.userReceiver
                                                         WHEN f.userReceiver = ? THEN f.userRequester
@@ -31,6 +34,7 @@ async function getFriends(req, reply)
                                             WHERE
                                                 (f.userRequester = ? OR f.userReceiver = ?) AND f.status = 'ACCEPTED'
                                            `, [id, id, id, id]);
+        console.log(friends);
         reply.code(200).send(friends);
     }
     catch (err)
