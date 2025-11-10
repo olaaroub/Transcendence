@@ -262,7 +262,6 @@ function renderDashboardContent(): string {
 	`;
 }
 
-
 async function renderMain() : Promise<string>
 {
 	return `
@@ -278,6 +277,18 @@ async function renderMain() : Promise<string>
 	`
 }
 
+function addClickInRightPanel()
+{
+	const friendsList = document.getElementById("friends-list");
+	friendsList?.addEventListener("click", (e) => {
+		const friendEl = (e.target as HTMLElement).closest(".friend-item");
+		if (!friendEl) return;
+		const friendId = friendEl.getAttribute("data-id");
+		navigate('/profile/' + friendId);
+	});
+}
+
+
 export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
@@ -288,6 +299,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
+	addClickInRightPanel();
 	notifications();
 	document.getElementById('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
 	if (isDashboard)
