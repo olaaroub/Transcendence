@@ -23,9 +23,10 @@ async function getFriends(req, reply)
         const friends = await this.db.all(`SELECT u.id, u.username, i.profileImage
                                            FROM
                                             infos AS i 
-                                            INNER JOIN users u ON i.user_id = u.id
-
-                                            INNER JOIN friendships f ON i.user_id = (
+                                            INNER JOIN 
+                                                users u ON i.user_id = u.id
+                                            INNER JOIN 
+                                                friendships f ON i.user_id = (
                                                     CASE
                                                         WHEN f.userRequester = ? THEN f.userReceiver
                                                         WHEN f.userReceiver = ? THEN f.userRequester

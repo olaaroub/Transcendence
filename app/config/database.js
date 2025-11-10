@@ -33,7 +33,18 @@ const creatTable = async () =>
         userRequester INTEGER,
         userReceiver INTEGER,
 
-        status TEXT NOT NULL DEFAULT 'PENDING'
+        status TEXT NOT NULL DEFAULT 'PENDING',
+
+        pair_rolastion TEXT GENERATED ALWAYS AS (
+            CASE
+                WHEN userRequester > userReceiver
+                    THEN printf('%d_%d', userReceiver, userRequester)
+                ELSE
+                    printf('%d_%d', userRequester, userReceiver)
+            END
+        ) STORED UNIQUE,
+
+
         CHECK(status IN ('PENDING', 'ACCEPTED', 'REJECTED', 'BLOCKED')),
 
         FOREIGN KEY(userRequester) REFERENCES users(id) ON DELETE CASCADE,

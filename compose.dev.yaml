@@ -12,8 +12,8 @@ services:
       - /app/node_modules
     networks:
       - transcendence-dev-net
-    expose:
-      - "3000"
+    ports:
+      - "3000:3000"
 
   frontend-dev:
     build:
