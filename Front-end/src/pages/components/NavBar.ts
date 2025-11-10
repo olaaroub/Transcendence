@@ -191,7 +191,8 @@ export function renderDashboardNavBar(user: IUserData | null, imageUrl: string |
 		class="w-[100px] xl:w-[130px] my-10 xl:my-14 block cursor-pointer" />
 		${searchBar()}
 		<div class="flex items-center gap-3 mr-6">
-			<div class="bg-color4 translate-y-[2px] rounded-full p-2">
+			<div id="message-icon"
+			class="bg-color4 translate-y-[2px] rounded-full p-2 cursor-pointer">
 				<img src="images/messageIcon.svg" class="w-[25px] h-[25px] invert
 				sepia saturate-200 hue-rotate-[330deg]">
 			</div>

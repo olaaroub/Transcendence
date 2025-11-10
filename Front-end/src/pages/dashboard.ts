@@ -7,6 +7,7 @@ import { searchbar } from "./components/searchbar";
 import { renderLeaderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
+import { chatEventHandler } from "./chat/chat";
 
 (window as any).navigate = navigate;
 
@@ -301,6 +302,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 	`;
 	addClickInRightPanel();
 	notifications();
+	chatEventHandler();
 	document.getElementById('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
 	if (isDashboard)
 		slidingLogic();
