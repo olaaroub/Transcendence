@@ -1,10 +1,4 @@
-import { mockMessages } from "../chat/mockMessages";
-import { IUserData } from "../store";
-
-interface UserData {
-	id: string;
-	username: string;
-}
+import { credentials, getImageUrl, IUserData } from "../store";
 
 export function renderNavBar (isLoged: boolean)
 {
@@ -55,36 +49,133 @@ function searchBar() : string
 	`
 }
 
+async function getPendingUsers() : Promise<IUserData[] | null>
+{
+	try
+	{
+		const response = await fetch(`api/users/${credentials.id}/getPendingRequestes`, {
+			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
+		});
+		if (!response.ok)
+		{
+			console.error('Failed to fetch pending users:', response.statusText);
+			return null;
+		}
+		const users: IUserData[] = await response.json();
+		return users;
+	} catch(err){
+		console.error('Error fetching pending users:', err);
+		return null;
+	}
+}
 
+async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement) : Promise<boolean> {
+	try {
+		const response = await fetch(`/api/users/${credentials.id}/friend-request`, {
+			method: 'POST',
+			headers: {
+				"Authorization": `Bearer ${credentials.token}`,
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				id: requesterId,
+				accept: accept
+			})
+		});
+		if (response.ok) {
+			userElement.remove();
+			return accept ? true : false;
+		} else {
+			console.error('Failed to handle friend request');
+		}
+	} catch (err) {
+		console.error('Error handling friend request:', err);
+	}
+	return false
+}
 
 export function notifications()
 {
 	const notificationIcon = document.getElementById('notification-icon');
 	if (!notificationIcon) return;
-		notificationIcon.addEventListener('click', () => {
+		notificationIcon.addEventListener('click',async  () => {
+			const existingResult = document.getElementById('notifications-result');
+			if (existingResult) {
+				existingResult.remove();
+				return;
+			}
 			const result = document.createElement('div');
 			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-2 overflow-y-auto
-			border border-[#87878766] rounded-lg shadow-lg py-3 px-3 z-50 max-h-[300px] items-center
+			border border-[#87878766] rounded-2xl shadow-lg py-3 pl-3 pr-1 z-50 max-h-[300px] items-center 
 			scrollbar-custom`;
 			result.id = "notifications-result";
 			result.innerHTML = `
 				<p class="text-txtColor w-full text-lg font-bold text-center
 				border-b border-color3 pb-2">Notifications</p>
-			`
-			for(const user of mockMessages)
+			`;
+			notificationIcon.append(result);
+			const pendingUsers : IUserData[] | null = await getPendingUsers();
+			if (!pendingUsers || pendingUsers.length === 0)
+			{
+				const noNotifications = document.createElement('p');
+				noNotifications.className = "text-gray-400 text-sm mt-4";
+				noNotifications.textContent = "No new notifications";
+				result.append(noNotifications);
+				return;
+			}
+			for(const user of pendingUsers)
 			{
 				const pandingUser = document.createElement('div');
 				pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
 				pandingUser.innerHTML = `
 					<div class="flex gap-3 items-center">
-						<img class="w-[45px] h-[45px] rounded-full" src="${user.avatar}" alt="">
-						<span class="text-txtColor">${user.senderName}</span>
+						<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(user.profileImage)}" alt="">
+						<span class="text-txtColor">${user.username}</span>
 					</div>
-					<button class="bg-color1 text-xs px-3 h-8 font-bold rounded-xl text-black">accept</button>
-				`
+					<div class="flex gap-2 items-center">
+						<button class="refuse-btn hover:scale-110 transition-transform" data-user-id="${user.id}">
+							<svg class="w-[24px] h-[24px]" fill="#ef4444" viewBox="0 0 24 24">
+								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+							</svg>
+						</button>
+						<button class="accept-btn hover:scale-110 transition-transform" data-user-id="${user.id}">
+							<svg class="w-[28px] h-[28px]" fill="#22c55e" viewBox="0 0 24 24">
+								<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+							</svg>
+						</button>
+					</div>
+				`;
+				
+				const acceptBtn = pandingUser.querySelector('.accept-btn');
+				const refuseBtn = pandingUser.querySelector('.refuse-btn');
+				
+				if (user.id) {
+					acceptBtn?.addEventListener('click', async () => {
+						const isValid = await handleFriendRequest(String(user.id), true, pandingUser);
+						const friendList = document.getElementById('friends-list');
+						console.log("Friend list element : ", friendList + " isValid : ", isValid);
+						if (friendList && isValid) {
+							console.log("Adding new friend to the list : ", isValid);
+							const newFriendDiv = document.createElement('div');
+							newFriendDiv.className = "flex items-center group-hover:space-x-3 cursor-pointer hover:scale-105 transition-all duration-150";
+							newFriendDiv.innerHTML = `
+								<img class="w-[45px] h-[45px] rounded-full flex-shrink-0 border-[2px] border-color1" src="${getImageUrl(user.profileImage)}" />
+								<p class="opacity-0 max-w-0 text-txtColor transition-all duration-500 group-hover:opacity-100
+								group-hover:max-w-[150px] font-semibold text-xs sm:text-sm 3xl:text-lg truncate">
+									${user.username}
+								</p>
+							`;
+							friendList.appendChild(newFriendDiv);
+						}
+					});
+					
+					refuseBtn?.addEventListener('click', () => {
+						handleFriendRequest(String(user.id), false, pandingUser);
+					});
+				}
+				
 				result.append(pandingUser);
 			}
-			notificationIcon.append(result);
 		});
 		document.addEventListener('click', (e) => {
 			const el = e.target as HTMLElement;

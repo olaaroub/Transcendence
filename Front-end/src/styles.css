@@ -4,6 +4,6 @@
 
 @layer utilities {
     .scrollbar-custom {
-    @apply scrollbar-thin scrollbar-thumb-color1 scrollbar-track-color4 hover:scrollbar-thumb-color2;
+    @apply scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2;
     }
 }
