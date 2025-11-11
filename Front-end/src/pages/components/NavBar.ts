@@ -1,4 +1,5 @@
 import { credentials, getImageUrl, IUserData } from "../store";
+import { shortString } from "../utils";
 
 export function renderNavBar (isLoged: boolean)
 {
@@ -210,7 +211,7 @@ export function renderDashboardNavBar(user: IUserData | null, imageUrl: string |
 					<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500
 					border-2 border-[#0f2a3a] rounded-full"></span>
 				</div>
-				<p class="text-sm text-gray-200 font-bold">${user?.username}</p>
+				<p class="text-sm text-gray-200 font-bold">${shortString(user?.username, 10)}</p>
 			</div>
 		</div>
 	</nav>
