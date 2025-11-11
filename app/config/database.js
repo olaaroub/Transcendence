@@ -42,7 +42,7 @@ const creatTable = async () =>
                 ELSE
                     printf('%d_%d', userRequester, userReceiver)
             END
-        ) STORED UNIQUE,
+        ) STORED,
 
 
         CHECK(status IN ('PENDING', 'ACCEPTED', 'REJECTED', 'BLOCKED')),
@@ -51,7 +51,8 @@ const creatTable = async () =>
         FOREIGN KEY(userReceiver) REFERENCES users(id) ON DELETE CASCADE,
 
         CHECK (userRequester <> userReceiver),
-        UNIQUE (userRequester, userReceiver)
+        UNIQUE (userRequester, userReceiver),
+        UNIQUE (pair_rolastion)
     );`);
     return db;
 }
