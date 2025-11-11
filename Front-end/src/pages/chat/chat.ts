@@ -47,17 +47,17 @@ async function listFriends() : Promise<string> {
 			<p class="text-txtColor text-lg font-bold mb-2">Friends</p>
 			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-200px)]">
 				${friends.map(friend => `
-					<div class="flex items-center justify-between bg-color4 p-3 rounded-lg">
-						<div class="flex items-center gap-3">
+					<div class="flex bg-[#273445] p-3 rounded-2xl">
+						<div class="flex w-full gap-4">
 							<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(friend.profileImage)}" alt="">
-							<span class="text-txtColor">${shortString(friend.username, 15)}</span>
+							<div class="w-full">
+								<div class="flex justify-between w-full">
+									<span class="text-txtColor font-bold text-lg">${shortString(friend.username, 15)}</span>
+									<p class="text-gray-400 text-sm">Yesterday</p>
+								</div>
+								<p class="text-gray-400 text-sm">jawbni 3afak matkhelinich kanbghik💋</p>
+							</div>
 						</div>
-						<button class="text-gray-400 hover:text-gray-200 transition-colors">
-							<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-								d="M5 13l4 4L19 7" />
-							</svg>
-						</button>
 					</div>
 				`).join('')}
 			</div>
