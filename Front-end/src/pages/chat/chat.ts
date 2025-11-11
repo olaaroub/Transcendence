@@ -20,9 +20,14 @@ function renderMessages() : string {
 				<h2 class="text-txtColor text-2xl font-bold mb-6">Messages</h2>
 				<div class="h-[1px] bg-gray-700 mb-4"></div>
 			</div>
-
-			<div class="h-full bg-bgColor rounded-2xl flex items-center justify-center">
-				<p class="text-txtColor text-center">No messages to display.</p>
+			<div class="h-full bg-bgColor rounded-2xl flex p-3">
+				<div class="flex gap-3 font-bold h-fit items-center">
+					<img class="h-14 w-14 border border-color1 rounded-full" src="images/mmondad.jpeg">
+					<div class="flex flex-col">
+						<span class="text-txtColor text-lg">mmondad</span>
+						<span class="text-green-500 text-sm">online</span>
+					</div>
+				</div>
 			</div>
 
 			<div class="flex justify-center gap-2 mt-4 w-full items-center">
@@ -34,6 +39,7 @@ function renderMessages() : string {
 		</div>
 		`;
 }
+				// <p class="text-txtColor text-center">No messages to display.</p>
 
 async function listFriends() : Promise<string> {
 	const friends = await getFriends();
