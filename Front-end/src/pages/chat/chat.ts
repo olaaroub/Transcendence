@@ -20,9 +20,14 @@ function renderMessages() : string {
 				<h2 class="text-txtColor text-2xl font-bold mb-6">Messages</h2>
 				<div class="h-[1px] bg-gray-700 mb-4"></div>
 			</div>
-
-			<div class="h-full bg-bgColor rounded-2xl flex items-center justify-center">
-				<p class="text-txtColor text-center">No messages to display.</p>
+			<div class="h-full bg-bgColor rounded-2xl flex p-3">
+				<div class="flex gap-3 font-bold h-fit items-center">
+					<img class="h-14 w-14 border border-color1 rounded-full" src="images/mmondad.jpeg">
+					<div class="flex flex-col">
+						<span class="text-txtColor text-lg">mmondad</span>
+						<span class="text-green-500 text-sm">online</span>
+					</div>
+				</div>
 			</div>
 
 			<div class="flex justify-center gap-2 mt-4 w-full items-center">
@@ -34,6 +39,7 @@ function renderMessages() : string {
 		</div>
 		`;
 }
+				// <p class="text-txtColor text-center">No messages to display.</p>
 
 async function listFriends() : Promise<string> {
 	const friends = await getFriends();
@@ -47,17 +53,17 @@ async function listFriends() : Promise<string> {
 			<p class="text-txtColor text-lg font-bold mb-2">Friends</p>
 			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-200px)]">
 				${friends.map(friend => `
-					<div class="flex items-center justify-between bg-color4 p-3 rounded-lg">
-						<div class="flex items-center gap-3">
+					<div class="flex bg-[#273445] p-3 rounded-2xl">
+						<div class="flex w-full gap-4">
 							<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(friend.profileImage)}" alt="">
-							<span class="text-txtColor">${shortString(friend.username, 15)}</span>
+							<div class="w-full">
+								<div class="flex justify-between w-full">
+									<span class="text-txtColor font-bold text-lg">${shortString(friend.username, 15)}</span>
+									<p class="text-gray-400 text-sm">Yesterday</p>
+								</div>
+								<p class="text-gray-400 text-sm">jawbni 3afak matkhelinich kanbghik💋</p>
+							</div>
 						</div>
-						<button class="text-gray-400 hover:text-gray-200 transition-colors">
-							<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-								d="M5 13l4 4L19 7" />
-							</svg>
-						</button>
 					</div>
 				`).join('')}
 			</div>
