@@ -4,9 +4,23 @@
         accept: true/false,
         id: 4
     }
-    ,i.profileImage
-                                INNERE JOIN
-                                infos AS i ON f.userReceiver = i.user_i                               
+    
+
+    SELECT u.id, u.username, f.status, i.profileImage
+    FROM
+        users AS u
+        INNER JOIN
+            infos AS i
+            ON 
+                u.id = i.user_id 
+        LEFT JOIN friendships AS f
+            ON i.user_id = (
+                CASE
+                    WHEN userRequester = 1 THEN userReceiver
+                    WHEN userReceiver = 1 THEN userRequester
+                END
+            )
+        WHERE LOWER(u.username) LIKE LOWER('%am%')               
 */
 // 2
 async function getPendingRequestes(req, reply)
@@ -29,7 +43,7 @@ async function getPendingRequestes(req, reply)
     }
     catch (err) {
         console.log(err);
-        reply.code(500).send({"message": "internal server error"});
+        reply.code(500).send({message: "internal server error"});
     }
 }
 
