@@ -60,7 +60,7 @@ async function getProfileData(req, reply)
 	try {
 		const user_id = req.params.id;
 		const profile_id = req.query.profile_id;
-		let responceData;
+		let responceData = "";
 		if (!profile_id)
 		{
 			responceData = await this.db.get(`SELECT users.id, users.email, users.username, infos.profileImage,infos.bio
