@@ -1,3 +1,14 @@
+/* 
+SELECT u.id, u.email, u.username, i.profileImage, i.bio, f.status
+	FROM
+	users AS u INNER JOIN infos AS i ON u.id = i.user_id
+	LEFT JOIN friendships AS f ON i.user_id = (
+		CASE
+        	WHEN f.userRequester = ? THEN f.userRequester
+        	WHEN f.userReceiver = ?   THEN f.userReceiver
+        END
+	) 
+*/
 
 
 async function change_username(req, reply)
@@ -47,12 +58,30 @@ async function change_password(req, reply)
 async function getProfileData(req, reply)
 {
 	try {
-		const id = req.params.id;
-		const responceData = await this.db.get(`SELECT users.id, users.email, users.username, infos.profileImage,infos.bio
+		const user_id = req.params.id;
+		const profile_id = req.query.profile_id;
+		let responceData;
+		if (!profile_id)
+		{
+			responceData = await this.db.get(`SELECT users.id, users.email, users.username, infos.profileImage,infos.bio
 												FROM users
 												INNER JOIN infos ON users.id = infos.user_id
-												WHERE users.id = ?`, [id]);
+												WHERE users.id = ?`, [user_id]);
+		}
+		else
+		{
+			responceData = await this.db.get(`SELECT u.id, u.email, u.username, i.profileImage, i.bio, f.status
+											  FROM
+											  	users AS u INNER JOIN infos AS i ON u.id = i.user_id
+												LEFT JOIN friendships AS f ON 
+													(f.userRequester = ? AND f.userReceiver = ?) OR
+        											(f.userReceiver = ? AND f.userRequester = ?)
+												WHERE
+													u.id = ?
+												`, [user_id, profile_id, user_id, profile_id, profile_id]);
+		}
 		reply.code(200).send(responceData);
+
 	} catch (err)
 	{
 		reply.code(500).send({success: false, message: "can't getProfileData"});

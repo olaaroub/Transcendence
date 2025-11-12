@@ -53,9 +53,9 @@ async function modifyAvatar(req, reply)
 
 async function deleteAvatar(req, reply)
 {
-  const id = req.params.id;
   try
   {
+    const id = req.params.id;
     const data = await this.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
     const imgpath = path.basename(data.profileImage);
     console.log(path.join(__dirname, '../static', imgpath));
