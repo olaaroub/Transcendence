@@ -54,6 +54,7 @@ export async function sendFriendRequest (receiverId: string | number | null) : P
 		return;
 	}
 	const response = await fetch(`/api/users/${userData.id}/add-friend?receiver_id=${receiverId}`, {
+		headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 		method: 'PUT',
 	})
 	if (!response.ok) {
