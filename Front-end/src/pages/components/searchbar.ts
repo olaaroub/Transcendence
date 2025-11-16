@@ -29,14 +29,16 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		buttonsDiv.className = "flex gap-4 items-center";
 		const addFriend = document.createElement('img');
 		addFriend.src = `/images/addFriends.svg`;
-		addFriend.className = `w-6 h-8 cursor-pointer hover:scale-110`;
+		addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110`;
 		addFriend.title = "Add Friend";
 		if (!user.status)
 			buttonsDiv.appendChild(addFriend);
 		addFriend.addEventListener('click', async _=> {
+			if (user.status == 'pending' || user.status)
+				return;
 		try {
 			await sendFriendRequest(user!.id);
-			addFriend.remove();
+			addFriend.src = `/images/pending.gif`
 		} catch (error) {
 			alert('Error sending friend request: ' + error);
 		}
