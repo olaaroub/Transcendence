@@ -81,6 +81,7 @@ async function getProfileData(req, reply)
 													u.id = ?
 												`, [user_id, profile_id, user_id, profile_id, profile_id]);
 		}
+		console.log(responceData);
 		reply.code(200).send(responceData);
 
 	} catch (err)
