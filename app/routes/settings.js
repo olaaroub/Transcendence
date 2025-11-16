@@ -58,10 +58,11 @@ async function change_password(req, reply)
 async function getProfileData(req, reply)
 {
 	try {
-		const user_id = req.params.id;
-		const profile_id = req.query.profile_id;
+		const user_id = req.userId;
+		const profile_id = req.params.id;
+		// console.log(req.userId);
 		let responceData = "";
-		if (!profile_id)
+		if (profile_id == user_id)
 		{
 			responceData = await this.db.get(`SELECT users.id, users.email, users.username, infos.profileImage,infos.bio
 												FROM users

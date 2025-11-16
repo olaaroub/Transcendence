@@ -29,15 +29,17 @@ async function start() {
 
 
     if (url.includes('/login') || url.includes('/signUp') || url === '/'
-      || url.startsWith('/public'))
+      || url.startsWith('/api/public'))
       return;
-    // try {
-    //   await request.jwtVerify();
-    // }
-    // catch {
-    //   console.log("No token provided");
-    //   reply.code(401).send({ error: 'No token provided' });
-    // }
+    try {
+      const payload = await request.jwtVerify();
+      request.userId = payload.userId;
+      request.username = payload.username;
+    }
+    catch  {
+      console.log("No token provided");
+      reply.code(401).send({ error: 'No token provided' });
+    }
 
   });
 
