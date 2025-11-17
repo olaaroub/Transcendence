@@ -1,4 +1,5 @@
 import * as data from "./dashboard"
+import { navigate } from "../router";
 import { credentials,IUserData, userData, getImageUrl} from "./store"
 
 const $ = (id : String) => document.getElementById(id as string);
@@ -346,6 +347,7 @@ async function deleteAccount() : Promise<void>
 		});
 		if (response.ok) {
 			localStorage.clear();
+			navigate('/sign-up');
 			alert('account deleted succ...');
 		} else {
 			console.error('failed to delete account');
