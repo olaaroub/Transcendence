@@ -1,5 +1,7 @@
 import * as data from "./dashboard"
-import { IUserData, setUserData, userData, getImageUrl} from "./store"
+import { credentials,IUserData, userData, getImageUrl} from "./store"
+
+const $ = (id : String) => document.getElementById(id as string);
 
 let newUserData: Partial<IUserData> = {};
 let body: BodyInit | null = ""; // to learn about this type
@@ -316,7 +318,7 @@ function Account() : string
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account</p>
 			<div class="flex flex-col gap-4">
 				<p class="2xl:w-[60%] w-full text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
-				<button class="bg-red-500 text-white w-full lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
+				<button id="delete-account" class="bg-red-500 text-white w-full lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
 			</div>
 		</div>
 	`
@@ -332,6 +334,26 @@ function cancelChanges()
 			newUserData = {};
 			renderSettings();
 		});
+	}
+}
+
+async function deleteAccount() : Promise<void>
+{
+	try {
+		const response =  await fetch(`api/users/deleteAccount/${userData.id}`, {
+			method: 'POST',
+			headers: { "Authorization": `Bearer ${credentials.token}`},
+		});
+		if (response.ok) {
+			localStorage.clear();
+			alert('account deleted succ...');
+		} else {
+			console.error('failed to delete account');
+			alert('failed to delete account');
+		}
+	} catch(error) {
+		alert('failed in fetch to delete account');
+		console.error(error);
 	}
 }
 
@@ -361,6 +383,9 @@ export async function renderSettings()
 			</div>
 		</div>
 	`;
+	$('delete-account')?.addEventListener('click', _=>{
+		deleteAccount();
+	})
 	addInputListeners();
 	cancelChanges();
 }
