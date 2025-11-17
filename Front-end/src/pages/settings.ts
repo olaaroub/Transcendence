@@ -1,4 +1,3 @@
-
 import * as data from "./dashboard"
 import { IUserData, setUserData, userData, getImageUrl} from "./store"
 
@@ -113,7 +112,11 @@ function addInputListeners()
 			if (name === 'avatar')
 			{
 				avatar = sendAvatar();
-				console.log('avatar by simo : ', avatar);
+				if (!avatar)
+				{
+					delete newUserData[name as keyof IUserData];
+					return;
+				}
 				const upload_avatar = event.target as HTMLInputElement;
 				const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
 				if (userAvatar && upload_avatar && upload_avatar.files)
