@@ -6,6 +6,7 @@ interface UserData {
     id: string;
     username: string;
 	profileImage: string;
+	status: string | null;
 }
 
 async function ViewProfile(userId: string) {
@@ -25,15 +26,19 @@ function listUsers(users: UserData[], div: HTMLElement) {
 			</div>
 		</div>`;
 		const buttonsDiv = document.createElement('div');
-		buttonsDiv.className = "flex gap-6 items-center";
+		buttonsDiv.className = "flex gap-4 items-center";
 		const addFriend = document.createElement('img');
 		addFriend.src = `/images/addFriends.svg`;
 		addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110`;
 		addFriend.title = "Add Friend";
-		buttonsDiv.appendChild(addFriend);
+		if (!user.status)
+			buttonsDiv.appendChild(addFriend);
 		addFriend.addEventListener('click', async _=> {
+			if (user.status == 'pending' || user.status)
+				return;
 		try {
 			await sendFriendRequest(user!.id);
+			addFriend.src = `/images/pending.gif`
 		} catch (error) {
 			alert('Error sending friend request: ' + error);
 		}
@@ -65,11 +70,12 @@ export async function searchbar() {
 		div.id = 'search-results';
 		div.className = `absolute z-10 top-[44px] left-0 w-full max-h-[300px]
 		overflow-y-auto bg-color4 border py-3 border-[#87878766] rounded-xl scrollbar-custom`;
-		
-		const response = await fetch(`api/users/search?username=${value}`, {
+		const response = await fetch(`api/users/search/${userData.id}?username=${value}`, {
 			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 		});
+		console.log('response : ', response);
 		const users: UserData[] = await response.json();
+		console.log('users : ', users);
 		if (users.length === 0) {
 			const p = document.createElement('p');
 			p.className = "text-gray-400 p-4";

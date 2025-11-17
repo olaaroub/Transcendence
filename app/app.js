@@ -3,7 +3,7 @@ const routes = require('./routes/mainRoutes');
 const creatTable = require('./config/database');
 const fastifyCors = require('@fastify/cors');
 const fastifyJwt = require('@fastify/jwt');
-
+const fastifyMetrics = require('fastify-metrics');
 
 async function start() {
 
@@ -12,15 +12,17 @@ async function start() {
   await fastify.register(fastifyCors, {
     origin: true, // ba9i khasni npisifi frontend ip
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    // allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   fastify.register(fastifyJwt, {
     secret: 'supersecret'
   });
 
+  await fastify.register(fastifyMetrics, {
+    endpoint: '/metrics'
+  });
+
   fastify.decorate('db', db);
-  // fastify.register(require('@fastify/websocket'));
   fastify.register(require('@fastify/websocket'))
 
   fastify.addHook('preHandler', async (request, reply) => {
@@ -29,15 +31,17 @@ async function start() {
 
 
     if (url.includes('/login') || url.includes('/signUp') || url === '/'
-      || url.startsWith('/public'))
+      || url.startsWith('/api/public'))
       return;
-    // try {
-    //   await request.jwtVerify();
-    // }
-    // catch {
-    //   console.log("No token provided");
-    //   reply.code(401).send({ error: 'No token provided' });
-    // }
+    try {
+      const payload = await request.jwtVerify();
+      request.userId = payload.userId;
+      request.username = payload.username;
+    }
+    catch  {
+      console.log("No token provided");
+      reply.code(401).send({ error: 'No token provided' });
+    }
 
   });
 

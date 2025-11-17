@@ -12,6 +12,18 @@ services:
     volumes:
       - ./app/static:/app/static
       - ./db:/data
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - transcendence-net
+    volumes:
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - backend
 
   frontend:
     build:
@@ -30,3 +42,7 @@ networks:
   transcendence-net:
     name: transcendence-net
     driver: bridge
+
+volumes:
+  prometheus-data:
+    driver: local

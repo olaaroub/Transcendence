@@ -57,7 +57,7 @@ async function handleFriendRequest(req, reply)
         if (body.accept)
             await this.db.run(`UPDATE friendships SET status = ? WHERE (userReceiver = ? AND userRequester = ?)`, ["ACCEPTED", receiver_id, body.id]);
         else
-            await this.db.run(`DELETE FROM friendships WHERE userReceiver = ?`, [body.id]);
+            await this.db.run(`DELETE FROM friendships WHERE (userReceiver = ? AND userRequester = ?)`, [receiver_id, body.id]);
         reply.code(200).send({success: true});
     }
     catch
