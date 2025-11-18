@@ -12,7 +12,8 @@ const creatTable = async () =>
     await db.exec(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
+        password TEXT,
+        auth_provider TEXT NOT NULL DEFAULT 'local',
         email TEXT UNIQUE NOT NULL
     );`);
 
