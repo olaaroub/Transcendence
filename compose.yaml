@@ -9,9 +9,58 @@ services:
       - transcendence-net
     expose:
       - "3000"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - PORT=${BACK_PORT}
+      - HOST=${BACK_HOST}
     volumes:
       - ./app/static:/app/static
       - ./db:/data
+    restart: always
+    depends_on:
+      vault-init:
+        condition: service_completed_successfully
+
+  vault:
+    image: hashicorp/vault:1.21.0
+    container_name: vault
+    networks:
+      - transcendence-net
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN}
+      - VAULT_ADDR=http://0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+
+  vault-init:
+    image: hashicorp/vault:1.21.0
+    container_name: vault-init
+    networks:
+      - transcendence-net
+    volumes:
+      - ./vault/hashicorpVault.init.sh:/init.sh
+    environment:
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - JWT_SECRET_VALUE=${JWT_SECRET_VALUE}
+    entrypoint: /init.sh
+    depends_on:
+      - vault
+
+  modSecurity:
+    image: owasp/modsecurity-crs:4.20-nginx-alpine-202511100111
+    container_name: modSecurity
+    networks:
+      - transcendence-net
+    environment:
+      - BACKEND=http://backend:3000
+      - MODSEC_RULE_ENGINE=DetectionOnly
+    restart: on-failure
+    depends_on:
+      - backend
+
   prometheus:
     image: prom/prometheus:v3.7.3
     container_name: prometheus
@@ -35,8 +84,9 @@ services:
       - "8080:80"
     networks:
       - transcendence-net
+    restart: on-failure
     depends_on:
-      - backend
+      - modSecurity
 
 networks:
   transcendence-net:
@@ -45,4 +95,6 @@ networks:
 
 volumes:
   prometheus-data:
+    driver: local
+  vault-data:
     driver: local

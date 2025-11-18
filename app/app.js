@@ -1,21 +1,51 @@
-const fastify = require('fastify')({ logger: false })
+const fastify = require('fastify')({ logger: true })
 const routes = require('./routes/mainRoutes');
 const creatTable = require('./config/database');
 const fastifyCors = require('@fastify/cors');
 const fastifyJwt = require('@fastify/jwt');
 const fastifyMetrics = require('fastify-metrics');
 
+const vault = require('node-vault');
+
+async function getJwtSecret() {
+  try {
+    const options =
+	{
+      apiVersion: 'v1',
+      endpoint: process.env.VAULT_ADDR,
+      token: process.env.VAULT_TOKEN
+    };
+
+    const vaultClient = vault(options);
+
+    const { data } = await vaultClient.read('secret/data/transcendence');
+
+    return data.data.JWT_SECRET;
+
+  }
+    catch (err)
+  {
+    console.error("Error fetching secret from Vault:", err.message);
+    process.exit(1);
+  }
+}
+
+
 async function start() {
+
+  console.log("Fetching JWT secret from Vault...");
+  const jwtSecret = await getJwtSecret();
+  console.log("Secret fetched successfully.");
 
   const db = await creatTable();
 
   await fastify.register(fastifyCors, {
-    origin: true, // ba9i khasni npisifi frontend ip
+    origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   });
 
   fastify.register(fastifyJwt, {
-    secret: 'supersecret'
+    secret: jwtSecret
   });
 
   await fastify.register(fastifyMetrics, {
@@ -29,18 +59,24 @@ async function start() {
     const url = request.url;
     console.log("Requested URL:", url);
 
-
-    if (url.includes('/login') || url.includes('/signUp') || url === '/'
-      || url.startsWith('/public'))
+    if (
+      url.includes('/login') ||
+      url.includes('/signUp') ||
+      url === '/' ||
+      url.startsWith('/api/public') ||
+      url === '/metrics'
+    )
+	{
       return;
-    // try {
-    //   await request.jwtVerify();
-    // }
-    // catch {
-    //   console.log("No token provided");
-    //   reply.code(401).send({ error: 'No token provided' });
-    // }
+    }
 
+    try {
+      await request.jwtVerify();
+    }
+    catch (err) {
+      console.log("No token provided or invalid token");
+      reply.code(401).send({ error: 'Unauthorized: No valid token provided' });
+    }
   });
 
   fastify.register(routes, {

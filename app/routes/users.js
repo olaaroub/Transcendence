@@ -31,11 +31,11 @@ async function signUpHandler(request, reply)
 			reply.code(500)
 				 .send({message: "this user is alredy exist !", success: false});
 		}
-} 
+}
 
 async function loginHandler (req, reply)
 {
-	
+
 	const body = req.body;
 	try {
 		const user = await this.db.get('SELECT username, password, id FROM users WHERE username = ? OR email = ?', [body.username, body.username]);
@@ -78,7 +78,7 @@ async function getUserById(req, reply)
 	}
 }
 
-async function routes(fastify) 
+async function routes(fastify)
 {
 	try
 	{
@@ -110,7 +110,7 @@ async function routes(fastify)
 		}, signUpHandler);
 		fastify.get("/users", getUsers);
 		fastify.get('/users/:id', getUserById);
-		
+
 	}
 	catch (err)
 	{
