@@ -31,7 +31,7 @@ async function start() {
 
 
     if (url.includes('/login') || url.includes('/signUp') || url === '/'
-      || url.startsWith('/api/public'))
+      || url.startsWith('/api/public') || url.includes('/auth/google'))
       return;
     try {
       const payload = await request.jwtVerify();
