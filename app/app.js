@@ -9,27 +9,22 @@ const vault = require('node-vault');
 
 async function getJwtSecret() {
   try {
-    const options =
-	{
+    const options = {
       apiVersion: 'v1',
       endpoint: process.env.VAULT_ADDR,
       token: process.env.VAULT_TOKEN
     };
 
     const vaultClient = vault(options);
-
     const { data } = await vaultClient.read('secret/data/transcendence');
 
     return data.data.JWT_SECRET;
 
-  }
-    catch (err)
-  {
+  } catch (err) {
     console.error("Error fetching secret from Vault:", err.message);
     process.exit(1);
   }
 }
-
 
 async function start() {
 
@@ -65,13 +60,17 @@ async function start() {
       url === '/' ||
       url.startsWith('/api/public') ||
       url === '/metrics'
-    )
-	{
+    ) {
       return;
     }
 
     try {
-      await request.jwtVerify();
+
+      const payload = await request.jwtVerify();
+
+      request.userId = payload.userId;
+      request.username = payload.username;
+
     }
     catch (err) {
       console.log("No token provided or invalid token");

@@ -61,7 +61,7 @@ async function listFriends() : Promise<string> {
 									<span class="text-txtColor font-bold text-lg">${shortString(friend.username, 15)}</span>
 									<p class="text-gray-400 text-sm">Yesterday</p>
 								</div>
-								<p class="text-gray-400 text-sm">jawbni 3afak matkhelinich kanbghik💋</p>
+								<p class="text-gray-400 text-sm">wa fiiiin</p>
 							</div>
 						</div>
 					</div>
