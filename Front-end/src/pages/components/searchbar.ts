@@ -73,9 +73,7 @@ export async function searchbar() {
 		const response = await fetch(`api/users/search/${userData.id}?username=${value}`, {
 			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 		});
-		console.log('response : ', response);
 		const users: UserData[] = await response.json();
-		console.log('users : ', users);
 		if (users.length === 0) {
 			const p = document.createElement('p');
 			p.className = "text-gray-400 p-4";

@@ -6,6 +6,7 @@ export interface IUserData {
 	username: string | null;
 	profileImage: string | null;
 	bio: string | null;
+	status: string | null;
 }
 
 export const credentials = {
@@ -30,6 +31,7 @@ export const userData : IUserData = {
 	username: null,
 	profileImage: null,
 	bio: null,
+	status: null,
 };
 
 export function setUserData(newData: IUserData)
