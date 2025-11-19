@@ -11,7 +11,7 @@ async function getProfileImages(req, reply)
   try
   {
     const id = req.params.id;
-    const img = await this.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
+    const img = await this.db.get("SELECT profileImage FROM users WHERE id = ?", id);
     reply.code(200).send(img.profileImage);
   }
   catch (err)
@@ -28,7 +28,7 @@ async function modifyAvatar(req, reply)
   try
   {
     const id = req.params.id;
-    const data = await this.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
+    const data = await this.db.get("SELECT profileImage FROM users WHERE id = ?", id);
     const imgpath = path.basename(data.profileImage);
     if (imgpath != `Default_pfp.jpg`)
       await fs.promises.unlink(path.join(__dirname, '../static', imgpath));
@@ -41,7 +41,7 @@ async function modifyAvatar(req, reply)
 
     const imageUri = `/public/${file_name}`;
 
-    await this.db.run("UPDATE infos SET profileImage = ?  WHERE user_id = ?", [imageUri, id]);
+    await this.db.run("UPDATE users SET profileImage = ?  WHERE id = ?", [imageUri, id]);
     reply.code(201).send({success: true, message: "your update the profile image successfully"});
   }
   catch (err)
@@ -56,7 +56,7 @@ async function deleteAvatar(req, reply)
   try
   {
     const id = req.params.id;
-    const data = await this.db.get("SELECT profileImage FROM infos WHERE user_id = ?", id);
+    const data = await this.db.get("SELECT profileImage FROM users WHERE id = ?", id);
     const imgpath = path.basename(data.profileImage);
     console.log(path.join(__dirname, '../static', imgpath));
     if (imgpath == `Default_pfp.jpg`)
@@ -64,7 +64,7 @@ async function deleteAvatar(req, reply)
     else
     {
       await fs.promises.unlink(path.join(__dirname, '../static', imgpath));
-      await this.db.run("UPDATE infos SET profileImage = ? WHERE user_id = ?", ["/public/Default_pfp.jpg", id]);
+      await this.db.run("UPDATE users SET profileImage = ? WHERE id = ?", ["/public/Default_pfp.jpg", id]);
       reply.code(201).send({success: true, message: "your delete the profile image successfully"});
     }
   }

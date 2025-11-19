@@ -14,13 +14,13 @@ const creatTable = async () =>
         username TEXT UNIQUE NOT NULL,
         password TEXT,
         auth_provider TEXT NOT NULL DEFAULT 'local',
+        profileImage TEXT DEFAULT '/public/Default_pfp.jpg',
         email TEXT UNIQUE NOT NULL
     );`);
 
     await db.exec(`CREATE TABLE IF NOT EXISTS infos (
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
-        profileImage TEXT DEFAULT '/public/Default_pfp.jpg',
         TotalWins INTEGER,
         bio TEXT DEFAULT '--',
         WinRate FLOAT,
