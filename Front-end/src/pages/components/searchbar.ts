@@ -31,7 +31,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		addFriend.src = `/images/addFriends.svg`;
 		addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110`;
 		addFriend.title = "Add Friend";
-		if (!user.status)
+		if (!user.status && user.id != userData.id)
 			buttonsDiv.appendChild(addFriend);
 		addFriend.addEventListener('click', async _=> {
 			if (user.status == 'pending' || user.status)
