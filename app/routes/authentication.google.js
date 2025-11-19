@@ -97,7 +97,7 @@ async function authgoogle (fastify)
             }
         },
         startRedirectPath: '/auth/google', 
-        callbackUri: 'http://localhost:3000/api/auth/google/callback',
+        callbackUri: 'http://localhost:5173/api/auth/google/callback',
         cookie: {
             secure: false,
             sameSite: 'lax',
