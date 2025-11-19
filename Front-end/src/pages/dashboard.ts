@@ -55,10 +55,9 @@ export async function initDashboard(isDashboard: boolean = true) {
 function renderButton(type: string, src: string) : string
 {
 	return `
-			<div class="bg-gradient-to-r from-color1 to-[#af4814] w-[150px] flex py-[6px] px-2 font-bold rounded-2xl
+			<div class="bg-gradient-to-r from-color1 to-[#af4814] w-[200px] flex py-[6px] px-2 font-bold rounded-2xl
 			justify-center mb-[15px]">
-				<img class="w-[25px] h-[25px]" src=${src} alt="">
-				<p class="text-black text-lg font-bold">${type}</p>
+				<p class="text-black text-2xl font-bold">${type}</p>
 			</div>
 	`
 }
