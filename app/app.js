@@ -34,6 +34,7 @@ async function start() {
 
   const db = await creatTable();
 
+
   await fastify.register(fastifyCors, {
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
