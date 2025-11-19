@@ -36,7 +36,7 @@ function renderChat() : string
 
 export function renderGroupChat(): string {
     return `
-        <div class="group-chat w-full md:w-[47%] hidden md:block">
+        <div class="group-chat w-full md:w-[50%] hidden md:block">
             <h2 class="text-txtColor font-bold text-2xl mb-4">Global Chat</h2>
             ${renderChat()}
         </div>

@@ -56,9 +56,9 @@ function renderButton(type: string, src: string) : string
 {
 	return `
 			<div class="bg-gradient-to-r from-color1 to-[#af4814] w-[150px] flex py-[6px] px-2 font-bold rounded-2xl
-			justify-center mb-[15px] cursor-pointer transition-all duration-300 hover:scale-105">
+			justify-center mb-[15px]">
 				<img class="w-[25px] h-[25px]" src=${src} alt="">
-				<button class="text-black text-lg font-bold">${type}</button>
+				<p class="text-black text-lg font-bold">${type}</p>
 			</div>
 	`
 }
@@ -78,11 +78,15 @@ function LocalPong() : string
 				animation-play-state: paused;
 			}
 		</style>
-		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 h-[400px]
-		flex flex-col md:flex-row items-center md:items-start gap-8 overflow-visible
-		transition-all duration-500 transform hover:-translate-y-2 relative">
-			<div class="flex-1 min-w-0 space-y-5 md:space-y-6 md:pr-8 lg:pr-12 z-10">
-				${renderButton('Local Pong', "images/populareIcon.svg")}
+		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col h-[400px]
+		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
+			${renderButton('Local Pong', "images/populareIcon.svg")}
+			<div class="flex w-[65%] h-full gap-3">
+				<div class="w-full flex flex-col h-full gap-3">
+					<button class="bg-color2 rounded-2xl w-full h-full"></button>
+					<button class="bg-color2 rounded-2xl w-full h-full"></button>
+				</div>
+				<button class="bg-color2 rounded-2xl w-full"></button>
 			</div>
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
 			lg:right-12 md:top-[65%] md:-translate-y-1/2">
@@ -93,19 +97,20 @@ function LocalPong() : string
 		</div>
 	`
 }
-
+// <div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8 lg:right-12 md:top-1/2 md:-translate-y-1/2">
+// 	<img class="h-auto w-full max-w-[280px] sm:max-w-[320px] md:w-[280px] lg:w-[340px] xl:w-[380px] md:translate-x-[40px]
+// 	md:-translate-y-[95px] hover:scale-105 transition-transform duration-500
+// 	object-contain drop-shadow-2xl" src="images/chess.png" alt="">
+// </div>
 function OnlinePong() : string
 {
 	return `
 		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col h-[400px]
-		md:flex-row items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
-			<div class="flex-1 min-w-0 space-y-5 md:space-y-6 md:pr-8 lg:pr-12 z-10">
-				${renderButton('Online Pong', "images/populareIcon.svg")}
-			</div>
-			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8 lg:right-12 md:top-1/2 md:-translate-y-1/2">
-				<img class="h-auto w-full max-w-[280px] sm:max-w-[320px] md:w-[280px] lg:w-[340px] xl:w-[380px] md:translate-x-[40px]
-				md:-translate-y-[95px] hover:scale-105 transition-transform duration-500
-				object-contain drop-shadow-2xl" src="images/chess.png" alt="">
+		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
+			${renderButton('Online Pong', "images/populareIcon.svg")}
+			<div class="grid grid-cols-2 gap-3 w-[65%] h-full">
+				<button class="bg-color2 rounded-2xl"></button>
+				<button class="bg-color2 rounded-2xl"></button>
 			</div>
 		</div>
 	`
@@ -215,11 +220,23 @@ function renderStatistics(): string {
 
 function renderAnalyticsSection(): string {
 	return `
-		<div class="w-full md:w-[47%]">
+		<div class="w-full md:w-[50%]">
 			${renderLeaderboard()}
 			${renderStatistics()}
 		</div>
 	`;
+}
+
+function renderFriends()
+{
+	return `
+		<div class="w-full md:w-[20%] bg-color4 rounded-2xl pt-3">
+			<h2 class="text-txtColor font-bold text-2xl mb-4 text-center">Friends</h2>
+			<div class="bg-color4 py-6 px-6 rounded-3xl h-[509px]">
+
+			</div>
+		</div>
+	`
 }
 
 function renderDashboardContent(): string {
@@ -237,10 +254,7 @@ async function renderMain() : Promise<string>
 		<div class="w-full">
 			<h2 class="font-bold mb-[20px] text-[#414658] text-3xl">Welcome back,
 			<span class="text-txtColor text-3xl"> ${userData?.username}</span></h2>
-			<div class="flex w-full gap-6">
-				<div class="flex-1">${renderWelcome()}</div>
-				<div class="flex-[0.01]">${await renderRightPanel()}</div>
-			</div>
+			<div class="flex-1">${renderWelcome()}</div>
 			${renderDashboardContent()}
 		</div>
 	`
