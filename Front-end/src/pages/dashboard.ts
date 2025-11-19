@@ -52,24 +52,18 @@ export async function initDashboard(isDashboard: boolean = true) {
 		renderDashboard(isDashboard);
 }
 
-function renderButton(nb: number) : string
+function renderButton(type: string, src: string) : string
 {
 	return `
-		<div class="flex gap-2">
-			<div class="bg-gradient-to-r from-color1 to-[#af4814] flex w-[130px] py-[6px] font-bold rounded-3xl
+			<div class="bg-gradient-to-r from-color1 to-[#af4814] w-[150px] flex py-[6px] px-2 font-bold rounded-2xl
 			justify-center mb-[15px] cursor-pointer transition-all duration-300 hover:scale-105">
-				<img class="w-[25px] h-[25px]" src="images/populareIcon.svg" alt="">
-				<button class="text-black">Game${nb}</button>
+				<img class="w-[25px] h-[25px]" src=${src} alt="">
+				<button class="text-black text-lg font-bold">${type}</button>
 			</div>
-			<img class="w-[30px] h-[30px] bg-[#D9CEAF] translate-y-[5px]
-			hover:scale-110 transition-all duration-300 rounded-full p-1" src="images/gamepadIcon.svg" alt="">
-			<img class="w-[30px] h-[30px] bg-[#D9CEAF] translate-y-[5px]
-			hover:scale-110 transition-all duration-300 rounded-full p-1" src="images/instagramIcon.svg" alt="">
-		</div>
 	`
 }
 
-function gameOne() : string
+function LocalPong() : string
 {
 	return `
 		<style>
@@ -88,20 +82,7 @@ function gameOne() : string
 		flex flex-col md:flex-row items-center md:items-start gap-8 overflow-visible
 		transition-all duration-500 transform hover:-translate-y-2 relative">
 			<div class="flex-1 min-w-0 space-y-5 md:space-y-6 md:pr-8 lg:pr-12 z-10">
-				${renderButton(1)}
-				<h2 class="text-txtColor text-3xl sm:text-4xl lg:text-5xl xl:text-6xl
-				font-bold leading-tight tracking-tight">Pong</h2>
-				<p class="text-txtColor text-sm sm:text-base lg:text-lg leading-relaxed
-				opacity-90 max-w-md">Lorem ipsum, dolor sitLorem ipsum, dolor sit
-				Lorem ipsum, dolor sit amet consectetur
-				adipisicing elit. Quis aspernatur velit ex modi.</p>
-
-				<div onclick="navigate('/game')" class="inline-flex items-center gap-3 bg-gradient-to-r
-				from-color1 to-[#af4814] px-6 py-3 font-bold rounded-full cursor-pointer transition-all
-				duration-300 hover:scale-110 shadow-md mt-4">
-					<button class="text-black text-base lg:text-lg">Play Now</button>
-					<img class="w-[18px] h-[18px] lg:w-[20px] lg:h-[20px]" src="images/playIcon.svg" alt="">
-				</div>
+				${renderButton('Local Pong', "images/populareIcon.svg")}
 			</div>
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
 			lg:right-12 md:top-[65%] md:-translate-y-1/2">
@@ -113,26 +94,13 @@ function gameOne() : string
 	`
 }
 
-function gameTwo() : string
+function OnlinePong() : string
 {
 	return `
 		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col h-[400px]
 		md:flex-row items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
 			<div class="flex-1 min-w-0 space-y-5 md:space-y-6 md:pr-8 lg:pr-12 z-10">
-				${renderButton(2)}
-				<h2 class="text-txtColor text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight
-				tracking-tight">Chess</h2>
-				<p class="text-txtColor text-sm sm:text-base lg:text-lg leading-relaxed opacity-90
-				max-w-md">Lorem ipsum, dolor sitLorem ipsum, dolor sit
-				Lorem ipsum, dolor sit amet consectetur
-				adipisicing elit. Quis aspernatur velit ex modi.</p>
-
-				<div onclick="navigate('/game')" class="inline-flex items-center gap-3 bg-gradient-to-r
-				from-color1 to-[#af4814] px-6 py-3 font-bold rounded-full cursor-pointer transition-all
-				duration-300 hover:scale-110 hover:shadow-lg shadow-md mt-4">
-					<button class="text-black text-base lg:text-lg">Play Now</button>
-					<img class="w-[18px] h-[18px] lg:w-[20px] lg:h-[20px]" src="images/playIcon.svg" alt="">
-				</div>
+				${renderButton('Online Pong', "images/populareIcon.svg")}
 			</div>
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8 lg:right-12 md:top-1/2 md:-translate-y-1/2">
 				<img class="h-auto w-full max-w-[280px] sm:max-w-[320px] md:w-[280px] lg:w-[340px] xl:w-[380px] md:translate-x-[40px]
@@ -147,8 +115,8 @@ function renderWelcome() : string
 {
 	return `
 		<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
-			${gameOne()}
-			${gameTwo()}
+			${LocalPong()}
+			${OnlinePong()}
 		</div>
 	`
 }
@@ -267,7 +235,7 @@ async function renderMain() : Promise<string>
 {
 	return `
 		<div class="w-full">
-			<h2 class="font-bold mb-[20px] text-[#414658] text-2xl">Welcome back,
+			<h2 class="font-bold mb-[20px] text-[#414658] text-3xl">Welcome back,
 			<span class="text-txtColor text-3xl"> ${userData?.username}</span></h2>
 			<div class="flex w-full gap-6">
 				<div class="flex-1">${renderWelcome()}</div>

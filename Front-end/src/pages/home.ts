@@ -6,11 +6,6 @@ import { isUserAuthenticated } from "./components/errorsHandler";
 
 export async function renderHome()
 {
-	// const isAuth = await isUserAuthenticated();
-	// if (isAuth) {
-	// 	navigate('/dashboard');
-	// 	return;
-	// }
 	const existing = document.querySelector(".login");
 	if (existing) existing.remove();
 	document.body.innerHTML = `
