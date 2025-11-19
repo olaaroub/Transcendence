@@ -90,7 +90,7 @@ function LocalPong() : string
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
 			lg:right-12 md:top-[65%] md:-translate-y-1/2">
 				<img class="h-auto w-full max-w-[280px] sm:max-w-[320px] md:w-[280px] lg:w-[340px] xl:w-[380px]
-				md:translate-x-[40px] md:-translate-y-[95px] hover:scale-105 transition-transform duration-500
+				md:translate-x-[40px] md:-translate-y-[95px]
 				object-contain drop-shadow-2xl" src="images/pong.png" alt="">
 			</div>
 		</div>

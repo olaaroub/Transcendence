@@ -59,7 +59,8 @@ async function googleCallback (req, reply)
         if (userData)
         {
             token = this.jwt.sign({userId: userData.id, username: userData.username}, { expiresIn: '1h' })
-            reply.code(200).send({message: "login successfully", success: true, id: userData.id, token: token});
+            reply.redirect(`http://localhost:5173/login?success=true&token=${token}&id=${userData.id}`);
+            // reply.code(200).send({message: "login successfully", success: true, id: userData.id, token: token});
         }
         else
         {
@@ -67,7 +68,8 @@ async function googleCallback (req, reply)
             const info = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userInfo.name, userInfo.email, "google", AvatarUrl]);
             const lastID = info.lastInsertRowid;
             token = this.jwt.sign({userId: lastID, username: userInfo.name}, { expiresIn: '1h' });
-            reply.code(200).send({message: "login successfully", success: true,id: lastID, token: token});
+            reply.redirect(`http://localhost:5173/login?success=true&token=${token}&id=${userData.id}`);
+            //reply.code(200).send({message: "login successfully", success: true,id: lastID, token: token});
         }
     }
     catch (err)
@@ -97,7 +99,7 @@ async function authgoogle (fastify)
             }
         },
         startRedirectPath: '/auth/google', 
-        callbackUri: 'http://localhost:3000/api/auth/google/callback',
+        callbackUri: 'http://localhost:5173/api/auth/google/callback',
         cookie: {
             secure: false,
             sameSite: 'lax',
