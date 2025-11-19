@@ -7,30 +7,30 @@ const fastifyMetrics = require('fastify-metrics');
 
 const vault = require('node-vault');
 
-// async function getJwtSecret() {
-//   try {
-//     const options = {
-//       apiVersion: 'v1',
-//       endpoint: process.env.VAULT_ADDR,
-//       token: process.env.VAULT_TOKEN
-//     };
+async function getJwtSecret() {
+  try {
+    const options = {
+      apiVersion: 'v1',
+      endpoint: process.env.VAULT_ADDR,
+      token: process.env.VAULT_TOKEN
+    };
 
-//     const vaultClient = vault(options);
-//     const { data } = await vaultClient.read('secret/data/transcendence');
+    const vaultClient = vault(options);
+    const { data } = await vaultClient.read('secret/data/transcendence');
 
-//     return data.data.JWT_SECRET;
+    return data.data.JWT_SECRET;
 
-//   } catch (err) {
-//     console.error("Error fetching secret from Vault:", err.message);
-//     process.exit(1);
-//   }
-// }
+  } catch (err) {
+    console.error("Error fetching secret from Vault:", err.message);
+    process.exit(1);
+  }
+}
 
 async function start() {
 
-  // console.log("Fetching JWT secret from Vault...");
-  // const jwtSecret = await getJwtSecret();
-  // console.log("Secret fetched successfully.");
+  console.log("Fetching JWT secret from Vault...");
+  const jwtSecret = await getJwtSecret();
+  console.log("Secret fetched successfully.");
 
   const db = await creatTable();
 
@@ -40,7 +40,7 @@ async function start() {
   });
 
   fastify.register(fastifyJwt, {
-    secret: "jwtSecret"
+    secret: jwtSecret
   });
 
   await fastify.register(fastifyMetrics, {
@@ -71,6 +71,8 @@ async function start() {
 
       request.userId = payload.userId;
       request.username = payload.username;
+      console.log("hello");
+
 
     }
     catch (err) {
