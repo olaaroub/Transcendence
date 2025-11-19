@@ -38,8 +38,8 @@ async function loginHandler (req, reply)
 
 	const body = req.body;
 	try {
-		const user = await this.db.get('SELECT username, password, id FROM users WHERE username = ? OR email = ?', [body.username, body.username]);
-		if (user)
+		const user = await this.db.get('SELECT username, password, auth_provider ,id FROM users WHERE username = ? OR email = ?', [body.username, body.username]);
+		if (user && user.auth_provider == "local")
 		{
 			if (user.password != body.password)
 				reply.code(401).send({message: "password not correct", success: false});
@@ -49,6 +49,8 @@ async function loginHandler (req, reply)
 				reply.code(200).send({message: "login successfully", success: true, id: user.id, token: token});
 			}
 		}
+		else if (user && user.auth_provider != "local")
+			reply.code(401).send({message: `your can't login manual , must login with your auth_provider (${user.auth_provider}) `, success: false });
 		else
 			reply.code(401).send({message: "go to signUp", success: false });
 	}

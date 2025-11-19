@@ -1,19 +1,74 @@
 const oauth2 = require('@fastify/oauth2');
 const cookie = require('@fastify/cookie');
+const path   = require('path');
+const fs     = require('fs');
+const { v4: uuidv4 } = require('uuid');
 /*
 clientID = 803922873496-7qb8dv88s3628eb12qvu75ohogg76cpn.apps.googleusercontent.com
 clientSecret= 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
 
-
+            const AvatarUrl = await DownoladImageFromUrl(userInfo.picture);
+            const info = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userInfo.name, userInfo.email, "google", AvatarUrl]);
+            const lastID = info.lastInsertRowid;
+            token = this.jwt.sign({userId: lastID, username: userInfo.name}, { expiresIn: '1h' });
+            reply.code(200).send({message: "login successfully", id: lastID, token: token});
 */
+
+async function DownoladImageFromUrl(url)
+{
+
+    const AvatarData = await fetch(url);
+
+    if (!AvatarData.ok)
+        throw ({error: 'Network response was not ok'});
+    // get extention 
+    const contentType =  AvatarData.headers.get('content-type');
+    const mimType = {
+        'image/jpeg': '.jpg',
+        'image/jpg':  '.jpg',
+        'image/png':  '.png',
+        'image/webp': '.webp',
+        'image/gif':  '.gif'
+    }
+    const ext = mimType[contentType] || '.jpg';
+    // convert the data stream to array of buffer to convert it after to buffer type
+    const arrayBuffer = await AvatarData.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const file_name = uuidv4() + "_googleUser" + ext;
+    const file_path = path.join(__dirname, '../static', file_name);
+
+    await fs.promises.writeFile(file_path, buffer);
+    return `/public/${file_name}`;
+} 
 
 async function googleCallback (req, reply)
 {
     try
     {
         const res = await this.google_oauth.getAccessTokenFromAuthorizationCodeFlow(req);
+
+        if (!res)
+            throw ({error: "getAccessTokenFromAuthorizationCodeFlow failed"});
         const userInfo = await this.google_oauth.userinfo(res.token.access_token);
-        reply.code(200).send(userInfo);
+
+        if (!userInfo)
+            throw ({error: "get userinfo failed"});
+        const userData = await this.db.get("SELECT id, username FROM users WHERE email = ? AND auth_provider = ?", [userInfo.email, "google"]);
+        let token;
+        if (userData)
+        {
+            token = this.jwt.sign({userId: userData.id, username: userData.username}, { expiresIn: '1h' })
+            reply.code(200).send({message: "login successfully", success: true, id: userData.id, token: token});
+        }
+        else
+        {
+            const AvatarUrl = await DownoladImageFromUrl(userInfo.picture);
+            const info = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userInfo.name, userInfo.email, "google", AvatarUrl]);
+            const lastID = info.lastInsertRowid;
+            token = this.jwt.sign({userId: lastID, username: userInfo.name}, { expiresIn: '1h' });
+            reply.code(200).send({message: "login successfully", success: true,id: lastID, token: token});
+        }
     }
     catch (err)
     {
@@ -41,12 +96,12 @@ async function authgoogle (fastify)
             secret: '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'
             }
         },
-        startRedirectPath: '/login/google', 
+        startRedirectPath: '/auth/google', 
         callbackUri: 'http://localhost:3000/api/auth/google/callback',
         cookie: {
-            secure: false, // hit localhost (http)
+            secure: false,
             sameSite: 'lax',
-            path: '/' // bach cookie ydoz mn Google l 3ndk
+            path: '/api/auth/google/callback'
         }
     })
     fastify.get('/auth/google/callback', googleCallback);
