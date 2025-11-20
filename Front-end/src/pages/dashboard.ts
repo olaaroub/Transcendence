@@ -65,27 +65,39 @@ function renderButton(type: string, src: string) : string
 function LocalPong() : string
 {
 	return `
-		<style>
-			@keyframes float {
-				0%, 100% { transform: translateY(0px); }
-				50% { transform: translateY(-10px); }
-			}
-			.float-animation {
-				animation: float 3s ease-in-out infinite;
-			}
-			.float-animation:hover {
-				animation-play-state: paused;
-			}
-		</style>
-		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col h-[400px]
+		<div class="bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col h-[400px]
 		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
 			${renderButton('Local Pong', "images/populareIcon.svg")}
 			<div class="flex w-[65%] h-full gap-3">
 				<div class="w-full flex flex-col h-full gap-3">
-					<button class="bg-color2 rounded-2xl w-full h-full"></button>
-					<button class="bg-color2 rounded-2xl w-full h-full"></button>
+					<button class="bg-gradient-to-br from-[#2a2a3e] to-[#1a1a28] hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
+						<div class="absolute inset-0 bg-gradient-to-r from-color1/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+						<div class="relative z-10 flex items-center justify-center h-full">
+							<svg class="w-8 h-8 mr-2 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+							</svg>
+							<span class="text-txtColor font-bold text-xl group-hover:text-color1 transition-colors">VS Player</span>
+						</div>
+					</button>
+					<button class="bg-gradient-to-br from-[#2a2a3e] to-[#1a1a28] hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
+						<div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+						<div class="relative z-10 flex items-center justify-center h-full">
+							<svg class="w-8 h-8 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+							</svg>
+							<span class="text-txtColor font-bold text-xl group-hover:text-purple-400 transition-colors">VS AI</span>
+						</div>
+					</button>
 				</div>
-				<button class="bg-color2 rounded-2xl w-full"></button>
+				<button class="bg-gradient-to-br from-[#2a2a3e] to-[#1a1a28] hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl w-full transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
+					<div class="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+					<div class="relative z-10 flex flex-col items-center justify-center h-full">
+						<svg class="w-12 h-12 mb-2 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+							<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+						</svg>
+						<span class="text-txtColor font-bold text-xl group-hover:text-yellow-400 transition-colors">Tournament</span>
+					</div>
+				</button>
 			</div>
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
 			lg:right-12 md:top-[65%] md:-translate-y-1/2">
@@ -104,12 +116,28 @@ function LocalPong() : string
 function OnlinePong() : string
 {
 	return `
-		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col h-[400px]
+		<div class="bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col h-[400px]
 		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
 			${renderButton('Online Pong', "images/populareIcon.svg")}
 			<div class="grid grid-cols-2 gap-3 w-[65%] h-full">
-				<button class="bg-color2 rounded-2xl"></button>
-				<button class="bg-color2 rounded-2xl"></button>
+				<button class="bg-gradient-to-br from-[#2a2a3e] to-[#1a1a28] hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
+					<div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+					<div class="relative z-10 flex flex-col items-center justify-center h-full">
+						<svg class="w-12 h-12 mb-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+						</svg>
+						<span class="text-txtColor font-bold text-xl group-hover:text-blue-400 transition-colors">Matchmaking</span>
+					</div>
+				</button>
+				<button class="bg-gradient-to-br from-[#2a2a3e] to-[#1a1a28] hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
+					<div class="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+					<div class="relative z-10 flex flex-col items-center justify-center h-full">
+						<svg class="w-12 h-12 mb-2 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+							<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+						</svg>
+						<span class="text-txtColor font-bold text-xl group-hover:text-yellow-400 transition-colors">Tournament</span>
+					</div>
+				</button>
 			</div>
 		</div>
 	`
@@ -240,7 +268,7 @@ function renderFriends()
 
 function renderDashboardContent(): string {
 	return `
-		<div class="flex gap-6 mt-6" >
+		<div class="flex flex-col md:flex-row gap-6 mt-6 w-full" >
 			${renderAnalyticsSection()}
 			${renderGroupChat()}
 		</div>
