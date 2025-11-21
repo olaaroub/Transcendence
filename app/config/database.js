@@ -55,6 +55,12 @@ const creatTable = async () =>
         UNIQUE (userRequester, userReceiver),
         UNIQUE (pair_rolastion)
     );`);
+
+    await db.exec(`CREATE TRIGGER IF NOT EXISTS after_user_insert
+                   AFTER INSERT ON users
+                   BEGIN
+                        INSERT INTO infos(user_id) VALUES (NEW.id);
+                   END;`);
     return db;
 }
 
