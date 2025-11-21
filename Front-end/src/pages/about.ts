@@ -49,7 +49,6 @@ export async function renderAbout() {
 				We are a passionate team of developers, each specializing in different domains, working together to create amazing products.
 			</p>
 
-			<!-- Card Container -->
 			<div class="w-full max-w-md bg-color1  p-1 rounded-xl">
 
 				<div class="relative w-full h-[520px]">

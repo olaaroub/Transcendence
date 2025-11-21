@@ -20,8 +20,8 @@ async function signUpHandler(request, reply)
 	let data = request.body;
 	try {
 		await this.db.run("INSERT INTO users(username, password, email) VALUES (?, ?, ?)", [data.username, data.password, data.email]);
-        const user_id = await this.db.get("SELECT id FROM users WHERE username = ?", [data.username]);
-        await this.db.run("INSERT INTO infos(user_id) VALUES (?)", [user_id.id]);
+        // const user_id = await this.db.get("SELECT id FROM users WHERE username = ?", [data.username]);
+        // await this.db.run("INSERT INTO infos(user_id) VALUES (?)", [user_id.id]);
 
 		reply.code(201)
 			 .send({message: "created", success: true});
@@ -46,6 +46,7 @@ async function loginHandler (req, reply)
 			else
 			{
 				const token = this.jwt.sign({userId: user.id, username: user.username}, { expiresIn: '1h' })
+				console.log(token);
 				reply.code(200).send({message: "login successfully", success: true, id: user.id, token: token});
 			}
 		}
@@ -117,6 +118,7 @@ async function routes(fastify)
 	catch (err)
 	{
 		console.log(err);
+		reply.code(500).send({message: "you cam't login"});
 	}
 
 

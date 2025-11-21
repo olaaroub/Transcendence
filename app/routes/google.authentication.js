@@ -67,8 +67,10 @@ async function googleCallback (req, reply)
             const AvatarUrl = await DownoladImageFromUrl(userInfo.picture);
             const info = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userInfo.name, userInfo.email, "google", AvatarUrl]);
             const lastID = info.lastInsertRowid;
+
             token = this.jwt.sign({userId: lastID, username: userInfo.name}, { expiresIn: '1h' });
-            reply.redirect(`http://localhost:5173/login?success=true&token=${token}&id=${userData.id}`);
+            reply.redirect(`http://localhost:5173/login?success=true&token=${token}&id=${lastID}`);
+
             //reply.code(200).send({message: "login successfully", success: true,id: lastID, token: token});
         }
     }

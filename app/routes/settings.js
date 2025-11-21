@@ -26,10 +26,12 @@ async function change_username(req, reply)
 
 async function change_bio(req, reply)
 {
+	// console.log("Ddddddddddddddddddddddddddddddddd");
 	const id = req.params.id;
 	const body = req.body;
+	console.log(`${id} + ${body.bio}`);
 	try {
-		await this.db.run("UPDATE infos SET bio = ? WHERE id = ?", [body.bio, id]);
+		await this.db.run("UPDATE infos SET bio = ? WHERE user_id = ?", [body.bio, id]);
 		reply.code(200).send({ message: "updating successfly bio", success: true });
 	} catch {
 		reply.code(500).code({ message: "Error updating bio", success: false });
@@ -60,6 +62,7 @@ async function getProfileData(req, reply)
 	try {
 		const user_id = req.userId;
 		const profile_id = req.params.id;
+		console.log(`user_id ${user_id} profile_id ${profile_id}`)
 		// console.log(req.userId);
 		let responceData = "";
 		if (profile_id == user_id)
