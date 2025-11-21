@@ -1,30 +1,42 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
+import fs from "fs";
 
-export default defineConfig({
-  root: "src",
-  publicDir: resolve(process.cwd(), "assets"),
-  build: {
-    outDir: resolve(process.cwd(), "dist"),
-    emptyOutDir: true,
-    rollupOptions: {
-      input: resolve(process.cwd(), "src", "index.html"),
+export default defineConfig(({ command }) => {
+
+  const config = {
+    root: "src",
+    publicDir: resolve(process.cwd(), "assets"),
+    build: {
+      outDir: resolve(process.cwd(), "dist"),
+      emptyOutDir: true,
+      rollupOptions: {
+        input: resolve(process.cwd(), "src", "index.html"),
+      },
     },
-  },
+    server: {
+      host: '0.0.0.0',
+      proxy: {
+        '/api/': {
+          target: 'http://modSecurity:8080',
+          changeOrigin: true,
+          secure: false,
+        }
+      },
+      https: undefined
+    }
+  };
 
-  server: {
-    proxy: {
-      '/api/': {
-
-        // host.docker.internal is a special DNS name that
-        // docker provides to containers so they can reach the host machine.
-        target: 'http://modSecurity:8080',
-
-        changeOrigin: true,
-
-        // rewrite: (path) => path.replace(/^\/api/, ''),
-        // hadi b7al rewrite dial nginx (blast ma tsift /api/signUp tatsift /signUp bo7dha l backend)
-      }
+  if (command === 'serve') {
+    try {
+      config.server.https = {
+        key: fs.readFileSync('/app/certs/nginx.key'),
+        cert: fs.readFileSync('/app/certs/nginx.crt'),
+      };
+    } catch (e) {
+      console.warn("SSL Certs not found. Falling back to HTTP for Dev Server.");
     }
   }
+
+  return config;
 });

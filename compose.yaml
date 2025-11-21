@@ -82,6 +82,9 @@ services:
     container_name: frontend-prod
     ports:
       - "8080:80"
+      - "8443:443" #mac dzb (cant access 443, galoha f subject)
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
     networks:
       - transcendence-net
     restart: on-failure

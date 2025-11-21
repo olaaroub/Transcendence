@@ -16,13 +16,21 @@ clean:
 re: clean up
 
 dev:
-	docker compose -f compose.dev.yaml up
+	docker compose -f compose.dev.yaml up --build
 
-dev-down:
+downdev:
 	docker compose -f compose.dev.yaml down
 
-logs-dev:
+logsdev:
 	docker compose -f compose.dev.yaml logs
 
-clean-dev:
+cleandev:
 	docker compose -f compose.dev.yaml down -v
+
+cleanimg: clean cleandev
+	@images=$$(docker images -q --filter "reference=*:1337" --filter "reference=*:latest" ; docker images -q --filter "dangling=true") ;\
+	if [ -n "$$images" ]; then\
+		docker rmi $$images; \
+	else \
+		echo "no images to delete"; \
+	fi
