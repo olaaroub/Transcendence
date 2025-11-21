@@ -54,43 +54,27 @@ export async function initDashboard(isDashboard: boolean = true) {
 		renderDashboard(isDashboard);
 }
 
-function renderButton(type: string, src: string) : string
-{
-	return `
-		<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">${type}</p>
-	`
-}
-
 function LocalPong() : string
 {
 	return `
 		<div class="bg-color4 rounded-3xl p-6 flex flex-col h-[400px]
 		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
-			${renderButton('Local Pong', "images/populareIcon.svg")}
+			<div class="flex gap-6 items-center">
+				<img class="h-[60px]" src="images/localRemote.svg">
+				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
+			</div>
 			<div class="flex w-[65%] h-full gap-3">
-				<div class="w-full flex flex-col h-full gap-3">
-					<button class="bg-[url('images/tournament.jpg')] bg-cover hover:to-[#2a2a38] rounded-2xl w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
-						<div class="absolute inset-0 bg-gradient-to-r from-color1/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+				<div class="w-full flex flex-col h-[250px] gap-3 flex-1">
+					<button class="hover:to-[#2a2a38] rounded-2xl w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
+					<div class="absolute inset-0 bg-gradient-to-r from-color1/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+					<img class="w-full h-full" src="images/online.webp"></img>
 					</button>
-					<button class="bg-gradient-to-b from-transparent to-black/50 hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
+					<button class="bg-[url('images/vsAI.webp')] bg-cover bg-center hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
 						<div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-						<div class="relative z-10 flex items-center justify-center h-full">
-							<svg class="w-8 h-8 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-							</svg>
-							<span class="text-txtColor font-bold text-xl group-hover:text-purple-400 transition-colors">VS AI</span>
-						</div>
+						<img class="w-full h-full" src="images/online.webp"></img>
 					</button>
 				</div>
-				<button class="bg-gradient-to-b from-transparent to-black/50 hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl w-full transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
-					<div class="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-					<div class="relative z-10 flex flex-col items-center justify-center h-full">
-						<svg class="w-12 h-12 mb-2 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-							<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
-						</svg>
-						<span class="text-txtColor font-bold text-xl group-hover:text-yellow-400 transition-colors">Tournament</span>
-					</div>
-				</button>
+				${gameButtons('images/online.webp')}
 			</div>
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
 			lg:right-12 md:top-[65%] md:-translate-y-1/2">
@@ -102,37 +86,35 @@ function LocalPong() : string
 	`
 }
 
+function gameButtons(bg:string)
+{
+	return `
+		<button class=" hover:from-[#3a3a4e] flex-1 hover:to-[#2a2a38] rounded-2xl transition-all h-[250px]
+		duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
+			<div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+			<img class="w-full h-full" src="images/online.webp"></img>
+		</button>
+	`
+}
+
 function OnlinePong() : string
 {
 	return `
 		<div class="bg-color4 rounded-3xl p-6 flex flex-col h-[400px]
 		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
-			${renderButton('Online Pong', "images/populareIcon.svg")}
+			<div class="flex gap-6 items-center">
+				
+				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Online Pong</p>
+			</div>
 			<div class="grid grid-cols-2 gap-3 w-[65%] h-full">
-				<button class="bg-gradient-to-b from-transparent to-black/50 hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
-					<div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-					<div class="relative z-10 flex flex-col items-center justify-center h-full">
-						<svg class="w-12 h-12 mb-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-						</svg>
-						<span class="text-txtColor font-bold text-xl group-hover:text-blue-400 transition-colors">Matchmaking</span>
-					</div>
-				</button>
-				<button class="bg-gradient-to-b from-transparent to-black/50 hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
-					<div class="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-					<div class="relative z-10 flex flex-col items-center justify-center h-full">
-						<svg class="w-12 h-12 mb-2 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-							<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
-						</svg>
-						<span class="text-txtColor font-bold text-xl group-hover:text-yellow-400 transition-colors">Tournament</span>
-					</div>
-				</button>
+				${gameButtons('images/online.webp')}
+				${gameButtons('images/online.webp')}
 			</div>
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
 			lg:right-12 md:top-[65%] md:-translate-y-1/2">
 				<img class="h-auto w-full max-w-[280px] sm:max-w-[320px] md:w-[280px] lg:w-[340px] xl:w-[380px]
 				md:translate-x-[40px] md:-translate-y-[95px]
-				object-contain drop-shadow-2xl" src="images/pong.png" alt="">
+				object-contain drop-shadow-2xl" src="images/pongOnline.webp" alt="">
 			</div>
 		</div>
 	`
