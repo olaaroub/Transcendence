@@ -1,10 +1,10 @@
 const fastify = require('fastify')({ logger: true })
-const routes = require('./routes/mainRoutes');
+// const routes = require('./routes/mainRoutes');
 const creatTable = require('./config/database');
 const fastifyCors = require('@fastify/cors');
 const fastifyJwt = require('@fastify/jwt');
 const fastifyMetrics = require('fastify-metrics');
-
+const path = require('path');
 const vault = require('node-vault');
 
 async function getJwtSecret() {
@@ -49,43 +49,19 @@ async function start() {
     endpoint: '/metrics'
   });
 
-  fastify.decorate('db', db);
-  fastify.register(require('@fastify/websocket'))
-
-  fastify.addHook('preHandler', async (request, reply) => {
-    const url = request.url;
-    console.log("Requested URL:", url);
-
-    if (
-      url.includes('/login') ||
-      url.includes('/signUp') ||
-      url.includes('/auth') ||
-      url === '/' ||
-      url.startsWith('/api/public') ||
-      url === '/metrics'
-    ) {
-      return;
-    }
-
-    try {
-
-      const payload = await request.jwtVerify();
-
-      request.userId = payload.userId;
-      request.username = payload.username;
-      console.log("hello");
-
-
-    }
-    catch (err) {
-      console.log("No token provided or invalid token");
-      reply.code(401).send({ error: 'Unauthorized: No valid token provided' });
-    }
-  });
-
-  fastify.register(routes, {
-    prefix: '/api'
-  });
+    fastify.decorate('db', db);
+    fastify.register(require('@fastify/websocket'))
+    console.log(path.join(__dirname, '/static'));
+    // await fastify.register(require('@fastify/static') , {
+    //   root: path.join(__dirname, 'static'),
+    //   prefix: '/public/'
+    // });
+    fastify.register(require('./routes/private.routes'), {
+        prefix: '/api'
+    });
+    fastify.register(require('./routes/public.routes'), {
+        prefix: '/api'
+    });
 
   try {
     fastify.listen({

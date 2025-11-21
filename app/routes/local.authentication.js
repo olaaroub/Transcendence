@@ -46,6 +46,7 @@ async function loginHandler (req, reply)
 			else
 			{
 				const token = this.jwt.sign({userId: user.id, username: user.username}, { expiresIn: '1h' })
+				console.log(token);
 				reply.code(200).send({message: "login successfully", success: true, id: user.id, token: token});
 			}
 		}
@@ -117,6 +118,7 @@ async function routes(fastify)
 	catch (err)
 	{
 		console.log(err);
+		reply.code(500).send({message: "you cam't login"});
 	}
 
 

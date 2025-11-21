@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const fastify_static = require('@fastify/static');
 const fastifyMultipart = require('@fastify/multipart');
 
 
@@ -76,10 +75,6 @@ async function deleteAvatar(req, reply)
 
 async function routes (fastify)
 {
-  await fastify.register(fastify_static , {
-    root: path.join(__dirname, '../static'),
-    prefix: '/public/',
-  });
   await fastify.register(fastifyMultipart);
   fastify.delete('/users/:id/settings-avatar', deleteAvatar);
   fastify.put(`/users/:id/settings-avatar`, modifyAvatar);

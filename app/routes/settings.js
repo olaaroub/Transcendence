@@ -60,6 +60,7 @@ async function getProfileData(req, reply)
 	try {
 		const user_id = req.userId;
 		const profile_id = req.params.id;
+		console.log(`user_id ${user_id} profile_id ${profile_id}`)
 		// console.log(req.userId);
 		let responceData = "";
 		if (profile_id == user_id)

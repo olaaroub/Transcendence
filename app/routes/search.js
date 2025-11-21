@@ -19,6 +19,7 @@ async function search_bar(fastify)
                                                     ORDER BY u.username ASC
                                                     LIMIT 15
         `, [id, id, `%${query}%`])
+        console.log(data);
         reply.code(200).send(data);
         }
         catch (err) {
