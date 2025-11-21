@@ -3,7 +3,7 @@ import { mockMessages } from "./mockMessages";
 function renderChat() : string
 { 
     return `
-        <div class="bg-color4 py-6 px-6 flex flex-col rounded-3xl h-[509px]">
+        <div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-300 py-6 px-6 flex flex-col rounded-3xl h-[509px]">
             <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-color1 scrollbar-track-color4
             hover:scrollbar-thumb-color2 pr-2">
                 ${mockMessages.map(msg => `
