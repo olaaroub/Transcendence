@@ -18,7 +18,7 @@ module.exports = {
 				color1 : '#ed6f30',
 				color2 : '#d18a10',
 				color3 : '#878787',
-				color4 : '#1F2937',
+				color4 : 'rgb(0 0 0 / 50%)',
 				bgColor: '#111827',
 			},
 			backgroundImage: theme => ({

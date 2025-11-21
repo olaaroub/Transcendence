@@ -57,20 +57,20 @@ export async function initDashboard(isDashboard: boolean = true) {
 function LocalPong() : string
 {
 	return `
-		<div class="bg-color4 rounded-3xl p-6 flex flex-col h-[400px]
-		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
+		<div class="relative ">
+			
+		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
+		items-center md:items-start gap-8 overflow-visible relative">
 			<div class="flex gap-6 items-center">
 				<img class="h-[60px]" src="images/localRemote.svg">
 				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
 			</div>
 			<div class="flex w-[65%] h-full gap-3">
 				<div class="w-full flex flex-col h-[250px] gap-3 flex-1">
-					<button class="hover:to-[#2a2a38] rounded-2xl w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
-					<div class="absolute inset-0 bg-gradient-to-r from-color1/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+					<button class="rounded-2xl w-full h-full transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
 					<img class="w-full h-full" src="images/online.webp"></img>
 					</button>
-					<button class="bg-[url('images/vsAI.webp')] bg-cover bg-center hover:from-[#3a3a4e] hover:to-[#2a2a38] rounded-2xl w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
-						<div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+					<button class="rounded-2xl w-full h-full transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
 						<img class="w-full h-full" src="images/online.webp"></img>
 					</button>
 				</div>
@@ -83,16 +83,16 @@ function LocalPong() : string
 				object-contain drop-shadow-2xl" src="images/pong.png" alt="">
 			</div>
 		</div>
+		</div>
 	`
 }
 
 function gameButtons(bg:string)
 {
 	return `
-		<button class=" hover:from-[#3a3a4e] flex-1 hover:to-[#2a2a38] rounded-2xl transition-all h-[250px]
-		duration-300 hover:scale-105 hover:shadow-2xl border-2 border-[#3a3a4e] relative overflow-hidden group">
-			<div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-			<img class="w-full h-full" src="images/online.webp"></img>
+		<button class="rounded-2xl transition-all h-[250px]
+		duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
+			<img class="w-full h-full" src=${bg}></img>
 		</button>
 	`
 }
@@ -100,7 +100,7 @@ function gameButtons(bg:string)
 function OnlinePong() : string
 {
 	return `
-		<div class="bg-color4 rounded-3xl p-6 flex flex-col h-[400px]
+		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
 		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
 			<div class="flex gap-6 items-center">
 				
@@ -112,9 +112,9 @@ function OnlinePong() : string
 			</div>
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
 			lg:right-12 md:top-[65%] md:-translate-y-1/2">
-				<img class="h-auto w-full max-w-[280px] sm:max-w-[320px] md:w-[280px] lg:w-[340px] xl:w-[380px]
+				<img class="h-auto w-[280px] lg:w-[340px] xl:w-[380px]
 				md:translate-x-[40px] md:-translate-y-[95px]
-				object-contain drop-shadow-2xl" src="images/pongOnline.webp" alt="">
+				object-contain drop-shadow-2xl" src="images/pongOnline.png" alt="">
 			</div>
 		</div>
 	`
@@ -130,89 +130,27 @@ function renderWelcome() : string
 	`
 }
 
-function slidingLogic()
-{
-	const slider = document.getElementById('slider');
-	const nextBtn = document.getElementById('next');
-	const prevBtn = document.getElementById('prev');
-
-	if (!slider || !nextBtn || !prevBtn) return;
-
-	let currentIndex = 0;
-	const cards = slider.querySelectorAll('div');
-	const totalCards = cards.length;
-
-	const getCardWidth = () => {
-		const card = cards[0];
-		if (!card) return 0;
-		return card.offsetWidth + 40;
-	};
-
-	const getMaxIndex = () => {
-		const containerWidth = slider.parentElement?.offsetWidth || 0;
-		const cardWidth = getCardWidth();
-		if (cardWidth === 0) return 0;
-		const visibleCards = Math.floor(containerWidth / cardWidth);
-		return Math.max(0, totalCards - visibleCards);
-	};
-
-	const updateSlider = () => {
-		const cardWidth = getCardWidth();
-		slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-	};
-
-	nextBtn.addEventListener('click', () => {
-		const maxIndex = getMaxIndex();
-		currentIndex++;
-		if (currentIndex > maxIndex) {
-			currentIndex = 0;
-		}
-		updateSlider();
-	});
-
-	prevBtn.addEventListener('click', () => {
-		const maxIndex = getMaxIndex();
-		currentIndex--;
-		if (currentIndex < 0) {
-			currentIndex = maxIndex;
-		}
-		updateSlider();
-	});
-
-	let resizeTimeout: number;
-	window.addEventListener('resize', () => {
-		clearTimeout(resizeTimeout);
-		resizeTimeout = window.setTimeout(() => {
-			const maxIndex = getMaxIndex();
-			if (currentIndex > maxIndex) {
-				currentIndex = maxIndex;
-			}
-			updateSlider();
-		}, 150);
-	});
-}
-
 function renderStatistics(): string {
 	return `
 		<div class="statistics mb-6">
 			<h2 class="text-txtColor font-bold text-2xl mb-4">Your Statistic</h2>
 			<div class="bg-color4 rounded-3xl text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-				<div class="bg-[#1b1a1d] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Total Wins</p>
 					<p class="text-4xl font-bold text-txtColor">127</p>
 					<p class="text-sm text-color15">+12 this week</p>
 				</div>
-				<div class="bg-[#1b1a1d] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Win Rate</p>
 					<p class="text-4xl font-bold text-txtColor">74.7%</p>
 					<p class="text-sm text-blue-600">Above average</p>
 				</div>
-				<div class="bg-[#1b1a1d] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Current Streak</p>
 					<p class="text-4xl font-bold text-txtColor">8</p>
 					<p class="text-sm text-orange-400">Personal best!</p>
 				</div>
-				<div class="bg-[#1b1a1d] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Rating</p>
 					<p class="text-4xl font-bold text-txtColor">2847</p>
 					<p class="text-sm text-[#8261BE]">Diamond III</p>
@@ -224,23 +162,11 @@ function renderStatistics(): string {
 
 function renderAnalyticsSection(): string {
 	return `
-		<div class="w-full md:w-[50%]">
+		<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
 			${renderLeaderboard()}
 			${renderStatistics()}
 		</div>
 	`;
-}
-
-function renderFriends()
-{
-	return `
-		<div class="w-full md:w-[20%] bg-color4 rounded-2xl pt-3">
-			<h2 class="text-txtColor font-bold text-2xl mb-4 text-center">Friends</h2>
-			<div class="bg-color4 py-6 px-6 rounded-3xl h-[509px]">
-
-			</div>
-		</div>
-	`
 }
 
 function renderDashboardContent(): string {
@@ -275,11 +201,19 @@ function addClickInRightPanel()
 	});
 }
 
-
 export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
-		<div class=" bg-bgColor min-h-screen">
+		<div class=" min-h-screen">
+			<div class="absolute inset-0 bg-black opacity-50 z-[-1]"></div>
+			<video class="fixed w-full h-full object-cover z-[-2]"
+			loop
+			autoplay
+			muted
+			playsinline
+			<source src="images/bg.webm" type="video/webm">
+			Your browser does not support the video tag.
+			</video>
 			${renderDashboardNavBar(userData, getImageUrl(userData?.profileImage))}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
 				${isDashboard ? await renderMain() : ''}
@@ -290,8 +224,6 @@ export async function renderDashboard(isDashboard: boolean = true)
 	notifications();
 	chatEventHandler();
 	document.getElementById('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
-	if (isDashboard)
-		slidingLogic();
 	const avatar = document.getElementById('avatar');
 	if (avatar) {
 		avatar.addEventListener('click', () => {
