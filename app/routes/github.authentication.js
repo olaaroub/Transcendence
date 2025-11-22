@@ -14,6 +14,8 @@ clientSecret= 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
             reply.code(200).send({message: "login successfully", id: lastID, token: token});
 */
 
+const domain = process.env.DOMAIN;
+
 async function DownoladImageFromUrl(url)
 {
 
@@ -21,7 +23,7 @@ async function DownoladImageFromUrl(url)
 
     if (!AvatarData.ok)
         throw ({error: 'Network response was not ok'});
-    // get extention 
+    // get extention
     const contentType =  AvatarData.headers.get('content-type');
     const mimType = {
         'image/jpeg': '.jpg',
@@ -40,7 +42,7 @@ async function DownoladImageFromUrl(url)
 
     await fs.promises.writeFile(file_path, buffer);
     return `/public/${file_name}`;
-} 
+}
 
 async function githubCallback (req, reply)
 {
@@ -89,29 +91,37 @@ async function githubCallback (req, reply)
 
 async function githubauth (fastify)
 {
-    //http://localhost:3000/auth/github/callback
-    await fastify.register(cookie, {
-        secret: "fjfjdie803922873496-7qb8dv88s3628eb12qvu759394djdus"
-    })
-    await fastify.register(oauth2, {
-        name: 'github_oauth',
+    try{
 
-        credentials: {
-            client: {
-            id: 'Ov23liotsiRSjkEtLbBC',
-            secret: '7afe5fe0f3c169686ebf8e0fa8b2c909ed527607'
+        if(!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET || !process.env.COOKIE_SECRET)
+            throw("No github credentials provided!")
+        await fastify.register(cookie, {
+            secret: process.env.COOKIE_SECRET
+        })
+        await fastify.register(oauth2, {
+            name: 'github_oauth',
+
+            credentials: {
+                client: {
+                id: process.env.GITHUB_CLIENT_ID,
+                secret: process.env.GITHUB_CLIENT_SECRET
+                },
+                auth: oauth2.GITHUB_CONFIGURATION
             },
-            auth: oauth2.GITHUB_CONFIGURATION
-        },
-        startRedirectPath: '/auth/github', 
-        callbackUri: 'https://localhost:5173/api/auth/github/callback',
-        cookie: {
-            secure: false,
-            sameSite: 'lax',
-            path: '/api/auth/github/callback'
-        }
-    })
-    fastify.get('/auth/github/callback', githubCallback);
+            startRedirectPath: '/auth/github',
+            callbackUri: `${domain}/api/auth/github/callback`,
+            cookie: {
+                secure: false,
+                sameSite: 'lax',
+                path: '/api/auth/github/callback'
+            }
+        })
+        fastify.get('/auth/github/callback', githubCallback);
+    }
+    catch (error) {
+        console.log(error);
+    }
+
 }
 
 module.exports = githubauth;

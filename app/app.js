@@ -45,9 +45,10 @@ async function start() {
     secret: jwtSecret
   });
 
-  fastify.addHook("preHandler", (request, _reply) => {
+  fastify.addHook("preHandler", (request, _reply, done) => {
     const url = request.url;
     console.log("Requested URL:", url);
+    done();
   });
 
   await fastify.register(fastifyMetrics, {
