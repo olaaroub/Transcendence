@@ -83,7 +83,7 @@ async function githubCallback (req, reply)
 
         })
         const token = this.jwt.sign(userid, { expiresIn: '1h' });
-        reply.redirect(`https://localhost:5173/login?token=${token}&id=${userid.id}`);
+        reply.redirect(`${domain}/login?token=${token}&id=${userid.id}`);
     }
     catch (err)
     {
