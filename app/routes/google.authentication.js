@@ -46,8 +46,8 @@ async function googleCallback (req, reply)
 {
     try
     {
-        const res = await this.google_oauth.getAccessTokenFromAuthorizationCodeFlow(req);
 
+        const res = await this.google_oauth.getAccessTokenFromAuthorizationCodeFlow(req);
         if (!res)
             throw ({error: "getAccessTokenFromAuthorizationCodeFlow failed"});
         const userInfo = await this.google_oauth.userinfo(res.token.access_token);
@@ -58,7 +58,7 @@ async function googleCallback (req, reply)
         let token;
         if (userData)
         {
-            token = this.jwt.sign({userId: userData.id, username: userData.username}, { expiresIn: '1h' })
+            token = this.jwt.sign(userData, { expiresIn: '1h' })
             reply.redirect(`https://localhost:5173/login?success=true&token=${token}&id=${userData.id}`);
         }
         else
@@ -67,7 +67,7 @@ async function googleCallback (req, reply)
             const info = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userInfo.name, userInfo.email, "google", AvatarUrl]);
             const lastID = info.lastID;
             console.log(lastID);
-            token = this.jwt.sign({userId: lastID, username: userInfo.name}, { expiresIn: '1h' });
+            token = this.jwt.sign({id: lastID, username: userInfo.name}, { expiresIn: '1h' });
             reply.redirect(`https://localhost:5173/login?success=true&token=${token}&id=${lastID}`);
 
         }
@@ -95,8 +95,8 @@ async function authgoogle (fastify)
         },
         credentials: {
             client: {
-            id: '803922873496-7qb8dv88s3628eb12qvu75ohogg76cpn.apps.googleusercontent.com',
-            secret: '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'
+                id: '803922873496-7qb8dv88s3628eb12qvu75ohogg76cpn.apps.googleusercontent.com',
+                secret: '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'
             }
         },
         startRedirectPath: '/auth/google', 

@@ -59,25 +59,29 @@ async function githubCallback (req, reply)
         const userInfo = await userResponse.json();
         if (!userInfo)
             throw ({error: "get userinfo failed"});
-        console.log(userInfo);
-        reply.code(200).send(userInfo);
-        // const userData = await this.db.get("SELECT id, username FROM users WHERE email = ? AND auth_provider = ?", [userInfo.email, "github"]);
-        // let token;
-        // if (userData)
-        // {
-        //     token = this.jwt.sign({userId: userData.id, username: userData.username}, { expiresIn: '1h' })
-        //     reply.redirect(`https://localhost:5173/login?success=true&token=${token}&id=${userData.id}`);
-        // }
-        // else
-        // {
-        //     const AvatarUrl = await DownoladImageFromUrl(userInfo.picture);
-        //     const info = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userInfo.name, userInfo.email, "github", AvatarUrl]);
-        //     const lastID = info.lastID;
-        //     console.log(lastID);
-        //     token = this.jwt.sign({userId: lastID, username: userInfo.name}, { expiresIn: '1h' });
-        //     reply.redirect(`https://localhost:5173/login?success=true&token=${token}&id=${lastID}`);
+        const emailResponse = await fetch(`https://api.github.com/user/emails`, {
+            headers: {
+              'Authorization': `Bearer ${res.token.access_token}`,
+              'User-Agent': 'transendance_app'
+            }
+          })
+          
+        const emails = await emailResponse.json();
+        let lastuser;
+        const email = emails.find(email => email.primary == true);
+        const userid = this.db.transaction(() => {
+            const data = db.get("SELECT id, username FROM users WHERE email = ? AND auth_provider = ?", [email, "github"]);
+            if (data)
+                return (data);
+            else
+            {
+                lastuser = db.prepare("INSERT INTO users(email, username, auth_provider) VALUES (?, ?, ?)").run(email, userInfo.name, "github");
+                return {id: lastuser.lastID, username: userInfo.name};
+            }
 
-        // }
+        })
+        const token = this.jwt.sign(userid, { expiresIn: '1h' });
+        reply.redirect(`https://localhost:5173/login?token=${token}&id=${userid.id}`);
     }
     catch (err)
     {
@@ -98,11 +102,12 @@ async function githubauth (fastify)
 
         credentials: {
             client: {
-            id: 'Ov23liotsiRSjkEtLbBC',
-            secret: '7afe5fe0f3c169686ebf8e0fa8b2c909ed527607'
+                id: 'Ov23liotsiRSjkEtLbBC',
+                secret: '7afe5fe0f3c169686ebf8e0fa8b2c909ed527607'
             },
             auth: oauth2.GITHUB_CONFIGURATION
         },
+        scope: ['user:email'],
         startRedirectPath: '/auth/github', 
         callbackUri: 'https://localhost:5173/api/auth/github/callback',
         cookie: {
@@ -113,5 +118,79 @@ async function githubauth (fastify)
     })
     fastify.get('/auth/github/callback', githubCallback);
 }
+
+
+// ===>
+//     async function githubauth (fastify)
+// {
+//     //http://localhost:3000/auth/github/callback
+//     await fastify.register(cookie, {
+//         secret: "fjfjdie803922873496-7qb8dv88s3628eb12qvu759394djdus"
+//     })
+//     await fastify.register(oauth2, {
+//         name: 'github_oauth',
+
+//         credentials: {
+//             client: {
+//                 id: 'Ov23liotsiRSjkEtLbBC',
+//                 secret: '7afe5fe0f3c169686ebf8e0fa8b2c909ed527607'
+//             },
+//             auth: oauth2.GITHUB_CONFIGURATION
+//         },
+//         scope: ['user:email'],
+//         startRedirectPath: '/auth/github', 
+//         callbackUri: 'https://localhost:5173/api/auth/github/callback',
+//         cookie: {
+//             secure: false,
+//             sameSite: 'lax',
+//             path: '/api/auth/github/callback'
+//         }
+//     })
+//     fastify.get('/auth/github/callback', githubCallback);
+// }
+// ==>
+
+
+
+
+
+
+
+// ====>
+// async function githubauth(fastify) {
+//     // 1. Validate that secrets exist (Good practice to prevent startup crashes)
+//     if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
+//         throw new Error('Missing GitHub Environment Variables');
+//     }
+
+//     const DOMAIN = process.env.DOMAIN || 'https://localhost:5173'; // Fallback just in case
+
+//     await fastify.register(require('@fastify/cookie'), {
+//         secret: process.env.COOKIE_SECRET // Loaded from env
+//     });
+
+//     await fastify.register(require('@fastify/oauth2'), {
+//         name: 'github_oauth',
+//         credentials: {
+//             client: {
+//                 id: process.env.GITHUB_CLIENT_ID,     
+//                 secret: process.env.GITHUB_CLIENT_SECRET 
+//             },
+//             auth: require('@fastify/oauth2').GITHUB_CONFIGURATION
+//         },
+//         scope: ['user:email'],
+//         startRedirectPath: '/auth/github',
+//         // Construct the callback URI dynamically based on the environment domain
+//         callbackUri: `${DOMAIN}/auth/github/callback`, 
+//         cookie: {
+//             secure: false,
+//             sameSite: 'lax',
+//             path: '/'
+//         }
+//     });
+
+//     fastify.get('/auth/github/callback', githubCallback);
+// }
+// ===>
 
 module.exports = githubauth;

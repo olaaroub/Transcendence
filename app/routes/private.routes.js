@@ -7,7 +7,7 @@ async function JwtHandler(request, reply)
 
       const payload = await request.jwtVerify();
 
-      request.userId = payload.userId;
+      request.userId = payload.id;
       request.username = payload.username;
     }
     catch (err) {
