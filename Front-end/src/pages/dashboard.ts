@@ -85,10 +85,10 @@ function gameButtons(bg:string)
 function OnlinePong() : string
 {
 	return `
-		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
-		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
+		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all
+		duration-300 rounded-3xl p-6 flex flex-col h-[400px] items-center md:items-start gap-8 overflow-visible
+		relative" style="animation-delay: 0.5s;">0
 			<div class="flex gap-6 items-center">
-				
 				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Online Pong</p>
 			</div>
 			<div class="grid grid-cols-2 gap-3 w-[65%] h-full">
@@ -118,8 +118,8 @@ function renderWelcome() : string
 function renderStatistics(): string {
 	return `
 		<div class="statistics mb-6">
-			<h2 class="text-txtColor font-bold text-2xl mb-4">Your Statistic</h2>
-			<div class="bg-color4 glow-effect rounded-3xl text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+			<h2 class="text-txtColor font-bold text-2xl mb-4 transition-all duration">Your Statistic</h2>
+			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-3xl text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Total Wins</p>
 					<p class="text-4xl font-bold text-txtColor">127</p>
@@ -190,7 +190,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
 		<div class=" min-h-screen">
-			<div class="absolute inset-0 bg-white opacity-10 blur-3xl z-[-1]"></div>
+			<div class="absolute inset-0 bg-black opacity-70 blur-3xl z-[-1]"></div>
 			<video class="fixed w-full h-full object-cover z-[-2]"
 			loop
 			autoplay
