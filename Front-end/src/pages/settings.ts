@@ -205,7 +205,7 @@ function sendAvatar() : FormData | null
 function avatarSettings() : string
 {
 	return `
-		<div class="avatar-settings px-10 py-6 rounded-2xl bg-color4 flex-1 flex flex-col gap-6">
+		<div class="avatar-settings px-10 py-6 rounded-2xl bg-color4 glow-effect flex-1 flex flex-col gap-6">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
 			<div class="flex gap-16">
 				<div class="flex flex-col items-center gap-2">
@@ -261,7 +261,7 @@ function render2FA() : string
 function accountSettings() : string
 {
 	return `
-		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col flex-1 gap-6">
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col flex-1 gap-6">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account Settings</p>
 			<div class="settings-name flex flex-col gap-2">
 				<p class="text-txtColor text-sm ">username</p>
@@ -297,7 +297,7 @@ function input(placeholder: string, type: string, value: string = "", name: stri
 function security() : string
 {
 	return `
-		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col gap-6 flex-1">
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col gap-6 flex-1">
 			<p class=" text-color1 font-bold text-lg xl:text-2xl">Security</p>
 			<div class="flex flex-col gap-2">
 				<p class="text-txtColor text-sm">Password</p>
@@ -315,7 +315,7 @@ function security() : string
 function Account() : string
 {
 	return `
-		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col gap-6 flex-1">
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col gap-6 flex-1">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account</p>
 			<div class="flex flex-col gap-4">
 				<p class="2xl:w-[60%] w-full text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>

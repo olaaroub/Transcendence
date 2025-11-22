@@ -1,4 +1,3 @@
-import { renderRightPanel } from "./components/rightPanel";
 import { notifications, renderDashboardNavBar } from "./components/NavBar";
 import { navigate } from "../router";
 import { renderGroupChat } from "./chat/groupChat";
@@ -8,8 +7,6 @@ import { renderLeaderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
 import { chatEventHandler } from "./chat/chat";
-
-
 
 (window as any).navigate = navigate;
 
@@ -59,10 +56,9 @@ function LocalPong() : string
 	return `
 		<div class="relative ">
 			
-		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
+		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
 		items-center md:items-start gap-8 overflow-visible relative">
 			<div class="flex gap-6 items-center">
-				<img class="h-[60px]" src="images/localRemote.svg">
 				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
 			</div>
 			<div class="flex h-full gap-3 justify-center w-full">
@@ -89,7 +85,7 @@ function gameButtons(bg:string)
 function OnlinePong() : string
 {
 	return `
-		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
+		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
 		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
 			<div class="flex gap-6 items-center">
 				
@@ -123,7 +119,7 @@ function renderStatistics(): string {
 	return `
 		<div class="statistics mb-6">
 			<h2 class="text-txtColor font-bold text-2xl mb-4">Your Statistic</h2>
-			<div class="bg-color4 rounded-3xl text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+			<div class="bg-color4 glow-effect rounded-3xl text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Total Wins</p>
 					<p class="text-4xl font-bold text-txtColor">127</p>
