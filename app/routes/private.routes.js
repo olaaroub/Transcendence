@@ -1,8 +1,7 @@
 
 async function JwtHandler(request, reply)
 {
-    const url = request.url;
-    console.log("Requested URL:", url);    
+
     try {
 
       const payload = await request.jwtVerify();
@@ -13,7 +12,7 @@ async function JwtHandler(request, reply)
     catch (err) {
       console.log("No token provided or invalid token");
       reply.code(401).send({ error: 'Unauthorized: No valid token provided' });
-    }    
+    }
 }
 
 async function privateRoutes(fastify)
