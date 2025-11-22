@@ -12,14 +12,15 @@ const creatTable = async () =>
     await db.exec(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
+        password TEXT,
+        auth_provider TEXT NOT NULL DEFAULT 'local',
+        profileImage TEXT DEFAULT '/public/Default_pfp.jpg',
         email TEXT UNIQUE NOT NULL
     );`);
 
     await db.exec(`CREATE TABLE IF NOT EXISTS infos (
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
-        profileImage TEXT DEFAULT '/public/Default_pfp.jpg',
         TotalWins INTEGER,
         bio TEXT DEFAULT '--',
         WinRate FLOAT,
@@ -54,6 +55,12 @@ const creatTable = async () =>
         UNIQUE (userRequester, userReceiver),
         UNIQUE (pair_rolastion)
     );`);
+
+    await db.exec(`CREATE TRIGGER IF NOT EXISTS after_user_insert
+                   AFTER INSERT ON users
+                   BEGIN
+                        INSERT INTO infos(user_id) VALUES (NEW.id);
+                   END;`);
     return db;
 }
 

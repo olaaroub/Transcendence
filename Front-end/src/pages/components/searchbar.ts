@@ -31,7 +31,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		addFriend.src = `/images/addFriends.svg`;
 		addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110`;
 		addFriend.title = "Add Friend";
-		if (!user.status)
+		if (!user.status && user.id != userData.id)
 			buttonsDiv.appendChild(addFriend);
 		addFriend.addEventListener('click', async _=> {
 			if (user.status == 'pending' || user.status)
@@ -73,9 +73,7 @@ export async function searchbar() {
 		const response = await fetch(`api/users/search/${userData.id}?username=${value}`, {
 			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 		});
-		console.log('response : ', response);
 		const users: UserData[] = await response.json();
-		console.log('users : ', users);
 		if (users.length === 0) {
 			const p = document.createElement('p');
 			p.className = "text-gray-400 p-4";

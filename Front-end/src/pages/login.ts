@@ -1,6 +1,5 @@
 import { navigate } from "../router";
 import { renderNavBar } from "./components/NavBar";
-import { renderHomeText } from "./components/ForTexts"
 import { renderFooter } from "./components/footer"
 import { renderAuthPage } from "./components/loginPage"
 
@@ -14,8 +13,9 @@ export function renderLogin (isLoged: boolean)
                 ${renderNavBar(true)}
             </div>
         </div>
-        <footer id="footer" class="w-[90%] absolute bottom-0 left-1/2 transform -translate-x-1/2  mx-auto flex flex-col sm:flex-row justify-between items-center gap-4
-			py-8 text-white border-t border-slate-500 mt-auto">
+        <footer id="footer" class="w-[90%] absolute bottom-0 left-1/2 transform -translate-x-1/2
+        mx-auto flex flex-col sm:flex-row justify-between items-center gap-4
+		py-8 text-white border-t border-slate-500 mt-auto">
 			${renderFooter()}
 		</footer>
     `;

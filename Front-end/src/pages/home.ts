@@ -2,15 +2,9 @@ import { navigate } from "../router";
 import { renderNavBar } from "./components/NavBar";
 import { renderHomeText } from "./components/ForTexts"
 import { renderFooter } from "./components/footer"
-import { isUserAuthenticated } from "./components/errorsHandler";
 
 export async function renderHome()
 {
-	// const isAuth = await isUserAuthenticated();
-	// if (isAuth) {
-	// 	navigate('/dashboard');
-	// 	return;
-	// }
 	const existing = document.querySelector(".login");
 	if (existing) existing.remove();
 	document.body.innerHTML = `

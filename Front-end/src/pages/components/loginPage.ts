@@ -30,9 +30,9 @@ function mainButton(label: string) {
 function socialIcons() {
 	return `
     <div class="flex justify-center gap-4 mt-4">
-		<button class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/googleIcon.svg"></button>
-		<button class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/gitIcon.svg"></button>
-		<button class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/42Icon.svg"></button>
+		<a href="api/auth/google" id="googleIcon" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/googleIcon.svg"></a>
+		<button id="icon" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/gitIcon.svg"></button>
+		<button id="icon" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/42Icon.svg"></button>
     </div>
 	`;
 }
@@ -65,6 +65,25 @@ function footer(isSignup: boolean) {
 	}
     </p>
 	`;
+}
+
+const $ = (id : string) => document.getElementById(id as string)
+
+async function authGoogle() : Promise<void>
+{
+	const googleIcon = $('googleIcon');
+	googleIcon?.addEventListener('click',async _=>{
+		try {
+			const response = await fetch (`api/auth/google`, {})
+			if (!response)
+				console.error('auth is failed');
+			const result = await response.json();
+
+			console.log('result : ', result);
+		} catch (error) {
+			console.error(error);
+		}
+	})
 }
 
 export function renderAuthPage(isSignup = false, errorMSG = "") {
@@ -105,6 +124,7 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 		</div>
 	`;
 	document.body.appendChild(container);
+	// authGoogle();
 }
 
 document.body.addEventListener("click", (e) => {

@@ -1,53 +1,67 @@
-const fastify = require('fastify')({ logger: false })
-const routes = require('./routes/mainRoutes');
+const fastify = require('fastify')({ logger: true })
+// const routes = require('./routes/mainRoutes');
 const creatTable = require('./config/database');
 const fastifyCors = require('@fastify/cors');
 const fastifyJwt = require('@fastify/jwt');
 const fastifyMetrics = require('fastify-metrics');
+const path = require('path');
+const vault = require('node-vault');
+
+async function getJwtSecret() {
+  try {
+    const options = {
+      apiVersion: 'v1',
+      endpoint: process.env.VAULT_ADDR,
+      token: process.env.VAULT_TOKEN
+    };
+
+    const vaultClient = vault(options);
+    const { data } = await vaultClient.read('secret/data/transcendence');
+
+    return data.data.JWT_SECRET;
+
+  } catch (err) {
+    console.error("Error fetching secret from Vault:", err.message);
+    process.exit(1);
+  }
+}
 
 async function start() {
 
+  console.log("Fetching JWT secret from Vault...");
+  const jwtSecret = await getJwtSecret();
+  console.log("Secret fetched successfully.");
+
   const db = await creatTable();
 
+
   await fastify.register(fastifyCors, {
-    origin: true, // ba9i khasni npisifi frontend ip
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Access-Control-Allow-Origin']
   });
 
   fastify.register(fastifyJwt, {
-    secret: 'supersecret'
+    secret: jwtSecret
   });
 
   await fastify.register(fastifyMetrics, {
     endpoint: '/metrics'
   });
 
-  fastify.decorate('db', db);
-  fastify.register(require('@fastify/websocket'))
-
-  fastify.addHook('preHandler', async (request, reply) => {
-    const url = request.url;
-    console.log("Requested URL:", url);
-
-
-    if (url.includes('/login') || url.includes('/signUp') || url === '/'
-      || url.startsWith('/api/public'))
-      return;
-    try {
-      const payload = await request.jwtVerify();
-      request.userId = payload.userId;
-      request.username = payload.username;
-    }
-    catch  {
-      console.log("No token provided");
-      reply.code(401).send({ error: 'No token provided' });
-    }
-
-  });
-
-  fastify.register(routes, {
-    prefix: '/api'
-  });
+    fastify.decorate('db', db);
+    fastify.register(require('@fastify/websocket'))
+    console.log(path.join(__dirname, '/static'));
+    // await fastify.register(require('@fastify/static') , {
+    //   root: path.join(__dirname, 'static'),
+    //   prefix: '/public/'
+    // });
+    fastify.register(require('./routes/private.routes'), {
+        prefix: '/api'
+    });
+    fastify.register(require('./routes/public.routes'), {
+        prefix: '/api'
+    });
 
   try {
     fastify.listen({

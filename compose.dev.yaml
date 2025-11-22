@@ -5,6 +5,11 @@ services:
       dockerfile: Dockerfile.backend.dev
     image: backend-dev:1337
     container_name: backend-dev
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - PORT=${BACK_PORT}
+      - HOST=${BACK_HOST}
     volumes:
       - ./app:/app
       - ./db:/data
@@ -14,6 +19,61 @@ services:
       - transcendence-dev-net
     ports:
       - "3000:3000"
+    depends_on:
+      vault-init:
+        condition: service_completed_successfully
+
+  vault:
+    image: hashicorp/vault:1.21.0
+    container_name: vault
+    networks:
+      - transcendence-dev-net
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN}
+      - VAULT_ADDR=http://0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+
+  vault-init:
+    image: hashicorp/vault:1.21.0
+    container_name: vault-init
+    networks:
+      - transcendence-dev-net
+    volumes:
+      - ./vault/hashicorpVault.init.sh:/init.sh
+    environment:
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - JWT_SECRET_VALUE=${JWT_SECRET_VALUE}
+    entrypoint: /init.sh
+    depends_on:
+      - vault
+
+  modSecurity:
+    image: owasp/modsecurity-crs:4.20-nginx-alpine-202511100111
+    container_name: modSecurity
+    networks:
+      - transcendence-dev-net
+    environment:
+      - BACKEND=http://backend-dev:3000
+      - MODSEC_RULE_ENGINE=DetectionOnly
+    restart: on-failure
+    depends_on:
+      - backend-dev
+
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - transcendence-dev-net
+    volumes:
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - backend-dev
 
   frontend-dev:
     build:
@@ -26,6 +86,7 @@ services:
     volumes:
       - ./Front-end:/app
       - /app/node_modules
+      - ./certs:/app/certs:ro
     environment:
       - CHOKIDAR_USEPOLLING=true
     networks:
@@ -37,3 +98,8 @@ networks:
   transcendence-dev-net:
     name: transcendence-dev-net
     driver: bridge
+volumes:
+  prometheus-data:
+    driver: local
+  vault-data:
+    driver: local

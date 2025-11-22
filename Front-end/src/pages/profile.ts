@@ -78,7 +78,6 @@ export async function renderProfile(userId: string | null = null)
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
 		const imageUrl = getImageUrl(tmpUserData?.profileImage);
-
 		dashContent.innerHTML = `
 			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8">
 				<div class="bg-color4 mx-auto w-full rounded-3xl p-6 2xl:pl-12 flex gap-5 items-center
@@ -87,9 +86,10 @@ export async function renderProfile(userId: string | null = null)
 					<div class="flex flex-col gap-2">
 						<h2 class="font-bold text-txtColor text-3xl">${tmpUserData?.username}</h2>
 						<p class="text-color3 mb-4 w-[70%]">${tmpUserData?.bio}</p>
-						<button id="${isMyProfile ? 'edit-profile' : 'add-friend'}" class="bg-gradient-to-r from-color1 to-[#af4814]
-						min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center">
-					<img class="inline w-[24px] h-[24px]" src="${isMyProfile ? 'images/edit.svg' : 'images/addFriend.svg'}">${isMyProfile ? 'Edit My Profile' : 'Add Friend'}</button>
+						${tmpUserData?.status !== 'ACCEPTED' ? `<button id="${isMyProfile ? 'edit-profile' : 'add-friend'}" class="bg-gradient-to-r from-color1 to-[#af4814]
+						min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center"><img class="inline w-[24px] h-[24px]"
+						src="${isMyProfile ? 'images/edit.svg' : 'images/addFriend.svg'}">${isMyProfile ? 'Edit My Profile' : 'Add Friend'}</button>` : ''}
+					
 					</div>
 				</div>
 				${UserStats()}
