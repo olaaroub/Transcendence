@@ -5,6 +5,8 @@ import { renderAuthPage } from "./components/loginPage"
 
 const footer = document.getElementById('footer');
 
+const $ = (id: string) => document.getElementById(id as string);
+
 export function renderLogin (isLoged: boolean)
 {
     document.body.innerHTML = `
@@ -19,6 +21,10 @@ export function renderLogin (isLoged: boolean)
 			${renderFooter()}
 		</footer>
     `;
+    
 	document.getElementById('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
     renderAuthPage(isLoged);
+    if ($('Username'))
+          $('Username')?.focus();
+    console.log('data : ', $('Username'));
 }

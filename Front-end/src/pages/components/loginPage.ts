@@ -6,6 +6,7 @@ function inputField(label: string, type: string, placeholder: string) {
     <li>
 		<h3 class="text-[#F0F0F0] text-sm md:text-base my-2">${label}</h3>
 		<input
+		id=${label}
         type="${type}"
         placeholder="${placeholder}"
         class="w-full rounded-md bg-transparent border border-color1 focus:outline-none
