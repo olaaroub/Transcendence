@@ -65,23 +65,12 @@ function LocalPong() : string
 				<img class="h-[60px]" src="images/localRemote.svg">
 				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
 			</div>
-			<div class="flex w-[65%] h-full gap-3">
-				<div class="w-full flex flex-col h-[250px] gap-3 flex-1">
-					<button class="rounded-2xl w-full h-full transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
-					<img class="w-full h-full" src="images/online.webp"></img>
-					</button>
-					<button class="rounded-2xl w-full h-full transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
-						<img class="w-full h-full" src="images/online.webp"></img>
-					</button>
-				</div>
+			<div class="flex h-full gap-3 justify-center w-full">
+				${gameButtons('images/online.webp')}
+				${gameButtons('images/online.webp')}
 				${gameButtons('images/online.webp')}
 			</div>
-			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
-			lg:right-12 md:top-[65%] md:-translate-y-1/2">
-				<img class="h-auto w-full max-w-[280px] sm:max-w-[320px] md:w-[280px] lg:w-[340px] xl:w-[380px]
-				md:translate-x-[40px] md:-translate-y-[95px]
-				object-contain drop-shadow-2xl" src="images/pong.png" alt="">
-			</div>
+
 		</div>
 		</div>
 	`
@@ -205,7 +194,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
 		<div class=" min-h-screen">
-			<div class="absolute inset-0 bg-black opacity-50 z-[-1]"></div>
+			<div class="absolute inset-0 bg-white opacity-10 blur-3xl z-[-1]"></div>
 			<video class="fixed w-full h-full object-cover z-[-2]"
 			loop
 			autoplay
