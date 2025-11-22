@@ -3,9 +3,9 @@ import { mockMessages } from "../chat/mockMessages";
 
 export function renderLeaderboard(): string {
 	return `
-		<div class="">
+		<div class="w-full">
 			<h2 class="text-txtColor font-bold text-2xl mb-4">Leaderboard</h2>
-			<div class="rounded-3xl text-txtColor relative px-8 flex flex-col  gap-6">
+			<div class="rounded-3xl text-txtColor relative flex flex-col  gap-6">
 				<button class="absolute bottom-[-20px] left-1/2 -translate-x-1/2 rounded-3xl
 				bg-[rgb(27_26_29_/_75%)] hover:bg-[#ed6f3033] px-4 py-2 z-10">see more</button>
 				${mockMessages.map((msg, index) => `
