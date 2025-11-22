@@ -1,6 +1,7 @@
 import { mockMessages } from "../chat/mockMessages";
 
 
+
 export function renderLeaderboard(): string {
 	return `
 		<div class="w-full">
