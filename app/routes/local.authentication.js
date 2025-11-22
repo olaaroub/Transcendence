@@ -20,8 +20,6 @@ async function signUpHandler(request, reply)
 	let data = request.body;
 	try {
 		await this.db.run("INSERT INTO users(username, password, email) VALUES (?, ?, ?)", [data.username, data.password, data.email]);
-        // const user_id = await this.db.get("SELECT id FROM users WHERE username = ?", [data.username]);
-        // await this.db.run("INSERT INTO infos(user_id) VALUES (?)", [user_id.id]);
 
 		reply.code(201)
 			 .send({message: "created", success: true});

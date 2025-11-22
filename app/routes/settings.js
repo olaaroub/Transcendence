@@ -15,7 +15,7 @@ async function change_username(req, reply)
 {
 	const id = req.params.id;
 	const body = req.body;
-	console.log(body.username);
+
 	try {
 		await this.db.run("UPDATE users SET username = ? WHERE id = ?", [body.username, id]);
 		reply.code(200).send({ message: "updating successfly username", success: true });
@@ -26,10 +26,9 @@ async function change_username(req, reply)
 
 async function change_bio(req, reply)
 {
-	// console.log("Ddddddddddddddddddddddddddddddddd");
 	const id = req.params.id;
 	const body = req.body;
-	console.log(`${id} + ${body.bio}`);
+
 	try {
 		await this.db.run("UPDATE infos SET bio = ? WHERE user_id = ?", [body.bio, id]);
 		reply.code(200).send({ message: "updating successfly bio", success: true });
