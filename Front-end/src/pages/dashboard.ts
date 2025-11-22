@@ -1,4 +1,3 @@
-import { renderRightPanel } from "./components/rightPanel";
 import { notifications, renderDashboardNavBar } from "./components/NavBar";
 import { navigate } from "../router";
 import { renderGroupChat } from "./chat/groupChat";
@@ -8,8 +7,6 @@ import { renderLeaderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
 import { chatEventHandler } from "./chat/chat";
-
-
 
 (window as any).navigate = navigate;
 
@@ -59,29 +56,17 @@ function LocalPong() : string
 	return `
 		<div class="relative ">
 			
-		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
+		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
 		items-center md:items-start gap-8 overflow-visible relative">
 			<div class="flex gap-6 items-center">
-				<img class="h-[60px]" src="images/localRemote.svg">
 				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
 			</div>
-			<div class="flex w-[65%] h-full gap-3">
-				<div class="w-full flex flex-col h-[250px] gap-3 flex-1">
-					<button class="rounded-2xl w-full h-full transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
-					<img class="w-full h-full" src="images/online.webp"></img>
-					</button>
-					<button class="rounded-2xl w-full h-full transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
-						<img class="w-full h-full" src="images/online.webp"></img>
-					</button>
-				</div>
+			<div class="flex h-full gap-3 justify-center w-full">
+				${gameButtons('images/online.webp')}
+				${gameButtons('images/online.webp')}
 				${gameButtons('images/online.webp')}
 			</div>
-			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
-			lg:right-12 md:top-[65%] md:-translate-y-1/2">
-				<img class="h-auto w-full max-w-[280px] sm:max-w-[320px] md:w-[280px] lg:w-[340px] xl:w-[380px]
-				md:translate-x-[40px] md:-translate-y-[95px]
-				object-contain drop-shadow-2xl" src="images/pong.png" alt="">
-			</div>
+
 		</div>
 		</div>
 	`
@@ -100,7 +85,7 @@ function gameButtons(bg:string)
 function OnlinePong() : string
 {
 	return `
-		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
+		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
 		items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
 			<div class="flex gap-6 items-center">
 				
@@ -134,7 +119,7 @@ function renderStatistics(): string {
 	return `
 		<div class="statistics mb-6">
 			<h2 class="text-txtColor font-bold text-2xl mb-4">Your Statistic</h2>
-			<div class="bg-color4 rounded-3xl text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+			<div class="bg-color4 glow-effect rounded-3xl text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Total Wins</p>
 					<p class="text-4xl font-bold text-txtColor">127</p>
@@ -205,7 +190,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
 		<div class=" min-h-screen">
-			<div class="absolute inset-0 bg-black opacity-50 z-[-1]"></div>
+			<div class="absolute inset-0 bg-white opacity-10 blur-3xl z-[-1]"></div>
 			<video class="fixed w-full h-full object-cover z-[-2]"
 			loop
 			autoplay
