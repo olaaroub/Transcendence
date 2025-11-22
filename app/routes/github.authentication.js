@@ -95,7 +95,6 @@ async function githubauth (fastify)
     })
     await fastify.register(oauth2, {
         name: 'github_oauth',
-        scope: ['profile', 'email'],
 
         credentials: {
             client: {
