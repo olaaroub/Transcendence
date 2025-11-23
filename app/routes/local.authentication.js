@@ -43,7 +43,7 @@ async function loginHandler (req, reply)
 				reply.code(401).send({message: "password not correct", success: false});
 			else
 			{
-				const token = this.jwt.sign({userId: user.id, username: user.username}, { expiresIn: '1h' })
+				const token = this.jwt.sign({id: user.id, username: user.username}, { expiresIn: '1h' })
 				console.log(token);
 				reply.code(200).send({message: "login successfully", success: true, id: user.id, token: token});
 			}

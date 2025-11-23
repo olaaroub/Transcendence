@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile.backend.dev
     image: backend-dev:1337
     container_name: backend-dev
+    env_file:
+      - ./.env
     environment:
       - VAULT_ADDR=${VAULT_ADDR}
       - VAULT_TOKEN=${VAULT_TOKEN}
