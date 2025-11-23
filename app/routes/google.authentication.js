@@ -14,6 +14,8 @@ clientSecret= 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
             reply.code(200).send({message: "login successfully", id: lastID, token: token});
 */
 
+const domain = process.env.DOMAIN;
+
 async function DownoladImageFromUrl(url)
 {
 
@@ -21,7 +23,7 @@ async function DownoladImageFromUrl(url)
 
     if (!AvatarData.ok)
         throw ({error: 'Network response was not ok'});
-    // get extention 
+    // get extention
     const contentType =  AvatarData.headers.get('content-type');
     const mimType = {
         'image/jpeg': '.jpg',
@@ -40,14 +42,14 @@ async function DownoladImageFromUrl(url)
 
     await fs.promises.writeFile(file_path, buffer);
     return `/public/${file_name}`;
-} 
+}
 
 async function googleCallback (req, reply)
 {
     try
     {
-        const res = await this.google_oauth.getAccessTokenFromAuthorizationCodeFlow(req);
 
+        const res = await this.google_oauth.getAccessTokenFromAuthorizationCodeFlow(req);
         if (!res)
             throw ({error: "getAccessTokenFromAuthorizationCodeFlow failed"});
         const userInfo = await this.google_oauth.userinfo(res.token.access_token);
@@ -59,7 +61,7 @@ async function googleCallback (req, reply)
         if (userData)
         {
             token = this.jwt.sign({userId: userData.id, username: userData.username}, { expiresIn: '1h' })
-            reply.redirect(`https://localhost:5173/login?success=true&token=${token}&id=${userData.id}`);
+            reply.redirect(`${domain}/login?success=true&token=${token}&id=${userData.id}`);
         }
         else
         {
@@ -68,7 +70,7 @@ async function googleCallback (req, reply)
             const lastID = info.lastID;
             console.log(lastID);
             token = this.jwt.sign({userId: lastID, username: userInfo.name}, { expiresIn: '1h' });
-            reply.redirect(`https://localhost:5173/login?success=true&token=${token}&id=${lastID}`);
+            reply.redirect(`${domain}/login?success=true&token=${token}&id=${lastID}`);
 
         }
     }
@@ -82,32 +84,40 @@ async function googleCallback (req, reply)
 
 async function authgoogle (fastify)
 {
-    //http://localhost:3000/auth/google/callback
-    await fastify.register(cookie, {
-        secret: "fjfjdie803922873496-7qb8dv88s3628eb12qvu759394djdus"
-    })
-    await fastify.register(oauth2, {
-        name: 'google_oauth',
-        scope: ['profile', 'email'],
+    try{
 
-        discovery: {
-            issuer: 'https://accounts.google.com'
-        },
-        credentials: {
-            client: {
-            id: '803922873496-7qb8dv88s3628eb12qvu75ohogg76cpn.apps.googleusercontent.com',
-            secret: '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'
+        if(!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.COOKIE_SECRET)
+                throw("No google credentials provided!")
+        await fastify.register(cookie, {
+            secret: process.env.COOKIE_SECRET
+        })
+
+        await fastify.register(oauth2, {
+            name: 'google_oauth',
+            scope: ['profile', 'email'],
+
+            discovery: {
+                issuer: 'https://accounts.google.com'
+            },
+            credentials: {
+                client: {
+                id: process.env.GOOGLE_CLIENT_ID,
+                secret: process.env.GOOGLE_CLIENT_SECRET
+                }
+            },
+            startRedirectPath: '/auth/google',
+            callbackUri: `${domain}/api/auth/google/callback`,
+            cookie: {
+                secure: false,
+                sameSite: 'lax',
+                path: '/api/auth/google/callback'
             }
-        },
-        startRedirectPath: '/auth/google', 
-        callbackUri: 'https://localhost:5173/api/auth/google/callback',
-        cookie: {
-            secure: false,
-            sameSite: 'lax',
-            path: '/api/auth/google/callback'
-        }
-    })
-    fastify.get('/auth/google/callback', googleCallback);
+        })
+        fastify.get('/auth/google/callback', googleCallback);
+    }
+    catch (error){
+        console.log(error);
+    }
 }
 
 module.exports = authgoogle;
