@@ -21,10 +21,8 @@ export function renderLogin (isLoged: boolean)
 			${renderFooter()}
 		</footer>
     `;
-    
 	document.getElementById('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
     renderAuthPage(isLoged);
-    if ($('Username'))
-          $('Username')?.focus();
+    $('Username')?.focus();
     console.log('data : ', $('Username'));
 }
