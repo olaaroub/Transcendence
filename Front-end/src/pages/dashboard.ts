@@ -86,9 +86,9 @@ function OnlinePong() : string
 {
 	return `
 		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all
-		duration-300 rounded-3xl p-6 flex flex-col h-[400px] items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
+		duration-300 rounded-3xl p-6 flex flex-col h-[400px] items-center md:items-start gap-8
+		overflow-visible relative" style="animation-delay: 0.5s;">
 			<div class="flex gap-6 items-center">
-				
 				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Online Pong</p>
 			</div>
 			<div class="grid grid-cols-2 gap-3 w-[65%] h-full">
@@ -120,8 +120,7 @@ async function getStatistics()
 
 }
 
-async function renderStatistics(): Promise<string> {
-	await getStatistics();
+function renderStatistics(): string {
 	return `
 		<div class="statistics mb-6">
 			<h2 class="text-txtColor font-bold text-2xl mb-4 transition-all duration">Your Statistic</h2>
