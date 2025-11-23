@@ -67,23 +67,22 @@ async function githubCallback (req, reply)
               'User-Agent': 'transendance_app'
             }
           })
-          
         const emails = await emailResponse.json();
         let lastuser;
-        const email = emails.find(email => email.primary == true);
-        const userid = this.db.transaction(() => {
-            const data = db.get("SELECT id, username FROM users WHERE email = ? AND auth_provider = ?", [email, "github"]);
-            if (data)
-                return (data);
-            else
-            {
-                lastuser = db.prepare("INSERT INTO users(email, username, auth_provider) VALUES (?, ?, ?)").run(email, userInfo.name, "github");
-                return {id: lastuser.lastID, username: userInfo.name};
-            }
-
-        })
-        const token = this.jwt.sign(userid, { expiresIn: '1h' });
-        reply.redirect(`${domain}/login?token=${token}&id=${userid.id}`);
+        const emailData = emails.find(email => email.primary == true);
+        console.log(`email ${emailData.email}`);
+        const data = this.db.get("SELECT id, username FROM users WHERE email = ? AND auth_provider = ?", [emailData.email, "github"]);
+        let jwtPaylod;
+        if (data)
+            jwtPaylod = data;
+        else
+        {
+            lastuser = this.db.prepare("INSERT INTO users(email, username, auth_provider) VALUES (?, ?, ?)").run(emailData.email, userInfo.name, "github");
+            console.log(`last userrrrrrrrrrrrrrrrrrrrrrrrr ${lastuser.lastID}`);
+            jwtPaylod = {id: lastuser.lastID, username: userInfo.name};
+        }
+        const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
+        reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
     }
     catch (err)
     {
