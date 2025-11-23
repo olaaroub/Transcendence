@@ -115,11 +115,18 @@ function renderWelcome() : string
 	`
 }
 
-function renderStatistics(): string {
+async function getStatistics()
+{
+
+}
+
+async function renderStatistics(): Promise<string> {
+	await getStatistics();
 	return `
 		<div class="statistics mb-6">
 			<h2 class="text-txtColor font-bold text-2xl mb-4 transition-all duration">Your Statistic</h2>
-			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-3xl text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-3xl
+			text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Total Wins</p>
 					<p class="text-4xl font-bold text-txtColor">127</p>
