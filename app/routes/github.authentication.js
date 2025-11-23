@@ -70,7 +70,7 @@ async function githubCallback (req, reply)
         const emails = await emailResponse.json();
         let lastuser;
         const emailData = emails.find(email => email.primary == true);
-        const data = await this.db.get("SELECT id, username FROM users WHERE email = ? AND auth_provider = ?", [emailData.email, "github"]);
+        const data = await this.db.get("SELECT id, username FROM users WHERE email = ?", [emailData.email]);
 
         let jwtPaylod;
         if (data)
@@ -86,7 +86,8 @@ async function githubCallback (req, reply)
     catch (err)
     {
         console.log(err);
-        reply.code(500).send({message: "you have error"});
+        // reply.code(500).send({message: "you have error"});
+        reply.redirect(`${domain}/ login?auth=failed`);
 
     }
 }

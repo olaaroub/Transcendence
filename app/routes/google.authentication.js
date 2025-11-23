@@ -3,16 +3,7 @@ const cookie = require('@fastify/cookie');
 const path   = require('path');
 const fs     = require('fs');
 const { v4: uuidv4 } = require('uuid');
-/*
-clientID = 803922873496-7qb8dv88s3628eb12qvu75ohogg76cpn.apps.googleusercontent.com
-clientSecret= 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
 
-            const AvatarUrl = await DownoladImageFromUrl(userInfo.picture);
-            const info = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userInfo.name, userInfo.email, "google", AvatarUrl]);
-            const lastID = info.lastInsertRowid;
-            token = this.jwt.sign({userId: lastID, username: userInfo.name}, { expiresIn: '1h' });
-            reply.code(200).send({message: "login successfully", id: lastID, token: token});
-*/
 
 const domain = process.env.DOMAIN;
 
@@ -56,7 +47,8 @@ async function googleCallback (req, reply)
 
         if (!userInfo)
             throw ({error: "get userinfo failed"});
-        const userData = await this.db.get("SELECT id, username FROM users WHERE email = ? AND auth_provider = ?", [userInfo.email, "google"]);
+        const userData = await this.db.get("SELECT id, username, auth_provider FROM users WHERE email = ?", [userInfo.email]);
+
         let token;
         if (userData)
         {
@@ -77,7 +69,8 @@ async function googleCallback (req, reply)
     catch (err)
     {
         console.log(err);
-        reply.code(500).send({message: "you have error"});
+        // reply.code(500).send({message: "you have error"});
+        reply.redirect(`${domain}/ login?auth=failed`);
 
     }
 }

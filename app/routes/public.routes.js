@@ -11,6 +11,7 @@ async function publicRoutes(fastify)
     fastify.register(require('./local.authentication'));
     fastify.register(require('./google.authentication'));
     fastify.register(require('./github.authentication'));
+    fastify.register(require('./42intra.authentication'));
 }
 
 module.exports = publicRoutes;
