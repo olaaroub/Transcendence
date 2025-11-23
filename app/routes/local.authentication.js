@@ -61,7 +61,7 @@ async function loginHandler (req, reply)
 async function getUsers(req, reply)
 {
 	try {
-		const data =  await this.db.all("SELECT id, username, email FROM users");
+		const data =  await this.db.all("SELECT id, username, auth_provider, email FROM users");
 		reply.code(200).send(data);
 	} catch {
 		reply.code(500).send({ error: "Internal server error" });

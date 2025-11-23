@@ -66,7 +66,7 @@ async function getProfileData(req, reply)
 		let responceData = "";
 		if (profile_id == user_id)
 		{
-			responceData = await this.db.get(`SELECT users.id, users.email, users.username, users.profileImage,infos.bio
+			responceData = await this.db.get(`SELECT users.id, users.email, users.username, users.profileImage, auth_provider,infos.bio
 												FROM users
 												INNER JOIN infos ON users.id = infos.user_id
 												WHERE users.id = ?`, [user_id]);
