@@ -51,27 +51,6 @@ export async function initDashboard(isDashboard: boolean = true) {
 		renderDashboard(isDashboard);
 }
 
-function LocalPong() : string
-{
-	return `
-		<div class="relative ">
-			
-		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
-		items-center md:items-start gap-8 overflow-visible relative">
-			<div class="flex gap-6 items-center">
-				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
-			</div>
-			<div class="flex h-full gap-3 justify-center w-full">
-				${gameButtons('images/online.webp')}
-				${gameButtons('images/online.webp')}
-				${gameButtons('images/online.webp')}
-			</div>
-
-		</div>
-		</div>
-	`
-}
-
 function gameButtons(bg:string)
 {
 	return `
@@ -82,21 +61,39 @@ function gameButtons(bg:string)
 	`
 }
 
+function LocalPong() : string
+{
+	return `
+		<div class="relative ">
+			<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02]
+			transition-all duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px]
+			items-center md:items-start gap-4 overflow-visible relative">
+				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
+				<div class="flex h-full gap-3 justify-center w-full">
+					${gameButtons('images/online.webp')}
+					${gameButtons('images/online.webp')}
+					${gameButtons('images/online.webp')}
+				</div>
+			</div>
+		</div>
+	`
+}
+
+
+
 function OnlinePong() : string
 {
 	return `
 		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all
-		duration-300 rounded-3xl p-6 flex flex-col h-[400px] items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
-			<div class="flex gap-6 items-center">
-				
-				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Online Pong</p>
-			</div>
+		duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px] items-center md:items-start gap-4
+		overflow-visible relative" style="animation-delay: 0.5s;">
+			<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Online Pong</p>
 			<div class="grid grid-cols-2 gap-3 w-[65%] h-full">
 				${gameButtons('images/online.webp')}
 				${gameButtons('images/online.webp')}
 			</div>
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
-			lg:right-12 md:top-[65%] md:-translate-y-1/2">
+			lg:right-0 md:top-[65%] md:-translate-y-1/2">
 				<img class="h-auto w-[280px] lg:w-[340px] xl:w-[380px]
 				md:translate-x-[40px] md:-translate-y-[95px]
 				object-contain drop-shadow-2xl" src="images/pongOnline.png" alt="">
@@ -115,11 +112,17 @@ function renderWelcome() : string
 	`
 }
 
+async function getStatistics()
+{
+
+}
+
 function renderStatistics(): string {
 	return `
 		<div class="statistics mb-6">
 			<h2 class="text-txtColor font-bold text-2xl mb-4 transition-all duration">Your Statistic</h2>
-			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-3xl text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-3xl
+			text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Total Wins</p>
 					<p class="text-4xl font-bold text-txtColor">127</p>

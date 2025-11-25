@@ -41,6 +41,8 @@ async function start() {
     allowedHeaders: ['Access-Control-Allow-Origin']
   });
 
+
+
   fastify.register(fastifyJwt, {
     secret: jwtSecret
   });
