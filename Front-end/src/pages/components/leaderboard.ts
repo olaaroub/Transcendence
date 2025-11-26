@@ -1,6 +1,6 @@
 import { mockMessages } from "../chat/mockMessages";
 
-export function renderLeaderboard(): string {
+export function dashboardLearderboard(): string {
 	return `
 		<div class="w-full">
 			<h2 class="text-txtColor font-bold text-2xl mb-4">Leaderboard</h2>

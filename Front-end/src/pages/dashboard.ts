@@ -3,7 +3,7 @@ import { navigate } from "../router";
 import { renderGroupChat } from "./chat/groupChat";
 import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
-import { renderLeaderboard } from "./components/leaderboard";
+import { dashboardLearderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
 import { chatEventHandler } from "./chat/chat";
@@ -152,7 +152,7 @@ function renderStatistics(): string {
 function renderAnalyticsSection(): string {
 	return `
 		<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
-			${renderLeaderboard()}
+			${dashboardLearderboard()}
 			${renderStatistics()}
 		</div>
 	`;
