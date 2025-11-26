@@ -41,19 +41,19 @@ export async function renderAbout() {
 	]
 	const delayClasses = ["anim-delay-0", "anim-delay-5s", "anim-delay-10s", "anim-delay-15s", "anim-delay-20s"];
 	document.body.innerHTML = `
-
-	<div class="w-full min-h-screen bg-[#0f1114] flex flex-col items-center py-16 px-6">
-		<img id="about-logo" class="cursor-pointer absolute top-6 left-6" src="${getImageUrl('images/logo.png')}" alt="Logo">
-		<div class="w-full max-w-6xl">
-			<div class="bg-color4/30 backdrop-blur-md px-8 py-8 rounded-3xl shadow-2xl">
-				<h1 class="text-4xl md:text-5xl font-extrabold text-white mb-3">About <span class="text-color1">Us</span></h1>
-				<p class="text-[#b1b1b1] text-center md:text-left max-w-3xl mb-8 text-md md:text-lg">
+	<div class="w-full min-h-screen bg-bgColor flex flex-col items-center py-16 px-6">
+		<img id="about-logo" class="cursor-pointer xl:w-[150px] absolute top-8 left-16" src="${getImageUrl('images/logo.png')}" alt="Logo">
+		<div class="w-full max-w-6xl translate-y-[50px]">
+			<div class="bg-color3/45 backdrop-blur-md px-8 py-8 rounded-3xl shadow-2xl">
+				<h1 class="text-4xl md:text-5xl font-extrabold text-txtColor mb-3 text-center">About <span class="text-color1">Us</span></h1>
+				<p class="text-[#b1b1b1] max-w-3xl mb-12 text-md md:text-lg mx-auto text-center [text-wrap:balance]">
 					We are a passionate team of developers, each specializing in different domains. Below are the teammates and their roles — click a card to learn more.
 				</p>
-				<div class="flex flex-wrap justify-center gap-6">
+
+				<div class="flex flex-wrap justify-center gap-10">
 					${cardsData.map((card) => `
-						<div class="w-full sm:w-[48%] lg:w-[30%] rounded-2xl shadow-lg transform hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-visible" onclick="void(0)">
-							<div style="background: linear-gradient(135deg, ${card.gradientFrom}, ${card.gradientTo});" class="p-6 flex flex-col items-center text-center">
+						<div class="w-full sm:w-[48%] lg:w-[30%]  transform hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-visible" onclick="void(0)">
+							<div style="background: linear-gradient(135deg, ${card.gradientFrom}, ${card.gradientTo});" class="p-6 flex flex-col rounded-2xl shadow-lg items-center text-center">
 								<div class="w-28 h-28 rounded-full overflow-hidden ring-4 ring-white -mt-12 shadow-md">
 									<img src="${getImageUrl(card.image)}" alt="${card.name}" class="w-full h-full object-cover" />
 								</div>

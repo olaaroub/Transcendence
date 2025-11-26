@@ -22,7 +22,6 @@ export function setCredentials()
 
 if (!credentials.id || !credentials.token) {
 	console.warn('Missing credentials in store');
-	navigate('/login');
 }
 
 export const userData : IUserData = {
