@@ -35,8 +35,11 @@ async function callbackHandler(req, reply)
     catch (err)
     {
         console.log(err)
+        reply.redirect(`${domain}/login?auth=failed`);
     }
 }
+
+
 
 async function authIntra(fastify)
 {

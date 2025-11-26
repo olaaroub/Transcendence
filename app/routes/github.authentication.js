@@ -76,6 +76,7 @@ async function githubauth (fastify)
         await fastify.register(cookie, {
             secret: process.env.COOKIE_SECRET
         })
+
         await fastify.register(oauth2, {
             name: 'github_oauth',
 

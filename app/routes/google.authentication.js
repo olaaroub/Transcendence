@@ -70,7 +70,7 @@ async function googleCallback (req, reply)
     {
         console.log(err);
         // reply.code(500).send({message: "you have error"});
-        reply.redirect(`${domain}/ login?auth=failed`);
+        reply.redirect(`${domain}/login?auth=failed`);
 
     }
 }

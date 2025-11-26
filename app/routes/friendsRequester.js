@@ -1,3 +1,4 @@
+const { default: fastify } = require("fastify");
 
 async function add_friend(req, reply)
 {
@@ -6,11 +7,21 @@ async function add_friend(req, reply)
 
     try
     {
+        const socket = this.connections.get(receiver_id);
+        console.log("--------------------------------------------socket state: ",socket);
         await this.db.run(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`, [requester_id, receiver_id]);
+        if (socket && socket.readyState == 1)
+        {
+            const receiver_Data = this.db.get("SELECT id, username, profileImage FROM users WHERE id = ?", [receiver_id]);
+            console.log(receiver_Data)
+            socket.send(receiver_Data);
+
+        }
         reply.code(201).send({success: true});
     }
-    catch
+    catch (err)
     {
+        console.log(err)
         reply.code(401).send({success: false});
     }
 }
