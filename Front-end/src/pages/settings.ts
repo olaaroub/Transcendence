@@ -28,7 +28,6 @@ async function checkPasswordChange() : Promise<boolean>
 		return false;
 	}
 	try {
-		console.log(JSON.stringify({ currentPassword, newPassword: value }));
 		const response = await fetch(`api/users/${userData?.id}/settings-password`, {
 			method: 'PUT',
 			body: JSON.stringify({ currentPassword, newPassword: value }),
@@ -45,7 +44,6 @@ async function checkPasswordChange() : Promise<boolean>
 		console.error('Error changing password:', error);
 		return false;
 	}
-
 	return true;
 }
 

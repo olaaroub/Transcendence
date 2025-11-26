@@ -190,6 +190,8 @@ function addClickInRightPanel()
 	});
 }
 
+const $ = (id : string) => document.getElementById(id as string);
+
 export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
@@ -209,6 +211,9 @@ export async function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
+	$('see-more')?.addEventListener('click', _=>{
+		navigate('/leaderboard');
+	})
 	addClickInRightPanel();
 	notifications();
 	chatEventHandler();
