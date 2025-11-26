@@ -7,14 +7,15 @@ async function add_friend(req, reply)
 
     try
     {
-        const socket = this.connections.get(receiver_id);
-        console.log("--------------------------------------------socket state: ",socket);
+        const socket = this.sockets.get(receiver_id);
+        
         await this.db.run(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`, [requester_id, receiver_id]);
         if (socket && socket.readyState == 1)
         {
-            const receiver_Data = this.db.get("SELECT id, username, profileImage FROM users WHERE id = ?", [receiver_id]);
+            console.log("----------------------------------------wa Akhiran --------------")
+            const receiver_Data = await this.db.get("SELECT id, username, profileImage FROM users WHERE id = ?", [requester_id]);
             console.log(receiver_Data)
-            socket.send(receiver_Data);
+            socket.send(JSON.stringify(receiver_Data));
 
         }
         reply.code(201).send({success: true});

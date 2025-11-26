@@ -58,8 +58,8 @@ async function start() {
   });
 
     fastify.decorate('db', db);
-    const connections = new Map();
-    fastify.decorate('connections', connections);
+    const sockets = new Map();
+    fastify.decorate('sockets', sockets);
     fastify.register(require('@fastify/websocket'))
     console.log(path.join(__dirname, '/static'));
     // await fastify.register(require('@fastify/static') , {
