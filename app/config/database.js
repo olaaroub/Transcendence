@@ -36,6 +36,7 @@ const creatTable = async () =>
         userRequester INTEGER,
         userReceiver INTEGER,
 
+        requestShowed BOOLEAN DEFAULT 0,
         status TEXT NOT NULL DEFAULT 'PENDING',
 
         pair_rolastion TEXT GENERATED ALWAYS AS (
