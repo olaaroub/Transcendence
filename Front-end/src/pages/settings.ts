@@ -284,11 +284,12 @@ function input(placeholder: string, type: string, value: string = "", name: stri
 {
 	return `
 		<input
+		${userData.auth_provider !== 'local' ? 'disabled' : ''}
 		value="${value}"
 		type="${type}"
 		name="${name}"
 		placeholder="${placeholder}"
-		class="bg-transparent border focus:outline-none focus:border-color1
+		class="${userData.auth_provider === 'local' ? 'bg-transparent'  : ''} border focus:outline-none focus:border-color1
 		focus:border-[2px] text-txtColor w-full placeholder:text-sm border-color2 rounded-2xl p-3"
 		>
 	`
