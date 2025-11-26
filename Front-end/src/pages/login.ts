@@ -17,10 +17,6 @@ function AuthRedirect()
         localStorage.setItem("id", id);
         navigate("/dashboard");
     }
-    else
-    {
-        console.log('no Auth found');
-    }
 }
 
 export function renderLogin (isLoged: boolean)
