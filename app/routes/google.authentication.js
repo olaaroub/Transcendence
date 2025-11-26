@@ -53,16 +53,16 @@ async function googleCallback (req, reply)
         if (userData)
         {
             token = this.jwt.sign({userId: userData.id, username: userData.username}, { expiresIn: '1h' })
-            reply.redirect(`${domain}/login?success=true&token=${token}&id=${userData.id}`);
+            reply.redirect(`${domain}/login?token=${token}&id=${userData.id}`);
         }
         else
         {
             const AvatarUrl = await DownoladImageFromUrl(userInfo.picture);
             const info = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userInfo.name, userInfo.email, "google", AvatarUrl]);
             const lastID = info.lastID;
-            console.log(lastID);
+            // console.log(lastID);
             token = this.jwt.sign({userId: lastID, username: userInfo.name}, { expiresIn: '1h' });
-            reply.redirect(`${domain}/login?success=true&token=${token}&id=${lastID}`);
+            reply.redirect(`${domain}/login?token=${token}&id=${lastID}`);
 
         }
     }
