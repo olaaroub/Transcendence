@@ -13,7 +13,7 @@ async function statisticHandler(req, reply)
 async  function statisticRoutes(fastify)  {
 
 
-    fastify.get("/user/statistic/:id", statisticHandler);
+    fastify.get("/users/statistic/:id", statisticHandler);
 }
 
 module.exports = statisticRoutes;
