@@ -55,7 +55,7 @@ export async function renderLeaderboard() {
 		dashContent.innerHTML = `
 		<div class="w-full h-full flex flex-col gap-6 p-6">
 			<div class="flex items-end justify-center gap-6 mb-6">
-				<div class="flex flex-col items-center">
+				<div id="podium-2" class="flex flex-col items-center cursor-pointer hover:scale-105 transition-all duration-200">
 					<div class="relative mb-3">
 						<img src="${getImageUrl(fullLeaderboardData[1].avatar)}" 
 							class="w-20 h-20 rounded-full border-4 border-gray-400 object-cover shadow-lg">
@@ -69,7 +69,7 @@ export async function renderLeaderboard() {
 					</div>
 				</div>
 
-				<div class="flex flex-col items-center -mt-6">
+				<div id="podium-1" class="flex flex-col items-center -mt-6 cursor-pointer hover:scale-105 transition-all duration-200">
 					<div class="relative mb-3">
 						<img src="${getImageUrl(fullLeaderboardData[0].avatar)}" 
 							class="w-24 h-24 rounded-full border-4 border-color1 object-cover shadow-2xl">
@@ -83,7 +83,7 @@ export async function renderLeaderboard() {
 					</div>
 				</div>
 
-				<div class="flex flex-col items-center">
+				<div id="podium-3" class="flex flex-col items-center cursor-pointer hover:scale-105 transition-all duration-200">
 					<div class="relative mb-3">
 						<img src="${getImageUrl(fullLeaderboardData[2].avatar)}" 
 							class="w-20 h-20 rounded-full border-4 border-amber-600 object-cover shadow-lg">
@@ -96,6 +96,9 @@ export async function renderLeaderboard() {
 						<span class="text-color1 font-black text-xl">${fullLeaderboardData[2].points}</span>
 					</div>
 				</div>
+			</div>
+
+			<div id="player-details" class="hidden">
 			</div>
 
 			<div class="bg-color4 rounded-2xl p-6 flex-1 overflow-hidden flex flex-col">
@@ -148,4 +151,86 @@ export async function renderLeaderboard() {
 			</div>
 		</div>
 		`;
+	
+	const setupPodiumClicks = () => {
+		const detailsContainer = document.getElementById('player-details');
+		if (!detailsContainer) return;
+
+		const showPlayerDetails = (playerIndex: number) => {
+			const player = fullLeaderboardData[playerIndex];
+			const isVisible = !detailsContainer.classList.contains('hidden');
+			const currentContent = detailsContainer.innerHTML;
+			
+			const newContent = `
+				<div class="bg-color4 rounded-2xl p-6 animate-slideDown">
+					<div class="flex items-center justify-between mb-4">
+						<div class="flex items-center gap-4">
+							<img src="${getImageUrl(player.avatar)}" class="w-16 h-16 rounded-full border-4 border-color1 object-cover">
+							<div>
+								<h3 class="text-txtColor font-bold text-2xl">${player.username}</h3>
+								<span class="text-gray-400 text-sm">Rank #${player.rank}</span>
+							</div>
+						</div>
+						<button id="close-details" class="text-gray-400 hover:text-txtColor text-2xl font-bold transition-colors">✕</button>
+					</div>
+
+					<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+						<div class="bg-black/40 rounded-xl p-4 text-center">
+							<p class="text-gray-400 text-sm mb-1">Total Points</p>
+							<p class="text-color1 font-black text-3xl">${player.points}</p>
+						</div>
+						<div class="bg-black/40 rounded-xl p-4 text-center">
+							<p class="text-gray-400 text-sm mb-1">Games Played</p>
+							<p class="text-txtColor font-black text-3xl">${player.gamesPlayed}</p>
+						</div>
+						<div class="bg-black/40 rounded-xl p-4 text-center">
+							<p class="text-gray-400 text-sm mb-1">Wins</p>
+							<p class="text-green-400 font-black text-3xl">${player.wins}</p>
+						</div>
+						<div class="bg-black/40 rounded-xl p-4 text-center">
+							<p class="text-gray-400 text-sm mb-1">Losses</p>
+							<p class="text-red-400 font-black text-3xl">${player.losses}</p>
+						</div>
+					</div>
+
+					<div class="mt-4 bg-black/40 rounded-xl p-4">
+						<p class="text-gray-400 text-sm mb-2">Win Rate</p>
+						<div class="flex items-center gap-3">
+							<div class="flex-1 bg-gray-700 rounded-full h-4 overflow-hidden">
+								<div class="bg-gradient-to-r from-color1 to-color2 h-full rounded-full transition-all duration-500" style="width: ${player.winRate}%"></div>
+							</div>
+							<span class="text-color1 font-black text-xl">${player.winRate}%</span>
+						</div>
+					</div>
+
+					<div class="mt-4 flex gap-3">
+						<button class="flex-1 bg-color1 hover:bg-color2 text-black font-bold py-3 px-4 rounded-xl transition-all">
+							View Profile
+						</button>
+						<button class="flex-1 bg-color4 hover:bg-color3 text-txtColor font-bold py-3 px-4 rounded-xl transition-all border border-color3">
+							Challenge
+						</button>
+					</div>
+				</div>
+			`;
+
+			if (isVisible && currentContent.includes(player.username)) {
+				detailsContainer.classList.add('hidden');
+			} else {
+				detailsContainer.innerHTML = newContent;
+				detailsContainer.classList.remove('hidden');
+				
+				const closeBtn = document.getElementById('close-details');
+				if (closeBtn) {
+					closeBtn.onclick = () => detailsContainer.classList.add('hidden');
+				}
+			}
+		};
+
+		document.getElementById('podium-1')?.addEventListener('click', () => showPlayerDetails(0));
+		document.getElementById('podium-2')?.addEventListener('click', () => showPlayerDetails(1));
+		document.getElementById('podium-3')?.addEventListener('click', () => showPlayerDetails(2));
+	};
+
+	setupPodiumClicks();
 }
