@@ -108,7 +108,6 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 		</div>
 	`;
 	document.body.appendChild(container);
-	// authGoogle();
 }
 
 document.body.addEventListener("click", (e) => {
