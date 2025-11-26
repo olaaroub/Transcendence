@@ -15,7 +15,9 @@ const creatTable = async () =>
         password TEXT,
         auth_provider TEXT NOT NULL DEFAULT 'local',
         profileImage TEXT DEFAULT '/public/Default_pfp.jpg',
-        email TEXT UNIQUE NOT NULL
+        email TEXT UNIQUE NOT NULL,
+
+        CHECK (auth_provider IN ('local', 'google', 'github', 'intra'))
     );`);
 
     await db.exec(`CREATE TABLE IF NOT EXISTS infos (
