@@ -52,8 +52,13 @@ async function start() {
   });
 
   await fastify.register(fastifyMetrics, {
-    endpoint: '/metrics'
+    endpoint: '/metrics',
+
+    defaultMetrics: {
+      enabled: true
+    },
   });
+
 
     fastify.decorate('db', db);
     fastify.register(require('@fastify/websocket'))

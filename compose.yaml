@@ -1,4 +1,22 @@
 services:
+
+  frontend:
+    build:
+      context: ./Front-end
+      dockerfile: Dockerfile.frontend.prod
+    image: frontend:1337
+    container_name: frontend-prod
+    ports:
+      - "8080:80"
+      - "8443:443" #mac dzb (cant access 443, galoha f subject)
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+    networks:
+      - transcendence-net
+    restart: on-failure
+    depends_on:
+      - modSecurity
+
   backend:
     build:
       context: ./app
@@ -21,6 +39,9 @@ services:
     depends_on:
       vault-init:
         condition: service_completed_successfully
+
+
+
 
   vault:
     image: hashicorp/vault:1.21.0
@@ -61,43 +82,45 @@ services:
     depends_on:
       - backend
 
-  prometheus:
-    image: prom/prometheus:v3.7.3
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    networks:
-      - transcendence-net
-    volumes:
-      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
-    depends_on:
-      - backend
 
-  frontend:
-    build:
-      context: ./Front-end
-      dockerfile: Dockerfile.frontend.prod
-    image: frontend:1337
-    container_name: frontend-prod
-    ports:
-      - "8080:80"
-      - "8443:443" #mac dzb (cant access 443, galoha f subject)
-    volumes:
-      - ./certs:/etc/nginx/certs:ro
-    networks:
-      - transcendence-net
-    restart: on-failure
-    depends_on:
-      - modSecurity
+
+  # prometheus:
+  #   image: prom/prometheus:v3.7.3
+  #   container_name: prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   networks:
+  #     - transcendence-net
+  #   volumes:
+  #     - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+  #     - prometheus-data:/prometheus
+  #   depends_on:
+  #     - backend
+
+  # grafana:
+  #   image: grafana/grafana:12.3.0
+  #   container_name: grafana
+  #   ports:
+  #     - "3001:3000"
+  #   networks:
+  #     - transcendence-net
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #   depends_on:
+  #     - prometheus
+
+
+
 
 networks:
   transcendence-net:
     name: transcendence-net
     driver: bridge
 
-volumes:
-  prometheus-data:
-    driver: local
-  vault-data:
-    driver: local
+# volumes:
+#   prometheus-data:
+#     driver: local
+#   vault-data:
+#     driver: local
+#   grafana-data:
+#     driver: local
