@@ -20,7 +20,7 @@ function renderMessages() : string {
 				<h2 class="text-txtColor text-2xl font-bold mb-6">Messages</h2>
 				<div class="h-[1px] bg-gray-700 mb-4"></div>
 			</div>
-			<div class="h-full bg-bgColor rounded-2xl flex p-3">
+			<div class="h-full bg-black rounded-2xl flex p-3">
 				<div class="flex gap-3 font-bold h-fit items-center">
 					<img class="h-14 w-14 border border-color1 rounded-full" src="images/mmondad.jpeg">
 					<div class="flex flex-col">
@@ -32,14 +32,14 @@ function renderMessages() : string {
 
 			<div class="flex justify-center gap-2 mt-4 w-full items-center">
 				<input type="text" placeholder="Type a message..."
-				class=" bg-bgColor text-txtColor px-4 py-2 rounded-full w-[60%]
+				class=" bg-black text-txtColor px-4 py-2 rounded-full w-[60%]
 				outline-none border border-color3 focus:border-color1 transition-colors">
-				<img class="h-10 w-10" src="images/sentIcon.svg" alt="sent">
+				<img class="h-10 w-10 hover:bg-color3 hover:rounded-full transition-all duration-300
+				cursor-pointer hover:p-2" src="images/icons8-send.svg" alt="sent">
 			</div>
 		</div>
 		`;
 }
-				// <p class="text-txtColor text-center">No messages to display.</p>
 
 async function listFriends() : Promise<string> {
 	const friends = await getFriends();

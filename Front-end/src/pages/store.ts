@@ -7,6 +7,7 @@ export interface IUserData {
 	profileImage: string | null;
 	bio: string | null;
 	status: string | null;
+	auth_provider: string | null;
 }
 
 export const credentials = {
@@ -22,7 +23,6 @@ export function setCredentials()
 
 if (!credentials.id || !credentials.token) {
 	console.warn('Missing credentials in store');
-	navigate('/login');
 }
 
 export const userData : IUserData = {
@@ -32,6 +32,7 @@ export const userData : IUserData = {
 	profileImage: null,
 	bio: null,
 	status: null,
+	auth_provider: null,
 };
 
 export function setUserData(newData: IUserData)

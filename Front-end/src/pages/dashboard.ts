@@ -3,7 +3,7 @@ import { navigate } from "../router";
 import { renderGroupChat } from "./chat/groupChat";
 import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
-import { renderLeaderboard } from "./components/leaderboard";
+import { dashboardLearderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
 import { chatEventHandler } from "./chat/chat";
@@ -29,6 +29,7 @@ export async function fetchProfile(userId: string | number | null) : Promise<IUs
 		}
 		try {
 			tmpUserData = await response.json();
+			console.log('Fetched user data:', tmpUserData);
 			if (tmpUserData && userId == credentials.id)
 				setUserData(tmpUserData);
 		} catch (parseErr) {
@@ -51,27 +52,6 @@ export async function initDashboard(isDashboard: boolean = true) {
 		renderDashboard(isDashboard);
 }
 
-function LocalPong() : string
-{
-	return `
-		<div class="relative ">
-			
-		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all duration-300 rounded-3xl p-6 flex flex-col h-[400px]
-		items-center md:items-start gap-8 overflow-visible relative">
-			<div class="flex gap-6 items-center">
-				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
-			</div>
-			<div class="flex h-full gap-3 justify-center w-full">
-				${gameButtons('images/online.webp')}
-				${gameButtons('images/online.webp')}
-				${gameButtons('images/online.webp')}
-			</div>
-
-		</div>
-		</div>
-	`
-}
-
 function gameButtons(bg:string)
 {
 	return `
@@ -82,21 +62,39 @@ function gameButtons(bg:string)
 	`
 }
 
+function LocalPong() : string
+{
+	return `
+		<div class="relative ">
+			<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02]
+			transition-all duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px]
+			items-center md:items-start gap-4 overflow-visible relative">
+				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
+				<div class="flex h-full gap-3 justify-center w-full">
+					${gameButtons('images/online.webp')}
+					${gameButtons('images/online.webp')}
+					${gameButtons('images/online.webp')}
+				</div>
+			</div>
+		</div>
+	`
+}
+
+
+
 function OnlinePong() : string
 {
 	return `
 		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all
-		duration-300 rounded-3xl p-6 flex flex-col h-[400px] items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
-			<div class="flex gap-6 items-center">
-				
-				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Online Pong</p>
-			</div>
+		duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px] items-center md:items-start gap-4
+		overflow-visible relative" style="animation-delay: 0.5s;">
+			<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Online Pong</p>
 			<div class="grid grid-cols-2 gap-3 w-[65%] h-full">
 				${gameButtons('images/online.webp')}
 				${gameButtons('images/online.webp')}
 			</div>
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
-			lg:right-12 md:top-[65%] md:-translate-y-1/2">
+			lg:right-0 md:top-[65%] md:-translate-y-1/2">
 				<img class="h-auto w-[280px] lg:w-[340px] xl:w-[380px]
 				md:translate-x-[40px] md:-translate-y-[95px]
 				object-contain drop-shadow-2xl" src="images/pongOnline.png" alt="">
@@ -120,8 +118,7 @@ async function getStatistics()
 
 }
 
-async function renderStatistics(): Promise<string> {
-	await getStatistics();
+function renderStatistics(): string {
 	return `
 		<div class="statistics mb-6">
 			<h2 class="text-txtColor font-bold text-2xl mb-4 transition-all duration">Your Statistic</h2>
@@ -155,7 +152,7 @@ async function renderStatistics(): Promise<string> {
 function renderAnalyticsSection(): string {
 	return `
 		<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
-			${renderLeaderboard()}
+			${dashboardLearderboard()}
 			${renderStatistics()}
 		</div>
 	`;
@@ -193,6 +190,8 @@ function addClickInRightPanel()
 	});
 }
 
+const $ = (id : string) => document.getElementById(id as string);
+
 export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
@@ -212,6 +211,9 @@ export async function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
+	$('see-more')?.addEventListener('click', _=>{
+		navigate('/leaderboard');
+	})
 	addClickInRightPanel();
 	notifications();
 	chatEventHandler();
