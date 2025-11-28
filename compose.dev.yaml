@@ -1,4 +1,24 @@
 services:
+
+  frontend-dev:
+    build:
+      context: ./Front-end
+      dockerfile: Dockerfile.frontend.dev
+    image: frontend-dev:1337
+    container_name: frontend-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./Front-end:/app
+      - /app/node_modules
+      - ./certs:/app/certs:ro
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - transcendence-dev-net
+    depends_on:
+      - backend-dev
+
   backend-dev:
     build:
       context: ./app
@@ -25,7 +45,9 @@ services:
       vault-init:
         condition: service_completed_successfully
 
-  vault:
+
+
+  vault-dev:
     image: hashicorp/vault:1.21.0
     container_name: vault
     networks:
@@ -50,9 +72,9 @@ services:
       - JWT_SECRET_VALUE=${JWT_SECRET_VALUE}
     entrypoint: /init.sh
     depends_on:
-      - vault
+      - vault-dev
 
-  modSecurity:
+  modSecurity-dev:
     image: owasp/modsecurity-crs:4.20-nginx-alpine-202511100111
     container_name: modSecurity
     networks:
@@ -64,9 +86,11 @@ services:
     depends_on:
       - backend-dev
 
-  prometheus:
+
+
+  prometheus-dev:
     image: prom/prometheus:v3.7.3
-    container_name: prometheus
+    container_name: prometheus-dev
     ports:
       - "9090:9090"
     networks:
@@ -77,24 +101,24 @@ services:
     depends_on:
       - backend-dev
 
-  frontend-dev:
-    build:
-      context: ./Front-end
-      dockerfile: Dockerfile.frontend.dev
-    image: frontend-dev:1337
-    container_name: frontend-dev
+  grafana-dev:
+    image: grafana/grafana:12.3.0
+    container_name: grafana-dev
     ports:
-      - "5173:5173"
-    volumes:
-      - ./Front-end:/app
-      - /app/node_modules
-      - ./certs:/app/certs:ro
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+      - "3001:3000"
     networks:
       - transcendence-dev-net
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
     depends_on:
-      - backend-dev
+      - prometheus-dev
+
+
 
 networks:
   transcendence-dev-net:
@@ -104,4 +128,6 @@ volumes:
   prometheus-data:
     driver: local
   vault-data:
+    driver: local
+  grafana-data:
     driver: local
