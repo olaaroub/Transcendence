@@ -37,6 +37,7 @@ const creatTable = async () =>
         userReceiver INTEGER,
 
         requestShowed BOOLEAN DEFAULT 0,
+        blocker_id INTEGER,
         status TEXT NOT NULL DEFAULT 'PENDING',
 
         pair_rolastion TEXT GENERATED ALWAYS AS (
@@ -58,6 +59,11 @@ const creatTable = async () =>
         UNIQUE (userRequester, userReceiver),
         UNIQUE (pair_rolastion)
     );`);
+
+    await db.exec(`CREATE TABLE IF NOT EXISTS blockes (
+        blocker_id INTEGER,
+        blocked_id INTEGER
+        );`);
 
     await db.exec(`CREATE TRIGGER IF NOT EXISTS after_user_insert
                    AFTER INSERT ON users

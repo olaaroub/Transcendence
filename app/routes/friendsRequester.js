@@ -12,7 +12,6 @@ async function add_friend(req, reply)
         await this.db.run(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`, [requester_id, receiver_id]);
         if (socket && socket.readyState == 1)
         {
-            console.log("----------------------------------------wa Akhiran --------------")
             const receiver_Data = await this.db.get("SELECT id, username, profileImage FROM users WHERE id = ?", [requester_id]);
             console.log(receiver_Data)
             socket.send(JSON.stringify(receiver_Data));
