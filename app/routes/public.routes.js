@@ -24,13 +24,22 @@ async function publicRoutes(fastify)
           reply.code(500).send({success: false});
       }
   })
-  fastify.put("/users/block-friend/:id", async (req, reply) => {
+  /* 
+  body {
+    friend_id: 2,
+    block: true / false,
+  }
+   */
+  fastify.put("/users/blockAndunblock-friend/:id", async (req, reply) => {
     try
     {
       const id = req.params.id;
-      const friend_id = req.query.friend_id;
+      const friend_data = req.body;
 
-      await fastify.db.run("UPDATE friendships SET status = ? WHERE userRequester = ? AND userReceiver = ?", ["BLOCKED", id, friend_id]);
+      if (friend_data.block)
+        await fastify.db.run("UPDATE friendships SET status = ? WHERE userRequester = ? AND userReceiver = ?", ["BLOCKED", id, friend_data.friend_id]);
+      else
+      await fastify.db.run("UPDATE friendships SET status = ? WHERE userRequester = ? AND userReceiver = ?", ["ACCEPTED", id, friend_data.friend_id]);
       reply.code(200).send("success");
     }
     catch (err)

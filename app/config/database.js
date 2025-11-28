@@ -60,11 +60,6 @@ const creatTable = async () =>
         UNIQUE (pair_rolastion)
     );`);
 
-    await db.exec(`CREATE TABLE IF NOT EXISTS blockes (
-        blocker_id INTEGER,
-        blocked_id INTEGER
-        );`);
-
     await db.exec(`CREATE TRIGGER IF NOT EXISTS after_user_insert
                    AFTER INSERT ON users
                    BEGIN
