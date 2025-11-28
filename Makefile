@@ -10,13 +10,16 @@ down:
 logs:
 	docker compose logs
 
-clean:
+clean: down
+
+fclean:
 	docker compose down -v
 
 re: clean up
 
 dev:
-	docker compose -f compose.dev.yaml up --build
+	docker compose -f compose.dev.yaml up -d --build
+	docker compose -f compose.dev.yaml logs -f frontend-dev backend-dev
 
 downdev:
 	docker compose -f compose.dev.yaml down
@@ -24,7 +27,9 @@ downdev:
 logsdev:
 	docker compose -f compose.dev.yaml logs
 
-cleandev:
+cleandev: downdev
+
+fcleandev:
 	docker compose -f compose.dev.yaml down -v
 
 cleanimg: clean cleandev

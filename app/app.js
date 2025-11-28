@@ -54,8 +54,13 @@ async function start() {
   });
 
   await fastify.register(fastifyMetrics, {
-    endpoint: '/metrics'
+    endpoint: '/metrics',
+
+    defaultMetrics: {
+      enabled: true
+    },
   });
+
 
     fastify.decorate('db', db);
     const sockets = new Map();
