@@ -12,13 +12,21 @@ async function getJwtSecret() {
     const options = {
       apiVersion: 'v1',
       endpoint: process.env.VAULT_ADDR,
-      token: process.env.VAULT_TOKEN
+      token: process.env.AUTH_SERVICE_TOKEN
     };
 
     const vaultClient = vault(options);
-    const { data } = await vaultClient.read('secret/data/transcendence');
+    const { data } = await vaultClient.read('secret/data/auth-service');
 
-    return data.data.JWT_SECRET;
+    return {
+      jwtSecret: data.data.jwt_secret,
+      cookieSecret: data.data.cookie_secret,
+      googleId: data.data.google_client_id,
+      googleSecret: data.data.google_client_secret,
+      githubId: data.data.github_client_id,
+      githubSecret: data.data.github_client_secret,
+    };
+
 
   } catch (err) {
     console.error("Error fetching secret from Vault:", err.message);
@@ -29,8 +37,10 @@ async function getJwtSecret() {
 async function start() {
 
   console.log("Fetching JWT secret from Vault...");
-  const jwtSecret = await getJwtSecret();
-  console.log("Secret fetched successfully.");
+  const secrets = await getJwtSecret();
+  console.log("Secret fetched successfully ", secrets);
+  console.log("DEBUG: Full Secrets Object:", JSON.stringify(secrets, null, 2));
+  console.log("DEBUG: JWT Secret is:", secrets.jwtSecret);
 
   const db = await creatTable();
 
@@ -44,7 +54,7 @@ async function start() {
 
 
   fastify.register(fastifyJwt, {
-    secret: jwtSecret
+    secret: secrets.jwtSecret
   });
 
   fastify.addHook("preHandler", (request, _reply, done) => {
@@ -72,10 +82,12 @@ async function start() {
     //   prefix: '/public/'
     // });
     fastify.register(require('./routes/private.routes'), {
-        prefix: '/api'
+        prefix: '/api',
+        // secrets: secrets
     });
     fastify.register(require('./routes/public.routes'), {
-        prefix: '/api'
+        prefix: '/api',
+        secrets: secrets
     });
 
   try {

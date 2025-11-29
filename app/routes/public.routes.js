@@ -1,5 +1,5 @@
 const path = require('path');
-async function publicRoutes(fastify)
+async function publicRoutes(fastify, opts)
 {
     const staticOps = {
         root: path.join(__dirname, '../static'),
@@ -8,9 +8,9 @@ async function publicRoutes(fastify)
 
     fastify.register(require('@fastify/static') , staticOps);
     fastify.register(require('./local.authentication'));
-    fastify.register(require('./google.authentication'));
-    fastify.register(require('./github.authentication'));
-    fastify.register(require('./42intra.authentication'));
+    fastify.register(require('./google.authentication'), opts);
+    fastify.register(require('./github.authentication'), opts);
+    fastify.register(require('./42intra.authentication'), opts);
     fastify.register(require('./notificationLiveStream'));
     fastify.register(require('./user.statistic'));
 }

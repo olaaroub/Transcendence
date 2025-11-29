@@ -75,14 +75,15 @@ async function googleCallback (req, reply)
     }
 }
 
-async function authgoogle (fastify)
+async function authgoogle (fastify, opts)
 {
     try{
+        const {googleId, googleSecret, cookieSecret} = opts.secrets;
 
-        if(!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.COOKIE_SECRET)
+        if(!googleId || !googleSecret || !cookieSecret)
                 throw("No google credentials provided!")
         await fastify.register(cookie, {
-            secret: process.env.COOKIE_SECRET
+            secret: cookieSecret
         })
 
         await fastify.register(oauth2, {
@@ -94,8 +95,8 @@ async function authgoogle (fastify)
             },
             credentials: {
                 client: {
-                id: process.env.GOOGLE_CLIENT_ID,
-                secret: process.env.GOOGLE_CLIENT_SECRET
+                id: googleId,
+                secret: googleSecret
                 }
             },
             startRedirectPath: '/auth/google',

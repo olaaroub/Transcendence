@@ -25,13 +25,12 @@ services:
       dockerfile: Dockerfile.backend.dev
     image: backend-dev:1337
     container_name: backend-dev
-    env_file:
-      - ./.env
     environment:
       - VAULT_ADDR=${VAULT_ADDR}
-      - VAULT_TOKEN=${VAULT_TOKEN}
-      - PORT=${BACK_PORT}
-      - HOST=${BACK_HOST}
+      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+      - PORT=${BACKEND_PORT}
+      - HOST=${BACKEND_HOST}
+      - DOMAIN=${AUTH_DOMAIN}
     volumes:
       - ./app:/app
       - ./db:/data
@@ -42,14 +41,14 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      vault-init:
+      vault-init-dev:
         condition: service_completed_successfully
 
 
 
   vault-dev:
     image: hashicorp/vault:1.21.0
-    container_name: vault
+    container_name: vault-dev
     networks:
       - transcendence-dev-net
     ports:
@@ -60,16 +59,23 @@ services:
     cap_add:
       - IPC_LOCK
 
-  vault-init:
+  vault-init-dev:
     image: hashicorp/vault:1.21.0
-    container_name: vault-init
+    container_name: vault-init-dev
     networks:
       - transcendence-dev-net
     volumes:
       - ./vault/hashicorpVault.init.sh:/init.sh
     environment:
+      - VAULT_ADDR=${VAULT_ADDR}
       - VAULT_TOKEN=${VAULT_TOKEN}
       - JWT_SECRET_VALUE=${JWT_SECRET_VALUE}
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
     entrypoint: /init.sh
     depends_on:
       - vault-dev

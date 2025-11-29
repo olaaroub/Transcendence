@@ -40,7 +40,7 @@ async function githubCallback (req, reply)
               'User-Agent': 'transendance_app'
             }
           })
-        
+
         const emails = await emailResponse.json();
         let lastuser;
         const emailData = emails.find(email => email.primary == true);
@@ -67,14 +67,15 @@ async function githubCallback (req, reply)
     }
 }
 
-async function githubauth (fastify)
+async function githubauth (fastify, opts)
 {
     try{
+        const { githubId, githubSecret, cookieSecret } = opts.secrets;
 
-        if(!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET || !process.env.COOKIE_SECRET)
+        if(!githubId || !githubSecret || !cookieSecret)
             throw("No github credentials provided!")
         await fastify.register(cookie, {
-            secret: process.env.COOKIE_SECRET
+            secret: cookieSecret
         })
 
         await fastify.register(oauth2, {
@@ -82,8 +83,8 @@ async function githubauth (fastify)
 
             credentials: {
                 client: {
-                id: process.env.GITHUB_CLIENT_ID,
-                secret: process.env.GITHUB_CLIENT_SECRET
+                id: githubId,
+                secret: githubSecret
                 },
                 auth: oauth2.GITHUB_CONFIGURATION
             },
