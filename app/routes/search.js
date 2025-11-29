@@ -16,9 +16,14 @@ async function search_bar(fastify)
                                                             END
                                                         )
                                                     WHERE LOWER(u.username) LIKE LOWER(?)
+                                                    AND (
+                                                        f.status IS NULL OR
+                                                        f.status != 'BLOCKED' OR
+                                                        f.blocker_id = ?
+                                                    )
                                                     ORDER BY u.username ASC
                                                     LIMIT 15
-        `, [id, id, `%${query}%`])
+        `, [id, id, `%${query}%`, id])
         console.log(data);
         reply.code(200).send(data);
         }

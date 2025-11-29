@@ -7,7 +7,19 @@ SELECT u.id, u.email, u.username, i.profileImage, i.bio, f.status
         	WHEN f.userRequester = ? THEN f.userRequester
         	WHEN f.userReceiver = ?   THEN f.userReceiver
         END
-	) 
+	)
+
+SELECT u.id, u.email, u.username, u.profileImage, u.auth_provider,i.bio, f.status
+											  FROM
+											  	users AS u INNER JOIN infos AS i ON u.id = i.user_id
+												LEFT JOIN friendships AS f ON 
+													(f.userRequester = ? AND f.userReceiver = ?) OR
+        											(f.userReceiver = ? AND f.userRequester = ?)
+												WHERE
+													u.id = ? AND (
+													UPDATE 
+												)
+												
 */
 
 
@@ -73,7 +85,7 @@ async function getProfileData(req, reply)
 		}
 		else
 		{
-			responceData = await this.db.get(`SELECT u.id, u.email, u.username, u.profileImage, u.auth_provider,i.bio, f.status
+			responceData = await this.db.get(`SELECT u.id, u.email, u.username, u.profileImage, u.auth_provider,i.bio, f.status, f.blocker_id
 											  FROM
 											  	users AS u INNER JOIN infos AS i ON u.id = i.user_id
 												LEFT JOIN friendships AS f ON 
@@ -82,6 +94,18 @@ async function getProfileData(req, reply)
 												WHERE
 													u.id = ?
 												`, [user_id, profile_id, user_id, profile_id, profile_id]);
+			if (responceData.status == 'BLOCKED' && responceData.blocker_id == profile_id)
+			{
+				responceData.email = '';
+				responceData.username = 'Pong User';
+				responceData.profileImage = '/public/Default_pfp.jpg';
+				responceData.bio = '--';
+			}
+			else if (responceData.status == 'BLOCKED' && responceData.blocker_id != profile_id)
+			{
+				responceData.bio = '--';
+			}
+			delete responceData.blocker_id;
 		}
 		console.log(responceData);
 		reply.code(200).send(responceData);

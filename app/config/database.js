@@ -37,6 +37,7 @@ const creatTable = async () =>
         userReceiver INTEGER,
 
         requestShowed BOOLEAN DEFAULT 0,
+        blocker_id INTEGER,
         status TEXT NOT NULL DEFAULT 'PENDING',
 
         pair_rolastion TEXT GENERATED ALWAYS AS (

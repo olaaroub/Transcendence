@@ -36,7 +36,7 @@ async function modifyAvatar(req, reply)
   try
   {
     const paths = await UploadToServer(req, reply);
-    console.log(paths);
+    // console.log(paths);
     try 
     {
       const id = req.params.id;

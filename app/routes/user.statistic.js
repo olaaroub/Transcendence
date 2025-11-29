@@ -10,9 +10,8 @@ async function statisticHandler(req, reply)
     };
 }
 
-async  function statisticRoutes(fastify)  {
-
-
+async  function statisticRoutes(fastify)
+{
     fastify.get("/users/statistic/:id", statisticHandler);
 }
 
