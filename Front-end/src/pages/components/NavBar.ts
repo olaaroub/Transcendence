@@ -1,6 +1,8 @@
 import { credentials, getImageUrl, IUserData } from "../store";
 import { shortString } from "../utils";
 
+let allPendingUsers: IUserData[] | null = null;
+
 export function renderNavBar (isLoged: boolean)
 {
     return `
@@ -95,18 +97,52 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 	return false
 }
 
-function realTimeNotifications()
+function realTimeNotifications(pendingUsers: IUserData[] | null)
 {
-	const socket = new WebSocket(`ws://api/notifications/${credentials.id}`);
+	const markWatch = document.getElementById('notification-icon')?.querySelector('span');
+	const protocol = window.location.protocol === 'https:' ? 'ws:' : 'ws:';
+	const wsHost = window.location.hostname === 'localhost' 
+		? 'localhost:3000' 
+		: window.location.host;
+	const wsUrl = `${protocol}//${wsHost}/api/notification/${credentials.id}`;
+	
+	const socket = new WebSocket(wsUrl);
 	
 	socket.onopen = () => {
 		console.log('WebSocket connection established for notifications');
 	};
+	
+	socket.onmessage = (event) => {
+		console.log('Notification received:', event.data);
+		try {
+			const parsed = JSON.parse(event.data);
+			const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
+			allPendingUsers = (allPendingUsers ?? []).concat(newUsers);
+			markWatch?.classList.remove('hidden');
+		} catch (err) {
+			if (pendingUsers && pendingUsers.length > 0) {
+				allPendingUsers = (allPendingUsers ?? []).concat(pendingUsers);
+			}
+		}
+	};
+	
+	socket.onerror = (error) => {
+		console.error('WebSocket error:', error);
+	};
+	
+	socket.onclose = (event) => {
+		console.log('WebSocket connection closed:', event.code, event.reason);
+	};
+	return socket;
 }
 
-export function notifications()
+export async function notifications()
 {
-	realTimeNotifications();
+	allPendingUsers = null;
+	console.log(allPendingUsers);
+	let pendingUsers : IUserData[] | null = await getPendingUsers();
+	realTimeNotifications(pendingUsers);
+
 	const notificationIcon = document.getElementById('notification-icon');
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
@@ -119,13 +155,13 @@ export function notifications()
 		result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-2 overflow-y-auto
 		border border-borderColor rounded-2xl shadow-lg py-3 pl-3 pr-1 z-50 max-h-[300px] items-center
 		scrollbar-custom`;
+		result.id = "notifications-result";
 		result.innerHTML = `
-			<p id="notifications-result" class="text-txtColor w-full text-lg font-bold text-center
+			<p class="text-txtColor w-full text-lg font-bold text-center
 			border-b border-color3 pb-2">Notifications</p>
 		`;
 		notificationIcon.append(result);
-		const pendingUsers : IUserData[] | null = await getPendingUsers();
-		if (!pendingUsers || pendingUsers.length === 0)
+		if (!allPendingUsers || allPendingUsers.length === 0)
 		{
 			const noNotifications = document.createElement('p');
 			noNotifications.className = "text-gray-400 text-sm mt-4";
@@ -133,7 +169,7 @@ export function notifications()
 			result.append(noNotifications);
 			return;
 		}
-		for(const user of pendingUsers)
+		for(const user of allPendingUsers)
 		{
 			const pandingUser = document.createElement('div');
 			pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
@@ -155,35 +191,17 @@ export function notifications()
 					</button>
 				</div>
 			`;
-			
 			const acceptBtn = pandingUser.querySelector('.accept-btn');
 			const refuseBtn = pandingUser.querySelector('.refuse-btn');
 			
 			if (user.id) {
 				acceptBtn?.addEventListener('click', async () => {
-					const isValid = await handleFriendRequest(String(user.id), true, pandingUser);
-					const friendList = document.getElementById('friends-list');
-					console.log("Friend list element : ", friendList + " isValid : ", isValid);
-					if (friendList && isValid) {
-						console.log("Adding new friend to the list : ", isValid);
-						const newFriendDiv = document.createElement('div');
-						newFriendDiv.className = "flex items-center group-hover:space-x-3 cursor-pointer hover:scale-105 transition-all duration-150";
-						newFriendDiv.innerHTML = `
-							<img class="w-[45px] h-[45px] rounded-full flex-shrink-0 border-[2px] border-color1" src="${getImageUrl(user.profileImage)}" />
-							<p class="opacity-0 max-w-0 text-txtColor transition-all duration-500 group-hover:opacity-100
-							group-hover:max-w-[150px] font-semibold text-xs sm:text-sm 3xl:text-lg truncate">
-								${user.username}
-							</p>
-						`;
-						friendList.appendChild(newFriendDiv);
-					}
+					await handleFriendRequest(String(user.id), true, pandingUser);
 				});
-				
 				refuseBtn?.addEventListener('click', () => {
 					handleFriendRequest(String(user.id), false, pandingUser);
 				});
 			}
-			
 			result.append(pandingUser);
 		}
 	});
@@ -208,10 +226,11 @@ export function renderDashboardNavBar(user: IUserData | null, imageUrl: string |
 			</div>
 			<div id="notification-icon"
 			class="relative bg-color4 cursor-pointer translate-y-[2px] rounded-full p-2">
+				<span class="hidden absolute top-0 right-0 w-3 h-3 bg-red-500
+				border-2 border-[#0f2a3a] rounded-full"></span>
 				<img src="images/notificationIcon.svg" class="w-[25px] h-[25px] invert
 				sepia saturate-200 hue-rotate-[330deg]">
 			</div>
-			<!-- Profile Section -->
 			<div class="flex items-center gap-3 ">
 				<div id="avatar" class=" relative cursor-pointer
 				transition-transform duration-300">
