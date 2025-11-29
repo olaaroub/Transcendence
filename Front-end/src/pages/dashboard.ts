@@ -29,7 +29,6 @@ export async function fetchProfile(userId: string | number | null) : Promise<IUs
 		}
 		try {
 			tmpUserData = await response.json();
-			console.log('Fetched user data:', tmpUserData);
 			if (tmpUserData && userId == credentials.id)
 				setUserData(tmpUserData);
 		} catch (parseErr) {
