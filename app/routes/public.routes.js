@@ -5,12 +5,16 @@ async function publicRoutes(fastify, opts)
         root: path.join(__dirname, '../static'),
         prefix: '/public/'
       };
+    
+    const secretOpts = {
+      secrets: opts.secrets
+    };
 
     fastify.register(require('@fastify/static') , staticOps);
     fastify.register(require('./local.authentication'));
-    fastify.register(require('./google.authentication'), opts);
-    fastify.register(require('./github.authentication'), opts);
-    fastify.register(require('./42intra.authentication'), opts);
+    fastify.register(require('./google.authentication'), secretOpts);
+    fastify.register(require('./github.authentication'), secretOpts);
+    fastify.register(require('./42intra.authentication'), secretOpts);
     fastify.register(require('./notificationLiveStream'));
     fastify.register(require('./user.statistic'));
     fastify.get("/test", async (req, reply) => {
@@ -46,6 +50,7 @@ async function publicRoutes(fastify, opts)
     {
       console.log(err);
       reply.code(200).send("error");
+
     }
 
   })

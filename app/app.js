@@ -38,9 +38,9 @@ async function start() {
 
   console.log("Fetching JWT secret from Vault...");
   const secrets = await getJwtSecret();
-  console.log("Secret fetched successfully ", secrets);
-  console.log("DEBUG: Full Secrets Object:", JSON.stringify(secrets, null, 2));
-  console.log("DEBUG: JWT Secret is:", secrets.jwtSecret);
+  console.log("Secret fetched successfully ");
+  // console.log("DEBUG: Full Secrets Object:", JSON.stringify(secrets, null, 2));
+  // console.log("DEBUG: JWT Secret is:", secrets.jwtSecret);
 
   const db = await creatTable();
 
@@ -76,7 +76,7 @@ async function start() {
     const sockets = new Map();
     fastify.decorate('sockets', sockets);
     fastify.register(require('@fastify/websocket'))
-    console.log(path.join(__dirname, '/static'));
+    // console.log(path.join(__dirname, '/static'));
     // await fastify.register(require('@fastify/static') , {
     //   root: path.join(__dirname, 'static'),
     //   prefix: '/public/'

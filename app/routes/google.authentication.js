@@ -79,6 +79,7 @@ async function authgoogle (fastify, opts)
 {
     try{
         const {googleId, googleSecret, cookieSecret} = opts.secrets;
+        // console.log("hellllooooooooo     ",googleId);
 
         if(!googleId || !googleSecret || !cookieSecret)
                 throw("No google credentials provided!")
