@@ -28,6 +28,7 @@ const creatTable = async () =>
         WinRate FLOAT,
         CurrentStreak INTEGER,
         Rating INTEGER,
+        is_read BOOLEAN DEFAULT FALSE,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     );`);
 
@@ -36,7 +37,6 @@ const creatTable = async () =>
         userRequester INTEGER,
         userReceiver INTEGER,
 
-        requestShowed BOOLEAN DEFAULT 0,
         blocker_id INTEGER,
         status TEXT NOT NULL DEFAULT 'PENDING',
 

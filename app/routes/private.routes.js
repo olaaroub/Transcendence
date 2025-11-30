@@ -17,7 +17,7 @@ async function JwtHandler(request, reply)
 
 async function privateRoutes(fastify)
 {
-    fastify.addHook('preHandler', JwtHandler);
+    // fastify.addHook('preHandler', JwtHandler);
     fastify.register(require('./settings'));
     fastify.register(require('./images'));
     fastify.register(require('./search'));

@@ -9,7 +9,8 @@ async function deleteAccountHandler(req, reply)
         const id = req.params.id;
         const avatar = await this.db.get(`SELECT profileImage FROM users WHERE id = ?`, [id]);
         const avatarName = path.basename(avatar.profileImage);
-        if (avatarName != `Default_pfp.jpg`);
+        console.log(avatarName);
+        if (avatarName != "Default_pfp.jpg")
             await fs.promises.unlink(path.join(__dirname, '../static', avatarName));
         await this.db.run(`DELETE FROM users WHERE id = ?`, [id]);
         reply.code(204).send({success: true});
