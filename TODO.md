@@ -2,9 +2,9 @@
 
 ## ohammou- tasks
 
-- send pictures and username when user is logged
-- gwt concept
-- change user picture and username
-- handle sreach bar logic
+- handle Avatar extanction
+- response code
+- notification sockets error
+- microserveces
 - send first 10 users in leaderboard
-- online friends
+

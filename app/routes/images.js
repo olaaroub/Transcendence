@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const fastifyMultipart = require('@fastify/multipart');
-
+const fileType = require('file-type');
 
 
 async function getProfileImages(req, reply)
@@ -23,9 +23,16 @@ async function getProfileImages(req, reply)
 async function UploadToServer(req, reply)
 {
   const datafile = await req.file();
-  const ext = path.extname(datafile.filename);
-  const file_name = uuidv4() + ext;
+  const fileBuffer = await datafile.toBuffer();
+  const type = await fileType.fromBuffer(fileBuffer);
+  if (!type)
+      throw {code: 401, message: "this type not seported"};
 
+  const allowedTypes = ["jpg", "png", "gif"];
+  if (!allowedTypes.includes(type.ext))
+    throw {code: 401, message: "this type not seported"};
+
+  const file_name = uuidv4() + `.${type.ext}`;
   const file_path = path.join(__dirname, '../static', file_name);
   await fs.promises.writeFile(file_path, await datafile.toBuffer());
   return {file_name, file_path};
@@ -36,7 +43,6 @@ async function modifyAvatar(req, reply)
   try
   {
     const paths = await UploadToServer(req, reply);
-    // console.log(paths);
     try 
     {
       const id = req.params.id;

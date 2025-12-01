@@ -8,23 +8,24 @@ async function add_friend(req, reply)
 
     try
     {
-        const socketsa = this.sockets.get(receiver_id);
-        if  (!socketsa)
-            throw ERROR  ("socket Not found")
+        const notificationSockets = this.sockets.get(receiver_id);
+        if  (!notificationSockets)
+            throw {err: "socket Not found"}
         await this.db.run(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`, [requester_id, receiver_id]);
         const requester_Data = await this.db.get(`SELECT u.id, u.username, u.profileImage, i.is_read FROM 
                                                 users u
                                                 INNER JOIN  infos i ON u.id = i.user_id
                                                 WHERE u.id = ?`, [requester_id]);
                                         
-        console.log(requester_Data)
+        
         requester_Data.is_read = false;
+        requester_Data["type"] = 'SEND_NOTIFICATION'
         await this.db.run("UPDATE infos SET  is_read = FALSE WHERE user_id = ?", [requester_Data.id]);
-        console.log("socket size: ", socketsa.size);
-        for (let i = 0; i < socketsa.size; i++)
+        console.log(requester_Data)
+        for (const socket of notificationSockets)
         {
-            if (socketsa[i] && socketsa[i].readyState == 1)
-                socketsa[i].send(JSON.stringify(requester_Data));
+            if (socket && socket.readyState == 1)
+                socket.send(JSON.stringify(requester_Data));
         }
 
         reply.code(201).send({success: true});
