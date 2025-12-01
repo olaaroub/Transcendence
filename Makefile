@@ -1,7 +1,25 @@
 
+CERTS_DIR = ./certs
+KEY = $(CERTS_DIR)/nginx.key
+CRT = $(CERTS_DIR)/nginx.crt
+certs:
+	@mkdir -p $(CERTS_DIR)
+	@if [ ! -f $(KEY) ] || [ ! -f $(CRT) ]; then \
+		echo "Generating SSL certificates..."; \
+		openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+			-keyout $(KEY) \
+			-out $(CRT) \
+			-subj "/C=MA/ST=Marrakech/L=Marrakech/O=olaaroub/OU=transcendence/CN=localhost"; \
+		echo "Certificates generated in $(CERTS_DIR)"; \
+	else \
+		echo "Certificates already exist."; \
+	fi
+
+.PHONY: certs
+
 all: up
 
-up:
+up: certs
 	docker compose up --build -d
 
 down:
@@ -17,10 +35,11 @@ fclean:
 
 re: clean up
 
-dev:
+dev: certs
 	docker compose -f compose.dev.yaml up -d --build
-	docker compose -f compose.dev.yaml logs -f frontend-dev backend-dev
+	docker compose -f compose.dev.yaml logs -f modSecurity-dev
 
+# frontend-dev backend-dev
 downdev:
 	docker compose -f compose.dev.yaml down
 

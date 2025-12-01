@@ -90,6 +90,11 @@ services:
     environment:
       - BACKEND=http://backend-dev:3000
       - MODSEC_RULE_ENGINE=DetectionOnly
+      - BLOCKING_PARANOIA=2
+      # - ALLOWED_METHODS=PUT DELETE POST GET HEAD OPTIONS
+    volumes:
+      - ./waf/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
+      - ./waf/scan_php.sh:/usr/local/bin/scan_php.sh:ro
     restart: on-failure
     depends_on:
       - backend-dev
