@@ -7,6 +7,8 @@
 - [x] Update `scan_php.sh` to block non-image Magic Bytes (PDFs/EXEs).
 - [ ] Set up Rate Limiting in Nginx/ModSec to stop spam uploads.
 - [x] Ensure Prometheus & Grafana are scraping backend metrics.
+- [ ] Add false positive rules for searchbar and password.
+- [ ] GRPC
 
 ## Frontend (MMONDAD)
 
