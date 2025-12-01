@@ -15,10 +15,12 @@ async function DownoladImageFromUrl(url, provider)
         'image/jpeg': '.jpg',
         'image/jpg':  '.jpg',
         'image/png':  '.png',
-        'image/webp': '.webp',
         'image/gif':  '.gif'
     }
-    const ext = mimType[contentType] || '.jpg';
+    if (!mimType[contentType])
+        return '/public/Default_pfp.jpg'
+
+    const ext = mimType[contentType];
     // convert the data stream to array of buffer to convert it after to buffer type
     const arrayBuffer = await AvatarData.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);

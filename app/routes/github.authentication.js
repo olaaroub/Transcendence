@@ -33,6 +33,7 @@ async function githubCallback (req, reply)
         const userInfo = await userResponse.json();
         if (!userInfo)
             throw ({error: "get userinfo failed"});
+        // console.log(userInfo);
         // reply.send(userInfo);
         const emailResponse = await fetch(`https://api.github.com/user/emails`, {
             headers: {
@@ -44,17 +45,20 @@ async function githubCallback (req, reply)
         const emails = await emailResponse.json();
         let lastuser;
         const emailData = emails.find(email => email.primary == true);
+        // console.log(emailData);
         const AvatarUrl = await DownoladImageFromUrl(userInfo.avatar_url, "_github");
-        const data = await this.db.get("SELECT id, username FROM users WHERE email = ?", [emailData.email]);
+        const data =  this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([emailData.email]);
+        // console.log("data is: ", data);
         let jwtPaylod;
         if (data)
             jwtPaylod = data;
         else
         {
-            lastuser = await this.db.run("INSERT INTO users(email, username, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [emailData.email, userInfo.name, "github", AvatarUrl]);
+            lastuser =  this.db.prepare("INSERT INTO users(email, username, auth_provider, profileImage) VALUES (?, ?, ?, ?) RETURNING id, username").get([emailData.email, userInfo.name, "github", AvatarUrl]);
+            console.log("last user: ", lastuser);
             if (userInfo.bio)
-                await this.db.run("UPDATE infos SET bio = ?  WHERE user_id = ?", [userInfo.bio, lastuser.lastID]);
-            jwtPaylod = {id: lastuser.lastID, username: userInfo.name};
+                 this.db.prepare("UPDATE infos SET bio = ?  WHERE user_id = ?").run([userInfo.bio, lastuser.lastID]);
+            jwtPaylod = lastuser;
         }
         const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
         reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);

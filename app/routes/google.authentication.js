@@ -3,37 +3,10 @@ const cookie = require('@fastify/cookie');
 const path   = require('path');
 const fs     = require('fs');
 const { v4: uuidv4 } = require('uuid');
-
+const DownoladImageFromUrl = require('./utilis');
 
 const domain = process.env.DOMAIN;
 
-async function DownoladImageFromUrl(url)
-{
-
-    const AvatarData = await fetch(url);
-
-    if (!AvatarData.ok)
-        throw ({error: 'Network response was not ok'});
-    // get extention
-    const contentType =  AvatarData.headers.get('content-type');
-    const mimType = {
-        'image/jpeg': '.jpg',
-        'image/jpg':  '.jpg',
-        'image/png':  '.png',
-        'image/webp': '.webp',
-        'image/gif':  '.gif'
-    }
-    const ext = mimType[contentType] || '.jpg';
-    // convert the data stream to array of buffer to convert it after to buffer type
-    const arrayBuffer = await AvatarData.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const file_name = uuidv4() + "_googleUser" + ext;
-    const file_path = path.join(__dirname, '../static', file_name);
-
-    await fs.promises.writeFile(file_path, buffer);
-    return `/public/${file_name}`;
-}
 
 async function googleCallback (req, reply)
 {
@@ -47,29 +20,23 @@ async function googleCallback (req, reply)
 
         if (!userInfo)
             throw ({error: "get userinfo failed"});
-        const userData = await this.db.get("SELECT id, username, auth_provider FROM users WHERE email = ?", [userInfo.email]);
+        const userData = await this.db.prepare("SELECT id, username, auth_provider FROM users WHERE email = ?").get([userInfo.email]);
 
-        let token;
+        let jwtPaylod;
         if (userData)
-        {
-            token = this.jwt.sign({userId: userData.id, username: userData.username}, { expiresIn: '1h' })
-            reply.redirect(`${domain}/login?token=${token}&id=${userData.id}`);
-        }
+            jwtPaylod = userData;
         else
         {
-            const AvatarUrl = await DownoladImageFromUrl(userInfo.picture);
-            const info = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userInfo.name, userInfo.email, "google", AvatarUrl]);
-            const lastID = info.lastID;
-            // console.log(lastID);
-            token = this.jwt.sign({userId: lastID, username: userInfo.name}, { expiresIn: '1h' });
-            reply.redirect(`${domain}/login?token=${token}&id=${lastID}`);
-
+            const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google");
+            const info = this.db.prepare("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google", AvatarUrl]);
+            jwtPaylod = info;
         }
+        const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
+        reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
     }
     catch (err)
     {
         console.log(err);
-        // reply.code(500).send({message: "you have error"});
         reply.redirect(`${domain}/login?auth=failed`);
 
     }

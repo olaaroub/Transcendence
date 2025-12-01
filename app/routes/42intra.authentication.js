@@ -9,6 +9,7 @@ async function callbackHandler(req, reply)
 {
     try {
         const res = await this.authIntra.getAccessTokenFromAuthorizationCodeFlow(req);
+
         if (!res)
             throw ({error: "getAccessTokenFromAuthorizationCodeFlow failed"});
         const dataUser = await  fetch('https://api.intra.42.fr/v2/me', {
@@ -19,15 +20,15 @@ async function callbackHandler(req, reply)
         if (!dataUser.ok)
             throw {error: "you have error in fetch data user"};
         const userdata = await dataUser.json();
-        const data = await this.db.get("SELECT id, username FROM users WHERE email = ?", [userdata.email]);
+        const data = this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([userdata.email]);
         let jwtPaylod;
         if (data)
             jwtPaylod = data;
         else
         {
             const AvatarUrl = await DownoladImageFromUrl(userdata.image.versions.small, "_intra");
-            lastuser = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userdata.usual_full_name, userdata.email, "intra", AvatarUrl]);
-            jwtPaylod = {id: lastuser.lastID, username: userdata.usual_full_name};
+            lastuser = this.db.prepare("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?) RETURNING id, username").get([userdata.usual_full_name, userdata.email, "intra", AvatarUrl]);
+            jwtPaylod = lastuser;
         }
         const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
         reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
@@ -41,37 +42,45 @@ async function callbackHandler(req, reply)
 
 
 
-async function authIntra(fastify)
+async function authIntra(fastify, opts)
 {
-    await fastify.register(cookie, {
-        secret: process.env.COOKIE_SECRET
-    })
-    await fastify.register(oauth2, {
-        name: 'authIntra',
-        scope: ['public'],
-
-        credentials: {
-            client: {
-                id: process.env.INTRA_CLIENT_ID,
-                secret: process.env.INTRA_CLIENT_SECRET
-                },
-            auth: {
-                authorizeHost: 'https://api.intra.42.fr',
-                authorizePath: '/oauth/authorize',
-                tokenHost: 'https://api.intra.42.fr',
-                tokenPath: '/oauth/token'
+    try{
+        const { intraId, intraSecret, cookieSecret } = opts.secrets;
+        if(!intraId || !intraSecret || !cookieSecret)
+            throw("No intra credentials provided!")
+        await fastify.register(cookie, {
+            secret: cookieSecret
+        })
+        await fastify.register(oauth2, {
+            name: 'authIntra',
+            scope: ['public'],
+    
+            credentials: {
+                client: {
+                    id: intraId,
+                    secret: intraSecret
+                    },
+                auth: {
+                    authorizeHost: 'https://api.intra.42.fr',
+                    authorizePath: '/oauth/authorize',
+                    tokenHost: 'https://api.intra.42.fr',
+                    tokenPath: '/oauth/token'
+                }
+            },
+            startRedirectPath: '/auth/intra',
+            callbackUri: `${domain}/api/auth/intra/callback`,
+            cookie: {
+                secure: false,
+                sameSite: 'lax',
+                path: '/api/auth/intra/callback'
             }
-        },
-        startRedirectPath: '/auth/intra',
-        callbackUri: `${domain}/api/auth/intra/callback`,
-        cookie: {
-            secure: false,
-            sameSite: 'lax',
-            path: '/api/auth/intra/callback'
         }
+        );
+        fastify.get("/auth/intra/callback", callbackHandler);
     }
-    );
-    fastify.get("/auth/intra/callback", callbackHandler);
+    catch (error){
+        console.log(error);
+    }
 }
 
 module.exports = authIntra;

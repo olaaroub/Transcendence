@@ -7,16 +7,26 @@ async function add_friend(req, reply)
 
     try
     {
-        const socket = this.sockets.get(receiver_id);
+        const notificationSockets = this.sockets.get(receiver_id);
+        if  (!notificationSockets)
+            throw {err: "socket Not found"}
+        this.db.prepare(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`).run([requester_id, receiver_id]);
+        const requester_Data = this.db.prepare(`SELECT u.id, u.username, u.profileImage, i.is_read FROM 
+                                                users u
+                                                INNER JOIN  infos i ON u.id = i.user_id
+                                                WHERE u.id = ?`).get([requester_id]);
+                                        
         
-        await this.db.run(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`, [requester_id, receiver_id]);
-        if (socket && socket.readyState == 1)
+        requester_Data.is_read = false;
+        requester_Data["type"] = 'SEND_NOTIFICATION'
+        this.db.prepare("UPDATE infos SET  is_read = FALSE WHERE user_id = ?").run([requester_Data.id]);
+        console.log(requester_Data)
+        for (const socket of notificationSockets)
         {
-            const receiver_Data = await this.db.get("SELECT id, username, profileImage FROM users WHERE id = ?", [requester_id]);
-            console.log(receiver_Data)
-            socket.send(JSON.stringify(receiver_Data));
-
+            if (socket && socket.readyState == 1)
+                socket.send(JSON.stringify(requester_Data));
         }
+
         reply.code(201).send({success: true});
     }
     catch (err)
@@ -31,7 +41,7 @@ async function getFriends(req, reply)
     try
     {
         const id = req.params.id;
-        const friends = await this.db.all(`SELECT u.id, u.username, u.profileImage
+        const friends = this.db.prepare(`SELECT u.id, u.username, u.profileImage
                                            FROM
                                             users u
                                             INNER JOIN 
@@ -43,7 +53,7 @@ async function getFriends(req, reply)
                                                 )
                                             WHERE
                                                 (f.userRequester = ? OR f.userReceiver = ?) AND f.status = 'ACCEPTED'
-                                           `, [id, id, id, id]);
+                                           `).all([id, id, id, id]);
         console.log(friends);
         reply.code(200).send(friends);
     }

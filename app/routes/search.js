@@ -5,7 +5,7 @@ async function search_bar(fastify)
         try {
             const query = req.query.username || "";
             const id = req.params.id;
-            const data = await fastify.db.all(` SELECT u.id, u.username, f.status, u.profileImage
+            const data = await fastify.db.prepare(` SELECT u.id, u.username, f.status, u.profileImage
                                                 FROM
                                                     users AS u
                                                     LEFT JOIN friendships AS f
@@ -22,8 +22,8 @@ async function search_bar(fastify)
                                                         f.blocker_id = ?
                                                     )
                                                     ORDER BY u.username ASC
-                                                    LIMIT 15
-        `, [id, id, `%${query}%`, id])
+                                                    LIMIT 15`)
+            .all([id, id, `%${query}%`, id])
         console.log(data);
         reply.code(200).send(data);
         }

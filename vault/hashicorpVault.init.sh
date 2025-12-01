@@ -18,6 +18,8 @@ vault kv put secret/auth-service \
       google_client_secret="$GOOGLE_CLIENT_SECRET" \
       github_client_id="$GITHUB_CLIENT_ID" \
       github_client_secret="$GITHUB_CLIENT_SECRET" \
+      intra_client_id="$INTRA_CLIENT_ID" \
+      intra_client_secret="$INTRA_CLIENT_SECRET"
 
 
 # vault kv put secret/backend \

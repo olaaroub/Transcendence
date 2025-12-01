@@ -20,7 +20,7 @@ async function publicRoutes(fastify, opts)
     fastify.get("/test", async (req, reply) => {
       try
       {
-          const data = await fastify.db.all("SELECT userRequester, userReceiver, blocker_id, status FROM friendships");
+          const data = await fastify.db.prepare("SELECT userRequester, userReceiver, blocker_id, status FROM friendships").all();
           reply.code(200).send(data);
       }
       catch (err)
@@ -41,9 +41,9 @@ async function publicRoutes(fastify, opts)
       const friend_data = req.body;
 
       if (friend_data.block)
-        await fastify.db.run("UPDATE friendships SET status = ?, blocker_id = ? WHERE (userRequester = ? AND userReceiver = ?) OR (userReceiver = ? AND userRequester = ?)", ["BLOCKED", id,id, friend_data.friend_id, id, friend_data.friend_id]);
+        await fastify.db.prepare("UPDATE friendships SET status = ?, blocker_id = ? WHERE (userRequester = ? AND userReceiver = ?) OR (userReceiver = ? AND userRequester = ?)").run(["BLOCKED", id,id, friend_data.friend_id, id, friend_data.friend_id]);
       else
-          await fastify.db.run("UPDATE friendships SET status = ?, blocker_id = NULL WHERE (userRequester = ? AND userReceiver = ?) OR (userReceiver = ? AND userRequester = ?)", ["ACCEPTED", id, friend_data.friend_id, id, friend_data.friend_id]);
+          await fastify.db.prepare("UPDATE friendships SET status = ?, blocker_id = NULL WHERE (userRequester = ? AND userReceiver = ?) OR (userReceiver = ? AND userRequester = ?)").run(["ACCEPTED", id, friend_data.friend_id, id, friend_data.friend_id]);
       reply.code(200).send("success");
     }
     catch (err)

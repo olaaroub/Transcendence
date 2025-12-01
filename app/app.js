@@ -25,6 +25,8 @@ async function getJwtSecret() {
       googleSecret: data.data.google_client_secret,
       githubId: data.data.github_client_id,
       githubSecret: data.data.github_client_secret,
+      intraId: data.data.intra_client_id,
+      intraSecret: data.data.intra_client_secret
     };
 
 
@@ -73,6 +75,10 @@ async function start() {
 
 
     fastify.decorate('db', db);
+    fastify.addHook('onClose', (instance, done) => {
+      db.close();
+      done();
+    });
     const sockets = new Map();
     fastify.decorate('sockets', sockets);
     fastify.register(require('@fastify/websocket'))
@@ -81,6 +87,7 @@ async function start() {
     //   root: path.join(__dirname, 'static'),
     //   prefix: '/public/'
     // });
+    console.log("in intra now : ", process.env.INTRA_CLIENT_ID, process.env.INTRA_CLIENT_SECRET);
     fastify.register(require('./routes/private.routes'), {
         prefix: '/api',
         // secrets: secrets

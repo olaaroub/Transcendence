@@ -19,7 +19,7 @@ async function signUpHandler(request, reply)
 {
 	let data = request.body;
 	try {
-		await this.db.run("INSERT INTO users(username, password, email) VALUES (?, ?, ?)", [data.username, data.password, data.email]);
+		this.db.prepare("INSERT INTO users(username, password, email) VALUES (?, ?, ?)").run([data.username, data.password, data.email]);
 
 		reply.code(201)
 			 .send({message: "created", success: true});
@@ -36,7 +36,7 @@ async function loginHandler (req, reply)
 
 	const body = req.body;
 	try {
-		const user = await this.db.get('SELECT username, password, auth_provider ,id FROM users WHERE username = ? OR email = ?', [body.username, body.username]);
+		const user = this.db.prepare('SELECT username, password, auth_provider ,id FROM users WHERE username = ? OR email = ?').get([body.username, body.username]);
 		if (user && user.auth_provider == "local")
 		{
 			if (user.password != body.password)
@@ -61,7 +61,7 @@ async function loginHandler (req, reply)
 async function getUsers(req, reply)
 {
 	try {
-		const data =  await this.db.all("SELECT id, username, auth_provider, email FROM users");
+		const data = this.db.prepare("SELECT id, username, auth_provider, email FROM users").all();
 		reply.code(200).send(data);
 	} catch {
 		reply.code(500).send({ error: "Internal server error" });
@@ -71,7 +71,7 @@ async function getUsers(req, reply)
 async function getUserById(req, reply)
 {
 	try {
-		const responseData = await this.db.get('SELECT id, username, email FROM users WHERE id = ?', [req.params.id]);
+		const responseData = await this.db.prepare('SELECT id, username, email FROM users WHERE id = ?').get([req.params.id]);
 		reply.code(200).send(responseData);
 	}
 	catch {

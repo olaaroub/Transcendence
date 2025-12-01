@@ -28,14 +28,16 @@ async function getPendingRequestes(req, reply)
     try
     {
         const id = req.params.id
-        const data = await this.db.all(`SELECT u.username, u.id, u.profileImage
+        const data = this.db.prepare(`SELECT u.username, u.id, u.profileImage, i.is_read
                           FROM
                             users AS u
+                            INNER JOIN
+                                infos i ON u.id = i.user_id
                             INNER JOIN
                                 friendships AS f ON u.id = f.userRequester
                             WHERE
                                 f.userReceiver = ? AND f.status = 'PENDING'
-                        `, [id]);
+                        `,).all([id]);
         reply.code(200).send(data);
 
     }
@@ -53,9 +55,9 @@ async function handleFriendRequest(req, reply)
         const receiver_id = req.params.id;
         console.log(`requester number ${body.id} is ${body.accept}`);
         if (body.accept)
-            await this.db.run(`UPDATE friendships SET status = ? WHERE (userReceiver = ? AND userRequester = ?)`, ["ACCEPTED", receiver_id, body.id]);
+            await this.db.prepare(`UPDATE friendships SET status = ? WHERE (userReceiver = ? AND userRequester = ?)`).run( ["ACCEPTED", receiver_id, body.id]);
         else
-            await this.db.run(`DELETE FROM friendships WHERE (userReceiver = ? AND userRequester = ?)`, [receiver_id, body.id]);
+            await this.db.prepare(`DELETE FROM friendships WHERE (userReceiver = ? AND userRequester = ?)`).run( [receiver_id, body.id]);
         reply.code(200).send({success: true});
     }
     catch
