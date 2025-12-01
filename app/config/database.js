@@ -23,12 +23,18 @@ const creatTable = async () =>
     db.exec(`CREATE TABLE IF NOT EXISTS infos (
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
-        TotalWins INTEGER,
         bio TEXT DEFAULT '--',
+        is_read BOOLEAN DEFAULT FALSE,
+
+        TotalWins INTEGER,
         WinRate FLOAT,
         CurrentStreak INTEGER,
         Rating INTEGER,
-        is_read BOOLEAN DEFAULT FALSE,
+
+        points INTEGER DEFAULT 0,
+        gamesPlayed INTEGER DEFAULT 0,
+        wins INTEGER DEFAULT 0,
+        losses INTEGER DEFAULT 0,
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     );`);
 
