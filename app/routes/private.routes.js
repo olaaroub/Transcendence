@@ -17,9 +17,9 @@ async function JwtHandler(request, reply)
 
 async function privateRoutes(fastify)
 {
-    // fastify.addHook('preHandler', JwtHandler);
+    fastify.addHook('preHandler', JwtHandler);
     fastify.register(require('./settings'));
-    fastify.register(require('./images'));
+    fastify.register(require('./profileAvatar'));
     fastify.register(require('./search'));
     fastify.register(require('./friendsReceiver'));
     fastify.register(require('./friendsRequester'));
@@ -28,3 +28,4 @@ async function privateRoutes(fastify)
 }
 
 module.exports = privateRoutes;
+

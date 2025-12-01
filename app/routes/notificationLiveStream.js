@@ -37,7 +37,7 @@ async function routes (fastify) {
                 const data = JSON.parse(message.toString());
                 if (data.type == 'MAKE_AS_READ')
                 {
-                    await fastify.db.run("UPDATE infos SET is_read = TRUE WHERE user_id = ?", [id]);
+                    await fastify.db.prepare("UPDATE infos SET is_read = TRUE WHERE user_id = ?").run([id]);
                     const response = {type: 'NOTIFICATION_READED'}
                     const notificationSockets = fastify.sockets.get(id);
                     for (const socket of notificationSockets)

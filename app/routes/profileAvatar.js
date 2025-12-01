@@ -11,6 +11,8 @@ async function getProfileImages(req, reply)
   {
     const id = req.params.id;
     const img = await this.db.get("SELECT profileImage FROM users WHERE id = ?", id);
+    if (!img)
+        reply.code(401).send({error: "the user not exist"})
     reply.code(200).send(img.profileImage);
   }
   catch (err)
@@ -23,6 +25,8 @@ async function getProfileImages(req, reply)
 async function UploadToServer(req, reply)
 {
   const datafile = await req.file();
+  if (!datafile)
+      throw {err: "the img is empty"}
   const fileBuffer = await datafile.toBuffer();
   const type = await fileType.fromBuffer(fileBuffer);
   if (!type)
@@ -34,7 +38,7 @@ async function UploadToServer(req, reply)
 
   const file_name = uuidv4() + `.${type.ext}`;
   const file_path = path.join(__dirname, '../static', file_name);
-  await fs.promises.writeFile(file_path, await datafile.toBuffer());
+  await fs.promises.writeFile(file_path, fileBuffer);
   return {file_name, file_path};
 }
 
@@ -46,12 +50,12 @@ async function modifyAvatar(req, reply)
     try 
     {
       const id = req.params.id;
-      const data = await this.db.get("SELECT profileImage FROM users WHERE id = ?", id);
+      const data = this.db.prepare("SELECT profileImage FROM users WHERE id = ?").get(id);
       const imgpath = path.basename(data.profileImage);
       if (imgpath != `Default_pfp.jpg`)
         await fs.promises.unlink(path.join(__dirname, '../static', imgpath));
       const imageUri = `/public/${paths.file_name}`;
-      await this.db.run("UPDATE users SET profileImage = ?  WHERE id = ?", [imageUri, id]);
+      await this.db.prepare("UPDATE users SET profileImage = ?  WHERE id = ?").run([imageUri, id]);
     }
     catch (err) {
       await fs.promises.unlink(paths.file_path);
@@ -73,7 +77,7 @@ async function deleteAvatar(req, reply)
   try
   {
     const id = req.params.id;
-    const data = await this.db.get("SELECT profileImage FROM users WHERE id = ?", id);
+    const data = await this.db.prepare("SELECT profileImage FROM users WHERE id = ?").get(id);
     const imgpath = path.basename(data.profileImage);
     console.log(path.join(__dirname, '../static', imgpath));
     if (imgpath == `Default_pfp.jpg`)
@@ -81,7 +85,7 @@ async function deleteAvatar(req, reply)
     else
     {
       await fs.promises.unlink(path.join(__dirname, '../static', imgpath));
-      await this.db.run("UPDATE users SET profileImage = ? WHERE id = ?", ["/public/Default_pfp.jpg", id]);
+      await this.db.prepare("UPDATE users SET profileImage = ? WHERE id = ?").run(["/public/Default_pfp.jpg", id]);
       reply.code(201).send({success: true, message: "your delete the profile image successfully"});
     }
   }

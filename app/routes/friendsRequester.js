@@ -1,5 +1,4 @@
 const { default: fastify } = require("fastify");
-const { ERROR } = require("sqlite3");
 
 async function add_friend(req, reply)
 {
@@ -11,16 +10,16 @@ async function add_friend(req, reply)
         const notificationSockets = this.sockets.get(receiver_id);
         if  (!notificationSockets)
             throw {err: "socket Not found"}
-        await this.db.run(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`, [requester_id, receiver_id]);
-        const requester_Data = await this.db.get(`SELECT u.id, u.username, u.profileImage, i.is_read FROM 
+        this.db.prepare(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`).run([requester_id, receiver_id]);
+        const requester_Data = this.db.prepare(`SELECT u.id, u.username, u.profileImage, i.is_read FROM 
                                                 users u
                                                 INNER JOIN  infos i ON u.id = i.user_id
-                                                WHERE u.id = ?`, [requester_id]);
+                                                WHERE u.id = ?`).get([requester_id]);
                                         
         
         requester_Data.is_read = false;
         requester_Data["type"] = 'SEND_NOTIFICATION'
-        await this.db.run("UPDATE infos SET  is_read = FALSE WHERE user_id = ?", [requester_Data.id]);
+        this.db.prepare("UPDATE infos SET  is_read = FALSE WHERE user_id = ?").run([requester_Data.id]);
         console.log(requester_Data)
         for (const socket of notificationSockets)
         {
@@ -42,7 +41,7 @@ async function getFriends(req, reply)
     try
     {
         const id = req.params.id;
-        const friends = await this.db.all(`SELECT u.id, u.username, u.profileImage
+        const friends = this.db.prepare(`SELECT u.id, u.username, u.profileImage
                                            FROM
                                             users u
                                             INNER JOIN 
@@ -54,7 +53,7 @@ async function getFriends(req, reply)
                                                 )
                                             WHERE
                                                 (f.userRequester = ? OR f.userReceiver = ?) AND f.status = 'ACCEPTED'
-                                           `, [id, id, id, id]);
+                                           `).all([id, id, id, id]);
         console.log(friends);
         reply.code(200).send(friends);
     }

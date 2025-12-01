@@ -1,15 +1,15 @@
-const sqlite3 = require('sqlite3').verbose();
-const open = require('sqlite').open;
+// const sqlite3 = require('sqlite3').verbose();
+// const open = require('sqlite').open;
+const Database = require('better-sqlite3');
 
 const DB_PATH = process.env.DB_PATH || '/data/database.db';
 const creatTable = async () =>
 {
-    const db = await open({
-        filename: DB_PATH,
-        driver: sqlite3.Database
-    });
 
-    await db.exec(`CREATE TABLE IF NOT EXISTS users (
+    const db = new Database(DB_PATH);
+    // db.pragma('journal_mode = WAL'); // bach mli nbghi nktb on 9ra fnafs lwe9t maytblokach liya
+
+    db.exec(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password TEXT,
@@ -20,7 +20,7 @@ const creatTable = async () =>
         CHECK (auth_provider IN ('local', 'google', 'github', 'intra'))
     );`);
 
-    await db.exec(`CREATE TABLE IF NOT EXISTS infos (
+    db.exec(`CREATE TABLE IF NOT EXISTS infos (
         id INTEGER PRIMARY KEY,
         user_id INTEGER,
         TotalWins INTEGER,
@@ -32,7 +32,7 @@ const creatTable = async () =>
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     );`);
 
-    await db.exec(`CREATE TABLE IF NOT EXISTS friendships (
+    db.exec(`CREATE TABLE IF NOT EXISTS friendships (
         id INTEGER PRIMARY KEY,
         userRequester INTEGER,
         userReceiver INTEGER,
@@ -60,7 +60,7 @@ const creatTable = async () =>
         UNIQUE (pair_rolastion)
     );`);
 
-    await db.exec(`CREATE TRIGGER IF NOT EXISTS after_user_insert
+    db.exec(`CREATE TRIGGER IF NOT EXISTS after_user_insert
                    AFTER INSERT ON users
                    BEGIN
                         INSERT INTO infos(user_id) VALUES (NEW.id);

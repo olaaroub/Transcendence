@@ -20,7 +20,7 @@ async function googleCallback (req, reply)
 
         if (!userInfo)
             throw ({error: "get userinfo failed"});
-        const userData = await this.db.get("SELECT id, username, auth_provider FROM users WHERE email = ?", [userInfo.email]);
+        const userData = await this.db.prepare("SELECT id, username, auth_provider FROM users WHERE email = ?").get([userInfo.email]);
 
         let jwtPaylod;
         if (userData)
@@ -28,8 +28,8 @@ async function googleCallback (req, reply)
         else
         {
             const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google");
-            const info = await this.db.run("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?)", [userInfo.name, userInfo.email, "google", AvatarUrl]);
-            jwtPaylod = {id: info.lastID, username: userInfo.name};
+            const info = this.db.prepare("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google", AvatarUrl]);
+            jwtPaylod = info;
         }
         const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
         reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
