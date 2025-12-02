@@ -17,6 +17,7 @@ async function publicRoutes(fastify, opts)
     fastify.register(require('./42intra.authentication'), secretOpts);
     fastify.register(require('./notificationLiveStream'));
     fastify.register(require('./user.statistic'));
+    fastify.register(require('./leaderBord'));
     fastify.get("/test", async (req, reply) => {
       try
       {

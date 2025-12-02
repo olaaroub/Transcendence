@@ -38,6 +38,18 @@ const creatTable = async () =>
         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     );`);
 
+
+    db.exec(`CREATE VIEW IF NOT EXISTS leaderBordItem AS
+                SELECT u.id, u.username, u.profileImage, i.points, i.gamesPlayed, i.wins, i.losses
+                FROM
+                    users u INNER JOIN infos i ON u.id = i.user_id
+                ;`);
+
+
+    db.exec(`CREATE INDEX IF NOT EXISTS user_scor_indx
+             ON infos(points DESC)
+            ;`)
+
     db.exec(`CREATE TABLE IF NOT EXISTS friendships (
         id INTEGER PRIMARY KEY,
         userRequester INTEGER,

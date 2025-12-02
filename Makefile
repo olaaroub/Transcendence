@@ -37,7 +37,7 @@ re: clean up
 
 dev: certs
 	docker compose -f compose.dev.yaml up -d --build
-	docker compose -f compose.dev.yaml logs -f modSecurity-dev
+	docker compose -f compose.dev.yaml logs -f backend-dev frontend-dev
 
 # frontend-dev backend-dev
 downdev:

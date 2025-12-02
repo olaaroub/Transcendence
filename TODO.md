@@ -23,8 +23,11 @@
 
 ## Backend (OHAMMOU-)
 
-- [ ] **Global Error Handler:** Stop returning 502s. Catch errors and return JSON `{ "message": "..." }`.
-- [ ] **Validation:** Use `file-type` library to check Magic Bytes before saving (Safety Net).
+- [ ] **Global Error Handler:** Stop returning 502s. Catch errors and return JSON `{ "message": "..." }
+- [x] **Create a vertial tables using view:**
+- [x] **Create indexes to facilitate the sort users based on scor**
+- [x] **add  leader Bord route**
+- [x] **Validation:** Use `file-type` library to check Magic Bytes before saving (Safety Net).
 - [ ] **Logs:** Ensure errors are printed as JSON for the ELK stack.
 - [ ] **Use node modules:** Import instead of  require.
 

@@ -87,7 +87,7 @@ async function start() {
     //   root: path.join(__dirname, 'static'),
     //   prefix: '/public/'
     // });
-    console.log("in intra now : ", process.env.INTRA_CLIENT_ID, process.env.INTRA_CLIENT_SECRET);
+
     fastify.register(require('./routes/private.routes'), {
         prefix: '/api',
         // secrets: secrets
