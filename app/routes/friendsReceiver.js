@@ -72,7 +72,8 @@ async function routes(fastify)
     fastify.get("/users/:id/getPendingRequestes", getPendingRequestes);
 }
 
-module.exports = routes;
+// module.exports = routes;
+export default routes;
 
 
 /*

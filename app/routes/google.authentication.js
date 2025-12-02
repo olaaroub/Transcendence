@@ -1,10 +1,9 @@
-const oauth2 = require('@fastify/oauth2');
-const cookie = require('@fastify/cookie');
-const path   = require('path');
-const fs     = require('fs');
-const { v4: uuidv4 } = require('uuid');
-const DownoladImageFromUrl = require('./utilis');
-
+// const oauth2 = require('@fastify/oauth2');
+// const cookie = require('@fastify/cookie');
+// const DownoladImageFromUrl = require('./utilis');
+import oauth2 from '@fastify/oauth2';
+import cookie from '@fastify/cookie';
+import DownoladImageFromUrl from './utilis.js';
 const domain = process.env.DOMAIN;
 
 
@@ -82,4 +81,5 @@ async function authgoogle (fastify, opts)
     }
 }
 
-module.exports = authgoogle;
+// module.exports = authgoogle;
+export default authgoogle;

@@ -1,6 +1,18 @@
-const path = require('path');
+// const path = require('path');
+import path from 'path';
+import fastifyStatic from '@fastify/static'
+import local_auth from './local.authentication.js'
+import googlea_auth from './google.authentication.js'
+import github_auth from './github.authentication.js'
+import intra_auth from './42intra.authentication.js'
+import notificationLiveStream from './notificationLiveStream.js'
+import statistic from './user.statistic.js'
+import leaderBord from './leaderBord.js'
+import { fileURLToPath } from 'url';
+
 async function publicRoutes(fastify, opts)
 {
+    const __dirname = import.meta.dirname;
     const staticOps = {
         root: path.join(__dirname, '../static'),
         prefix: '/public/'
@@ -10,14 +22,14 @@ async function publicRoutes(fastify, opts)
       secrets: opts.secrets
     };
 
-    fastify.register(require('@fastify/static') , staticOps);
-    fastify.register(require('./local.authentication'));
-    fastify.register(require('./google.authentication'), secretOpts);
-    fastify.register(require('./github.authentication'), secretOpts);
-    fastify.register(require('./42intra.authentication'), secretOpts);
-    fastify.register(require('./notificationLiveStream'));
-    fastify.register(require('./user.statistic'));
-    fastify.register(require('./leaderBord'));
+    fastify.register(fastifyStatic , staticOps);
+    fastify.register(local_auth);
+    fastify.register(googlea_auth , secretOpts);
+    fastify.register(github_auth  , secretOpts);
+    fastify.register(intra_auth , secretOpts);
+    fastify.register(notificationLiveStream);
+    fastify.register(statistic);
+    fastify.register(leaderBord);
     fastify.get("/test", async (req, reply) => {
       try
       {
@@ -57,4 +69,5 @@ async function publicRoutes(fastify, opts)
   })
 }
 
-module.exports = publicRoutes;
+// module.exports = publicRoutes;
+export default publicRoutes;

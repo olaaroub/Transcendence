@@ -15,4 +15,5 @@ async  function statisticRoutes(fastify)
     fastify.get("/users/statistic/:id", statisticHandler);
 }
 
-module.exports = statisticRoutes;
+// module.exports = statisticRoutes;
+export default statisticRoutes;

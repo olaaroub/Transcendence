@@ -1,9 +1,16 @@
-const path = require('path');
-const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-const fastifyMultipart = require('@fastify/multipart');
-const fileType = require('file-type');
+// const path = require('path');
+// const fs = require('fs');
+// const { v4: uuidv4 } = require('uuid');
+// const fastifyMultipart = require('@fastify/multipart');
+// const fileType = require('file-type');
 
+import path from 'path';
+import fs from 'fs';
+import fastifyMultipart from '@fastify/multipart';
+import fileType from 'file-type';
+import { v4 as uuidv4 } from 'uuid';
+
+const __dirname = import.meta.dirname;
 
 async function getProfileImages(req, reply)
 {
@@ -107,4 +114,5 @@ async function routes (fastify)
   fastify.get(`/users/:id/settings-avatar`, getProfileImages);
 }
 
-module.exports =  routes;
+// module.exports =  routes;
+export default routes;

@@ -34,4 +34,5 @@ async function search_bar(fastify)
     })
 }
 
-module.exports = search_bar;
+// module.exports = search_bar;
+export default search_bar;

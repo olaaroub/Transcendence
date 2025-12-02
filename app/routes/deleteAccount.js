@@ -1,11 +1,15 @@
-const path = require('path');
-const fs = require('fs');
+// const path = require('path');
+// const fs = require('fs');
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 
 async function deleteAccountHandler(req, reply)
 {
     try
     {
+        const __dirname = import.meta.dirname;
         const id = req.params.id;
         const avatar = this.db.prepare(`SELECT profileImage FROM users WHERE id = ?`).get([id]);
         const avatarName = path.basename(avatar.profileImage);
@@ -27,4 +31,5 @@ async function deleteAccount(fastify)
     fastify.delete("/users/deleteAccount/:id", deleteAccountHandler);
 }
 
-module.exports = deleteAccount;
+// module.exports = deleteAccount;
+export default  deleteAccount;

@@ -1,7 +1,12 @@
-const path   = require('path');
-const fs     = require('fs');
-const { v4: uuidv4 } = require('uuid');
+// const path   = require('path');
+// const fs     = require('fs');
+// const { v4: uuidv4 } = require('uuid');
+import path from 'path';
+import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+import { fileURLToPath } from 'url';
 
+const __dirname = import.meta.dirname;
 async function DownoladImageFromUrl(url, provider)
 {
 
@@ -32,4 +37,5 @@ async function DownoladImageFromUrl(url, provider)
     return `/public/${file_name}`;
 }
 
-module.exports = DownoladImageFromUrl;
+// module.exports = DownoladImageFromUrl;
+export default DownoladImageFromUrl;

@@ -1,6 +1,7 @@
 // const sqlite3 = require('sqlite3').verbose();
 // const open = require('sqlite').open;
-const Database = require('better-sqlite3');
+// const Database = require('better-sqlite3');
+import Database from 'better-sqlite3'
 
 const DB_PATH = process.env.DB_PATH || '/data/database.db';
 const creatTable = async () =>
@@ -43,12 +44,12 @@ const creatTable = async () =>
                 SELECT u.id, u.username, u.profileImage, i.points, i.gamesPlayed, i.wins, i.losses
                 FROM
                     users u INNER JOIN infos i ON u.id = i.user_id
-                ;`);
+    ;`);
 
 
     db.exec(`CREATE INDEX IF NOT EXISTS user_scor_indx
              ON infos(points DESC)
-            ;`)
+    ;`)
 
     db.exec(`CREATE TABLE IF NOT EXISTS friendships (
         id INTEGER PRIMARY KEY,
@@ -86,4 +87,5 @@ const creatTable = async () =>
     return db;
 }
 
-module.exports = creatTable;
+// module.exports = creatTable;
+export default creatTable;

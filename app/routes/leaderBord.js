@@ -25,4 +25,5 @@ async function leaderBord(fastify)
     fastify.get('/users/leaderBord', leaderBordHandler)
 }
 
-module.exports = leaderBord;
+// module.exports = leaderBord;
+export default leaderBord;

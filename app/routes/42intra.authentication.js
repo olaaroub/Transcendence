@@ -1,6 +1,10 @@
-const oauth2 = require('@fastify/oauth2');
-const cookie = require('@fastify/cookie');
-const DownoladImageFromUrl = require('./utilis')
+// const oauth2 = require('@fastify/oauth2');
+// const cookie = require('@fastify/cookie');
+// const DownoladImageFromUrl = require('./utilis')
+
+import oauth2 from '@fastify/oauth2';
+import cookie from '@fastify/cookie';
+import DownoladImageFromUrl from './utilis.js';
 
 const domain = process.env.DOMAIN;
 
@@ -83,4 +87,5 @@ async function authIntra(fastify, opts)
     }
 }
 
-module.exports = authIntra;
+// module.exports = authIntra;
+export default authIntra;

@@ -1,3 +1,10 @@
+import settings from './settings.js'
+import profileAvatar from './profileAvatar.js'
+import search_bar from './search_bar.js'
+import friendsReceiver from './friendsReceiver.js'
+import friendsRequester from './friendsRequester.js'
+import deleteAccount from './deleteAccount.js'
+
 
 async function JwtHandler(request, reply)
 {
@@ -18,14 +25,15 @@ async function JwtHandler(request, reply)
 async function privateRoutes(fastify)
 {
     fastify.addHook('preHandler', JwtHandler);
-    fastify.register(require('./settings'));
-    fastify.register(require('./profileAvatar'));
-    fastify.register(require('./search'));
-    fastify.register(require('./friendsReceiver'));
-    fastify.register(require('./friendsRequester'));
-    fastify.register(require('./deleteAccount'));
+    fastify.register(settings);
+    fastify.register(profileAvatar);
+    fastify.register(search_bar);
+    fastify.register(friendsReceiver);
+    fastify.register(friendsRequester);
+    fastify.register(deleteAccount);
     // fastify.register(require('./user.statistic'));
 }
 
-module.exports = privateRoutes;
+// module.exports = privateRoutes;
+export default privateRoutes;
 

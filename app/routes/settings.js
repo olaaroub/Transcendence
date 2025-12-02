@@ -125,4 +125,5 @@ function settingsRoutes(fastify)
 }
 
 
-module.exports = settingsRoutes;
+// module.exports = settingsRoutes;
+export default settingsRoutes;

@@ -1,4 +1,3 @@
-const { default: fastify } = require("fastify");
 
 async function add_friend(req, reply)
 {
@@ -71,4 +70,5 @@ async function routes(fastify)
     fastify.get("/users/:id/friends", getFriends);
 }
 
-module.exports = routes;
+// module.exports = routes;
+export default routes;

@@ -1,11 +1,23 @@
-const fastify = require('fastify')({ logger: false })
-// const routes = require('./routes/mainRoutes');
-const creatTable = require('./config/database');
-const fastifyCors = require('@fastify/cors');
-const fastifyJwt = require('@fastify/jwt');
-const fastifyMetrics = require('fastify-metrics');
-const path = require('path');
-const vault = require('node-vault');
+// const fastify = require('fastify')({ logger: false })
+// // const routes = require('./routes/mainRoutes');
+// const creatTable = require('./config/database');
+// const fastifyCors = require('@fastify/cors');
+// const fastifyJwt = require('@fastify/jwt');
+// const fastifyMetrics = require('fastify-metrics');
+// const path = require('path');
+// const vault = require('node-vault');
+
+import Fastify from 'fastify';
+import fastifyCors from '@fastify/cors';
+import fastifyJwt from '@fastify/jwt';
+import websocket from  '@fastify/websocket'
+
+import fastifyMetrics from 'fastify-metrics';
+import path from 'path';
+import vault from 'node-vault';
+import creatTable from './config/database.js';
+import privateRoutes from './routes/private.routes.js';
+import publicRoutes from './routes/public.routes.js';
 
 async function getJwtSecret() {
   try {
@@ -38,6 +50,7 @@ async function getJwtSecret() {
 
 async function start() {
 
+  const fastify = Fastify({ logger: false });
   console.log("Fetching JWT secret from Vault...");
   const secrets = await getJwtSecret();
   console.log("Secret fetched successfully ");
@@ -81,18 +94,18 @@ async function start() {
     });
     const sockets = new Map();
     fastify.decorate('sockets', sockets);
-    fastify.register(require('@fastify/websocket'))
+    fastify.register(websocket)
     // console.log(path.join(__dirname, '/static'));
     // await fastify.register(require('@fastify/static') , {
     //   root: path.join(__dirname, 'static'),
     //   prefix: '/public/'
     // });
 
-    fastify.register(require('./routes/private.routes'), {
+    fastify.register(privateRoutes, {
         prefix: '/api',
         // secrets: secrets
     });
-    fastify.register(require('./routes/public.routes'), {
+    fastify.register(publicRoutes, {
         prefix: '/api',
         secrets: secrets
     });

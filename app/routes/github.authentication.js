@@ -1,6 +1,10 @@
-const oauth2 = require('@fastify/oauth2');
-const cookie = require('@fastify/cookie');
-const DownoladImageFromUrl = require('./utilis');
+// const oauth2 = require('@fastify/oauth2');
+// const cookie = require('@fastify/cookie');
+// const DownoladImageFromUrl = require('./utilis');
+
+import oauth2 from '@fastify/oauth2';
+import cookie from '@fastify/cookie';
+import DownoladImageFromUrl from './utilis.js';
 /*
 clientID = 803922873496-7qb8dv88s3628eb12qvu75ohogg76cpn.apps.githubusercontent.com
 clientSecret= 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
@@ -109,4 +113,5 @@ async function githubauth (fastify, opts)
 
 }
 
-module.exports = githubauth;
+// module.exports = githubauth;
+export default githubauth;
