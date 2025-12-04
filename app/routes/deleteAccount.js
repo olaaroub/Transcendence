@@ -26,7 +26,6 @@ async function deleteAccountHandler(req, reply)
 
 async function deleteAccount(fastify)
 {
-
     fastify.delete("/users/deleteAccount/:id", deleteAccountHandler);
 }
 
