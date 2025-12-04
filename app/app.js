@@ -1,49 +1,114 @@
-const fastify = require('fastify')({ logger: false })
-const routes = require('./routes/mainRoutes');
-const creatTable = require('./config/database');
-const fastifyCors = require('@fastify/cors');
-const fastifyJwt = require('@fastify/jwt');
+// const fastify = require('fastify')({ logger: false })
+// // const routes = require('./routes/mainRoutes');
+// const creatTable = require('./config/database');
+// const fastifyCors = require('@fastify/cors');
+// const fastifyJwt = require('@fastify/jwt');
+// const fastifyMetrics = require('fastify-metrics');
+// const path = require('path');
+// const vault = require('node-vault');
 
+import Fastify from 'fastify';
+import fastifyCors from '@fastify/cors';
+import fastifyJwt from '@fastify/jwt';
+import websocket from  '@fastify/websocket'
+
+import fastifyMetrics from 'fastify-metrics';
+import path from 'path';
+import vault from 'node-vault';
+import creatTable from './config/database.js';
+import privateRoutes from './routes/private.routes.js';
+import publicRoutes from './routes/public.routes.js';
+
+async function getJwtSecret() {
+  try {
+    const options = {
+      apiVersion: 'v1',
+      endpoint: process.env.VAULT_ADDR,
+      token: process.env.AUTH_SERVICE_TOKEN
+    };
+
+    const vaultClient = vault(options);
+    const { data } = await vaultClient.read('secret/data/auth-service');
+
+    return {
+      jwtSecret: data.data.jwt_secret,
+      cookieSecret: data.data.cookie_secret,
+      googleId: data.data.google_client_id,
+      googleSecret: data.data.google_client_secret,
+      githubId: data.data.github_client_id,
+      githubSecret: data.data.github_client_secret,
+      intraId: data.data.intra_client_id,
+      intraSecret: data.data.intra_client_secret
+    };
+
+
+  } catch (err) {
+    console.error("Error fetching secret from Vault:", err.message);
+    process.exit(1);
+  }
+}
 
 async function start() {
 
+  const fastify = Fastify({ logger: false });
+  console.log("Fetching JWT secret from Vault...");
+  const secrets = await getJwtSecret();
+  console.log("Secret fetched successfully ");
+  // console.log("DEBUG: Full Secrets Object:", JSON.stringify(secrets, null, 2));
+  // console.log("DEBUG: JWT Secret is:", secrets.jwtSecret);
+
   const db = await creatTable();
 
+
   await fastify.register(fastifyCors, {
-    origin: true, // ba9i khasni npisifi frontend ip
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    // allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Access-Control-Allow-Origin']
   });
+
+
 
   fastify.register(fastifyJwt, {
-    secret: 'supersecret'
+    secret: secrets.jwtSecret
   });
 
-  fastify.decorate('db', db);
-  // fastify.register(require('@fastify/websocket'));
-  fastify.register(require('@fastify/websocket'))
-
-  fastify.addHook('preHandler', async (request, reply) => {
+  fastify.addHook("preHandler", (request, _reply, done) => {
     const url = request.url;
     console.log("Requested URL:", url);
-
-
-    if (url.includes('/login') || url.includes('/signUp') || url === '/'
-      || url.startsWith('/public'))
-      return;
-    // try {
-    //   await request.jwtVerify();
-    // }
-    // catch {
-    //   console.log("No token provided");
-    //   reply.code(401).send({ error: 'No token provided' });
-    // }
-
+    done();
   });
 
-  fastify.register(routes, {
-    prefix: '/api'
+  await fastify.register(fastifyMetrics, {
+    endpoint: '/metrics',
+
+    defaultMetrics: {
+      enabled: true
+    },
   });
+
+
+    fastify.decorate('db', db);
+    fastify.addHook('onClose', (instance, done) => {
+      db.close();
+      done();
+    });
+    const sockets = new Map();
+    fastify.decorate('sockets', sockets);
+    fastify.register(websocket)
+    // console.log(path.join(__dirname, '/static'));
+    // await fastify.register(require('@fastify/static') , {
+    //   root: path.join(__dirname, 'static'),
+    //   prefix: '/public/'
+    // });
+
+    fastify.register(privateRoutes, {
+        prefix: '/api',
+        // secrets: secrets
+    });
+    fastify.register(publicRoutes, {
+        prefix: '/api',
+        secrets: secrets
+    });
 
   try {
     fastify.listen({

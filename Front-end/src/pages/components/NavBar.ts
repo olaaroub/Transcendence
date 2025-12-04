@@ -1,10 +1,7 @@
-import { mockMessages } from "../chat/mockMessages";
-import { IUserData } from "../store";
+import { credentials, getImageUrl, IUserData } from "../store";
+import { shortString } from "../utils";
 
-interface UserData {
-	id: string;
-	username: string;
-}
+let allPendingUsers: IUserData[] | null = null;
 
 export function renderNavBar (isLoged: boolean)
 {
@@ -55,42 +52,164 @@ function searchBar() : string
 	`
 }
 
-
-
-export function notifications()
+async function getPendingUsers() : Promise<IUserData[] | null>
 {
+	try
+	{
+		const response = await fetch(`api/users/${credentials.id}/getPendingRequestes`, {
+			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
+		});
+		if (!response.ok)
+		{
+			console.error('Failed to fetch pending users:', response.statusText);
+			return null;
+		}
+		const users: IUserData[] = await response.json();
+		return users;
+	} catch(err){
+		console.error('Error fetching pending users:', err);
+		return null;
+	}
+}
+
+async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement) : Promise<boolean> {
+	try {
+		const response = await fetch(`/api/users/${credentials.id}/friend-request`, {
+			method: 'POST',
+			headers: {
+				"Authorization": `Bearer ${credentials.token}`,
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				id: requesterId,
+				accept: accept
+			})
+		});
+		if (response.ok) {
+			userElement.remove();
+			return accept ? true : false;
+		} else {
+			console.error('Failed to handle friend request');
+		}
+	} catch (err) {
+		console.error('Error handling friend request:', err);
+	}
+	return false
+}
+
+function realTimeNotifications(pendingUsers: IUserData[] | null)
+{
+	const markWatch = document.getElementById('notification-icon')?.querySelector('span');
+	const protocol = window.location.protocol === 'https:' ? 'ws:' : 'ws:';
+	const wsHost = window.location.hostname === 'localhost' 
+		? 'localhost:3000' 
+		: window.location.host;
+	const wsUrl = `${protocol}//${wsHost}/api/notification/${credentials.id}`;
+	
+	const socket = new WebSocket(wsUrl);
+	
+	socket.onopen = () => {
+		console.log('WebSocket connection established for notifications');
+	};
+	
+	socket.onmessage = (event) => {
+		console.log('Notification received:', event.data);
+		try {
+			const parsed = JSON.parse(event.data);
+			const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
+			allPendingUsers = (allPendingUsers ?? []).concat(newUsers);
+			markWatch?.classList.remove('hidden');
+		} catch (err) {
+			if (pendingUsers && pendingUsers.length > 0) {
+				allPendingUsers = (allPendingUsers ?? []).concat(pendingUsers);
+			}
+		}
+	};
+	
+	socket.onerror = (error) => {
+		console.error('WebSocket error:', error);
+	};
+	
+	socket.onclose = (event) => {
+		console.log('WebSocket connection closed:', event.code, event.reason);
+	};
+	return socket;
+}
+
+export async function notifications()
+{
+	allPendingUsers = null;
+	console.log(allPendingUsers);
+	let pendingUsers : IUserData[] | null = await getPendingUsers();
+	realTimeNotifications(pendingUsers);
+
 	const notificationIcon = document.getElementById('notification-icon');
 	if (!notificationIcon) return;
-		notificationIcon.addEventListener('click', () => {
-			const result = document.createElement('div');
-			result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-2 overflow-y-auto
-			border border-[#87878766] rounded-lg shadow-lg py-3 px-3 z-50 max-h-[300px] items-center
-			scrollbar-custom`;
-			result.id = "notifications-result";
-			result.innerHTML = `
-				<p class="text-txtColor w-full text-lg font-bold text-center
-				border-b border-color3 pb-2">Notifications</p>
-			`
-			for(const user of mockMessages)
-			{
-				const pandingUser = document.createElement('div');
-				pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
-				pandingUser.innerHTML = `
-					<div class="flex gap-3 items-center">
-						<img class="w-[45px] h-[45px] rounded-full" src="${user.avatar}" alt="">
-						<span class="text-txtColor">${user.senderName}</span>
-					</div>
-					<button class="bg-color1 text-xs px-3 h-8 font-bold rounded-xl text-black">accept</button>
-				`
-				result.append(pandingUser);
+	notificationIcon.addEventListener('click',async  () => {
+		const existingResult = document.getElementById('notifications-result');
+		if (existingResult) {
+			existingResult.remove();
+			return;
+		}
+		const result = document.createElement('div');
+		result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-2 overflow-y-auto
+		border border-borderColor rounded-2xl shadow-lg py-3 pl-3 pr-1 z-50 max-h-[300px] items-center
+		scrollbar-custom`;
+		result.id = "notifications-result";
+		result.innerHTML = `
+			<p class="text-txtColor w-full text-lg font-bold text-center
+			border-b border-color3 pb-2">Notifications</p>
+		`;
+		notificationIcon.append(result);
+		if (!allPendingUsers || allPendingUsers.length === 0)
+		{
+			const noNotifications = document.createElement('p');
+			noNotifications.className = "text-gray-400 text-sm mt-4";
+			noNotifications.textContent = "No new notifications";
+			result.append(noNotifications);
+			return;
+		}
+		for(const user of allPendingUsers)
+		{
+			const pandingUser = document.createElement('div');
+			pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
+			pandingUser.innerHTML = `
+				<div class="flex gap-3 items-center">
+					<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(user.profileImage)}" alt="">
+					<span class="text-txtColor">${user.username}</span>
+				</div>
+				<div class="flex gap-2 items-center">
+					<button class="refuse-btn hover:scale-110 transition-transform" data-user-id="${user.id}">
+						<svg class="w-[24px] h-[24px]" fill="#ef4444" viewBox="0 0 24 24">
+							<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+						</svg>
+					</button>
+					<button class="accept-btn hover:scale-110 transition-transform" data-user-id="${user.id}">
+						<svg class="w-[28px] h-[28px]" fill="#22c55e" viewBox="0 0 24 24">
+							<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+						</svg>
+					</button>
+				</div>
+			`;
+			const acceptBtn = pandingUser.querySelector('.accept-btn');
+			const refuseBtn = pandingUser.querySelector('.refuse-btn');
+			
+			if (user.id) {
+				acceptBtn?.addEventListener('click', async () => {
+					await handleFriendRequest(String(user.id), true, pandingUser);
+				});
+				refuseBtn?.addEventListener('click', () => {
+					handleFriendRequest(String(user.id), false, pandingUser);
+				});
 			}
-			notificationIcon.append(result);
-		});
-		document.addEventListener('click', (e) => {
-			const el = e.target as HTMLElement;
-			if (!notificationIcon.contains(el))
-				notificationIcon.querySelector('#notifications-result')?.remove();
-		});
+			result.append(pandingUser);
+		}
+	});
+	document.addEventListener('click', (e) => {
+		const el = e.target as HTMLElement;
+		if (!notificationIcon.contains(el))
+			notificationIcon.querySelector('#notifications-result')?.remove();
+	});
 }
 
 export function renderDashboardNavBar(user: IUserData | null, imageUrl: string | null): string {
@@ -100,16 +219,18 @@ export function renderDashboardNavBar(user: IUserData | null, imageUrl: string |
 		class="w-[100px] xl:w-[130px] my-10 xl:my-14 block cursor-pointer" />
 		${searchBar()}
 		<div class="flex items-center gap-3 mr-6">
-			<div class="bg-color4 translate-y-[2px] rounded-full p-2">
+			<div id="message-icon"
+			class="bg-color4 translate-y-[2px] rounded-full p-2 cursor-pointer">
 				<img src="images/messageIcon.svg" class="w-[25px] h-[25px] invert
 				sepia saturate-200 hue-rotate-[330deg]">
 			</div>
 			<div id="notification-icon"
 			class="relative bg-color4 cursor-pointer translate-y-[2px] rounded-full p-2">
+				<span class="hidden absolute top-0 right-0 w-3 h-3 bg-red-500
+				border-2 border-[#0f2a3a] rounded-full"></span>
 				<img src="images/notificationIcon.svg" class="w-[25px] h-[25px] invert
 				sepia saturate-200 hue-rotate-[330deg]">
 			</div>
-			<!-- Profile Section -->
 			<div class="flex items-center gap-3 ">
 				<div id="avatar" class=" relative cursor-pointer
 				transition-transform duration-300">
@@ -118,7 +239,7 @@ export function renderDashboardNavBar(user: IUserData | null, imageUrl: string |
 					<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500
 					border-2 border-[#0f2a3a] rounded-full"></span>
 				</div>
-				<p class="text-sm text-gray-200 font-bold">${user?.username}</p>
+				<p class="text-sm text-gray-200 font-bold">${shortString(user?.username, 10)}</p>
 			</div>
 		</div>
 	</nav>

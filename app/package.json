@@ -4,31 +4,36 @@
   "description": "",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "node app.js",
+    "dev": "nodemon --delay 2s app.js",
     "test": "tap ../tests/**/*.test.js",
     "test:watch": "tap ../tests/**/*.test.js --watch",
     "test:coverage": "tap ../tests/**/*.test.js --coverage-report=html"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.1.0",
     "@fastify/jwt": "^10.0.0",
     "@fastify/multipart": "^9.2.1",
+    "@fastify/oauth2": "^8.1.2",
     "@fastify/static": "^8.3.0",
     "@fastify/websocket": "^11.2.0",
     "better-sqlite3": "^12.4.1",
-    "fastify": "^5.6.1",
+    "fastify": "^5.6.2",
+    "fastify-metrics": "^12.1.0",
+    "file-type": "^16.5.4",
     "jsonwebtoken": "^9.0.2",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7",
+    "mime-types": "^3.0.2",
+    "node-vault": "^0.10.9",
     "url": "^0.11.4",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",
+    "nodemon": "^3.1.10",
     "sinon": "^21.0.0",
     "tap": "^21.1.3"
   }

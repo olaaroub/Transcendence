@@ -1,9 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&family=Pixelify+Sans:wght@400..700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer utilities {
     .scrollbar-custom {
-    @apply scrollbar-thin scrollbar-thumb-color1 scrollbar-track-color4 hover:scrollbar-thumb-color2;
+    @apply scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2;
+    }
+    
+    .glow-effect {
+        box-shadow: 0 0 20px rgba(255, 106, 32, 0.15),
+                    0 0 40px rgba(255, 106, 32, 0.1),
+                    0 0 60px rgba(255, 106, 32, 0.05);
+    }
+    
+    .glow-effect:hover {
+        box-shadow: 0 0 30px rgba(255, 106, 32, 0.25),
+                    0 0 60px rgba(255, 106, 32, 0.15),
+                    0 0 90px rgba(255, 106, 32, 0.1);
     }
 }

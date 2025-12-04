@@ -64,6 +64,20 @@ const routes: Route[] = [
 			renderProfile(params.id || null);
 		}
 	},
+	{
+	path: "/chat",
+		render: async () => {
+			const { renderChat } = await import("./pages/chat/chat");
+			renderChat();
+		},
+	},
+	{
+		path: "/leaderboard",
+		render: async () => {
+			const { renderLeaderboard } = await import("./pages/components/leaderboard");
+			renderLeaderboard();
+		},
+	},
 ];
 
 

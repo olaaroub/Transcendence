@@ -1,4 +1,5 @@
 import { navigate } from "../router";
+import { getImageUrl } from "./store";
 
 export async function renderAbout() {
 	const cardsData = [
@@ -40,29 +41,25 @@ export async function renderAbout() {
 	]
 	const delayClasses = ["anim-delay-0", "anim-delay-5s", "anim-delay-10s", "anim-delay-15s", "anim-delay-20s"];
 	document.body.innerHTML = `
+	<div class="w-full min-h-screen bg-bgColor flex flex-col items-center py-16 px-6">
+		<img id="about-logo" class="cursor-pointer xl:w-[150px] absolute top-8 left-16" src="${getImageUrl('images/logo.png')}" alt="Logo">
+		<div class="w-full max-w-6xl translate-y-[50px]">
+			<div class="bg-color3/45 backdrop-blur-md px-8 py-8 rounded-3xl shadow-2xl">
+				<h1 class="text-4xl md:text-5xl font-extrabold text-txtColor mb-3 text-center">About <span class="text-color1">Us</span></h1>
+				<p class="text-[#b1b1b1] max-w-3xl mb-12 text-md md:text-lg mx-auto text-center [text-wrap:balance]">
+					We are a passionate team of developers, each specializing in different domains. Below are the teammates and their roles — click a card to learn more.
+				</p>
 
-	<div class="w-full min-h-screen bg-[#1B1A1DD6] flex flex-col items-center pt-32">
-		<img id="about-logo" class="cursor-pointer absolute top-10 left-3" src="images/logo.png" alt="Logo">
-		<div class="flex flex-col items-center bg-color4/30 backdrop-blur-md px-24 py-9 rounded-3xl shadow-2xl">
-			<h1 class="text-5xl font-extrabold text-white mb-4">About <span class="text-color1">Us</span></h1>
-			<p class="text-[#878787] text-center max-w-xl mb-12 text-lg">
-				We are a passionate team of developers, each specializing in different domains, working together to create amazing products.
-			</p>
-
-			<!-- Card Container -->
-			<div class="w-full max-w-md bg-color1  p-1 rounded-xl">
-
-				<div class="relative w-full h-[520px]">
-					${cardsData.map((card, index) => `
-						<div class="absolute inset-0 flex flex-col overflow-hidden rounded-xl
-						shadow-2xl animate-slideCard ${delayClasses[index]} bg-gradient-to-b
-						from-[${card.gradientFrom}]/90 to-[${card.gradientTo}]/70">
-							<img class="block object-cover w-full h-[75%] rounded-t-xl" src="${card.image}" alt="">
-							<div class="flex flex-col items-center justify-center h-[25%] gap-1">
-								<p class="px-5 py-1 bg-white/20 text-white text-lg font-bold rounded-full shadow-md backdrop-blur-sm">
-									${card.name}
-								</p>
-								<p class="text-white/90 text-sm font-medium">${card.role}</p>
+				<div class="flex flex-wrap justify-center gap-10">
+					${cardsData.map((card) => `
+						<div class="w-full sm:w-[48%] lg:w-[30%]  transform hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-visible" onclick="void(0)">
+							<div style="background: linear-gradient(135deg, ${card.gradientFrom}, ${card.gradientTo});" class="p-6 flex flex-col rounded-2xl shadow-lg items-center text-center">
+								<div class="w-28 h-28 rounded-full overflow-hidden ring-4 ring-white -mt-12 shadow-md">
+									<img src="${getImageUrl(card.image)}" alt="${card.name}" class="w-full h-full object-cover" />
+								</div>
+								<h3 class="mt-4 text-white text-xl font-bold">${card.name}</h3>
+								<p class="text-white/90 text-sm mb-3">${card.role}</p>
+								<p class="text-white/80 text-sm max-w-xs">A dedicated team member contributing to our shared project vision.</p>
 							</div>
 						</div>
 					`).join('')}
@@ -71,6 +68,7 @@ export async function renderAbout() {
 		</div>
 	</div>
 	`;
+
 	document.getElementById('about-logo')!.onclick = () => {
 		navigate('/');
 	};

@@ -1,0 +1,146 @@
+services:
+
+  frontend-dev:
+    build:
+      context: ./Front-end
+      dockerfile: Dockerfile.frontend.dev
+    image: frontend-dev:1337
+    container_name: frontend-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./Front-end:/app
+      - /app/node_modules
+      - ./certs:/app/certs:ro
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - transcendence-dev-net
+    depends_on:
+      - backend-dev
+
+  backend-dev:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.backend.dev
+    image: backend-dev:1337
+    container_name: backend-dev
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+      - PORT=${BACKEND_PORT}
+      - HOST=${BACKEND_HOST}
+      - DOMAIN=${AUTH_DOMAIN}
+    volumes:
+      - ./app:/app
+      - ./db:/data
+      - ./app/static:/app/static
+      - /app/node_modules
+    networks:
+      - transcendence-dev-net
+    ports:
+      - "3000:3000"
+    depends_on:
+      vault-init-dev:
+        condition: service_completed_successfully
+
+
+
+  vault-dev:
+    image: hashicorp/vault:1.21.0
+    container_name: vault-dev
+    networks:
+      - transcendence-dev-net
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN}
+      - VAULT_ADDR=http://0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+
+  vault-init-dev:
+    image: hashicorp/vault:1.21.0
+    container_name: vault-init-dev
+    networks:
+      - transcendence-dev-net
+    volumes:
+      - ./vault/hashicorpVault.init.sh:/init.sh
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - JWT_SECRET_VALUE=${JWT_SECRET_VALUE}
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - INTRA_CLIENT_ID=${INTRA_CLIENT_ID}
+      - INTRA_CLIENT_SECRET=${INTRA_CLIENT_SECRET}
+      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+    entrypoint: /init.sh
+    depends_on:
+      - vault-dev
+
+  modSecurity-dev:
+    image: owasp/modsecurity-crs:4.20-nginx-alpine-202511100111
+    container_name: modSecurity
+    networks:
+      - transcendence-dev-net
+    environment:
+      - BACKEND=http://backend-dev:3000
+      - MODSEC_RULE_ENGINE=DetectionOnly
+      - BLOCKING_PARANOIA=2
+      # - ALLOWED_METHODS=PUT DELETE POST GET HEAD OPTIONS
+    volumes:
+      - ./waf/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
+      - ./waf/scan_php.sh:/usr/local/bin/scan_php.sh:ro
+    restart: on-failure
+    depends_on:
+      - backend-dev
+
+
+
+  prometheus-dev:
+    image: prom/prometheus:v3.7.3
+    container_name: prometheus-dev
+    ports:
+      - "9090:9090"
+    networks:
+      - transcendence-dev-net
+    volumes:
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - backend-dev
+
+  grafana-dev:
+    image: grafana/grafana:12.3.0
+    container_name: grafana-dev
+    ports:
+      - "3001:3000"
+    networks:
+      - transcendence-dev-net
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
+    depends_on:
+      - prometheus-dev
+
+
+
+networks:
+  transcendence-dev-net:
+    name: transcendence-dev-net
+    driver: bridge
+volumes:
+  prometheus-data:
+    driver: local
+  vault-data:
+    driver: local
+  grafana-data:
+    driver: local

@@ -1,32 +1,126 @@
 services:
-  backend:
-    build:
-      context: ./app
-      dockerfile: Dockerfile.backend
-    image: backend:1337
-    container_name: backend
-    networks:
-      - transcendence-net
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./app/static:/app/static
-      - ./db:/app/db
 
   frontend:
     build:
       context: ./Front-end
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.frontend.prod
     image: frontend:1337
-    container_name: frontend
+    container_name: frontend-prod
     ports:
       - "8080:80"
+      - "8443:443" #mac dzb (cant access 443, galoha f subject)
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
     networks:
       - transcendence-net
+    restart: on-failure
+    depends_on:
+      - modSecurity
+
+  backend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.backend.prod
+    image: backend:1337
+    container_name: backend-prod
+    networks:
+      - transcendence-net
+    expose:
+      - "3000"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - PORT=${BACKEND_PORT}
+      - HOST=${BACKEND_HOST}
+    volumes:
+      - ./app/static:/app/static
+      - ./db:/data
+    restart: always
+    depends_on:
+      vault-init:
+        condition: service_completed_successfully
+
+
+
+
+  vault:
+    image: hashicorp/vault:1.21.0
+    container_name: vault
+    networks:
+      - transcendence-net
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN}
+      - VAULT_ADDR=http://0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+
+  vault-init:
+    image: hashicorp/vault:1.21.0
+    container_name: vault-init
+    networks:
+      - transcendence-net
+    volumes:
+      - ./vault/hashicorpVault.init.sh:/init.sh
+    environment:
+      - VAULT_TOKEN=${VAULT_TOKEN}
+      - JWT_SECRET_VALUE=${JWT_SECRET_VALUE}
+    entrypoint: /init.sh
+    depends_on:
+      - vault
+
+  modSecurity:
+    image: owasp/modsecurity-crs:4.20-nginx-alpine-202511100111
+    container_name: modSecurity
+    networks:
+      - transcendence-net
+    environment:
+      - BACKEND=http://backend:3000
+      - MODSEC_RULE_ENGINE=DetectionOnly
+    restart: on-failure
     depends_on:
       - backend
+
+
+
+  # prometheus:
+  #   image: prom/prometheus:v3.7.3
+  #   container_name: prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   networks:
+  #     - transcendence-net
+  #   volumes:
+  #     - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+  #     - prometheus-data:/prometheus
+  #   depends_on:
+  #     - backend
+
+  # grafana:
+  #   image: grafana/grafana:12.3.0
+  #   container_name: grafana
+  #   ports:
+  #     - "3001:3000"
+  #   networks:
+  #     - transcendence-net
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #   depends_on:
+  #     - prometheus
+
+
+
 
 networks:
   transcendence-net:
     name: transcendence-net
     driver: bridge
+
+# volumes:
+#   prometheus-data:
+#     driver: local
+#   vault-data:
+#     driver: local
+#   grafana-data:
+#     driver: local

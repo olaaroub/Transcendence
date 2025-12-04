@@ -1,12 +1,12 @@
-import { renderRightPanel } from "./components/rightPanel";
 import { notifications, renderDashboardNavBar } from "./components/NavBar";
 import { navigate } from "../router";
 import { renderGroupChat } from "./chat/groupChat";
 import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
-import { renderLeaderboard } from "./components/leaderboard";
+import { dashboardLearderboard } from "./components/leaderboard";
 import { showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
+import { chatEventHandler } from "./chat/chat";
 
 (window as any).navigate = navigate;
 
@@ -51,92 +51,52 @@ export async function initDashboard(isDashboard: boolean = true) {
 		renderDashboard(isDashboard);
 }
 
-function renderButton(nb: number) : string
+function gameButtons(bg:string)
 {
 	return `
-		<div class="flex gap-2">
-			<div class="bg-gradient-to-r from-color1 to-[#af4814] flex w-[130px] py-[6px] font-bold rounded-3xl
-			justify-center mb-[15px] cursor-pointer transition-all duration-300 hover:scale-105">
-				<img class="w-[25px] h-[25px]" src="images/populareIcon.svg" alt="">
-				<button class="text-black">Game${nb}</button>
+		<button class="rounded-2xl transition-all h-[250px]
+		duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
+			<img class="w-full h-full" src=${bg}></img>
+		</button>
+	`
+}
+
+function LocalPong() : string
+{
+	return `
+		<div class="relative ">
+			<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02]
+			transition-all duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px]
+			items-center md:items-start gap-4 overflow-visible relative">
+				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
+				<div class="flex h-full gap-3 justify-center w-full">
+					${gameButtons('images/online.webp')}
+					${gameButtons('images/online.webp')}
+					${gameButtons('images/online.webp')}
+				</div>
 			</div>
-			<img class="w-[30px] h-[30px] bg-[#D9CEAF] translate-y-[5px]
-			hover:scale-110 transition-all duration-300 rounded-full p-1" src="images/gamepadIcon.svg" alt="">
-			<img class="w-[30px] h-[30px] bg-[#D9CEAF] translate-y-[5px]
-			hover:scale-110 transition-all duration-300 rounded-full p-1" src="images/instagramIcon.svg" alt="">
 		</div>
 	`
 }
 
-function gameOne() : string
+
+
+function OnlinePong() : string
 {
 	return `
-		<style>
-			@keyframes float {
-				0%, 100% { transform: translateY(0px); }
-				50% { transform: translateY(-10px); }
-			}
-			.float-animation {
-				animation: float 3s ease-in-out infinite;
-			}
-			.float-animation:hover {
-				animation-play-state: paused;
-			}
-		</style>
-		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 h-[400px]
-		flex flex-col md:flex-row items-center md:items-start gap-8 overflow-visible
-		transition-all duration-500 transform hover:-translate-y-2 relative">
-			<div class="flex-1 min-w-0 space-y-5 md:space-y-6 md:pr-8 lg:pr-12 z-10">
-				${renderButton(1)}
-				<h2 class="text-txtColor text-3xl sm:text-4xl lg:text-5xl xl:text-6xl
-				font-bold leading-tight tracking-tight">Pong</h2>
-				<p class="text-txtColor text-sm sm:text-base lg:text-lg leading-relaxed
-				opacity-90 max-w-md">Lorem ipsum, dolor sitLorem ipsum, dolor sit
-				Lorem ipsum, dolor sit amet consectetur
-				adipisicing elit. Quis aspernatur velit ex modi.</p>
-
-				<div onclick="navigate('/game')" class="inline-flex items-center gap-3 bg-gradient-to-r
-				from-color1 to-[#af4814] px-6 py-3 font-bold rounded-full cursor-pointer transition-all
-				duration-300 hover:scale-110 shadow-md mt-4">
-					<button class="text-black text-base lg:text-lg">Play Now</button>
-					<img class="w-[18px] h-[18px] lg:w-[20px] lg:h-[20px]" src="images/playIcon.svg" alt="">
-				</div>
+		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all
+		duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px] items-center md:items-start gap-4
+		overflow-visible relative" style="animation-delay: 0.5s;">
+			<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Online Pong</p>
+			<div class="grid grid-cols-2 gap-3 w-[65%] h-full">
+				${gameButtons('images/online.webp')}
+				${gameButtons('images/online.webp')}
 			</div>
 			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
-			lg:right-12 md:top-[65%] md:-translate-y-1/2">
-				<img class="h-auto w-full max-w-[280px] sm:max-w-[320px] md:w-[280px] lg:w-[340px] xl:w-[380px]
-				md:translate-x-[40px] md:-translate-y-[95px] hover:scale-105 transition-transform duration-500
-				object-contain drop-shadow-2xl" src="images/pong.png" alt="">
-			</div>
-		</div>
-	`
-}
-
-function gameTwo() : string
-{
-	return `
-		<div class="float-animation bg-color4 rounded-3xl p-8 md:p-10 lg:p-12 flex flex-col h-[400px]
-		md:flex-row items-center md:items-start gap-8 overflow-visible relative" style="animation-delay: 0.5s;">
-			<div class="flex-1 min-w-0 space-y-5 md:space-y-6 md:pr-8 lg:pr-12 z-10">
-				${renderButton(2)}
-				<h2 class="text-txtColor text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight
-				tracking-tight">Chess</h2>
-				<p class="text-txtColor text-sm sm:text-base lg:text-lg leading-relaxed opacity-90
-				max-w-md">Lorem ipsum, dolor sitLorem ipsum, dolor sit
-				Lorem ipsum, dolor sit amet consectetur
-				adipisicing elit. Quis aspernatur velit ex modi.</p>
-
-				<div onclick="navigate('/game')" class="inline-flex items-center gap-3 bg-gradient-to-r
-				from-color1 to-[#af4814] px-6 py-3 font-bold rounded-full cursor-pointer transition-all
-				duration-300 hover:scale-110 hover:shadow-lg shadow-md mt-4">
-					<button class="text-black text-base lg:text-lg">Play Now</button>
-					<img class="w-[18px] h-[18px] lg:w-[20px] lg:h-[20px]" src="images/playIcon.svg" alt="">
-				</div>
-			</div>
-			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8 lg:right-12 md:top-1/2 md:-translate-y-1/2">
-				<img class="h-auto w-full max-w-[280px] sm:max-w-[320px] md:w-[280px] lg:w-[340px] xl:w-[380px] md:translate-x-[40px]
-				md:-translate-y-[95px] hover:scale-105 transition-transform duration-500
-				object-contain drop-shadow-2xl" src="images/chess.png" alt="">
+			lg:right-0 md:top-[65%] md:-translate-y-1/2">
+				<img class="h-auto w-[280px] lg:w-[340px] xl:w-[380px]
+				md:translate-x-[40px] md:-translate-y-[95px]
+				object-contain drop-shadow-2xl" src="images/pongOnline.png" alt="">
 			</div>
 		</div>
 	`
@@ -146,95 +106,39 @@ function renderWelcome() : string
 {
 	return `
 		<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
-			${gameOne()}
-			${gameTwo()}
+			${LocalPong()}
+			${OnlinePong()}
 		</div>
 	`
 }
 
-function slidingLogic()
+async function getStatistics()
 {
-	const slider = document.getElementById('slider');
-	const nextBtn = document.getElementById('next');
-	const prevBtn = document.getElementById('prev');
 
-	if (!slider || !nextBtn || !prevBtn) return;
-
-	let currentIndex = 0;
-	const cards = slider.querySelectorAll('div');
-	const totalCards = cards.length;
-
-	const getCardWidth = () => {
-		const card = cards[0];
-		if (!card) return 0;
-		return card.offsetWidth + 40;
-	};
-
-	const getMaxIndex = () => {
-		const containerWidth = slider.parentElement?.offsetWidth || 0;
-		const cardWidth = getCardWidth();
-		if (cardWidth === 0) return 0;
-		const visibleCards = Math.floor(containerWidth / cardWidth);
-		return Math.max(0, totalCards - visibleCards);
-	};
-
-	const updateSlider = () => {
-		const cardWidth = getCardWidth();
-		slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-	};
-
-	nextBtn.addEventListener('click', () => {
-		const maxIndex = getMaxIndex();
-		currentIndex++;
-		if (currentIndex > maxIndex) {
-			currentIndex = 0;
-		}
-		updateSlider();
-	});
-
-	prevBtn.addEventListener('click', () => {
-		const maxIndex = getMaxIndex();
-		currentIndex--;
-		if (currentIndex < 0) {
-			currentIndex = maxIndex;
-		}
-		updateSlider();
-	});
-
-	let resizeTimeout: number;
-	window.addEventListener('resize', () => {
-		clearTimeout(resizeTimeout);
-		resizeTimeout = window.setTimeout(() => {
-			const maxIndex = getMaxIndex();
-			if (currentIndex > maxIndex) {
-				currentIndex = maxIndex;
-			}
-			updateSlider();
-		}, 150);
-	});
 }
 
 function renderStatistics(): string {
 	return `
 		<div class="statistics mb-6">
-			<h2 class="text-txtColor font-bold text-2xl mb-4">Your Statistic</h2>
-			<div class="bg-color4 rounded-3xl text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-				<div class="bg-[#1b1a1d] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
+			<h2 class="text-txtColor font-bold text-2xl mb-4 transition-all duration">Your Statistic</h2>
+			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-3xl
+			text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Total Wins</p>
 					<p class="text-4xl font-bold text-txtColor">127</p>
 					<p class="text-sm text-color15">+12 this week</p>
 				</div>
-				<div class="bg-[#1b1a1d] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Win Rate</p>
 					<p class="text-4xl font-bold text-txtColor">74.7%</p>
 					<p class="text-sm text-blue-600">Above average</p>
 				</div>
-				<div class="bg-[#1b1a1d] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Current Streak</p>
 					<p class="text-4xl font-bold text-txtColor">8</p>
 					<p class="text-sm text-orange-400">Personal best!</p>
 				</div>
-				<div class="bg-[#1b1a1d] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
 					<p class="text-sm">Rating</p>
 					<p class="text-4xl font-bold text-txtColor">2847</p>
 					<p class="text-sm text-[#8261BE]">Diamond III</p>
@@ -246,8 +150,8 @@ function renderStatistics(): string {
 
 function renderAnalyticsSection(): string {
 	return `
-		<div class="w-full md:w-[47%]">
-			${renderLeaderboard()}
+		<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
+			${dashboardLearderboard()}
 			${renderStatistics()}
 		</div>
 	`;
@@ -255,43 +159,64 @@ function renderAnalyticsSection(): string {
 
 function renderDashboardContent(): string {
 	return `
-		<div class="flex gap-6 mt-6" >
+		<div class="flex flex-col md:flex-row gap-6 mt-6 w-full" >
 			${renderAnalyticsSection()}
 			${renderGroupChat()}
 		</div>
 	`;
 }
 
-
-function renderMain() : string
+async function renderMain() : Promise<string>
 {
 	return `
 		<div class="w-full">
-			<h2 class="font-bold mb-[20px] text-[#414658] text-2xl">Welcome back,
+			<h2 class="font-bold mb-[20px] text-[#414658] text-3xl">Welcome back,
 			<span class="text-txtColor text-3xl"> ${userData?.username}</span></h2>
-			<div class="flex w-full gap-6">
-				<div class="flex-1">${renderWelcome()}</div>
-				<div class="flex-[0.01]">${renderRightPanel()}</div>
-			</div>
+			<div class="flex-1">${renderWelcome()}</div>
 			${renderDashboardContent()}
 		</div>
 	`
 }
 
-export function renderDashboard(isDashboard: boolean = true)
+function addClickInRightPanel()
+{
+	const friendsList = document.getElementById("friends-list");
+	friendsList?.addEventListener("click", (e) => {
+		const friendEl = (e.target as HTMLElement).closest(".friend-item");
+		if (!friendEl) return;
+		const friendId = friendEl.getAttribute("data-id");
+		navigate('/profile/' + friendId);
+	});
+}
+
+const $ = (id : string) => document.getElementById(id as string);
+
+export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
-		<div class=" bg-bgColor min-h-screen">
+		<div class=" min-h-screen">
+			<div class="absolute inset-0 bg-black opacity-70 blur-3xl z-[-1]"></div>
+			<video class="fixed w-full h-full object-cover z-[-2]"
+			loop
+			autoplay
+			muted
+			playsinline
+			<source src="images/bg.webm" type="video/webm">
+			Your browser does not support the video tag.
+			</video>
 			${renderDashboardNavBar(userData, getImageUrl(userData?.profileImage))}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
-				${isDashboard ? renderMain() : ''}
+				${isDashboard ? await renderMain() : ''}
 			</main>
 		</div>
 	`;
+	$('see-more')?.addEventListener('click', _=>{
+		navigate('/leaderboard');
+	})
+	addClickInRightPanel();
 	notifications();
+	chatEventHandler();
 	document.getElementById('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
-	if (isDashboard)
-		slidingLogic();
 	const avatar = document.getElementById('avatar');
 	if (avatar) {
 		avatar.addEventListener('click', () => {

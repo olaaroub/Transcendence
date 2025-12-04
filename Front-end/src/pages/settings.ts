@@ -1,6 +1,8 @@
-
 import * as data from "./dashboard"
-import { IUserData, setUserData, userData, getImageUrl} from "./store"
+import { navigate } from "../router";
+import { credentials,IUserData, userData, getImageUrl} from "./store"
+
+const $ = (id : String) => document.getElementById(id as string);
 
 let newUserData: Partial<IUserData> = {};
 let body: BodyInit | null = ""; // to learn about this type
@@ -26,7 +28,6 @@ async function checkPasswordChange() : Promise<boolean>
 		return false;
 	}
 	try {
-		console.log(JSON.stringify({ currentPassword, newPassword: value }));
 		const response = await fetch(`api/users/${userData?.id}/settings-password`, {
 			method: 'PUT',
 			body: JSON.stringify({ currentPassword, newPassword: value }),
@@ -43,7 +44,6 @@ async function checkPasswordChange() : Promise<boolean>
 		console.error('Error changing password:', error);
 		return false;
 	}
-
 	return true;
 }
 
@@ -113,7 +113,11 @@ function addInputListeners()
 			if (name === 'avatar')
 			{
 				avatar = sendAvatar();
-				console.log('avatar by simo : ', avatar);
+				if (!avatar)
+				{
+					delete newUserData[name as keyof IUserData];
+					return;
+				}
 				const upload_avatar = event.target as HTMLInputElement;
 				const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
 				if (userAvatar && upload_avatar && upload_avatar.files)
@@ -199,7 +203,7 @@ function sendAvatar() : FormData | null
 function avatarSettings() : string
 {
 	return `
-		<div class="avatar-settings px-10 py-6 rounded-2xl bg-color4 flex-1 flex flex-col gap-6">
+		<div class="avatar-settings px-10 py-6 rounded-2xl bg-color4 glow-effect flex-1 flex flex-col gap-6">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
 			<div class="flex gap-16">
 				<div class="flex flex-col items-center gap-2">
@@ -255,7 +259,7 @@ function render2FA() : string
 function accountSettings() : string
 {
 	return `
-		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col flex-1 gap-6">
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col flex-1 gap-6">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account Settings</p>
 			<div class="settings-name flex flex-col gap-2">
 				<p class="text-txtColor text-sm ">username</p>
@@ -278,11 +282,12 @@ function input(placeholder: string, type: string, value: string = "", name: stri
 {
 	return `
 		<input
+		${userData.auth_provider !== 'local' ? 'disabled' : ''}
 		value="${value}"
 		type="${type}"
 		name="${name}"
 		placeholder="${placeholder}"
-		class="bg-transparent border focus:outline-none focus:border-color1
+		class="${userData.auth_provider === 'local' ? 'bg-transparent'  : ''} border focus:outline-none focus:border-color1
 		focus:border-[2px] text-txtColor w-full placeholder:text-sm border-color2 rounded-2xl p-3"
 		>
 	`
@@ -291,7 +296,7 @@ function input(placeholder: string, type: string, value: string = "", name: stri
 function security() : string
 {
 	return `
-		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col gap-6 flex-1">
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col gap-6 flex-1">
 			<p class=" text-color1 font-bold text-lg xl:text-2xl">Security</p>
 			<div class="flex flex-col gap-2">
 				<p class="text-txtColor text-sm">Password</p>
@@ -309,11 +314,11 @@ function security() : string
 function Account() : string
 {
 	return `
-		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 flex-col gap-6 flex-1">
+		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col gap-6 flex-1">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account</p>
 			<div class="flex flex-col gap-4">
 				<p class="2xl:w-[60%] w-full text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
-				<button class="bg-red-500 text-white w-full lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
+				<button id="delete-account" class="bg-red-500 text-white w-full lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
 			</div>
 		</div>
 	`
@@ -329,6 +334,27 @@ function cancelChanges()
 			newUserData = {};
 			renderSettings();
 		});
+	}
+}
+
+async function deleteAccount() : Promise<void>
+{
+	try {
+		const response =  await fetch(`api/users/deleteAccount/${userData.id}`, {
+			method: 'POST',
+			headers: { "Authorization": `Bearer ${credentials.token}`},
+		});
+		if (response.ok) {
+			localStorage.clear();
+			navigate('/sign-up');
+			alert('account deleted succ...');
+		} else {
+			console.error('failed to delete account');
+			alert('failed to delete account');
+		}
+	} catch(error) {
+		alert('failed in fetch to delete account');
+		console.error(error);
 	}
 }
 
@@ -358,6 +384,9 @@ export async function renderSettings()
 			</div>
 		</div>
 	`;
+	$('delete-account')?.addEventListener('click', _=>{
+		deleteAccount();
+	})
 	addInputListeners();
 	cancelChanges();
 }
