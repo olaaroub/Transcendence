@@ -2,7 +2,6 @@
 // const fs = require('fs');
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 
 
 async function deleteAccountHandler(req, reply)
