@@ -16,7 +16,8 @@ clientSecret= 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
             reply.code(200).send({message: "login successfully", id: lastID, token: token});
 */
 
-const domain = process.env.DOMAIN;
+// const domain = process.env.DOMAIN;
+const domain = 'localhost:5173';
 
 
 

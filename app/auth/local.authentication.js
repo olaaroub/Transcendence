@@ -19,6 +19,11 @@ async function signUpHandler(request, reply)
 {
 	let data = request.body;
 	try {
+		if (!data.username || !data.password)
+		{
+			reply.code(401).send({error: "the  username or password is emty"});
+			return ;
+		}
 		this.db.prepare("INSERT INTO users(username, password, email) VALUES (?, ?, ?)").run([data.username, data.password, data.email]);
 
 		reply.code(201)
@@ -53,8 +58,9 @@ async function loginHandler (req, reply)
 		else
 			reply.code(401).send({message: "go to signUp", success: false });
 	}
-	catch {
+	catch (err) {
 		reply.code(500).send({ error: "Internal server error", success: false });
+		console.log(err)
 	}
 }
 

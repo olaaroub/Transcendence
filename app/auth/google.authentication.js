@@ -4,7 +4,8 @@
 import oauth2 from '@fastify/oauth2';
 import cookie from '@fastify/cookie';
 import DownoladImageFromUrl from './utilis.js';
-const domain = process.env.DOMAIN;
+// const domain = process.env.DOMAIN;
+const domain = 'localhost:5173';
 
 
 async function googleCallback (req, reply)
@@ -27,7 +28,8 @@ async function googleCallback (req, reply)
         else
         {
             const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google");
-            const info = this.db.prepare("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google", AvatarUrl]);
+            // AvatarUrl
+            const info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google"]);
             jwtPaylod = info;
         }
         const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });

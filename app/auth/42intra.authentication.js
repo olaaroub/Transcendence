@@ -6,7 +6,8 @@ import oauth2 from '@fastify/oauth2';
 import cookie from '@fastify/cookie';
 import DownoladImageFromUrl from './utilis.js';
 
-const domain = process.env.DOMAIN;
+// const domain = process.env.DOMAIN;
+const domain = 'localhost:5173';
 
 
 async function callbackHandler(req, reply)
