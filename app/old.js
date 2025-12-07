@@ -10,7 +10,7 @@
 import Fastify from 'fastify';
 import fastifyCors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
-import websocket from  '@fastify/websocket'
+import websocket from '@fastify/websocket'
 
 import fastifyMetrics from 'fastify-metrics';
 import path from 'path';
@@ -21,6 +21,9 @@ import publicRoutes from './routes/public.routes.js';
 
 async function getJwtSecret() {
   try {
+
+    const vaultPath = process.env.VAULT_SECRET_PATH
+
     const options = {
       apiVersion: 'v1',
       endpoint: process.env.VAULT_ADDR,
@@ -28,7 +31,8 @@ async function getJwtSecret() {
     };
 
     const vaultClient = vault(options);
-    const { data } = await vaultClient.read('secret/data/auth-service');
+    console.log(`reading secrets from: ${vaultPath}`);
+    const { data } = await vaultClient.read(vaultPath);
 
     return {
       jwtSecret: data.data.jwt_secret,
@@ -50,7 +54,7 @@ async function getJwtSecret() {
 
 async function start() {
 
-  const fastify = Fastify({ logger: false });
+  const fastify = Fastify({ logger: true });
   console.log("Fetching JWT secret from Vault...");
   const secrets = await getJwtSecret();
   console.log("Secret fetched successfully ");
@@ -87,35 +91,35 @@ async function start() {
   });
 
 
-    fastify.decorate('db', db);
-    fastify.addHook('onClose', (instance, done) => {
-      db.close();
-      done();
-    });
-    const sockets = new Map();
-    fastify.decorate('sockets', sockets);
-    fastify.register(websocket)
-    // console.log(path.join(__dirname, '/static'));
-    // await fastify.register(require('@fastify/static') , {
-    //   root: path.join(__dirname, 'static'),
-    //   prefix: '/public/'
-    // });
+  fastify.decorate('db', db);
+  fastify.addHook('onClose', (instance, done) => {
+    db.close();
+    done();
+  });
+  const sockets = new Map();
+  fastify.decorate('sockets', sockets);
+  fastify.register(websocket)
+  // console.log(path.join(__dirname, '/static'));
+  // await fastify.register(require('@fastify/static') , {
+  //   root: path.join(__dirname, 'static'),
+  //   prefix: '/public/'
+  // });
 
-    fastify.register(privateRoutes, {
-        prefix: '/api',
-        // secrets: secrets
-    });
-    fastify.register(publicRoutes, {
-        prefix: '/api',
-        secrets: secrets
-    });
+  fastify.register(privateRoutes, {
+    prefix: '/api',
+    // secrets: secrets
+  });
+  fastify.register(publicRoutes, {
+    prefix: '/api',
+    secrets: secrets
+  });
 
   try {
     fastify.listen({
-      port: process.env.PORT || 3000,
-      host: process.env.HOST || '0.0.0.0'
+      port: process.env.PORT,
+      host: process.env.HOST
     });
-    console.log(`Server listening on ${process.env.HOST || '0.0.0.0'}:${process.env.PORT || 3000}`);
+    console.log(`Server listening on ${process.env.HOST}:${process.env.PORT}`);
   } catch (err) {
     fastify.log.error(err)
     process.exit(1)

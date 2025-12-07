@@ -4,29 +4,25 @@
 import oauth2 from '@fastify/oauth2';
 import cookie from '@fastify/cookie';
 import DownoladImageFromUrl from './utilis.js';
-// const domain = process.env.DOMAIN;
-const domain = 'localhost:5173';
+const domain = process.env.DOMAIN;
 
 
-async function googleCallback (req, reply)
-{
-    try
-    {
+async function googleCallback(req, reply) {
+    try {
 
         const res = await this.google_oauth.getAccessTokenFromAuthorizationCodeFlow(req);
         if (!res)
-            throw ({error: "getAccessTokenFromAuthorizationCodeFlow failed"});
+            throw ({ error: "getAccessTokenFromAuthorizationCodeFlow failed" });
         const userInfo = await this.google_oauth.userinfo(res.token.access_token);
 
         if (!userInfo)
-            throw ({error: "get userinfo failed"});
+            throw ({ error: "get userinfo failed" });
         const userData = await this.db.prepare("SELECT id, username, auth_provider FROM users WHERE email = ?").get([userInfo.email]);
 
         let jwtPaylod;
         if (userData)
             jwtPaylod = userData;
-        else
-        {
+        else {
             const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google");
             // AvatarUrl
             const info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google"]);
@@ -35,22 +31,20 @@ async function googleCallback (req, reply)
         const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
         reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
     }
-    catch (err)
-    {
+    catch (err) {
         console.log(err);
         reply.redirect(`${domain}/login?auth=failed`);
 
     }
 }
 
-async function authgoogle (fastify, opts)
-{
-    try{
-        const {googleId, googleSecret, cookieSecret} = opts.secrets;
+async function authgoogle(fastify, opts) {
+    try {
+        const { googleId, googleSecret, cookieSecret } = opts.secrets;
         // console.log("hellllooooooooo     ",googleId);
 
-        if(!googleId || !googleSecret || !cookieSecret)
-                throw("No google credentials provided!")
+        if (!googleId || !googleSecret || !cookieSecret)
+            throw ("No google credentials provided!")
         await fastify.register(cookie, {
             secret: cookieSecret
         })
@@ -64,8 +58,8 @@ async function authgoogle (fastify, opts)
             },
             credentials: {
                 client: {
-                id: googleId,
-                secret: googleSecret
+                    id: googleId,
+                    secret: googleSecret
                 }
             },
             startRedirectPath: '/auth/google',
@@ -78,7 +72,7 @@ async function authgoogle (fastify, opts)
         })
         fastify.get('/auth/google/callback', googleCallback);
     }
-    catch (error){
+    catch (error) {
         console.log(error);
     }
 }

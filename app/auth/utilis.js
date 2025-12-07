@@ -6,20 +6,19 @@ import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
 const __dirname = import.meta.dirname;
-async function DownoladImageFromUrl(url, provider)
-{
+async function DownoladImageFromUrl(url, provider) {
 
     const AvatarData = await fetch(url);
 
     if (!AvatarData.ok)
-        throw ({error: 'Network response was not ok'});
+        throw ({ error: 'Network response was not ok' });
     // get extention
-    const contentType =  AvatarData.headers.get('content-type');
+    const contentType = AvatarData.headers.get('content-type');
     const mimType = {
         'image/jpeg': '.jpg',
-        'image/jpg':  '.jpg',
-        'image/png':  '.png',
-        'image/gif':  '.gif'
+        'image/jpg': '.jpg',
+        'image/png': '.png',
+        'image/gif': '.gif'
     }
     if (!mimType[contentType])
         return '/public/Default_pfp.jpg'

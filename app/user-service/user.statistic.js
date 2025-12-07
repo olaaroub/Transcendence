@@ -1,6 +1,5 @@
 
-async function statisticHandler(req, reply)
-{
+async function statisticHandler(req, reply) {
     return {
         TotalWins: 127,
         TotalWeekWin: 12,
@@ -10,8 +9,7 @@ async function statisticHandler(req, reply)
     };
 }
 
-async  function statisticRoutes(fastify)
-{
+async function statisticRoutes(fastify) {
     fastify.get("/users/statistic/:id", statisticHandler);
 }
 

@@ -1,6 +1,5 @@
 
-async function search_bar(fastify)
-{
+async function search_bar(fastify) {
     fastify.get('/users/search/:id', async (req, reply) => {
         try {
             const query = req.query.username || "";
@@ -23,13 +22,13 @@ async function search_bar(fastify)
                                                     )
                                                     ORDER BY u.username ASC
                                                     LIMIT 15`)
-            .all([id, id, `%${query}%`, id])
-        console.log(data);
-        reply.code(200).send(data);
+                .all([id, id, `%${query}%`, id])
+            console.log(data);
+            reply.code(200).send(data);
         }
         catch (err) {
             console.log(err.message);
-            reply.code(500).send({success: true, message: "can not search"});
+            reply.code(500).send({ success: true, message: "can not search" });
         }
     })
 }

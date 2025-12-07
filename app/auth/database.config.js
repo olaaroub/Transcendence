@@ -4,8 +4,7 @@
 import Database from 'better-sqlite3'
 
 const DB_PATH = process.env.DB_PATH || './auth.db';
-const creatTable = async () =>
-{
+const creatTable = async () => {
 
     const db = new Database(DB_PATH);
     // db.pragma('journal_mode = WAL'); // bach mli nbghi nktb on 9ra fnafs lwe9t maytblokach liya
@@ -20,7 +19,7 @@ const creatTable = async () =>
         CHECK (auth_provider IN ('local', 'google', 'github', 'intra'))
     );`);
 
-    
+
     return db;
 }
 

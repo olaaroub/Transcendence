@@ -17,33 +17,82 @@ services:
     networks:
       - transcendence-dev-net
     depends_on:
-      - backend-dev
+      - modSecurity-dev
 
-  backend-dev:
+  # backend-dev:
+  #   build:
+  #     context: ./app
+  #     dockerfile: Dockerfile.backend.dev
+  #   image: backend-dev:1337
+  #   container_name: backend-dev
+  #   environment:
+  #     - VAULT_ADDR=${VAULT_ADDR}
+  #     - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+  #     - PORT=${BACKEND_PORT}
+  #     - HOST=${BACKEND_HOST}
+  #     - DOMAIN=${AUTH_DOMAIN}
+  #   volumes:
+  #     - ./app:/app
+  #     - ./db:/data
+  #     - ./app/static:/app/static
+  #     - /app/node_modules
+  #   networks:
+  #     - transcendence-dev-net
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     vault-init-dev:
+  #       condition: service_completed_successfully
+
+
+  auth-service-dev:
     build:
-      context: ./app
-      dockerfile: Dockerfile.backend.dev
-    image: backend-dev:1337
-    container_name: backend-dev
+      context: ./app/auth
+      dockerfile: ../Dockerfile.microservices.dev
+      args:
+        - PORT=3001
+    image: auth-service-dev:1337
+    container_name: auth-service-dev
     environment:
       - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_SECRET_PATH=${AUTH_SECRET_PATH}
       - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
-      - PORT=${BACKEND_PORT}
-      - HOST=${BACKEND_HOST}
+      - HOST=0.0.0.0
       - DOMAIN=${AUTH_DOMAIN}
     volumes:
-      - ./app:/app
-      - ./db:/data
-      - ./app/static:/app/static
+      - ./app/auth:/app
+      - ./db/auth:/data
       - /app/node_modules
     networks:
       - transcendence-dev-net
-    ports:
-      - "3000:3000"
+    depends_on:
+      vault-init-dev:
+          condition: service_completed_successfully
+
+
+
+  user-service-dev:
+    build:
+      context: ./app/user-service
+      dockerfile: ../Dockerfile.microservices.dev
+      args:
+        - PORT=3002
+    image: user-service-dev:1337
+    container_name: user-service-dev
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_SECRET_PATH=${USER_SECRET_PATH}
+      - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
+      - HOST=0.0.0.0
+    volumes:
+      - ./app/user-service:/app
+      - ./db/users:/data
+      - /app/node_modules
+    networks:
+      - transcendence-dev-net
     depends_on:
       vault-init-dev:
         condition: service_completed_successfully
-
 
 
   vault-dev:
@@ -78,26 +127,28 @@ services:
       - INTRA_CLIENT_ID=${INTRA_CLIENT_ID}
       - INTRA_CLIENT_SECRET=${INTRA_CLIENT_SECRET}
       - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+      - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
     entrypoint: /init.sh
     depends_on:
       - vault-dev
 
   modSecurity-dev:
     image: owasp/modsecurity-crs:4.20-nginx-alpine-202511100111
-    container_name: modSecurity
+    container_name: modSecurity-dev
     networks:
       - transcendence-dev-net
     environment:
-      - BACKEND=http://backend-dev:3000
       - MODSEC_RULE_ENGINE=DetectionOnly
       - BLOCKING_PARANOIA=2
       # - ALLOWED_METHODS=PUT DELETE POST GET HEAD OPTIONS
     volumes:
       - ./waf/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
       - ./waf/scan_php.sh:/usr/local/bin/scan_php.sh:ro
+      - ./waf/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
     restart: on-failure
     depends_on:
-      - backend-dev
+      - auth-service-dev
+      - user-service-dev
 
 
 
@@ -112,13 +163,14 @@ services:
       - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     depends_on:
-      - backend-dev
+      - auth-service-dev
+      - user-service-dev
 
   grafana-dev:
     image: grafana/grafana:12.3.0
     container_name: grafana-dev
     ports:
-      - "3001:3000"
+      - "3000:3000"
     networks:
       - transcendence-dev-net
     volumes:

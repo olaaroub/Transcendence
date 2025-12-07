@@ -16,20 +16,17 @@ clientSecret= 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
             reply.code(200).send({message: "login successfully", id: lastID, token: token});
 */
 
-// const domain = process.env.DOMAIN;
-const domain = 'localhost:5173';
+const domain = process.env.DOMAIN;
 
 
 
-async function githubCallback (req, reply)
-{
-    try
-    {
+async function githubCallback(req, reply) {
+    try {
         const res = await this.github_oauth.getAccessTokenFromAuthorizationCodeFlow(req);
 
         if (!res)
-            throw ({error: "getAccessTokenFromAuthorizationCodeFlow failed"});
-        const userResponse = await fetch (`https://api.github.com/user`, {
+            throw ({ error: "getAccessTokenFromAuthorizationCodeFlow failed" });
+        const userResponse = await fetch(`https://api.github.com/user`, {
             headers: {
                 'Authorization': `Bearer ${res.token.access_token}`,
                 'User-Agent': 'transendance_app'
@@ -37,52 +34,49 @@ async function githubCallback (req, reply)
         });
         const userInfo = await userResponse.json();
         if (!userInfo)
-            throw ({error: "get userinfo failed"});
+            throw ({ error: "get userinfo failed" });
         // console.log(userInfo);
         // reply.send(userInfo);
         const emailResponse = await fetch(`https://api.github.com/user/emails`, {
             headers: {
-              'Authorization': `Bearer ${res.token.access_token}`,
-              'User-Agent': 'transendance_app'
+                'Authorization': `Bearer ${res.token.access_token}`,
+                'User-Agent': 'transendance_app'
             }
-          })
+        })
 
         const emails = await emailResponse.json();
         let lastuser;
         const emailData = emails.find(email => email.primary == true);
         // console.log(emailData);
         const AvatarUrl = await DownoladImageFromUrl(userInfo.avatar_url, "_github");
-        const data =  this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([emailData.email]);
+        const data = this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([emailData.email]);
         // console.log("data is: ", data);
         let jwtPaylod;
         if (data)
             jwtPaylod = data;
-        else
-        {
-            lastuser =  this.db.prepare("INSERT INTO users(email, username, auth_provider, profileImage) VALUES (?, ?, ?, ?) RETURNING id, username").get([emailData.email, userInfo.name, "github", AvatarUrl]);
+        else {
+            lastuser = this.db.prepare("INSERT INTO users(email, username, auth_provider, profileImage) VALUES (?, ?, ?, ?) RETURNING id, username").get([emailData.email, userInfo.name, "github", AvatarUrl]);
             console.log("last user: ", lastuser);
             if (userInfo.bio)
-                 this.db.prepare("UPDATE infos SET bio = ?  WHERE user_id = ?").run([userInfo.bio, lastuser.lastID]);
+                this.db.prepare("UPDATE infos SET bio = ?  WHERE user_id = ?").run([userInfo.bio, lastuser.lastID]);
             jwtPaylod = lastuser;
         }
         const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
         reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
     }
-    catch (err)
-    {
+    catch (err) {
         console.log(err);
         reply.redirect(`${domain}/login?auth=failed`);
 
     }
 }
 
-async function githubauth (fastify, opts)
-{
-    try{
+async function githubauth(fastify, opts) {
+    try {
         const { githubId, githubSecret, cookieSecret } = opts.secrets;
 
-        if(!githubId || !githubSecret || !cookieSecret)
-            throw("No github credentials provided!")
+        if (!githubId || !githubSecret || !cookieSecret)
+            throw ("No github credentials provided!")
         await fastify.register(cookie, {
             secret: cookieSecret
         })
@@ -92,8 +86,8 @@ async function githubauth (fastify, opts)
 
             credentials: {
                 client: {
-                id: githubId,
-                secret: githubSecret
+                    id: githubId,
+                    secret: githubSecret
                 },
                 auth: oauth2.GITHUB_CONFIGURATION
             },

@@ -6,31 +6,28 @@ import oauth2 from '@fastify/oauth2';
 import cookie from '@fastify/cookie';
 import DownoladImageFromUrl from './utilis.js';
 
-// const domain = process.env.DOMAIN;
-const domain = 'localhost:5173';
+const domain = process.env.DOMAIN;
 
 
-async function callbackHandler(req, reply)
-{
+async function callbackHandler(req, reply) {
     try {
         const res = await this.authIntra.getAccessTokenFromAuthorizationCodeFlow(req);
 
         if (!res)
-            throw ({error: "getAccessTokenFromAuthorizationCodeFlow failed"});
-        const dataUser = await  fetch('https://api.intra.42.fr/v2/me', {
+            throw ({ error: "getAccessTokenFromAuthorizationCodeFlow failed" });
+        const dataUser = await fetch('https://api.intra.42.fr/v2/me', {
             headers: {
                 'Authorization': `Bearer ${res.token.access_token}`
             }
         });
         if (!dataUser.ok)
-            throw {error: "you have error in fetch data user"};
+            throw { error: "you have error in fetch data user" };
         const userdata = await dataUser.json();
         const data = this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([userdata.email]);
         let jwtPaylod;
         if (data)
             jwtPaylod = data;
-        else
-        {
+        else {
             const AvatarUrl = await DownoladImageFromUrl(userdata.image.versions.small, "_intra");
             lastuser = this.db.prepare("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?) RETURNING id, username").get([userdata.usual_full_name, userdata.email, "intra", AvatarUrl]);
             jwtPaylod = lastuser;
@@ -38,8 +35,7 @@ async function callbackHandler(req, reply)
         const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
         reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
     }
-    catch (err)
-    {
+    catch (err) {
         console.log(err)
         reply.redirect(`${domain}/login?auth=failed`);
     }
@@ -47,24 +43,23 @@ async function callbackHandler(req, reply)
 
 
 
-async function authIntra(fastify, opts)
-{
-    try{
+async function authIntra(fastify, opts) {
+    try {
         const { intraId, intraSecret, cookieSecret } = opts.secrets;
-        if(!intraId || !intraSecret || !cookieSecret)
-            throw("No intra credentials provided!")
+        if (!intraId || !intraSecret || !cookieSecret)
+            throw ("No intra credentials provided!")
         await fastify.register(cookie, {
             secret: cookieSecret
         })
         await fastify.register(oauth2, {
             name: 'authIntra',
             scope: ['public'],
-    
+
             credentials: {
                 client: {
                     id: intraId,
                     secret: intraSecret
-                    },
+                },
                 auth: {
                     authorizeHost: 'https://api.intra.42.fr',
                     authorizePath: '/oauth/authorize',
@@ -83,7 +78,7 @@ async function authIntra(fastify, opts)
         );
         fastify.get("/auth/intra/callback", callbackHandler);
     }
-    catch (error){
+    catch (error) {
         console.log(error);
     }
 }

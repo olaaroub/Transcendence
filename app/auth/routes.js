@@ -10,22 +10,21 @@ import statistic from '../user-service/user.statistic.js'
 import leaderBord from '../user-service/leaderBord.js'
 import { fileURLToPath } from 'url';
 
-async function publicRoutes(fastify, opts)
-{
-    // const __dirname = import.meta.dirname;
-    // const staticOps = {
-    //     root: path.join(__dirname, '../static'),
-    //     prefix: '/public/'
-    //   };
-    
-    const secretOpts = {
-      secrets: opts.secrets
-    };
-    // fastify.register(fastifyStatic , staticOps);
-    fastify.register(local_auth);
-    fastify.register(googlea_auth , secretOpts);
-    fastify.register(github_auth  , secretOpts);
-    fastify.register(intra_auth , secretOpts);
+async function publicRoutes(fastify, opts) {
+  // const __dirname = import.meta.dirname;
+  // const staticOps = {
+  //     root: path.join(__dirname, '../static'),
+  //     prefix: '/public/'
+  //   };
+
+  const secretOpts = {
+    secrets: opts.secrets
+  };
+  // fastify.register(fastifyStatic , staticOps);
+  fastify.register(local_auth);
+  fastify.register(googlea_auth, secretOpts);
+  fastify.register(github_auth, secretOpts);
+  fastify.register(intra_auth, secretOpts);
   //   fastify.get("/test", async (req, reply) => {
   //     try
   //     {
@@ -37,7 +36,7 @@ async function publicRoutes(fastify, opts)
   //         reply.code(500).send({success: false});
   //     }
   // })
-  /* 
+  /*
   body {
     friend_id: 2,
     block: true / false,

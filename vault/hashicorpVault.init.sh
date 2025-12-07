@@ -22,9 +22,8 @@ vault kv put secret/auth-service \
       intra_client_secret="$INTRA_CLIENT_SECRET"
 
 
-# vault kv put secret/backend \
-#     db_password="$DB_PASSWORD" \
-#     admin_api_key="$ADMIN_API_KEY"
+vault kv put secret/user-service \
+    jwt_secret="$JWT_SECRET_VALUE" \
 
 
 
@@ -39,12 +38,12 @@ path "secret/data/auth-service" {
 vault policy write auth-policy /tmp/policy-auth.hcl
 
 
-# echo '
-# path "secret/data/backend" {
-#   capabilities = ["read"]
-# }
-# ' > /tmp/policy-backend.hcl
-# vault policy write backend-policy /tmp/policy-backend.hcl
+echo '
+path "secret/data/user-service" {
+  capabilities = ["read"]
+}
+' > /tmp/policy-user-service.hcl
+vault policy write user-service-policy /tmp/policy-user-service.hcl
 
 
 
@@ -62,12 +61,12 @@ echo "[Init] Auth Service Token created."
 
 
 
-# vault token revoke "$BACKEND_SERVICE_TOKEN" 2>/dev/null || true
-# vault token create \
-#     -id="$BACKEND_SERVICE_TOKEN" \
-#     -policy="backend-policy" \
-#     -ttl="720h" \
-#     -no-default-policy > /dev/null
+vault token revoke "$USER_SERVICE_TOKEN" 2>/dev/null || true
+vault token create \
+    -id="$USER_SERVICE_TOKEN" \
+    -policy="user-service-policy" \
+    -ttl="720h" \
+    -no-default-policy > /dev/null
 
 
 
