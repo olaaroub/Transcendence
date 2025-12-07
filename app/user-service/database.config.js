@@ -30,7 +30,7 @@ const creatTable = async () => {
 
 
     db.exec(`CREATE INDEX IF NOT EXISTS user_scor_indx
-             ON infos(points DESC)
+             ON userInfos(points DESC)
     ;`)
 
     db.exec(`CREATE TABLE IF NOT EXISTS friendships (

@@ -1,5 +1,8 @@
 import Fastify from 'fastify';
-
+import fastifyJwt from '@fastify/jwt';
+import fastifyCors from '@fastify/cors';
+import dbconfig from './database.config.js'
+import vault from 'node-vault';
 
 async function getJwtSecret() {
   try {
@@ -36,7 +39,7 @@ async function main() {
   console.log("Fetching JWT secret from Vault...");
   const secrets = await getJwtSecret();
   console.log("Secret fetched successfully ");
-
+  const db = await dbconfig();
   fastify.register(fastifyJwt, {
     secret: secrets.jwtSecret
   });

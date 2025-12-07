@@ -5,10 +5,10 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "app.js",
+  "main": "users.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon --delay 2s app.js",
+    "start": "node users.js",
+    "dev": "nodemon --delay 2s users.js",
     "test": "tap ../tests/**/*.test.js",
     "test:watch": "tap ../tests/**/*.test.js --watch",
     "test:coverage": "tap ../tests/**/*.test.js --coverage-report=html"

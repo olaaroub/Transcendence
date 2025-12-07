@@ -4,9 +4,9 @@ import dbconfig from './database.config.js'
 import fastifyJwt from '@fastify/jwt';
 import fastifyCors from '@fastify/cors';
 import Fastify from 'fastify';
+import vault from 'node-vault';
 
-
-async function getJwtSecret() {
+async function getSecrets() {
   try {
 
     const vaultPath = process.env.VAULT_SECRET_PATH
@@ -43,15 +43,15 @@ async function getJwtSecret() {
 async function main() {
   const fastify = Fastify({ logger: true });
   console.log("Fetching JWT secret from Vault...");
-  const secrets = await getJwtSecret();
+  const secrets = await getSecrets();
   console.log("Secret fetched successfully ");
 
 
-  // await fastify.register(fastifyCors, {
-  //   origin: '*',
-  //   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  //   allowedHeaders: ['Access-Control-Allow-Origin']
-  // });
+  await fastify.register(fastifyCors, {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Access-Control-Allow-Origin']
+  });
   // fastify.register(fastifyJwt, {
   //   secret: secrets.jwtSecret
   // });
@@ -64,33 +64,24 @@ async function main() {
   });
 
 
-  fastify.register(publicRoutes, {
-    prefix: '/api',
-    secrets: secrets
-  });
+  // fastify.register(publicRoutes, {
+  //   prefix: '/api',
+  //   secrets: secrets
+  // });
 
 
   try {
     const db = await dbconfig();
     fastify.decorate('db', db);
-    const secretOpts = {
-      githubId: "dd",
-      githubSecret: "fds",
-      cookieSecret: "fdes",
-      googleId: "ddfd",
-      googleSecret: "fdfd",
-      intraId: "fdf",
-      intraSecret: "fdfd"
-    }
     fastify.register(routes, {
       prefix: '/api',
-      secrets: secretOpts
+      secrets: secrets
     });
     fastify.listen({
-      port: process.env.PORT || 5173,
+      port: process.env.PORT || 3000,
       host: process.env.HOST || '0.0.0.0'
     });
-    console.log(`Server listening on ${process.env.HOST || '0.0.0.0'}:${process.env.PORT || 5173}`);
+    console.log(`Server listening on ${process.env.HOST || '0.0.0.0'}:${process.env.PORT || 3000}`);
   } catch (err) {
     fastify.log.error(err)
     process.exit(1)
