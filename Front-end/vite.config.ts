@@ -18,7 +18,7 @@ export default defineConfig(({ command }) => {
       host: '0.0.0.0',
       proxy: {
         '/api/': {
-          target: 'http://modSecurity:8080',
+          target: 'http://modSecurity-dev:80',
           changeOrigin: true,
           secure: false,
         }
