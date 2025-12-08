@@ -4,11 +4,11 @@ async function search_bar(fastify) {
         try {
             const query = req.query.username || "";
             const id = req.params.id;
-            const data = await fastify.db.prepare(` SELECT u.id, u.username, f.status, u.profileImage
+            const data = await fastify.db.prepare(` SELECT u.user_id, u.username, f.status, u.avatar_url
                                                 FROM
-                                                    users AS u
+                                                    userInfo AS u
                                                     LEFT JOIN friendships AS f
-                                                        ON u.id = (
+                                                        ON u.user_id = (
                                                             CASE
                                                                 WHEN userRequester = ? THEN userReceiver
                                                                 WHEN userReceiver = ? THEN userRequester

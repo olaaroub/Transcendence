@@ -17,18 +17,34 @@ async function googleCallback(req, reply) {
 
         if (!userInfo)
             throw ({ error: "get userinfo failed" });
-        const userData = await this.db.prepare("SELECT id, username, auth_provider FROM users WHERE email = ?").get([userInfo.email]);
+        const userData = await this.db.prepare("SELECT id, username, auth_provider FROM users WHERE email = ?")
+                                      .get([userInfo.email]);
 
-        let jwtPaylod;
+        let token;
         if (userData)
-            jwtPaylod = userData;
+            token = this.jwt.sign(userData, { expiresIn: '1h' });
         else {
             const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google");
-            // AvatarUrl
-            const info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google"]);
-            jwtPaylod = info;
+            const info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google"]);
+            token = this.jwt.sign(info, { expiresIn: '1h' });
+            const createNewUserRes = await fetch('http://user-service-dev:3002/api/users/createNewUser', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: info.id,
+                    username: info.username,
+                    avatar_url: AvatarUrl
+                })
+            });
+            if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
+            {
+                this.db.prepare('DELETE FROM users WHERE id = ?').run([info.id]);
+                reply.redirect(`${domain}/login?auth=failed&message='failed to create new user'`);
+            }
         }
-        const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
         reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
     }
     catch (err) {

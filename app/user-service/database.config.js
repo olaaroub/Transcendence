@@ -9,12 +9,12 @@ const creatTable = async () => {
     const db = new Database(DB_PATH);
     // db.pragma('journal_mode = WAL'); // bach mli nbghi nktb on 9ra fnafs lwe9t maytblokach liya
 
-    db.exec(`CREATE TABLE IF NOT EXISTS userInfos (
+    db.exec(`CREATE TABLE IF NOT EXISTS userInfo (
         id INTEGER PRIMARY KEY,
-        user_id INTEGER,
+        user_id INTEGER UNIQUE NOT NULL,
         username TEXT UNIQUE NOT NULL,
         bio TEXT DEFAULT '--',
-        profileImage TEXT DEFAULT '/public/Default_pfp.jpg',
+        avatar_url TEXT DEFAULT '/public/Default_pfp.jpg',
         is_read BOOLEAN DEFAULT FALSE,
 
         TotalWins INTEGER,
@@ -30,7 +30,7 @@ const creatTable = async () => {
 
 
     db.exec(`CREATE INDEX IF NOT EXISTS user_scor_indx
-             ON userInfos(points DESC)
+             ON userInfo(points DESC)
     ;`)
 
     db.exec(`CREATE TABLE IF NOT EXISTS friendships (
@@ -53,8 +53,8 @@ const creatTable = async () => {
 
         CHECK(status IN ('PENDING', 'ACCEPTED', 'REJECTED', 'BLOCKED')),
 
-        FOREIGN KEY(userRequester) REFERENCES userInfos(user_id) ON DELETE CASCADE,
-        FOREIGN KEY(userReceiver) REFERENCES userInfos(user_id) ON DELETE CASCADE,
+        FOREIGN KEY(userRequester) REFERENCES userInfo(user_id) ON DELETE CASCADE,
+        FOREIGN KEY(userReceiver) REFERENCES userInfo(user_id) ON DELETE CASCADE,
 
         CHECK (userRequester <> userReceiver),
         UNIQUE (userRequester, userReceiver),
