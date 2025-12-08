@@ -10,8 +10,8 @@ services:
       - "5173:5173"
     volumes:
       - ./Front-end:/app
-      - /app/node_modules
       - ./certs:/app/certs:ro
+      - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
     networks:
@@ -57,6 +57,7 @@ services:
       - VAULT_ADDR=${VAULT_ADDR}
       - VAULT_SECRET_PATH=${AUTH_SECRET_PATH}
       - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/auth.db
       - HOST=0.0.0.0
       - DOMAIN=${AUTH_DOMAIN}
     ports:
@@ -64,6 +65,7 @@ services:
     volumes:
       - ./app/auth:/app
       - ./db/auth:/data
+      - ./app/static:/app/static
       - /app/node_modules
     networks:
       - transcendence-dev-net
@@ -85,11 +87,13 @@ services:
       - VAULT_ADDR=${VAULT_ADDR}
       - VAULT_SECRET_PATH=${USER_SECRET_PATH}
       - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/users.db
       - HOST=0.0.0.0
     ports:
       - "3002:3002"
     volumes:
       - ./app/user-service:/app
+      - ./app/static:/app/static
       - ./db/users:/data
       - /app/node_modules
     networks:
@@ -146,9 +150,10 @@ services:
       - BLOCKING_PARANOIA=2
       # - ALLOWED_METHODS=PUT DELETE POST GET HEAD OPTIONS
     volumes:
+      # - ./waf/modsec_includes.conf:/etc/modsecurity.d/modsec_includes.conf:ro
+      - ./waf/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
       - ./waf/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
       - ./waf/scan_php.sh:/usr/local/bin/scan_php.sh:ro
-      - ./waf/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
     restart: on-failure
     depends_on:
       - auth-service-dev
