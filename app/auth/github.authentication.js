@@ -61,7 +61,6 @@ async function githubCallback(req, reply) {
             const createNewUserRes = await fetch('http://user-service-dev:3002/api/users/createNewUser', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -79,7 +78,7 @@ async function githubCallback(req, reply) {
             if (userInfo.bio)
                 this.db.prepare("UPDATE infos SET bio = ?  WHERE user_id = ?").run([userInfo.bio, lastuser.lastID]);
         }
-        reply.redirect(`${domain}/login?token=${token}&id=${data.id || lastuser.id}`);
+        reply.redirect(`${domain}/login?token=${token}&id=${lastuser ? lastuser.id : data.id}`);
     }
     catch (err) {
         console.log(err);

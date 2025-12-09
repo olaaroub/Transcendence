@@ -35,7 +35,6 @@ async function callbackHandler(req, reply) {
             const createNewUserRes = await fetch('http://user-service-dev:3002/api/users/createNewUser', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -50,7 +49,7 @@ async function callbackHandler(req, reply) {
                 reply.redirect(`${domain}/login?auth=failed&message='failed to create new user'`);
             }
         }
-        reply.redirect(`${domain}/login?token=${token}&id=${lastuser.id || data.id}`);
+        reply.redirect(`${domain}/login?token=${token}&id=${lastuser ? lastuser.id : data.id}`);
     }
     catch (err) {
         console.log(err)

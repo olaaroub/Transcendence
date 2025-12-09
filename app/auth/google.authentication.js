@@ -21,17 +21,20 @@ async function googleCallback(req, reply) {
                                       .get([userInfo.email]);
 
         let token;
+        let info;
         if (userData)
             token = this.jwt.sign(userData, { expiresIn: '1h' });
         else {
             const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google");
-            const info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google"]);
+            info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google"]);
+            if (!info)
+                throw {error: "can not insert user"};
             token = this.jwt.sign(info, { expiresIn: '1h' });
             const createNewUserRes = await fetch('http://user-service-dev:3002/api/users/createNewUser', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
+                    // I will add the secret key to check the request is from the microserves
                 },
                 body: JSON.stringify({
                     user_id: info.id,
@@ -42,15 +45,15 @@ async function googleCallback(req, reply) {
             if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
             {
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([info.id]);
-                reply.redirect(`${domain}/login?auth=failed&message='failed to create new user'`);
+                reply.redirect(`${domain}/login?auth=failed&message=failed to create new user`);
             }
         }
-        reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
+        console.log(info, "  ", userData);
+        reply.redirect(`${domain}/login?token=${token}&id=${info ? info.id : userData.id}`);
     }
     catch (err) {
         console.log(err);
         reply.redirect(`${domain}/login?auth=failed`);
-
     }
 }
 

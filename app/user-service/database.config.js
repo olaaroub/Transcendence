@@ -50,7 +50,6 @@ const creatTable = async () => {
             END
         ) STORED,
 
-
         CHECK(status IN ('PENDING', 'ACCEPTED', 'REJECTED', 'BLOCKED')),
 
         FOREIGN KEY(userRequester) REFERENCES userInfo(user_id) ON DELETE CASCADE,

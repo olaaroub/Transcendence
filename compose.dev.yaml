@@ -50,7 +50,7 @@ services:
       context: ./app/auth
       dockerfile: ../Dockerfile.microservices.dev
       args:
-        - PORT=3000
+        - PORT=3001
     image: auth-service-dev:1337
     container_name: auth-service-dev
     environment:
@@ -61,7 +61,7 @@ services:
       - HOST=0.0.0.0
       - DOMAIN=${AUTH_DOMAIN}
     ports:
-      - "3001:3000"
+      - "3001:3001"
     volumes:
       - ./app/auth:/app
       - ./db/auth:/data
