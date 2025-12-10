@@ -29,8 +29,8 @@ async function DownoladImageFromUrl(url, provider) {
     const buffer = Buffer.from(arrayBuffer);
 
     const file_name = uuidv4() + provider + ext;
-    const file_path = path.join(__dirname, '../static', file_name);
-
+    const file_path = path.join(__dirname, 'static', file_name);
+    console.log(__dirname)
     await fs.promises.writeFile(file_path, buffer);
     return `/public/${file_name}`;
 }

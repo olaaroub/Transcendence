@@ -17,24 +17,43 @@ async function googleCallback(req, reply) {
 
         if (!userInfo)
             throw ({ error: "get userinfo failed" });
-        const userData = await this.db.prepare("SELECT id, username, auth_provider FROM users WHERE email = ?").get([userInfo.email]);
+        const userData = await this.db.prepare("SELECT id, username, auth_provider FROM users WHERE email = ?")
+                                      .get([userInfo.email]);
 
-        let jwtPaylod;
+        let token;
+        let info;
         if (userData)
-            jwtPaylod = userData;
+            token = this.jwt.sign(userData, { expiresIn: '1h' });
         else {
             const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google");
-            // AvatarUrl
-            const info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google"]);
-            jwtPaylod = info;
+            info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google"]);
+            if (!info)
+                throw {error: "can not insert user"};
+            token = this.jwt.sign(info, { expiresIn: '1h' });
+            const createNewUserRes = await fetch('http://user-service-dev:3002/api/users/createNewUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                    // I will add the secret key to check the request is from the microserves
+                },
+                body: JSON.stringify({
+                    user_id: info.id,
+                    username: info.username,
+                    avatar_url: AvatarUrl
+                })
+            });
+            if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
+            {
+                this.db.prepare('DELETE FROM users WHERE id = ?').run([info.id]);
+                reply.redirect(`${domain}/login?auth=failed&message=failed to create new user`);
+            }
         }
-        const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
-        reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
+        console.log(info, "  ", userData);
+        reply.redirect(`${domain}/login?token=${token}&id=${info ? info.id : userData.id}`);
     }
     catch (err) {
         console.log(err);
         reply.redirect(`${domain}/login?auth=failed`);
-
     }
 }
 

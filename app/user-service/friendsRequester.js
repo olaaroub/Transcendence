@@ -8,15 +8,14 @@ async function add_friend(req, reply) {
         if (!notificationSockets)
             throw { err: "socket Not found" }
         this.db.prepare(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`).run([requester_id, receiver_id]);
-        const requester_Data = this.db.prepare(`SELECT u.id, u.username, u.profileImage, i.is_read FROM
-                                                users u
-                                                INNER JOIN  infos i ON u.id = i.user_id
-                                                WHERE u.id = ?`).get([requester_id]);
+        const requester_Data = this.db.prepare(`SELECT user_id, username, avatar_url, is_read
+                                                FROM userInfo
+                                                WHERE user_id = ?`).get([requester_id]);
 
 
         requester_Data.is_read = false;
         requester_Data["type"] = 'SEND_NOTIFICATION'
-        this.db.prepare("UPDATE infos SET  is_read = FALSE WHERE user_id = ?").run([requester_Data.id]);
+        this.db.prepare("UPDATE userInfo SET  is_read = FALSE WHERE user_id = ?").run([requester_Data.id]);
         console.log(requester_Data)
         for (const socket of notificationSockets) {
             if (socket && socket.readyState == 1)
@@ -34,9 +33,9 @@ async function add_friend(req, reply) {
 async function getFriends(req, reply) {
     try {
         const id = req.params.id;
-        const friends = this.db.prepare(`SELECT u.id, u.username, u.profileImage
+        const friends = this.db.prepare(`SELECT u.user_id, u.username, u.avatar_url
                                            FROM
-                                            users u
+                                            userInfo u
                                             INNER JOIN
                                                 friendships f ON u.id = (
                                                     CASE

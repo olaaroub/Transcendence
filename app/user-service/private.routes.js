@@ -20,6 +20,34 @@ async function JwtHandler(request, reply) {
     reply.code(401).send({ error: 'Unauthorized: No valid token provided' });
   }
 }
+/*
+  create new user body structure:
+  {
+    user_id,
+    username,
+    avatar_url;
+  }
+*/
+async function createNewUser(req, reply)
+{
+    const newUserData = req.body;
+    try {
+      console.log(newUserData);
+      if (newUserData.avatar_url)
+        this.db.prepare(`INSERT INTO userInfo(user_id, username, avatar_url) VALUES(?, ?, ?)`).run([newUserData.user_id, newUserData.username, newUserData.avatar_url]);
+      else
+        this.db.prepare(`INSERT INTO userInfo(user_id, username) VALUES(?, ?)`).run([newUserData.user_id, newUserData.username]);
+      reply.code(200).send({message: "user created successfully", ok: true});
+    }
+    catch (err)
+    {
+      console.log(err)
+      if (err.code === 'SQLITE_CONSTRAINT_UNIQUE')
+        reply.code(409).send({message: "this user alredy exists !", ok: false});
+      else
+        reply.code(500).send({message: "intrenal server error", ok: false});
+    }
+}
 
 async function privateRoutes(fastify) {
   // fastify.addHook('preHandler', JwtHandler);
@@ -28,7 +56,8 @@ async function privateRoutes(fastify) {
   fastify.register(search_bar);
   fastify.register(friendsReceiver);
   fastify.register(friendsRequester);
-  fastify.register(deleteAccount);
+  // fastify.register(deleteAccount);
+  fastify.post('/users/createNewUser', createNewUser);
   // fastify.register(require('./user.statistic'));
 }
 

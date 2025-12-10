@@ -20,8 +20,25 @@ async function signUpHandler(request, reply) {
 			reply.code(401).send({ error: "the  username or password is emty" });
 			return;
 		}
-		this.db.prepare("INSERT INTO users(username, password, email) VALUES (?, ?, ?)").run([data.username, data.password, data.email]);
-
+		const newUserData = this.db.prepare("INSERT INTO users(username, password, email) VALUES (?, ?, ?) RETURNING id, username")
+								   .get([data.username, data.password, data.email]);
+		console.log(newUserData);
+		const createNewUserRes = await fetch('http://user-service-dev:3002/api/users/createNewUser', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+				// I will add the secret key to check the request is from the microserves
+			},
+			body: JSON.stringify({
+				user_id: newUserData.id,
+				username: newUserData.username
+				})
+		});
+		if (!createNewUserRes.ok)
+		{
+			this.db.prepare('DELETE FROM users WHERE id = ?').run([newUserData.id]);
+			throw {message: "can not singUp"};
+		}
 		reply.code(201)
 			.send({ message: "created", success: true });
 	}
@@ -78,7 +95,7 @@ async function getUserById(req, reply) {
 
 async function routes(fastify) {
 	try {
-		fastify.post("/login", {
+		fastify.post("/auth/login", {
 			schema: {
 				body: {
 					type: "object",
@@ -90,7 +107,7 @@ async function routes(fastify) {
 				}
 			}
 		}, loginHandler);
-		fastify.post("/signUp", {
+		fastify.post("/auth/signUp", {
 			schema: {
 				body: {
 					type: "object",
@@ -104,8 +121,10 @@ async function routes(fastify) {
 			},
 			errorHandler: signUperrorHandler
 		}, signUpHandler);
-		fastify.get("/users", getUsers);
-		fastify.get('/users/:id', getUserById);
+		fastify.get("/auth/users", getUsers);
+		fastify.get('/auth/users/:id', getUserById);
+
+
 
 	}
 	catch (err) {

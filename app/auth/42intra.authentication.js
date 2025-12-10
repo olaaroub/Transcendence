@@ -24,16 +24,32 @@ async function callbackHandler(req, reply) {
             throw { error: "you have error in fetch data user" };
         const userdata = await dataUser.json();
         const data = this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([userdata.email]);
-        let jwtPaylod;
+        let token;
         if (data)
-            jwtPaylod = data;
+            token = this.jwt.sign(data, { expiresIn: '1h' });
         else {
             const AvatarUrl = await DownoladImageFromUrl(userdata.image.versions.small, "_intra");
-            lastuser = this.db.prepare("INSERT INTO users(username, email, auth_provider, profileImage) VALUES (?, ?, ?, ?) RETURNING id, username").get([userdata.usual_full_name, userdata.email, "intra", AvatarUrl]);
-            jwtPaylod = lastuser;
+            lastuser = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
+                              .get([userdata.usual_full_name, userdata.email, "intra"]);
+            token = this.jwt.sign(lastuser, { expiresIn: '1h' });
+            const createNewUserRes = await fetch('http://user-service-dev:3002/api/users/createNewUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: lastuser.id,
+                    username: lastuser.username,
+                    avatar_url: AvatarUrl
+                })
+            });
+            if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
+            {
+                this.db.prepare('DELETE FROM users WHERE id = ?').run([lastuser.id]);
+                reply.redirect(`${domain}/login?auth=failed&message='failed to create new user'`);
+            }
         }
-        const token = this.jwt.sign(jwtPaylod, { expiresIn: '1h' });
-        reply.redirect(`${domain}/login?token=${token}&id=${jwtPaylod.id}`);
+        reply.redirect(`${domain}/login?token=${token}&id=${lastuser ? lastuser.id : data.id}`);
     }
     catch (err) {
         console.log(err)

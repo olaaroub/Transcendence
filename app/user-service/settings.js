@@ -1,7 +1,7 @@
 /*
 SELECT u.id, u.email, u.username, i.profileImage, i.bio, f.status
 	FROM
-	users AS u INNER JOIN infos AS i ON u.id = i.user_id
+	users AS u INNER JOIN userInfo AS i ON u.id = i.user_id
 	LEFT JOIN friendships AS f ON i.user_id = (
 		CASE
 			WHEN f.userRequester = ? THEN f.userRequester
@@ -11,7 +11,7 @@ SELECT u.id, u.email, u.username, i.profileImage, i.bio, f.status
 
 SELECT u.id, u.email, u.username, u.profileImage, u.auth_provider,i.bio, f.status
 											  FROM
-													users AS u INNER JOIN infos AS i ON u.id = i.user_id
+													users AS u INNER JOIN userInfo AS i ON u.id = i.user_id
 												LEFT JOIN friendships AS f ON
 													(f.userRequester = ? AND f.userReceiver = ?) OR
 													(f.userReceiver = ? AND f.userRequester = ?)
@@ -28,7 +28,8 @@ async function change_username(req, reply) {
 	const body = req.body;
 
 	try {
-		this.db.prepare("UPDATE userInfos SET username = ? WHERE user_id = ?").run([body.username, id]); // dont forget to change it in auth service
+		this.db.prepare("UPDATE userInfo SET username = ? WHERE user_id = ?").run([body.username, id]);
+		// khansni ndir lih update hta fe database tanya
 		reply.code(200).send({ message: "updating successfly username", success: true });
 	} catch {
 		reply.code(500).code({ message: "Error updating username", success: false });
@@ -40,15 +41,13 @@ async function change_bio(req, reply) {
 	const body = req.body;
 
 	try {
-		await this.db.prepare("UPDATE user_infos SET bio = ? WHERE user_id = ?").run([body.bio, id]);
+		await this.db.prepare("UPDATE userInfo SET bio = ? WHERE user_id = ?").run([body.bio, id]);
 		reply.code(200).send({ message: "updating successfly bio", success: true });
 	} catch {
 		reply.code(500).code({ message: "Error updating bio", success: false });
 	}
 }
 
-
-// this function will moveed tho auth
 // async function change_password(req, reply) {
 // 	const id = req.params.id;
 // 	const data = req.body;
@@ -74,23 +73,21 @@ async function getProfileData(req, reply) {
 		// console.log(req.userId);
 		let responceData = "";
 		if (profile_id == user_id) {
-			responceData = await this.db.prepare(`SELECT userInfos.user_id, userInfos.username, userInfos.profileImage, users.auth_provider,infos.bio
-												FROM users
-												INNER JOIN infos ON users.id = infos.user_id
-												WHERE users.id = ?`).get([user_id]);
+			responceData = await this.db.prepare(`SELECT userInfo.user_id, userInfo.username, userInfo.avatar_url, userInfo.auth_provider, userInfo.bio
+												FROM userInfo
+												WHERE userInfo.user_id = ?`).get([user_id]);
 		}
 		else {
-			responceData = await this.db.prepare(`SELECT u.id, u.email, u.username, u.profileImage, u.auth_provider,i.bio, f.status, f.blocker_id
+			responceData = await this.db.prepare(`SELECT u.user_id, u.username, u.avatar_url, u.auth_provider, u.bio, f.status, f.blocker_id
 											  FROM
-											  	users AS u INNER JOIN infos AS i ON u.id = i.user_id
+											  	userInfo AS u
 												LEFT JOIN friendships AS f ON
 													(f.userRequester = ? AND f.userReceiver = ?) OR
         											(f.userReceiver = ? AND f.userRequester = ?)
 												WHERE
-													u.id = ?
+													u.user_id = ?
 												`).get([user_id, profile_id, user_id, profile_id, profile_id]);
 			if (responceData.status == 'BLOCKED' && responceData.blocker_id == profile_id) {
-				responceData.email = '';
 				responceData.username = 'Pong User';
 				responceData.profileImage = '/public/Default_pfp.jpg';
 				responceData.bio = '--';

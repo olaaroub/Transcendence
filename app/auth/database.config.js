@@ -3,7 +3,7 @@
 // const Database = require('better-sqlite3');
 import Database from 'better-sqlite3'
 
-const DB_PATH = process.env.DB_PATH || '/data/auth.db';
+const DB_PATH = process.env.DATABASE_PATH;
 const creatTable = async () => {
 
     const db = new Database(DB_PATH);
