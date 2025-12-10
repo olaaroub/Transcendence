@@ -28,7 +28,7 @@ async function change_username(req, reply) {
 	const body = req.body;
 
 	try {
-		this.db.prepare("UPDATE users SET username = ? WHERE id = ?").run([body.username, id]);
+		this.db.prepare("UPDATE userInfos SET username = ? WHERE user_id = ?").run([body.username, id]); // dont forget to change it in auth service
 		reply.code(200).send({ message: "updating successfly username", success: true });
 	} catch {
 		reply.code(500).code({ message: "Error updating username", success: false });
@@ -40,29 +40,31 @@ async function change_bio(req, reply) {
 	const body = req.body;
 
 	try {
-		await this.db.prepare("UPDATE infos SET bio = ? WHERE user_id = ?").run([body.bio, id]);
+		await this.db.prepare("UPDATE user_infos SET bio = ? WHERE user_id = ?").run([body.bio, id]);
 		reply.code(200).send({ message: "updating successfly bio", success: true });
 	} catch {
 		reply.code(500).code({ message: "Error updating bio", success: false });
 	}
 }
 
-async function change_password(req, reply) {
-	const id = req.params.id;
-	const data = req.body;
-	try {
-		const currentPassword = this.db.prepare("SELECT password FROM users WHERE id = ?").get([id]);
-		if (currentPassword.password == data.currentPassword) {
-			await this.db.prepare("UPDATE users SET password = ? WHERE id = ?").run([data.newPassword, id]);
-			reply.code(200).send({ message: "updating successfly password", success: true });
-		}
-		else
-			reply.code(401).send({ message: "you can't updating password", success: false });
-	} catch (err) {
-		console.log(err);
-		reply.code(500).code({ message: "Error updating password", success: false });
-	}
-}
+
+// this function will moveed tho auth
+// async function change_password(req, reply) {
+// 	const id = req.params.id;
+// 	const data = req.body;
+// 	try {
+// 		const currentPassword = this.db.prepare("SELECT password FROM users WHERE id = ?").get([id]);
+// 		if (currentPassword.password == data.currentPassword) {
+// 			await this.db.prepare("UPDATE users SET password = ? WHERE id = ?").run([data.newPassword, id]);
+// 			reply.code(200).send({ message: "updating successfly password", success: true });
+// 		}
+// 		else
+// 			reply.code(401).send({ message: "you can't updating password", success: false });
+// 	} catch (err) {
+// 		console.log(err);
+// 		reply.code(500).code({ message: "Error updating password", success: false });
+// 	}
+// }
 
 async function getProfileData(req, reply) {
 	try {
@@ -72,7 +74,7 @@ async function getProfileData(req, reply) {
 		// console.log(req.userId);
 		let responceData = "";
 		if (profile_id == user_id) {
-			responceData = await this.db.prepare(`SELECT users.id, users.email, users.username, users.profileImage, users.auth_provider,infos.bio
+			responceData = await this.db.prepare(`SELECT userInfos.user_id, userInfos.username, userInfos.profileImage, users.auth_provider,infos.bio
 												FROM users
 												INNER JOIN infos ON users.id = infos.user_id
 												WHERE users.id = ?`).get([user_id]);
@@ -109,7 +111,7 @@ async function getProfileData(req, reply) {
 function settingsRoutes(fastify) {
 	fastify.put("/users/:id/settings-username", change_username);
 	fastify.put("/users/:id/settings-bio", change_bio);
-	fastify.put("/users/:id/settings-password", change_password);
+	// fastify.put("/users/:id/settings-password", change_password);
 	fastify.get("/users/:id/profile", getProfileData);
 }
 

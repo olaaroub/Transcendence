@@ -22,7 +22,7 @@ async function JwtHandler(request, reply) {
 }
 
 async function privateRoutes(fastify) {
-  fastify.addHook('preHandler', JwtHandler);
+  // fastify.addHook('preHandler', JwtHandler);
   fastify.register(settings);
   fastify.register(profileAvatar);
   fastify.register(search_bar);

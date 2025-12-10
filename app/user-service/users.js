@@ -3,6 +3,7 @@ import fastifyJwt from '@fastify/jwt';
 import fastifyCors from '@fastify/cors';
 import dbconfig from './database.config.js'
 import vault from 'node-vault';
+import  privateRoutes from './private.routes.js'
 
 async function getJwtSecret() {
   try {
