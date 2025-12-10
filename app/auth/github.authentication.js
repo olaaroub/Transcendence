@@ -56,7 +56,7 @@ async function githubCallback(req, reply) {
             lastuser = this.db.prepare("INSERT INTO users(email, username, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
                               .get([emailData.email, userInfo.name, "github"]);
             token = this.jwt.sign(lastuser, { expiresIn: '1h' });
-            const createNewUserRes = await fetch('http://user-service-dev:3002/api/users/createNewUser', {
+            const createNewUserRes = await fetch('http://user-service-dev:3002/api/user/createNewUser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -4,7 +4,7 @@ import search_bar from './search_bar.js'
 import friendsReceiver from './friendsReceiver.js'
 import friendsRequester from './friendsRequester.js'
 import deleteAccount from './deleteAccount.js'
-
+import userStatistic from './user.statistic.js'
 
 async function JwtHandler(request, reply) {
 
@@ -49,6 +49,34 @@ async function createNewUser(req, reply)
     }
 }
 
+async function blockAndunblockFriend(req, reply) 
+{
+
+    /*
+  body {
+    friend_id: 2,
+    block: true / false,
+  }
+   */
+  try
+    {
+      const id = req.params.id;
+      const friend_data = req.body;
+
+      if (friend_data.block)
+        await this.db.prepare("UPDATE friendships SET status = ?, blocker_id = ? WHERE (userRequester = ? AND userReceiver = ?) OR (userReceiver = ? AND userRequester = ?)").run(["BLOCKED", id,id, friend_data.friend_id, id, friend_data.friend_id]);
+      else
+          await this.db.prepare("UPDATE friendships SET status = ?, blocker_id = NULL WHERE (userRequester = ? AND userReceiver = ?) OR (userReceiver = ? AND userRequester = ?)").run(["ACCEPTED", id, friend_data.friend_id, id, friend_data.friend_id]);
+      reply.code(200).send("success");
+    }
+    catch (err)
+    {
+      console.log(err);
+      reply.code(200).send("error");
+
+    }
+}
+
 async function privateRoutes(fastify) {
   // fastify.addHook('preHandler', JwtHandler);
   fastify.register(settings);
@@ -56,9 +84,21 @@ async function privateRoutes(fastify) {
   fastify.register(search_bar);
   fastify.register(friendsReceiver);
   fastify.register(friendsRequester);
-  // fastify.register(deleteAccount);
+  fastify.register(deleteAccount);
+  fastify.register(userStatistic);
   fastify.post('/user/createNewUser', createNewUser);
-  // fastify.register(require('./user.statistic'));
+  fastify.put("/user/blockAndunblock-friend/:id", blockAndunblockFriend);
+      fastify.get("/test", async (req, reply) => {
+      try
+      {
+          const data = await fastify.db.prepare("SELECT userRequester, userReceiver, blocker_id, status FROM friendships").all();
+          reply.code(200).send(data);
+      }
+      catch (err)
+      {
+          reply.code(500).send({success: false});
+      }
+  })
 }
 
 // module.exports = privateRoutes;

@@ -30,7 +30,7 @@ async function googleCallback(req, reply) {
             if (!info)
                 throw {error: "can not insert user"};
             token = this.jwt.sign(info, { expiresIn: '1h' });
-            const createNewUserRes = await fetch('http://user-service-dev:3002/api/users/createNewUser', {
+            const createNewUserRes = await fetch('http://user-service-dev:3002/api/user/createNewUser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -23,7 +23,7 @@ async function signUpHandler(request, reply) {
 		const newUserData = this.db.prepare("INSERT INTO users(username, password, email) VALUES (?, ?, ?) RETURNING id, username")
 								   .get([data.username, data.password, data.email]);
 		console.log(newUserData);
-		const createNewUserRes = await fetch('http://user-service-dev:3002/api/users/createNewUser', {
+		const createNewUserRes = await fetch('http://user-service-dev:3002/api/user/createNewUser', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
