@@ -57,7 +57,7 @@ async function privateRoutes(fastify) {
   fastify.register(friendsReceiver);
   fastify.register(friendsRequester);
   // fastify.register(deleteAccount);
-  fastify.post('/users/createNewUser', createNewUser);
+  fastify.post('/user/createNewUser', createNewUser);
   // fastify.register(require('./user.statistic'));
 }
 

@@ -2,7 +2,7 @@
 
 async function routes(fastify) {
 
-    fastify.get('/users/notification/:id', { websocket: true }, async (socket, req) => {
+    fastify.get('/user/notification/:id', { websocket: true }, async (socket, req) => {
         try {
             const id = req.params.id;
             if (!id)

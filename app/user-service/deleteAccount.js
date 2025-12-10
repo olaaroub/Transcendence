@@ -23,7 +23,7 @@ async function deleteAccountHandler(req, reply) {
 }
 
 async function deleteAccount(fastify) {
-    fastify.delete("/users/deleteAccount/:id", deleteAccountHandler);
+    fastify.delete("/user/deleteAccount/:id", deleteAccountHandler);
 }
 
 // module.exports = deleteAccount;

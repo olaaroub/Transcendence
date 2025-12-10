@@ -57,8 +57,8 @@ async function getFriends(req, reply) {
 }
 
 async function routes(fastify) {
-    fastify.put("/users/:id/add-friend", add_friend);
-    fastify.get("/users/:id/friends", getFriends);
+    fastify.put("/user/:id/add-friend", add_friend);
+    fastify.get("/user/:id/friends", getFriends);
 }
 
 // module.exports = routes;

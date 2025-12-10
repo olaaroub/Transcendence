@@ -60,8 +60,8 @@ async function handleFriendRequest(req, reply) {
 }
 
 async function routes(fastify) {
-    fastify.post("/users/:id/friend-request", handleFriendRequest);
-    fastify.get("/users/:id/getPendingRequestes", getPendingRequestes);
+    fastify.post("/user/:id/friend-request", handleFriendRequest);
+    fastify.get("/user/:id/getPendingRequestes", getPendingRequestes);
 }
 
 // module.exports = routes;

@@ -1,6 +1,6 @@
 
 async function search_bar(fastify) {
-    fastify.get('/users/search/:id', async (req, reply) => {
+    fastify.get('/user/search/:id', async (req, reply) => {
         try {
             const query = req.query.username || "";
             const id = req.params.id;

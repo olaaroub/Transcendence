@@ -48,7 +48,7 @@ async function googleCallback(req, reply) {
                 reply.redirect(`${domain}/login?auth=failed&message=failed to create new user`);
             }
         }
-        console.log(info, "  ", userData);
+        console.log(`${domain}/login?token=${token}&id=${info ? info.id : userData.id}`);
         reply.redirect(`${domain}/login?token=${token}&id=${info ? info.id : userData.id}`);
     }
     catch (err) {

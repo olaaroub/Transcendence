@@ -97,9 +97,9 @@ async function routes(fastify) {
       fileSize: 2 * 1024 * 1024,
     }
   });
-  fastify.delete('/users/:id/settings-avatar', deleteAvatar);
-  fastify.put(`/users/:id/settings-avatar`, modifyAvatar);
-  fastify.get(`/users/:id/settings-avatar`, getProfileImages);
+  fastify.delete('/user/:id/settings-avatar', deleteAvatar);
+  fastify.put(`/user/:id/settings-avatar`, modifyAvatar);
+  fastify.get(`/user/:id/settings-avatar`, getProfileImages);
 }
 
 // module.exports =  routes;

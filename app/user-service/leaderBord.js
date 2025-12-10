@@ -19,7 +19,7 @@ async function leaderBordHandler(req, reply) {
 }
 
 async function leaderBord(fastify) {
-    fastify.get('/users/leaderBord', leaderBordHandler)
+    fastify.get('/user/leaderBord', leaderBordHandler)
 }
 
 // module.exports = leaderBord;
