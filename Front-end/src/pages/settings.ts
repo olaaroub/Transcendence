@@ -28,7 +28,7 @@ async function checkPasswordChange() : Promise<boolean>
 		return false;
 	}
 	try {
-		const response = await fetch(`api/users/${userData?.id}/settings-password`, {
+		const response = await fetch(`api/auth/${userData?.id}/settings-password`, { // hada zet lih auth
 			method: 'PUT',
 			body: JSON.stringify({ currentPassword, newPassword: value }),
 			headers: {
@@ -82,7 +82,7 @@ function SaveChanges()
 						body = JSON.stringify({ [key]: value });
 						headers["Content-Type"] = "application/json";
 					}
-					const response = await fetch(`api/users/${userData?.id}/settings-${key}`, {
+					const response = await fetch(`api/user/${userData?.id}/settings-${key}`, {
 						method : 'PUT',
 						body,
 						headers,
@@ -171,7 +171,7 @@ async function deleteAvatar()
 		if (!confirmed) return;
 		try
 		{
-			const response = await fetch(`api/users/${userData?.id}/image`, {
+			const response = await fetch(`api/user/${userData?.id}/image`, { // bdelt url
 				method: 'DELETE',
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			});
@@ -340,7 +340,7 @@ function cancelChanges()
 async function deleteAccount() : Promise<void>
 {
 	try {
-		const response =  await fetch(`api/users/deleteAccount/${userData.id}`, {
+		const response =  await fetch(`api/user/deleteAccount/${userData.id}`, {
 			method: 'POST',
 			headers: { "Authorization": `Bearer ${credentials.token}`},
 		});

@@ -10,7 +10,7 @@ export async function isUserAuthenticated(): Promise<boolean> {
     }
     try
     {
-        const response = await fetch(`api/users/${id}`, {
+        const response = await fetch(`api/user/${id}`, {
             headers: { "Authorization": `Bearer ${token}` },
         });
         if (response.status === 401 || response.status === 403) {

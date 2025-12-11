@@ -7,6 +7,7 @@ interface UserData {
     username: string;
 	profileImage: string;
 	status: string | null;
+	avatar_url: string;
 }
 
 async function ViewProfile(userId: string) {
@@ -16,6 +17,7 @@ async function ViewProfile(userId: string) {
 
 function listUsers(users: UserData[], div: HTMLElement) {
 	users.forEach(user => {
+		user.profileImage = user.avatar_url; // zet hadi
 		const divp = document.createElement('div');
 		divp.className = `flex justify-between px-4 py-1 text-gray-200 hover:bg-[#ffffff10]
 						cursor-pointer transition-colors items-center duration-200`;
@@ -70,7 +72,7 @@ export async function searchbar() {
 		div.id = 'search-results';
 		div.className = `absolute z-10 top-[44px] left-0 w-full max-h-[300px]
 		overflow-y-auto bg-color4 border py-3 border-[#87878766] rounded-xl scrollbar-custom`;
-		const response = await fetch(`api/users/search/${userData.id}?username=${value}`, {
+		const response = await fetch(`api/user/search/${userData.id}?username=${value}`, {
 			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 		});
 		const users: UserData[] = await response.json();
@@ -82,6 +84,7 @@ export async function searchbar() {
 			searchBar.appendChild(div);
 			return;
 		}
+
 		listUsers(users, div);
 		searchBar.appendChild(div);
 	};

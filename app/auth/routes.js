@@ -1,10 +1,9 @@
-// const path = require('path');
-import path from 'path';
-// import fastifyStatic from '@fastify/static'
+
 import local_auth from './local.authentication.js'
 import googlea_auth from './google.authentication.js'
 import github_auth from './github.authentication.js'
 import intra_auth from './42intra.authentication.js'
+import { changePassword } from './changePassword.js'
 // import notificationLiveStream from '../user-service/notificationLiveStream.js'
 // import statistic from '../user-service/user.statistic.js'
 // import leaderBord from '../user-service/leaderBord.js'
@@ -26,11 +25,6 @@ async function deleteAccountHandler(req, reply)
 }
 
 async function publicRoutes(fastify, opts) {
-  // const __dirname = import.meta.dirname;
-  // const staticOps = {
-  //     root: path.join(__dirname, '../static'),
-  //     prefix: '/public/'
-  //   };
 
   const secretOpts = {
     secrets: opts.secrets
@@ -40,6 +34,7 @@ async function publicRoutes(fastify, opts) {
   fastify.register(googlea_auth, secretOpts);
   fastify.register(github_auth, secretOpts);
   fastify.register(intra_auth, secretOpts);
+  fastify.register(changePassword);
   fastify.delete("/auth/deletAccount/:id", deleteAccountHandler)
 }
 

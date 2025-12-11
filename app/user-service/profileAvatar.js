@@ -15,10 +15,11 @@ const __dirname = import.meta.dirname;
 async function getProfileImages(req, reply) {
   try {
     const id = req.params.id;
-    const img = await this.db.get("SELECT avatar_url FROM userInfo WHERE user_id = ?", id);
+    const img = this.db.prepare("SELECT avatar_url FROM userInfo WHERE user_id = ?").get([id]);
+    console.log(img)
     if (!img)
       reply.code(401).send({ error: "the user not exist" })
-    reply.code(200).send(img.profileImage);
+    reply.code(200).send(img);
   }
   catch (err) {
     console.log(err);

@@ -56,7 +56,7 @@ async function getPendingUsers() : Promise<IUserData[] | null>
 {
 	try
 	{
-		const response = await fetch(`api/users/${credentials.id}/getPendingRequestes`, {
+		const response = await fetch(`api/user/${credentials.id}/getPendingRequestes`, {
 			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 		});
 		if (!response.ok)
@@ -74,7 +74,7 @@ async function getPendingUsers() : Promise<IUserData[] | null>
 
 async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement) : Promise<boolean> {
 	try {
-		const response = await fetch(`/api/users/${credentials.id}/friend-request`, {
+		const response = await fetch(`/api/user/${credentials.id}/friend-request`, {
 			method: 'POST',
 			headers: {
 				"Authorization": `Bearer ${credentials.token}`,
@@ -102,10 +102,10 @@ function realTimeNotifications(pendingUsers: IUserData[] | null)
 	const markWatch = document.getElementById('notification-icon')?.querySelector('span');
 	const protocol = window.location.protocol === 'https:' ? 'ws:' : 'ws:';
 	const wsHost = window.location.hostname === 'localhost' 
-		? 'localhost:3000' 
+		? 'localhost:3002' 
 		: window.location.host;
-	const wsUrl = `${protocol}//${wsHost}/api/notification/${credentials.id}`;
-	
+	const wsUrl = `${protocol}//${wsHost}/api/user/notification/${credentials.id}`;
+	console.log(wsUrl);
 	const socket = new WebSocket(wsUrl);
 	
 	socket.onopen = () => {

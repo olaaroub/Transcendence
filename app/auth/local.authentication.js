@@ -54,12 +54,14 @@ async function loginHandler(req, reply) {
 	const body = req.body;
 	try {
 		const user = this.db.prepare('SELECT username, password, auth_provider ,id FROM users WHERE username = ? OR email = ?').get([body.username, body.username]);
+		console.log("first user ", user);
 		if (user && user.auth_provider == "local") {
 			if (user.password != body.password)
 				reply.code(401).send({ message: "password not correct", success: false });
 			else {
 				const token = this.jwt.sign({ id: user.id, username: user.username }, { expiresIn: '1h' })
-				console.log(token);
+				// console.log(token);
+				console.log("second user print ", user);
 				reply.code(200).send({ message: "login successfully", success: true, id: user.id, token: token });
 			}
 		}
@@ -129,7 +131,7 @@ async function routes(fastify) {
 	}
 	catch (err) {
 		console.log(err);
-		reply.code(500).send({ message: "you cam't login" });
+		reply.code(500).send({ message: "you can't login" });
 	}
 
 

@@ -73,12 +73,14 @@ async function getProfileData(req, reply) {
 		// console.log(req.userId);
 		let responceData = "";
 		if (profile_id == user_id) {
-			responceData = await this.db.prepare(`SELECT userInfo.user_id, userInfo.username, userInfo.avatar_url, userInfo.auth_provider, userInfo.bio
-												FROM userInfo
-												WHERE userInfo.user_id = ?`).get([user_id]);
+			
+			responceData = this.db.prepare(`SELECT user_id, username, avatar_url, bio
+											FROM userInfo
+											WHERE user_id = ?`).get([user_id]);
+			console.log(responceData);
 		}
 		else {
-			responceData = await this.db.prepare(`SELECT u.user_id, u.username, u.avatar_url, u.auth_provider, u.bio, f.status, f.blocker_id
+			responceData = this.db.prepare(`SELECT u.user_id, u.username, u.avatar_url, u.bio, f.status, f.blocker_id
 											  FROM
 											  	userInfo AS u
 												LEFT JOIN friendships AS f ON
@@ -101,6 +103,7 @@ async function getProfileData(req, reply) {
 		reply.code(200).send(responceData);
 
 	} catch (err) {
+		console.log(err)
 		reply.code(500).send({ success: false, message: "can't getProfileData" });
 	}
 }

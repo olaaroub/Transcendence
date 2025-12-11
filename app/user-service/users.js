@@ -4,7 +4,8 @@ import fastifyCors from '@fastify/cors';
 import dbconfig from './database.config.js'
 import vault from 'node-vault';
 import privateRoutes from './private.routes.js';
-
+import { publicRoutes } from './public.routes.js';
+import websocket from '@fastify/websocket'
 async function getJwtSecret() {
   try {
 
@@ -45,10 +46,19 @@ async function main() {
   fastify.register(fastifyJwt, {
     secret: secrets.jwtSecret
   });
+  const sockets = new Map();
+  fastify.decorate('sockets', sockets);
+  fastify.register(websocket)
   fastify.register(privateRoutes, {
     prefix: '/api'
   });
-
+  fastify.register(publicRoutes, {
+    prefix: '/api'
+  })
+  await fastify.register(fastifyCors, {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+  });
   try {
     fastify.listen({
       port: process.env.PORT,

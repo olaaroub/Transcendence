@@ -33,6 +33,11 @@ const creatTable = async () => {
              ON userInfo(points DESC)
     ;`)
 
+
+    db.exec(`CREATE VIEW IF NOT EXISTS leaderBordItem AS
+            SELECT user_id, username, avatar_url, points, gamesPlayed, wins, losses
+            FROM userInfo
+    ;`);
     db.exec(`CREATE TABLE IF NOT EXISTS friendships (
         id INTEGER PRIMARY KEY,
         userRequester INTEGER,

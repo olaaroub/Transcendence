@@ -49,8 +49,7 @@ async function main() {
 
   await fastify.register(fastifyCors, {
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Access-Control-Allow-Origin']
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
   });
   // fastify.register(fastifyJwt, {
   //   secret: secrets.jwtSecret

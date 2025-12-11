@@ -2,7 +2,7 @@ import { credentials, getImageUrl, IUserData } from "../store";
 
 export async function getFriends(): Promise<IUserData[]> {
 	try {
-		const response = await fetch(`/api/users/${credentials.id}/friends`, {
+		const response = await fetch(`/api/user/${credentials.id}/friends`, {
 			headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` },
 		});
 		if (!response.ok) {

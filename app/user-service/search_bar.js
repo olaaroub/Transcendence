@@ -23,6 +23,8 @@ async function search_bar(fastify) {
                                                     ORDER BY u.username ASC
                                                     LIMIT 15`)
                 .all([id, id, `%${query}%`, id])
+            
+            data.forEach(user => user.id = user.user_id);
             console.log(data);
             reply.code(200).send(data);
         }

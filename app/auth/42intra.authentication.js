@@ -23,6 +23,7 @@ async function callbackHandler(req, reply) {
         if (!dataUser.ok)
             throw { error: "you have error in fetch data user" };
         const userdata = await dataUser.json();
+        let lastuser;
         const data = this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([userdata.email]);
         let token;
         if (data)
@@ -43,12 +44,14 @@ async function callbackHandler(req, reply) {
                     avatar_url: AvatarUrl
                 })
             });
+            console.log(createNewUserRes);
             if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
             {
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([lastuser.id]);
                 reply.redirect(`${domain}/login?auth=failed&message='failed to create new user'`);
             }
         }
+        // console.log(`${domain}/login?token=${token}&id=${lastuser ? lastuser.id : data.id}`);
         reply.redirect(`${domain}/login?token=${token}&id=${lastuser ? lastuser.id : data.id}`);
     }
     catch (err) {

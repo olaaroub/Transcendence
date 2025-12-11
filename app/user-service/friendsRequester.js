@@ -2,17 +2,16 @@
 async function add_friend(req, reply) {
     const receiver_id = req.query.receiver_id;
     const requester_id = req.params.id;
-
+    console.log(receiver_id, requester_id);
     try {
-        const notificationSockets = this.sockets.get(receiver_id);
-        if (!notificationSockets)
-            throw { err: "socket Not found" }
         this.db.prepare(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`).run([requester_id, receiver_id]);
         const requester_Data = this.db.prepare(`SELECT user_id, username, avatar_url, is_read
                                                 FROM userInfo
                                                 WHERE user_id = ?`).get([requester_id]);
 
-
+        const notificationSockets = this.sockets.get(receiver_id);
+        if (!notificationSockets)
+            return ;
         requester_Data.is_read = false;
         requester_Data["type"] = 'SEND_NOTIFICATION'
         this.db.prepare("UPDATE userInfo SET  is_read = FALSE WHERE user_id = ?").run([requester_Data.id]);

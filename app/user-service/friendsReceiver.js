@@ -28,7 +28,7 @@ async function getPendingRequestes(req, reply) {
         const id = req.params.id
         const data = this.db.prepare(`SELECT u.username, u.user_id, u.avatar_url, u.is_read
                           FROM
-                            users AS u
+                            userInfo AS u
                             INNER JOIN
                                 friendships AS f ON u.user_id = f.userRequester
                             WHERE
