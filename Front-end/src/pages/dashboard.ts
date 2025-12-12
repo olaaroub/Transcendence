@@ -80,8 +80,6 @@ function LocalPong() : string
 	`
 }
 
-
-
 function OnlinePong() : string
 {
 	return `
@@ -111,11 +109,6 @@ function renderWelcome() : string
 			${OnlinePong()}
 		</div>
 	`
-}
-
-async function getStatistics()
-{
-
 }
 
 function renderStatistics(): string {

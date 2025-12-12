@@ -82,7 +82,6 @@ export async function searchbar() {
 			searchBar.appendChild(div);
 			return;
 		}
-
 		listUsers(users, div);
 		searchBar.appendChild(div);
 	};

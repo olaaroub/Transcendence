@@ -49,7 +49,7 @@ async function checkPasswordChange() : Promise<boolean>
 
 function SaveChanges()
 {
-	const settingsPage = document.getElementById('settings-page');
+	const settingsPage = $('settings-page');
 	if (!settingsPage) return;
 	const saveBtn = settingsPage.querySelector('#save-changes') as HTMLButtonElement;
 	if (!saveBtn) return;
@@ -104,7 +104,7 @@ function SaveChanges()
 function addInputListeners()
 {
 	document.querySelectorAll('input, textarea, select').forEach((el) => {
-		const settingsPage = document.getElementById('settings-page');
+		const settingsPage = $('settings-page');
 		if (!settingsPage) return;
 		const element = el as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 		element.addEventListener('change', (event) => {
@@ -119,7 +119,7 @@ function addInputListeners()
 					return;
 				}
 				const upload_avatar = event.target as HTMLInputElement;
-				const userAvatar = document.getElementById('userAvatar') as HTMLImageElement;
+				const userAvatar = $('userAvatar') as HTMLImageElement;
 				if (userAvatar && upload_avatar && upload_avatar.files)
 					userAvatar.src = URL.createObjectURL(upload_avatar.files[0]); // to learn about it
 			}
@@ -163,7 +163,7 @@ function confirmPopUp(message: string) : Promise<boolean>
 
 async function deleteAvatar()
 {
-	const deleteAvatarBtn = document.getElementById('delete-avatar');
+	const deleteAvatarBtn = $('delete-avatar');
 	if(!deleteAvatarBtn)
 			return ;
 	deleteAvatarBtn.addEventListener('click', async ()=> {
@@ -186,7 +186,7 @@ async function deleteAvatar()
 
 function sendAvatar() : FormData | null
 {
-	const uploadAvatar = document.getElementById('upload-avatar') as HTMLInputElement;
+	const uploadAvatar = $('upload-avatar') as HTMLInputElement;
 	if(!uploadAvatar)
 			return null;
 	if (!uploadAvatar.files || uploadAvatar.files.length === 0) return null;
@@ -318,7 +318,8 @@ function Account() : string
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account</p>
 			<div class="flex flex-col gap-4">
 				<p class="2xl:w-[60%] w-full text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
-				<button id="delete-account" class="bg-red-500 text-white w-full lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
+				<button id="delete-account" class="bg-red-500 text-white w-full
+				lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
 			</div>
 		</div>
 	`
@@ -326,7 +327,7 @@ function Account() : string
 
 function cancelChanges()
 {
-	const cancelButton = document.getElementById('cancel-changes');
+	const cancelButton = $('cancel-changes');
 	if (cancelButton) {
 		cancelButton.addEventListener('click', () => {
 			if (Object.keys(newUserData).length === 0)
@@ -361,7 +362,7 @@ async function deleteAccount() : Promise<void>
 export async function renderSettings()
 {
 	await data.initDashboard(false);
-	const dashContent = document.getElementById('dashboard-content');
+	const dashContent = $('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = `
 		<div id="settings-page" class="sm:px-16 flex-1 flex flex-col gap-6">
@@ -384,9 +385,7 @@ export async function renderSettings()
 			</div>
 		</div>
 	`;
-	$('delete-account')?.addEventListener('click', _=>{
-		deleteAccount();
-	})
+	$('delete-account')?.addEventListener('click', _=>{deleteAccount();})
 	addInputListeners();
 	cancelChanges();
 }
