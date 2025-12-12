@@ -14,6 +14,7 @@ async function JwtHandler(request, reply) {
 
     request.userId = payload.id;
     request.username = payload.username;
+    console.log(payload.id, payload.username);
   }
   catch (err) {
     console.log("No token provided or invalid token");
@@ -23,7 +24,7 @@ async function JwtHandler(request, reply) {
 /*
   create new user body structure:
   {
-    user_id,
+    id,
     username,
     avatar_url;
   }
@@ -31,7 +32,7 @@ async function JwtHandler(request, reply) {
 
 
 async function privateRoutes(fastify) {
-  // fastify.addHook('preHandler', JwtHandler);
+  fastify.addHook('preHandler', JwtHandler);
   fastify.register(settings);
   fastify.register(profileAvatar);
   fastify.register(search_bar);

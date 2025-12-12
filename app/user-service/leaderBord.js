@@ -5,7 +5,7 @@ async function leaderBordHandler(req, reply) {
         let start = parseInt(req.query.start) || 0;
         if (start < 0 || isNaN(start))
             start = 0;
-        // this.db.prepare(`UPDATE infos SET points = 10 WHERE user_id = 5`).run()
+        // this.db.prepare(`UPDATE infos SET points = 10 WHERE id = 5`).run()
         const users = this.db.prepare(`
                                         SELECT * FROM leaderBordItem
                                         ORDER BY points DESC

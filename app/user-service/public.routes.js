@@ -8,9 +8,9 @@ async function createNewUser(req, reply)
     try {
       console.log(newUserData);
       if (newUserData.avatar_url)
-        this.db.prepare(`INSERT INTO userInfo(user_id, username, avatar_url) VALUES(?, ?, ?)`).run([newUserData.user_id, newUserData.username, newUserData.avatar_url]);
+        this.db.prepare(`INSERT INTO userInfo(id, username, avatar_url) VALUES(?, ?, ?)`).run([newUserData.user_id, newUserData.username, newUserData.avatar_url]);
       else
-        this.db.prepare(`INSERT INTO userInfo(user_id, username) VALUES(?, ?)`).run([newUserData.user_id, newUserData.username]);
+        this.db.prepare(`INSERT INTO userInfo(id, username) VALUES(?, ?)`).run([newUserData.user_id, newUserData.username]);
       reply.code(200).send({message: "user created successfully", ok: true});
     }
     catch (err)

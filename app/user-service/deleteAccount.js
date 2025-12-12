@@ -16,12 +16,12 @@ async function deleteAccountHandler(req, reply) {
             console.log("failed to delete account");
             reply.code(respons.status).send({message:"failed to delete account"});
         }
-        const avatar = this.db.prepare(`SELECT avatar_url FROM userInfo WHERE user_id = ?`).get([id]);
+        const avatar = this.db.prepare(`SELECT avatar_url FROM userInfo WHERE id = ?`).get([id]);
         const avatarName = path.basename(avatar.avatar_url);
         console.log(avatarName);
         if (avatarName != "Default_pfp.jpg")
             await fs.promises.unlink(path.join(__dirname, 'static', avatarName));
-        this.db.prepare(`DELETE FROM userInfo WHERE user_id = ?`).run([id]);
+        this.db.prepare(`DELETE FROM userInfo WHERE id = ?`).run([id]);
         reply.code(204).send({ success: true });
     }
     catch (err) {

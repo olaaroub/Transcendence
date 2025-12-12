@@ -5,16 +5,16 @@ async function add_friend(req, reply) {
     console.log(receiver_id, requester_id);
     try {
         this.db.prepare(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`).run([requester_id, receiver_id]);
-        const requester_Data = this.db.prepare(`SELECT user_id, username, avatar_url, is_read
+        const requester_Data = this.db.prepare(`SELECT id, username, avatar_url, is_read
                                                 FROM userInfo
-                                                WHERE user_id = ?`).get([requester_id]);
+                                                WHERE id = ?`).get([requester_id]);
 
         const notificationSockets = this.sockets.get(receiver_id);
         if (!notificationSockets)
             return ;
         requester_Data.is_read = false;
         requester_Data["type"] = 'SEND_NOTIFICATION'
-        this.db.prepare("UPDATE userInfo SET  is_read = FALSE WHERE user_id = ?").run([requester_Data.id]);
+        this.db.prepare("UPDATE userInfo SET  is_read = FALSE WHERE id = ?").run([requester_Data.id]);
         console.log(requester_Data)
         for (const socket of notificationSockets) {
             if (socket && socket.readyState == 1)
@@ -32,7 +32,7 @@ async function add_friend(req, reply) {
 async function getFriends(req, reply) {
     try {
         const id = req.params.id;
-        const friends = this.db.prepare(`SELECT u.user_id, u.username, u.avatar_url
+        const friends = this.db.prepare(`SELECT u.id, u.username, u.avatar_url
                                            FROM
                                             userInfo u
                                             INNER JOIN
