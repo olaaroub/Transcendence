@@ -71,6 +71,13 @@ const routes: Route[] = [
 			renderChat();
 		},
 	},
+	{
+		path: "/leaderboard",
+		render: async () => {
+			const { renderLeaderboard } = await import("./pages/components/leaderboard");
+			renderLeaderboard();
+		},
+	},
 ];
 
 

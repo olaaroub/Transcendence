@@ -3,12 +3,25 @@ import { renderNavBar } from "./components/NavBar";
 import { renderFooter } from "./components/footer"
 import { renderAuthPage } from "./components/loginPage"
 
-const footer = document.getElementById('footer');
 
 const $ = (id: string) => document.getElementById(id as string);
 
+function AuthRedirect()
+{
+    const url = new URL(window.location.href);
+    const token = url.searchParams.get("token");
+    const id = url.searchParams.get("id");
+    if (token && id)
+    {
+        localStorage.setItem("token", token);
+        localStorage.setItem("id", id);
+        navigate("/dashboard");
+    }
+}
+
 export function renderLogin (isLoged: boolean)
 {
+    AuthRedirect();
     document.body.innerHTML = `
         <div id="app" class="flex-grow w-[90%]  mx-auto">
             <div class=" content mx-auto">
@@ -24,5 +37,4 @@ export function renderLogin (isLoged: boolean)
 	document.getElementById('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
     renderAuthPage(isLoged);
     $('Username')?.focus();
-    console.log('data : ', $('Username'));
 }

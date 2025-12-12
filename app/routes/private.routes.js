@@ -23,9 +23,8 @@ async function privateRoutes(fastify)
     fastify.register(require('./search'));
     fastify.register(require('./friendsReceiver'));
     fastify.register(require('./friendsRequester'));
-    fastify.register(require('./simpleWebSocket'));
     fastify.register(require('./deleteAccount'));
-    fastify.register(require('./user.statistic'));
+    // fastify.register(require('./user.statistic'));
 }
 
 module.exports = privateRoutes;

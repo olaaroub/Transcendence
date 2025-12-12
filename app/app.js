@@ -1,4 +1,4 @@
-const fastify = require('fastify')({ logger: true })
+const fastify = require('fastify')({ logger: false })
 // const routes = require('./routes/mainRoutes');
 const creatTable = require('./config/database');
 const fastifyCors = require('@fastify/cors');
@@ -54,10 +54,17 @@ async function start() {
   });
 
   await fastify.register(fastifyMetrics, {
-    endpoint: '/metrics'
+    endpoint: '/metrics',
+
+    defaultMetrics: {
+      enabled: true
+    },
   });
 
+
     fastify.decorate('db', db);
+    const sockets = new Map();
+    fastify.decorate('sockets', sockets);
     fastify.register(require('@fastify/websocket'))
     console.log(path.join(__dirname, '/static'));
     // await fastify.register(require('@fastify/static') , {
