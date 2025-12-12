@@ -34,7 +34,8 @@ export function renderLogin (isLoged: boolean)
 			${renderFooter()}
 		</footer>
     `;
-	document.getElementById('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
-    renderAuthPage(isLoged);
+    $('about-us')!.addEventListener('click',_ => {navigate("/about")})
+	$('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
     $('Username')?.focus();
+    renderAuthPage(isLoged);
 }

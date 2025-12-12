@@ -1,6 +1,9 @@
 import { navigate } from "../../router";
 import { sendAuthData } from "../../pages/sendData";
 
+const $ = (id : string) => document.getElementById(id as string)
+
+
 function inputField(label: string, type: string, placeholder: string) {
 	return `
     <li>
@@ -68,7 +71,6 @@ function footer(isSignup: boolean) {
 	`;
 }
 
-const $ = (id : string) => document.getElementById(id as string)
 
 export function renderAuthPage(isSignup = false, errorMSG = "") {
 	const isValid = errorMSG === "";

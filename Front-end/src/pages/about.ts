@@ -39,7 +39,6 @@ export async function renderAbout() {
 			gradientTo: '#1B1A1DD6',
 		},
 	]
-	const delayClasses = ["anim-delay-0", "anim-delay-5s", "anim-delay-10s", "anim-delay-15s", "anim-delay-20s"];
 	document.body.innerHTML = `
 	<div class="w-full min-h-screen bg-bgColor flex flex-col items-center py-16 px-6">
 		<img id="about-logo" class="cursor-pointer xl:w-[150px] absolute top-8 left-16" src="${getImageUrl('images/logo.png')}" alt="Logo">
