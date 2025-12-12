@@ -55,7 +55,7 @@ async function listFriends() : Promise<string> {
 				${friends.map(friend => `
 					<div class="flex bg-[#273445] p-3 rounded-2xl">
 						<div class="flex w-full gap-4">
-							<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(friend.profileImage)}" alt="">
+							<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(friend.avatar_url)}" alt="">
 							<div class="w-full">
 								<div class="flex justify-between w-full">
 									<span class="text-txtColor font-bold text-lg">${shortString(friend.username, 15)}</span>

@@ -4,7 +4,6 @@ export interface IUserData {
 	id: number | string | null;
 	email: string | null;
 	username: string | null;
-	profileImage: string | null;
 	bio: string | null;
 	status: string | null;
 	auth_provider: string | null;
@@ -30,7 +29,6 @@ export const userData : IUserData = {
 	id: null,
 	email: null,
 	username: null,
-	profileImage: null,
 	bio: null,
 	status: null,
 	auth_provider: null,
@@ -39,9 +37,7 @@ export const userData : IUserData = {
 
 export function setUserData(newData: IUserData)
 {
-	// console.log(newData)
 	Object.assign(userData, newData);
-	userData.profileImage = newData.avatar_url; // zet had l3iba hadi wakha ghir hard code hhhh
 }
 
 export function getUserData(): IUserData
@@ -52,8 +48,8 @@ export function getUserData(): IUserData
  /// had function adds /api prefix only if its not already there ( to prevent /api/api and if mmondad uses profile photo online
  // for example https://profilephoto) and i used it here 7itach simo tayloadi profile photo f b<f tlblays
  // so i should make a function to call mra w7da l kolchi
-export function getImageUrl(profileImage: string | null | undefined): string | null {
-	// console.log("profile img", profileImage)
-	if (!profileImage) return null;
-	return profileImage.startsWith('/public/') ? `/api${profileImage}` : profileImage;
+export function getImageUrl(avatar_url: string | null | undefined): string | null {
+	// console.log("profile img", avatar_url)
+	if (!avatar_url) return null;
+	return avatar_url.startsWith('/public/') ? `/api${avatar_url}` : avatar_url;
 }

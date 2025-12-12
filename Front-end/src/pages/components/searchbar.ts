@@ -5,7 +5,6 @@ import { sendFriendRequest } from "../profile";
 interface UserData {
     id: string;
     username: string;
-	profileImage: string;
 	status: string | null;
 	avatar_url: string;
 }
@@ -17,12 +16,11 @@ async function ViewProfile(userId: string) {
 
 function listUsers(users: UserData[], div: HTMLElement) {
 	users.forEach(user => {
-		user.profileImage = user.avatar_url; // zet hadi
 		const divp = document.createElement('div');
 		divp.className = `flex justify-between px-4 py-1 text-gray-200 hover:bg-[#ffffff10]
 						cursor-pointer transition-colors items-center duration-200`;
 		divp.innerHTML = `<div class="flex gap-3 items-center">
-			<img src="${getImageUrl(user.profileImage)}" alt="${user.username}" class="w-10 h-10 rounded-full">
+			<img src="${getImageUrl(user.avatar_url)}" alt="${user.username}" class="w-10 h-10 rounded-full">
 			<div>
 				<p class="font-bold">${user.username}</p>
 			</div>

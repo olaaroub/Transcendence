@@ -77,8 +77,7 @@ export async function renderProfile(userId: string | null = null)
 	console.log(tmpUserData)
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
-		const imageUrl = getImageUrl(tmpUserData?.avatar_url); // bdelt hnaya (men profileImage -> avatar_url)
-		// console.log(imageUrl)
+		const imageUrl = getImageUrl(tmpUserData?.avatar_url);
 		dashContent.innerHTML = `
 			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8">
 				<div class="bg-color4 glow-effect mx-auto w-full rounded-3xl p-6 2xl:pl-12 flex gap-5 items-center

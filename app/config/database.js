@@ -14,7 +14,6 @@ const creatTable = async () => {
         username TEXT UNIQUE NOT NULL,
         password TEXT,
         auth_provider TEXT NOT NULL DEFAULT 'local',
-        profileImage TEXT DEFAULT '/public/Default_pfp.jpg',
         email TEXT UNIQUE NOT NULL,
 
         CHECK (auth_provider IN ('local', 'google', 'github', 'intra'))

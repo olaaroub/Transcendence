@@ -91,7 +91,7 @@ async function getProfileData(req, reply) {
 												`).get([user_id, profile_id, user_id, profile_id, profile_id]);
 			if (responceData.status == 'BLOCKED' && responceData.blocker_id == profile_id) {
 				responceData.username = 'Pong User';
-				responceData.profileImage = '/public/Default_pfp.jpg';
+				responceData.avatar_url = '/public/Default_pfp.jpg';
 				responceData.bio = '--';
 			}
 			else if (responceData.status == 'BLOCKED' && responceData.blocker_id != profile_id) {
