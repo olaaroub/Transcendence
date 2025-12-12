@@ -12,9 +12,9 @@
         INNER JOIN
             infos AS i
             ON
-                u.id = i.user_id
+                u.id = i.id
         LEFT JOIN friendships AS f
-            ON i.user_id = (
+            ON i.id = (
                 CASE
                     WHEN userRequester = 1 THEN userReceiver
                     WHEN userReceiver = 1 THEN userRequester
@@ -26,11 +26,11 @@
 async function getPendingRequestes(req, reply) {
     try {
         const id = req.params.id
-        const data = this.db.prepare(`SELECT u.username, u.user_id, u.avatar_url, u.is_read
+        const data = this.db.prepare(`SELECT u.username, u.id, u.avatar_url, u.is_read
                           FROM
                             userInfo AS u
                             INNER JOIN
-                                friendships AS f ON u.user_id = f.userRequester
+                                friendships AS f ON u.id = f.userRequester
                             WHERE
                                 f.userReceiver = ? AND f.status = 'PENDING'
                         `,).all([id]);

@@ -41,12 +41,13 @@ async function callbackHandler(req, reply) {
                 body: JSON.stringify({
                     user_id: lastuser.id,
                     username: lastuser.username,
-                    avatar_url: AvatarUrl
+                    avatar_url: AvatarUrl.avatar_path
                 })
             });
             console.log(createNewUserRes);
             if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
             {
+                await fs.promises.unlink(AvatarUrl.file_name);
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([lastuser.id]);
                 reply.redirect(`${domain}/login?auth=failed&message='failed to create new user'`);
             }

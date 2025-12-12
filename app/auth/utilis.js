@@ -32,7 +32,7 @@ async function DownoladImageFromUrl(url, provider) {
     const file_path = path.join(__dirname, 'static', file_name);
     console.log(__dirname)
     await fs.promises.writeFile(file_path, buffer);
-    return `/public/${file_name}`;
+    return {file_name, avatar_path: `/public/${file_name}`};
 }
 
 // module.exports = DownoladImageFromUrl;

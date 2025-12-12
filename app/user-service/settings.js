@@ -28,7 +28,7 @@ async function change_username(req, reply) {
 	const body = req.body;
 
 	try {
-		this.db.prepare("UPDATE userInfo SET username = ? WHERE user_id = ?").run([body.username, id]);
+		this.db.prepare("UPDATE userInfo SET username = ? WHERE id = ?").run([body.username, id]);
 		// khansni ndir lih update hta fe database tanya
 		reply.code(200).send({ message: "updating successfly username", success: true });
 	} catch {
@@ -41,7 +41,7 @@ async function change_bio(req, reply) {
 	const body = req.body;
 
 	try {
-		await this.db.prepare("UPDATE userInfo SET bio = ? WHERE user_id = ?").run([body.bio, id]);
+		await this.db.prepare("UPDATE userInfo SET bio = ? WHERE id = ?").run([body.bio, id]);
 		reply.code(200).send({ message: "updating successfly bio", success: true });
 	} catch {
 		reply.code(500).code({ message: "Error updating bio", success: false });
@@ -74,20 +74,20 @@ async function getProfileData(req, reply) {
 		let responceData = "";
 		if (profile_id == user_id) {
 			
-			responceData = this.db.prepare(`SELECT user_id, username, avatar_url, bio
+			responceData = this.db.prepare(`SELECT id, username, avatar_url, bio
 											FROM userInfo
-											WHERE user_id = ?`).get([user_id]);
+											WHERE id = ?`).get([user_id]);
 			console.log(responceData);
 		}
 		else {
-			responceData = this.db.prepare(`SELECT u.user_id, u.username, u.avatar_url, u.bio, f.status, f.blocker_id
+			responceData = this.db.prepare(`SELECT u.id, u.username, u.avatar_url, u.bio, f.status, f.blocker_id
 											  FROM
 											  	userInfo AS u
 												LEFT JOIN friendships AS f ON
 													(f.userRequester = ? AND f.userReceiver = ?) OR
         											(f.userReceiver = ? AND f.userRequester = ?)
 												WHERE
-													u.user_id = ?
+													u.id = ?
 												`).get([user_id, profile_id, user_id, profile_id, profile_id]);
 			if (responceData.status == 'BLOCKED' && responceData.blocker_id == profile_id) {
 				responceData.username = 'Pong User';

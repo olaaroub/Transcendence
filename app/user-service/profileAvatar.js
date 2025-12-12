@@ -15,7 +15,7 @@ const __dirname = import.meta.dirname;
 async function getProfileImages(req, reply) {
   try {
     const id = req.params.id;
-    const img = this.db.prepare("SELECT avatar_url FROM userInfo WHERE user_id = ?").get([id]);
+    const img = this.db.prepare("SELECT avatar_url FROM userInfo WHERE id = ?").get([id]);
     console.log(img)
     if (!img)
       reply.code(401).send({ error: "the user not exist" })
@@ -51,14 +51,16 @@ async function modifyAvatar(req, reply) {
     const paths = await UploadToServer(req, reply);
     try {
       const id = req.params.id;
-      const data = this.db.prepare("SELECT avatar_url FROM userinfo WHERE user_id = ?").get(id);
+      const data = this.db.prepare("SELECT avatar_url FROM userinfo WHERE id = ?").get(id);
+      console.log(data, id)
       const imgpath = path.basename(data.avatar_url);
       if (imgpath != `Default_pfp.jpg`)
         await fs.promises.unlink(path.join(__dirname, 'static', imgpath));
       const imageUri = `/public/${paths.file_name}`;
-      await this.db.prepare("UPDATE userInfo SET avatar_url = ?  WHERE user_id = ?").run([imageUri, id]);
+      await this.db.prepare("UPDATE userInfo SET avatar_url = ?  WHERE id = ?").run([imageUri, id]);
     }
     catch (err) {
+      console.log(err);
       await fs.promises.unlink(paths.file_path);
       throw { error: "failed to delete prives avatar" };
 
@@ -75,14 +77,14 @@ async function modifyAvatar(req, reply) {
 async function deleteAvatar(req, reply) {
   try {
     const id = req.params.id;
-    const data = await this.db.prepare("SELECT avatar_url FROM userinfo WHERE user_id = ?").get(id);
+    const data = this.db.prepare("SELECT avatar_url FROM userinfo WHERE id = ?").get(id);
     const imgpath = path.basename(data.avatar_url);
     console.log(path.join(__dirname, 'static', imgpath));
     if (imgpath == `Default_pfp.jpg`)
       reply.code(401).send({ success: false, message: "can't delete the default img" });
     else {
       await fs.promises.unlink(path.join(__dirname, 'static', imgpath));
-      await this.db.prepare("UPDATE userinfo SET avatar_url = ? WHERE user_id = ?").run(["/public/Default_pfp.jpg", id]);
+      this.db.prepare("UPDATE userinfo SET avatar_url = ? WHERE id = ?").run(["/public/Default_pfp.jpg", id]);
       reply.code(201).send({ success: true, message: "your delete the profile image successfully" });
     }
   }
