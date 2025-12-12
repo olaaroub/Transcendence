@@ -30,8 +30,8 @@ services:
     environment:
       - VAULT_ADDR=${VAULT_ADDR}
       - VAULT_TOKEN=${VAULT_TOKEN}
-      - PORT=${BACK_PORT}
-      - HOST=${BACK_HOST}
+      - PORT=${BACKEND_PORT}
+      - HOST=${BACKEND_HOST}
     volumes:
       - ./app/static:/app/static
       - ./db:/data

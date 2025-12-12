@@ -3,27 +3,18 @@
 // const Database = require('better-sqlite3');
 import Database from 'better-sqlite3'
 
-const DB_PATH = process.env.DB_PATH || '/data/database.db';
+const DB_PATH = process.env.DATABASE_PATH;
 const creatTable = async () => {
 
     const db = new Database(DB_PATH);
     // db.pragma('journal_mode = WAL'); // bach mli nbghi nktb on 9ra fnafs lwe9t maytblokach liya
 
-    db.exec(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT,
-        auth_provider TEXT NOT NULL DEFAULT 'local',
-        profileImage TEXT DEFAULT '/public/Default_pfp.jpg',
-        email TEXT UNIQUE NOT NULL,
-
-        CHECK (auth_provider IN ('local', 'google', 'github', 'intra'))
-    );`);
-
-    db.exec(`CREATE TABLE IF NOT EXISTS infos (
+    db.exec(`CREATE TABLE IF NOT EXISTS userInfo (
         id INTEGER PRIMARY KEY,
-        user_id INTEGER,
+        user_id INTEGER UNIQUE NOT NULL,
+        username TEXT UNIQUE NOT NULL,
         bio TEXT DEFAULT '--',
+        avatar_url TEXT DEFAULT '/public/Default_pfp.jpg',
         is_read BOOLEAN DEFAULT FALSE,
 
         TotalWins INTEGER,
@@ -34,22 +25,19 @@ const creatTable = async () => {
         points INTEGER DEFAULT 0,
         gamesPlayed INTEGER DEFAULT 0,
         wins INTEGER DEFAULT 0,
-        losses INTEGER DEFAULT 0,
-        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        losses INTEGER DEFAULT 0
     );`);
 
 
-    db.exec(`CREATE VIEW IF NOT EXISTS leaderBordItem AS
-                SELECT u.id, u.username, u.profileImage, i.points, i.gamesPlayed, i.wins, i.losses
-                FROM
-                    users u INNER JOIN infos i ON u.id = i.user_id
-    ;`);
-
-
     db.exec(`CREATE INDEX IF NOT EXISTS user_scor_indx
-             ON infos(points DESC)
+             ON userInfo(points DESC)
     ;`)
 
+
+    db.exec(`CREATE VIEW IF NOT EXISTS leaderBordItem AS
+            SELECT user_id, username, avatar_url, points, gamesPlayed, wins, losses
+            FROM userInfo
+    ;`);
     db.exec(`CREATE TABLE IF NOT EXISTS friendships (
         id INTEGER PRIMARY KEY,
         userRequester INTEGER,
@@ -67,22 +55,15 @@ const creatTable = async () => {
             END
         ) STORED,
 
-
         CHECK(status IN ('PENDING', 'ACCEPTED', 'REJECTED', 'BLOCKED')),
 
-        FOREIGN KEY(userRequester) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY(userReceiver) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY(userRequester) REFERENCES userInfo(user_id) ON DELETE CASCADE,
+        FOREIGN KEY(userReceiver) REFERENCES userInfo(user_id) ON DELETE CASCADE,
 
         CHECK (userRequester <> userReceiver),
         UNIQUE (userRequester, userReceiver),
         UNIQUE (pair_rolastion)
     );`);
-
-    db.exec(`CREATE TRIGGER IF NOT EXISTS after_user_insert
-                   AFTER INSERT ON users
-                   BEGIN
-                        INSERT INTO infos(user_id) VALUES (NEW.id);
-                   END;`);
     return db;
 }
 

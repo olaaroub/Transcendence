@@ -8,6 +8,7 @@ export interface IUserData {
 	bio: string | null;
 	status: string | null;
 	auth_provider: string | null;
+	avatar_url: string | null; // zet hadi
 }
 
 export const credentials = {
@@ -33,11 +34,14 @@ export const userData : IUserData = {
 	bio: null,
 	status: null,
 	auth_provider: null,
+	avatar_url: null // zet hta hadi
 };
 
 export function setUserData(newData: IUserData)
 {
+	// console.log(newData)
 	Object.assign(userData, newData);
+	userData.profileImage = newData.avatar_url; // zet had l3iba hadi wakha ghir hard code hhhh
 }
 
 export function getUserData(): IUserData
@@ -49,6 +53,7 @@ export function getUserData(): IUserData
  // for example https://profilephoto) and i used it here 7itach simo tayloadi profile photo f b<f tlblays
  // so i should make a function to call mra w7da l kolchi
 export function getImageUrl(profileImage: string | null | undefined): string | null {
+	// console.log("profile img", profileImage)
 	if (!profileImage) return null;
 	return profileImage.startsWith('/public/') ? `/api${profileImage}` : profileImage;
 }

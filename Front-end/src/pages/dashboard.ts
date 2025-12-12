@@ -19,7 +19,7 @@ export async function fetchProfile(userId: string | number | null) : Promise<IUs
 	}
 	let tmpUserData: IUserData | null = null;
 	try {
-		const response = await fetch(`/api/users/${userId}/profile`, {
+		const response = await fetch(`/api/user/${userId}/profile`, {
 			headers: { "Authorization": `Bearer ${credentials.token}` },
 		});
 		if (response.status === 401 || response.status === 403) {

@@ -5,7 +5,7 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 	try
 	{
 		const isSignup = (path === 'signUp');
-		const response = await fetch("api/" + path, {
+		const response = await fetch("api/auth/" + path, { // zet auth/
 			method: "POST",
 			headers: {"Content-Type": "application/json",},
 			body: JSON.stringify(data),

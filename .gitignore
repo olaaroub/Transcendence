@@ -13,4 +13,5 @@ tmp/
 *.tmp
 dist/
 build/
+certs/
 *.tsbuildinfo

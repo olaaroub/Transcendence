@@ -53,7 +53,7 @@ export async function sendFriendRequest (receiverId: string | number | null) : P
 		alert('Invalid user ID');
 		return;
 	}
-	const response = await fetch(`/api/users/${userData.id}/add-friend?receiver_id=${receiverId}`, {
+	const response = await fetch(`/api/user/${userData.id}/add-friend?receiver_id=${receiverId}`, { 
 		headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 		method: 'PUT',
 	})
@@ -74,10 +74,11 @@ export async function renderProfile(userId: string | null = null)
 		tmpUserData = userData;
 	else
 		tmpUserData = await getUserDataById(userId);
-
+	console.log(tmpUserData)
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
-		const imageUrl = getImageUrl(tmpUserData?.profileImage);
+		const imageUrl = getImageUrl(tmpUserData?.avatar_url); // bdelt hnaya (men profileImage -> avatar_url)
+		// console.log(imageUrl)
 		dashContent.innerHTML = `
 			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8">
 				<div class="bg-color4 glow-effect mx-auto w-full rounded-3xl p-6 2xl:pl-12 flex gap-5 items-center
