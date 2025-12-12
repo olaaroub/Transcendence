@@ -62,7 +62,6 @@ export function renderTrending(): string
 {
 	return `
 		<div class="flex flex-col xl:flex-row">
-			
 			${renderRecently()}
 			${renderRank()}
 		</div>

@@ -1,9 +1,6 @@
 import { navigate } from "../../router";
 import { sendAuthData } from "../../pages/sendData";
 
-const $ = (id : string) => document.getElementById(id as string)
-
-
 function inputField(label: string, type: string, placeholder: string) {
 	return `
     <li>
@@ -34,9 +31,12 @@ function mainButton(label: string) {
 function socialIcons() {
 	return `
     <div class="flex justify-center gap-4 mt-4">
-		<a href="api/auth/google" id="googleIcon" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/googleIcon.svg"></a>
-		<a href="api/auth/github" id="icon" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/gitIcon.svg"></a>
-		<a href="api/auth/intra" id="icon" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/42Icon.svg"></a>
+		<a href="api/auth/google" id="googleIcon" class="border justify-center items-center flex border-color1 w-6 h-6
+			md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/googleIcon.svg"></a>
+		<a href="api/auth/github" id="icon" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px]
+			md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/gitIcon.svg"></a>
+		<a href="api/auth/intra" id="icon" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px]
+			md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/42Icon.svg"></a>
     </div>
 	`;
 }

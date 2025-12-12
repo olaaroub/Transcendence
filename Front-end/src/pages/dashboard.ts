@@ -190,8 +190,6 @@ function addClickInRightPanel()
 	});
 }
 
-
-
 export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
