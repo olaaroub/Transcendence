@@ -39,11 +39,12 @@ async function googleCallback(req, reply) {
                 body: JSON.stringify({
                     user_id: info.id,
                     username: info.username,
-                    avatar_url: AvatarUrl
+                    avatar_url: AvatarUrl.avatar_path
                 })
             });
             if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
             {
+                await fs.promises.unlink(AvatarUrl.file_name);
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([info.id]);
                 reply.redirect(`${domain}/login?auth=failed&message=failed to create new user`);
             }
