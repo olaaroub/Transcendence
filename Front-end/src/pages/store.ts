@@ -1,4 +1,3 @@
-import { navigate } from "../router";
 
 export interface IUserData {
 	id: number | string | null;
@@ -7,7 +6,7 @@ export interface IUserData {
 	bio: string | null;
 	status: string | null;
 	auth_provider: string | null;
-	avatar_url: string | null; // zet hadi
+	avatar_url: string | null;
 }
 
 export const credentials = {
@@ -32,7 +31,7 @@ export const userData : IUserData = {
 	bio: null,
 	status: null,
 	auth_provider: null,
-	avatar_url: null // zet hta hadi
+	avatar_url: null
 };
 
 export function setUserData(newData: IUserData)

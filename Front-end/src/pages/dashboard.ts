@@ -9,6 +9,7 @@ import { setUserData, userData, getImageUrl, credentials, IUserData, setCredenti
 import { chatEventHandler } from "./chat/chat";
 
 (window as any).navigate = navigate;
+const $ = (id : string) => document.getElementById(id as string);
 
 export let response: Response  | null = null;
 
@@ -180,7 +181,7 @@ async function renderMain() : Promise<string>
 
 function addClickInRightPanel()
 {
-	const friendsList = document.getElementById("friends-list");
+	const friendsList = $("friends-list");
 	friendsList?.addEventListener("click", (e) => {
 		const friendEl = (e.target as HTMLElement).closest(".friend-item");
 		if (!friendEl) return;
@@ -189,7 +190,7 @@ function addClickInRightPanel()
 	});
 }
 
-const $ = (id : string) => document.getElementById(id as string);
+
 
 export async function renderDashboard(isDashboard: boolean = true)
 {
@@ -210,14 +211,12 @@ export async function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
-	$('see-more')?.addEventListener('click', _=>{
-		navigate('/leaderboard');
-	})
+	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	addClickInRightPanel();
 	notifications();
 	chatEventHandler();
-	document.getElementById('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
-	const avatar = document.getElementById('avatar');
+	$('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
+	const avatar = $('avatar');
 	if (avatar) {
 		avatar.addEventListener('click', () => {
 			let profile = avatar.querySelector('.profile-menu');
