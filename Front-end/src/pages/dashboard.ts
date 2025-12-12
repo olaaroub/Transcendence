@@ -204,7 +204,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 			<source src="images/bg.webm" type="video/webm">
 			Your browser does not support the video tag.
 			</video>
-			${renderDashboardNavBar(userData, getImageUrl(userData?.profileImage))}
+			${renderDashboardNavBar(userData, getImageUrl(userData?.avatar_url))}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
 				${isDashboard ? await renderMain() : ''}
 			</main>
