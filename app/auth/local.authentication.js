@@ -1,18 +1,18 @@
 import createError from 'http-errors';
 
-function signUperrorHandler(error, request, reply) {
-	if (error.validation) {
-		reply.status(400).send({
-			"statusCode": 400,
-			"code": "FST_ERR_VALIDATION",
-			"error": "Bad Request",
-			"message": "body/email must match format \"email\""
-		});
-		console.log("body/email must match format \"email\"");
-	}
-	else
-		reply.send(error);
-}
+// function signUperrorHandler(error, request, reply) {
+// 	if (error.validation) {
+// 		reply.status(400).send({
+// 			"statusCode": 400,
+// 			"code": "FST_ERR_VALIDATION",
+// 			"error": "Bad Request",
+// 			"message": "body/email must match format \"email\""
+// 		});
+// 		console.log("body/email must match format \"email\"");
+// 	}
+// 	else
+// 		reply.send(error);
+// }
 
 async function signUpHandler(request, reply) {
 

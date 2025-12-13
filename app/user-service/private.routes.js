@@ -18,7 +18,7 @@ async function JwtHandler(request, reply) {
   }
   catch (err) {
     console.log("No token provided or invalid token");
-    reply.code(401).send({ error: 'Unauthorized: No valid token provided' });
+    // reply.code(401).send({ error: 'Unauthorized: No valid token provided' });
   }
 }
 /*

@@ -24,11 +24,9 @@ async function googleCallback(req, reply) {
         const userData = await this.db.prepare("SELECT id, username, auth_provider FROM users WHERE email = ?")
             .get([userInfo.email]);
 
-        let token;
         let info;
 
         if (userData) {
-            token = this.jwt.sign({ id: userData.id, username: userData.username }, { expiresIn: '1h' });
             info = userData;
 
             req.log.info({ userId: userData.id }, "User logged in via Google");
@@ -40,8 +38,6 @@ async function googleCallback(req, reply) {
                 .get([userInfo.name, userInfo.email, "google"]);
 
             if (!info) throw new Error("Database insert failed");
-
-            token = this.jwt.sign({ id: info.id, username: info.username }, { expiresIn: '1h' });
 
             const createNewUserRes = await fetch('http://user-service-dev:3002/api/user/createNewUser', {
                 method: 'POST',
@@ -63,12 +59,13 @@ async function googleCallback(req, reply) {
 
             req.log.info({ userId: info.id }, "New user registered via Google");
         }
+        const token = this.jwt.sign({ id: info.id, username: info.username }, { expiresIn: '1h' });
 
         reply.redirect(`${domain}/login?token=${token}&id=${info.id}`);
 
     } catch (err) {
         req.log.error({ msg: "Google OAuth Failed", err: err });
-        reply.redirect(`${domain}/login?auth=failed`);
+        reply.redirect(`${domain}/login?error=${encodeURIComponent(err.message || "Internal Server Error")}`); // encodeURIComponent that encode the elements that is unsafe in the url (in example: if you have in error:'?' this in url mean you have query this will do error but using this function will encode it to (%43: example) )
     }
 }
 

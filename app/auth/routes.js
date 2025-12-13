@@ -39,4 +39,4 @@ async function publicRoutes(fastify, opts) {
 }
 
 // module.exports = publicRoutes;
-export default publicRoutes;
+export default publicRoutes;0

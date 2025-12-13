@@ -46,7 +46,7 @@ async function githubCallback(req, reply) {
         let lastuser;
         const emailData = emails.find(email => email.primary == true);
         // console.log(emailData);
-        const AvatarUrl = await DownoladImageFromUrl(userInfo.avatar_url, "_github");
+        const AvatarUrl = await DownoladImageFromUrl(userInfo.avatar_url, "_github", req.log);
         const data = this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([emailData.email]);
         // console.log("data is: ", data);
         let token;
@@ -74,15 +74,15 @@ async function githubCallback(req, reply) {
                 reply.redirect(`${domain}/login?auth=failed&message='failed to create new user'`);
             }
             console.log("last user: ", lastuser);
-            if (userInfo.bio)
-                this.db.prepare("UPDATE infos SET bio = ?  WHERE user_id = ?").run([userInfo.bio, lastuser.lastID]);
+            // if (userInfo.bio) // her I will post the new bio in user-service
+            //     this.db.prepare("UPDATE infos SET bio = ?  WHERE user_id = ?").run([userInfo.bio, lastuser.lastID]);
         }
         reply.redirect(`${domain}/login?token=${token}&id=${lastuser ? lastuser.id : data.id}`);
     }
     catch (err) {
         console.log(err);
-        reply.redirect(`${domain}/login?auth=failed`);
-
+        // reply.redirect(`${domain}/login?auth=failed`);
+        reply.redirect(`${domain}/login?error=${encodeURIComponent(err.message || "Internal Server Error")}`);
     }
 }
 

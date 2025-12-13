@@ -16,27 +16,26 @@ async function callbackHandler(req, reply) {
                 'Authorization': `Bearer ${res.token.access_token}`
             }
         });
+
         if (!dataUser.ok)
-            throw { error: "you have error in fetch data user" };
+            throw new Error("failed to fetch the data of user in intra");
+
         const userdata = await dataUser.json();
-        let lastuser;
-        const data = this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([userdata.email]);
-        let token;
-        if (data)
-            token = this.jwt.sign(data, { expiresIn: '1h' });
-        else {
-            const AvatarUrl = await DownoladImageFromUrl(userdata.image.versions.small, "_intra");
-            lastuser = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
+        let data = this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([userdata.email]);
+
+        if (!data) // this email not exist dakchi 3lach I will register it in the database
+        {
+            const AvatarUrl = await DownoladImageFromUrl(userdata.image.versions.small, "_intra", req.log);
+            data = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
                 .get([userdata.usual_full_name, userdata.email, "intra"]);
-            token = this.jwt.sign(lastuser, { expiresIn: '1h' });
             const createNewUserRes = await fetch('http://user-service-dev:3002/api/user/createNewUser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    user_id: lastuser.id,
-                    username: lastuser.username,
+                    user_id: data.id,
+                    username: data.username,
                     avatar_url: AvatarUrl.avatar_path
                 })
             });
@@ -44,16 +43,17 @@ async function callbackHandler(req, reply) {
             if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
             {
                 await fs.promises.unlink(AvatarUrl.file_name);
-                this.db.prepare('DELETE FROM users WHERE id = ?').run([lastuser.id]);
+                this.db.prepare('DELETE FROM users WHERE id = ?').run([data.id]);
                 reply.redirect(`${domain}/login?auth=failed&message='failed to create new user'`);
             }
         }
-        // console.log(`${domain}/login?token=${token}&id=${lastuser ? lastuser.id : data.id}`);
-        reply.redirect(`${domain}/login?token=${token}&id=${lastuser ? lastuser.id : data.id}`);
+        const token = this.jwt.sign(data, { expiresIn: '1h' });
+        reply.redirect(`${domain}/login?token=${token}&id=${data.id}`);
     }
     catch (err) {
         console.log(err)
         reply.redirect(`${domain}/login?auth=failed`);
+        // reply.redirect(`${domain}/login?error=${encodeURIComponent(err.message || "Internal Server Error")}`);
     }
 }
 

@@ -32,13 +32,13 @@ async function UploadToServer(req) {
 
 async function getProfileImages(req, reply) {
   const id = req.params.id;
-  const img = this.db.prepare("SELECT avatar_url FROM userInfo WHERE user_id = ?").get([id]);
+  const img = this.db.prepare("SELECT avatar_url FROM userInfo WHERE id = ?").get([id]);
 
   if (!img) {
     throw createError.NotFound("User not found");
   }
 
-  reply.code(200).send(img);
+  return img;
 }
 
 async function modifyAvatar(req, reply) {
@@ -47,7 +47,7 @@ async function modifyAvatar(req, reply) {
   try {
     const id = req.params.id;
 
-    const data = this.db.prepare("SELECT avatar_url FROM userInfo WHERE user_id = ?").get(id);
+    const data = this.db.prepare("SELECT avatar_url FROM userInfo WHERE id = ?").get(id);
 
     if (!data) throw createError.NotFound("User not found");
 
@@ -58,12 +58,13 @@ async function modifyAvatar(req, reply) {
     }
 
     const imageUri = `/public/${paths.file_name}`;
-    this.db.prepare("UPDATE userInfo SET avatar_url = ?  WHERE user_id = ?").run([imageUri, id]);
+    this.db.prepare("UPDATE userInfo SET avatar_url = ?  WHERE id = ?").run([imageUri, id]);
 
-    request.log.info({ userId: id, newImage: imageUri }, "Avatar updated");
+    req.log.info({ userId: id, newImage: imageUri }, "Avatar updated");
     reply.code(201).send({ success: true, message: "Profile image updated successfully" });
 
   } catch (err) {
+    console.log(err)
     await fs.promises.unlink(paths.file_path).catch(() => { });
     throw err;
   }
@@ -71,7 +72,7 @@ async function modifyAvatar(req, reply) {
 
 async function deleteAvatar(req, reply) {
   const id = req.params.id;
-  const data = this.db.prepare("SELECT avatar_url FROM userInfo WHERE user_id = ?").get(id);
+  const data = this.db.prepare("SELECT avatar_url FROM userInfo WHERE id = ?").get(id);
 
   if (!data) throw createError.NotFound("User not found");
 
@@ -83,7 +84,7 @@ async function deleteAvatar(req, reply) {
 
   await fs.promises.unlink(path.join(__dirname, 'static', imgpath)).catch(() => { });
 
-  this.db.prepare("UPDATE userInfo SET avatar_url = ? WHERE user_id = ?").run(["/public/Default_pfp.jpg", id]);
+  this.db.prepare("UPDATE userInfo SET avatar_url = ? WHERE id = ?").run(["/public/Default_pfp.jpg", id]);
 
   request.log.info({ userId: id }, "Avatar deleted (reset to default)");
   reply.code(200).send({ success: true, message: "Profile image deleted" });
