@@ -35,15 +35,7 @@ export function showErrorMessage(message: string, statusCode: number) : void
             <h2 class="text-xl font-bold mb-4 text-red-600">Error
             <span class="font-bold">${statusCode}</span></h2>
             <p class="mb-6 text-gray-700">${message}</p>
-            <button id="go-home" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">go-home</button>
         </div>
     </div>
     `;
-
-    const closeButton = document.getElementById('go-home');
-    if (closeButton) {
-        closeButton.addEventListener('click', () => {
-            navigate('/');
-        });
-    }
 }
