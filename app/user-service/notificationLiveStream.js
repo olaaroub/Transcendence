@@ -1,67 +1,66 @@
-
-
 async function routes(fastify) {
 
     fastify.get('/user/notification/:id', { websocket: true }, async (socket, req) => {
+        const id = req.params.id;
+
+        if (!id) {
+            req.log.warn("Websocket connection rejected: No ID provided");
+            socket.close(1008, "Policy Violation: ID required");
+            return;
+        }
+
+        const log = req.log.child({ socketUser: id });
+        log.info("Websocket connected");
+
         try {
-            const id = req.params.id;
-            if (!id)
-                throw ({ error: "you did not gave me userId" });
-            console.log("id is---------------------------------------------------: ", id);
-            if (!fastify.sockets.has(id))
+            if (!fastify.sockets.has(id)) {
                 fastify.sockets.set(id, new Set());
-            const socketsUser = fastify.sockets.get(id);
-            // console.log(socketsUser);
+            }
             fastify.sockets.get(id).add(socket);
 
-
             socket.on('close', () => {
-                if (socketsUser) {
-                    socketsUser.delete(socket);
-                    if (socketsUser.size == 0)
+                const userSockets = fastify.sockets.get(id);
+                if (userSockets) {
+                    userSockets.delete(socket);
+                    if (userSockets.size === 0) {
                         fastify.sockets.delete(id);
+                    }
                 }
+                log.info("Websocket disconnected");
             });
-            /*
-                data format:
-                {
-                    type: 'MAKE_AS_READ'
-                }
-             */
 
             socket.on('message', async (message) => {
                 try {
-                    console.log(message.toString());
-                    const data = JSON.parse(message.toString());
-                    if (data.type == 'MAKE_AS_READ') {
+                    const msgString = message.toString();
+
+                    log.debug({ msg: msgString }, "Received WS message");
+
+                    const data = JSON.parse(msgString);
+
+                    if (data.type === 'MAKE_AS_READ') {
                         await fastify.db.prepare("UPDATE userInfo SET is_read = TRUE WHERE user_id = ?").run([id]);
-                        const response = { type: 'NOTIFICATION_READED' }
+
+                        const response = JSON.stringify({ type: 'NOTIFICATION_READED' });
+
                         const notificationSockets = fastify.sockets.get(id);
-                        for (const socket of notificationSockets) {
-                            if (socket && socket.readyState == 1)
-                                socket.send(JSON.stringify(response));
+                        if (notificationSockets) {
+                            for (const s of notificationSockets) {
+                                if (s.readyState === 1) s.send(response);
+                            }
                         }
                     }
+                } catch (err) {
+                    log.error({ err: err }, "Failed to process websocket message");
 
+                    // socket.send(JSON.stringify({ error: "Invalid message" }));
                 }
-                catch (err) {
-                    console.log(err);
-                    socketsUser.delete(socket);
-                    socket.close();
-                    console.log("the socket has been deleted")
-                }
-
             });
-        }
-        catch (err) {
-            console.log(err);
-            socket.close();
-            console.log("the socket has been deleted")
-            if (fastify.sockets.has(id))
-                fastify.sockets.delete(id);
+
+        } catch (err) {
+            log.error({ err: err }, "Websocket initialization failed");
+            socket.close(1011, "Internal Server Error");
         }
     });
 }
 
-// module.exports = routes;
 export default routes;

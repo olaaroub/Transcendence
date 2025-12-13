@@ -19,31 +19,6 @@ services:
     depends_on:
       - modSecurity-dev
 
-  # backend-dev:
-  #   build:
-  #     context: ./app
-  #     dockerfile: Dockerfile.backend.dev
-  #   image: backend-dev:1337
-  #   container_name: backend-dev
-  #   environment:
-  #     - VAULT_ADDR=${VAULT_ADDR}
-  #     - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
-  #     - PORT=${BACKEND_PORT}
-  #     - HOST=${BACKEND_HOST}
-  #     - DOMAIN=${AUTH_DOMAIN}
-  #   volumes:
-  #     - ./app:/app
-  #     - ./db:/data
-  #     - ./app/static:/app/static
-  #     - /app/node_modules
-  #   networks:
-  #     - transcendence-dev-net
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     vault-init-dev:
-  #       condition: service_completed_successfully
-
 
   auth-service-dev:
     build:

@@ -1,12 +1,13 @@
-// import lacalauth from './local.authentication.js'
-import routes from './routes.js';
-import dbconfig from './database.config.js'
+import Fastify from 'fastify';
 import fastifyJwt from '@fastify/jwt';
 import fastifyCors from '@fastify/cors';
-import Fastify from 'fastify';
 import vault from 'node-vault';
+import createError from 'http-errors';
 
-async function getSecrets() {
+import routes from './routes.js';
+import dbconfig from './database.config.js'
+
+async function getSecrets(logger) {
   try {
 
     const vaultPath = process.env.VAULT_SECRET_PATH
@@ -18,7 +19,7 @@ async function getSecrets() {
     };
 
     const vaultClient = vault(options);
-    console.log(`reading secrets from: ${vaultPath}`);
+    logger.info(`reading secrets from: ${vaultPath}`);
     const { data } = await vaultClient.read(vaultPath);
 
     return {
@@ -33,7 +34,7 @@ async function getSecrets() {
     };
 
   } catch (err) {
-    console.error("Error fetching secret from Vault:", err.message);
+    logger.error({ msg: "CRITICAL: Error fetching secret from Vault", err: err });
     process.exit(1);
   }
 }
@@ -41,48 +42,80 @@ async function getSecrets() {
 
 
 async function main() {
-  const fastify = Fastify({ logger: true });
-  console.log("Fetching JWT secret from Vault...");
-  const secrets = await getSecrets();
-  console.log("Secret fetched successfully ");
 
+  const fastify = Fastify({
+    logger: {
+      level: process.env.LOG_LEVEL || 'info',
+      base: {
+        service: 'auth-service',
+        env: process.env.NODE_ENV || 'development'
+      },
 
-  await fastify.register(fastifyCors, {
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
-  });
-  // fastify.register(fastifyJwt, {
-  //   secret: secrets.jwtSecret
-  // });
-
-
-
-
-  fastify.register(fastifyJwt, {
-    secret: secrets.jwtSecret
+      redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password']
+    }
   });
 
+  fastify.setErrorHandler(function (error, request, reply) {
+    const statusCode = error.statusCode || 500;
 
-  // fastify.register(publicRoutes, {
-  //   prefix: '/api',
-  //   secrets: secrets
-  // });
+    if (statusCode >= 500) {
+      request.log.error({
+        msg: "Code crash hhh",
+        err: error,
+        reqId: request.id
+      });
+    }
+    else {
+      request.log.warn({
+        msg: error.message,
+        code: statusCode,
+        reqId: request.id
+      });
+    }
+
+    const response = { // response for the front end
+      success: false,
+      error: statusCode >= 500 ? "Internal Server Error" : error.message
+    };
+    reply.status(statusCode).send(response);
+  });
+
 
 
   try {
+    fastify.log.info("Auth service is starting...");
+    const secrets = await getSecrets(fastify.log);
+    fastify.log.info("Secrets fetched successfully");
+
+    await fastify.register(fastifyCors, {
+      origin: '*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE']
+    });
+
+    await fastify.register(fastifyJwt, {
+      secret: secrets.jwtSecret
+    });
+
+
     const db = await dbconfig();
     fastify.decorate('db', db);
+
+
+
     fastify.register(routes, {
       prefix: '/api',
       secrets: secrets
     });
-    fastify.listen({
-      port: process.env.PORT || 3000,
-      host: process.env.HOST || '0.0.0.0'
+
+    await fastify.listen({
+      port: process.env.PORT,
+      host: process.env.HOST
     });
-    console.log(`Server listening on ${process.env.HOST || '0.0.0.0'}:${process.env.PORT || 3000}`);
-  } catch (err) {
-    fastify.log.error(err)
+
+  }
+
+  catch (err) {
+    fastify.log.error({ msg: "Starting failed", err: err });
     process.exit(1)
   }
 }
