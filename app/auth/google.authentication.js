@@ -1,101 +1,110 @@
-// const oauth2 = require('@fastify/oauth2');
-// const cookie = require('@fastify/cookie');
-// const DownoladImageFromUrl = require('./utilis');
 import oauth2 from '@fastify/oauth2';
 import cookie from '@fastify/cookie';
-import DownoladImageFromUrl from './utilis.js';
-const domain = process.env.DOMAIN;
+import DownoladImageFromUrl from './utils.js';
+import path from 'path';
+import fs from 'fs';
 
+const domain = process.env.DOMAIN;
+const __dirname = import.meta.dirname;
 
 async function googleCallback(req, reply) {
+
     try {
-
         const res = await this.google_oauth.getAccessTokenFromAuthorizationCodeFlow(req);
-        if (!res)
-            throw ({ error: "getAccessTokenFromAuthorizationCodeFlow failed" });
-        const userInfo = await this.google_oauth.userinfo(res.token.access_token);
 
-        if (!userInfo)
-            throw ({ error: "get userinfo failed" });
+        if (!res) {
+            throw new Error("getAccessTokenFromAuthorizationCodeFlow failed");
+        }
+
+        const userInfo = await this.google_oauth.userinfo(res.token.access_token);
+        if (!userInfo) {
+            throw new Error("get userinfo failed");
+        }
+
         const userData = await this.db.prepare("SELECT id, username, auth_provider FROM users WHERE email = ?")
-                                      .get([userInfo.email]);
+            .get([userInfo.email]);
 
         let token;
         let info;
-        if (userData)
-            token = this.jwt.sign(userData, { expiresIn: '1h' });
+
+        if (userData) {
+            token = this.jwt.sign({ id: userData.id, username: userData.username }, { expiresIn: '1h' });
+            info = userData;
+
+            req.log.info({ userId: userData.id }, "User logged in via Google");
+        }
         else {
-            const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google");
-            info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google"]);
-            if (!info)
-                throw {error: "can not insert user"};
-            token = this.jwt.sign(info, { expiresIn: '1h' });
+            const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google", req.log);
+
+            info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
+                .get([userInfo.name, userInfo.email, "google"]);
+
+            if (!info) throw new Error("Database insert failed");
+
+            token = this.jwt.sign({ id: info.id, username: info.username }, { expiresIn: '1h' });
+
             const createNewUserRes = await fetch('http://user-service-dev:3002/api/user/createNewUser', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                    // I will add the secret key to check the request is from the microserves
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     user_id: info.id,
                     username: info.username,
-                    avatar_url: AvatarUrl.avatar_path
+                    avatar_url: AvatarUrl
                 })
             });
-            if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
-            {
-                await fs.promises.unlink(AvatarUrl.file_name);
+
+            if (!createNewUserRes.ok) {
+                const fileName = path.basename(AvatarUrl);
+                await fs.promises.unlink(path.join(__dirname, 'static', fileName)).catch(() => {});
+
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([info.id]);
-                reply.redirect(`${domain}/login?auth=failed&message=failed to create new user`);
+                throw new Error("Failed to sync new user with User Service");
             }
+
+            req.log.info({ userId: info.id }, "New user registered via Google");
         }
-        console.log(`${domain}/login?token=${token}&id=${info ? info.id : userData.id}`);
-        reply.redirect(`${domain}/login?token=${token}&id=${info ? info.id : userData.id}`);
-    }
-    catch (err) {
-        console.log(err);
+
+        reply.redirect(`${domain}/login?token=${token}&id=${info.id}`);
+
+    } catch (err) {
+        req.log.error({ msg: "Google OAuth Failed", err: err });
         reply.redirect(`${domain}/login?auth=failed`);
     }
 }
 
 async function authgoogle(fastify, opts) {
-    try {
-        const { googleId, googleSecret, cookieSecret } = opts.secrets;
-        // console.log("hellllooooooooo     ",googleId);
 
-        if (!googleId || !googleSecret || !cookieSecret)
-            throw ("No google credentials provided!")
-        await fastify.register(cookie, {
-            secret: cookieSecret
-        })
+    const { googleId, googleSecret, cookieSecret } = opts.secrets;
 
-        await fastify.register(oauth2, {
-            name: 'google_oauth',
-            scope: ['profile', 'email'],
+    if (!googleId || !googleSecret || !cookieSecret)
+        throw new Error("No google credentials provided!")
 
-            discovery: {
-                issuer: 'https://accounts.google.com'
-            },
-            credentials: {
-                client: {
-                    id: googleId,
-                    secret: googleSecret
-                }
-            },
-            startRedirectPath: '/auth/google',
-            callbackUri: `${domain}/api/auth/google/callback`,
-            cookie: {
-                secure: false,
-                sameSite: 'lax',
-                path: '/api/auth/google/callback'
+    await fastify.register(cookie, {
+        secret: cookieSecret
+    })
+
+    await fastify.register(oauth2, {
+        name: 'google_oauth',
+        scope: ['profile', 'email'],
+
+        discovery: {
+            issuer: 'https://accounts.google.com'
+        },
+        credentials: {
+            client: {
+                id: googleId,
+                secret: googleSecret
             }
-        })
-        fastify.get('/auth/google/callback', googleCallback);
-    }
-    catch (error) {
-        console.log(error);
-    }
+        },
+        startRedirectPath: '/auth/google',
+        callbackUri: `${domain}/api/auth/google/callback`,
+        cookie: {
+            secure: false,
+            sameSite: 'lax',
+            path: '/api/auth/google/callback'
+        }
+    })
+    fastify.get('/auth/google/callback', googleCallback);
 }
 
-// module.exports = authgoogle;
 export default authgoogle;

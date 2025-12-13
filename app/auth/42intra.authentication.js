@@ -1,10 +1,6 @@
-// const oauth2 = require('@fastify/oauth2');
-// const cookie = require('@fastify/cookie');
-// const DownoladImageFromUrl = require('./utilis')
-
 import oauth2 from '@fastify/oauth2';
 import cookie from '@fastify/cookie';
-import DownoladImageFromUrl from './utilis.js';
+import DownoladImageFromUrl from './utils.js';
 
 const domain = process.env.DOMAIN;
 
@@ -31,7 +27,7 @@ async function callbackHandler(req, reply) {
         else {
             const AvatarUrl = await DownoladImageFromUrl(userdata.image.versions.small, "_intra");
             lastuser = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
-                              .get([userdata.usual_full_name, userdata.email, "intra"]);
+                .get([userdata.usual_full_name, userdata.email, "intra"]);
             token = this.jwt.sign(lastuser, { expiresIn: '1h' });
             const createNewUserRes = await fetch('http://user-service-dev:3002/api/user/createNewUser', {
                 method: 'POST',

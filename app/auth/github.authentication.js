@@ -4,7 +4,7 @@
 
 import oauth2 from '@fastify/oauth2';
 import cookie from '@fastify/cookie';
-import DownoladImageFromUrl from './utilis.js';
+import DownoladImageFromUrl from './utils.js';
 /*
 clientID = 803922873496-7qb8dv88s3628eb12qvu75ohogg76cpn.apps.githubusercontent.com
 clientSecret= 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
