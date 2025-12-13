@@ -81,7 +81,7 @@ async function deleteAvatar(req, reply) {
     throw createError.BadRequest("Cannot delete the default avatar");
   }
 
-  await fs.promises.unlink(path.join(__dirname, 'static', imgpath));
+  await fs.promises.unlink(path.join(__dirname, 'static', imgpath)).catch(() => { });
 
   this.db.prepare("UPDATE userInfo SET avatar_url = ? WHERE user_id = ?").run(["/public/Default_pfp.jpg", id]);
 

@@ -1,8 +1,11 @@
 import oauth2 from '@fastify/oauth2';
 import cookie from '@fastify/cookie';
 import DownoladImageFromUrl from './utils.js';
+import path from 'path';
+import fs from 'fs';
 
 const domain = process.env.DOMAIN;
+const __dirname = import.meta.dirname;
 
 async function googleCallback(req, reply) {
 
@@ -31,7 +34,6 @@ async function googleCallback(req, reply) {
             req.log.info({ userId: userData.id }, "User logged in via Google");
         }
         else {
-
             const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google", req.log);
 
             info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
@@ -52,6 +54,9 @@ async function googleCallback(req, reply) {
             });
 
             if (!createNewUserRes.ok) {
+                const fileName = path.basename(AvatarUrl);
+                await fs.promises.unlink(path.join(__dirname, 'static', fileName)).catch(() => {});
+
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([info.id]);
                 throw new Error("Failed to sync new user with User Service");
             }
@@ -63,58 +68,8 @@ async function googleCallback(req, reply) {
 
     } catch (err) {
         req.log.error({ msg: "Google OAuth Failed", err: err });
-
         reply.redirect(`${domain}/login?auth=failed`);
     }
-
-    // ====================================dialk======================
-    // try {
-
-    //     const res = await this.google_oauth.getAccessTokenFromAuthorizationCodeFlow(req);
-    //     if (!res)
-    //         throw ({ error: "getAccessTokenFromAuthorizationCodeFlow failed" });
-    //     const userInfo = await this.google_oauth.userinfo(res.token.access_token);
-
-    //     if (!userInfo)
-    //         throw ({ error: "get userinfo failed" });
-    //     const userData = await this.db.prepare("SELECT id, username, auth_provider FROM users WHERE email = ?")
-    //                                   .get([userInfo.email]);
-
-    //     let token;
-    //     let info;
-    //     if (userData)
-    //         token = this.jwt.sign(userData, { expiresIn: '1h' });
-    //     else {
-    //         const AvatarUrl = await DownoladImageFromUrl(userInfo.picture, "_google");
-    //         info = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username").get([userInfo.name, userInfo.email, "google"]);
-    //         if (!info)
-    //             throw {error: "can not insert user"};
-    //         token = this.jwt.sign(info, { expiresIn: '1h' });
-    //         const createNewUserRes = await fetch('http://user-service-dev:3002/api/user/createNewUser', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //                 // I will add the secret key to check the request is from the microserves
-    //             },
-    //             body: JSON.stringify({
-    //                 user_id: info.id,
-    //                 username: info.username,
-    //                 avatar_url: AvatarUrl
-    //             })
-    //         });
-    //         if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
-    //         {
-    //             this.db.prepare('DELETE FROM users WHERE id = ?').run([info.id]);
-    //             reply.redirect(`${domain}/login?auth=failed&message=failed to create new user`);
-    //         }
-    //     }
-    //     console.log(`${domain}/login?token=${token}&id=${info ? info.id : userData.id}`);
-    //     reply.redirect(`${domain}/login?token=${token}&id=${info ? info.id : userData.id}`);
-    // }
-    // catch (err) {
-    //     console.log(err);
-    //     reply.redirect(`${domain}/login?auth=failed`);
-    // }
 }
 
 async function authgoogle(fastify, opts) {

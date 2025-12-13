@@ -51,8 +51,6 @@ async function routes(fastify) {
                     }
                 } catch (err) {
                     log.error({ err: err }, "Failed to process websocket message");
-
-                    // socket.send(JSON.stringify({ error: "Invalid message" }));
                 }
             });
 

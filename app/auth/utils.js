@@ -36,7 +36,7 @@ async function DownoladImageFromUrl(url, provider, logger) {
     logger.debug({ filePath: file_path }, "Saving avatar to disk");
 
     await fs.promises.writeFile(file_path, buffer);
-    return `/public/${file_name}`;
+    return {file_name, avatar_path: `/public/${file_name}`};
 }
 
 export default DownoladImageFromUrl;

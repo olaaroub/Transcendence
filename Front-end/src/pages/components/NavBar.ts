@@ -175,7 +175,7 @@ export async function notifications()
 			pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
 			pandingUser.innerHTML = `
 				<div class="flex gap-3 items-center">
-					<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(user.profileImage)}" alt="">
+					<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(user.avatar_url)}" alt="">
 					<span class="text-txtColor">${user.username}</span>
 				</div>
 				<div class="flex gap-2 items-center">

@@ -4,11 +4,11 @@ async function search_bar(fastify) {
         try {
             const query = req.query.username || "";
             const id = req.params.id;
-            const data = await fastify.db.prepare(` SELECT u.user_id, u.username, f.status, u.avatar_url
+            const data = await fastify.db.prepare(` SELECT u.id, u.username, f.status, u.avatar_url
                                                 FROM
                                                     userInfo AS u
                                                     LEFT JOIN friendships AS f
-                                                        ON u.user_id = (
+                                                        ON u.id = (
                                                             CASE
                                                                 WHEN userRequester = ? THEN userReceiver
                                                                 WHEN userReceiver = ? THEN userRequester
@@ -24,7 +24,6 @@ async function search_bar(fastify) {
                                                     LIMIT 15`)
                 .all([id, id, `%${query}%`, id])
             
-            data.forEach(user => user.id = user.user_id);
             console.log(data);
             reply.code(200).send(data);
         }
