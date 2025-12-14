@@ -10,7 +10,7 @@ async function callbackHandler(req, reply) {
         const res = await this.authIntra.getAccessTokenFromAuthorizationCodeFlow(req);
 
         if (!res)
-            throw ({ error: "getAccessTokenFromAuthorizationCodeFlow failed" });
+            throw new Error("getAccessTokenFromAuthorizationCodeFlow failed");
         const dataUser = await fetch('https://api.intra.42.fr/v2/me', {
             headers: {
                 'Authorization': `Bearer ${res.token.access_token}`
@@ -28,6 +28,9 @@ async function callbackHandler(req, reply) {
             const AvatarUrl = await DownoladImageFromUrl(userdata.image.versions.small, "_intra", req.log);
             data = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
                 .get([userdata.usual_full_name, userdata.email, "intra"]);
+            
+            if (!data) throw new Error("Database insert failed");
+
             const createNewUserRes = await fetch('http://user-service-dev:3002/api/user/createNewUser', {
                 method: 'POST',
                 headers: {
@@ -42,7 +45,7 @@ async function callbackHandler(req, reply) {
             console.log(createNewUserRes);
             if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
             {
-                await fs.promises.unlink(AvatarUrl.file_name);
+                await fs.promises.unlink(AvatarUrl.file_name).catch(() => {});
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([data.id]);
                 reply.redirect(`${domain}/login?auth=failed&message='failed to create new user'`);
             }

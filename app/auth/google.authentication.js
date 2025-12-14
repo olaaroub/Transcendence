@@ -50,8 +50,7 @@ async function googleCallback(req, reply) {
             });
 
             if (!createNewUserRes.ok) {
-                const fileName = path.basename(AvatarUrl);
-                await fs.promises.unlink(path.join(__dirname, 'static', fileName)).catch(() => {});
+                await fs.promises.unlink(AvatarUrl.file_name).catch(() => {});
 
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([info.id]);
                 throw new Error("Failed to sync new user with User Service");
