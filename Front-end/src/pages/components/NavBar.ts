@@ -100,7 +100,8 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 function realTimeNotifications(pendingUsers: IUserData[] | null)
 {
 	const markWatch = document.getElementById('notification-icon')?.querySelector('span');
-	const wsUrl = `wss//localhost:3002/api/user/notification/${credentials.id}`;
+	const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+	const wsUrl = `${protocol}//${window.location.host}/api/user/notification/${credentials.id}`;
 	const socket = new WebSocket(wsUrl);
 	
 	allPendingUsers = pendingUsers
