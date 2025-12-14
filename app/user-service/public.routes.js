@@ -15,7 +15,7 @@ async function createNewUser(req, reply)
     }
     catch (err)
     {
-      if (err.code === SQLITE_CONSTRAINT_UNIQUE)
+      if (err.code === 'SQLITE_CONSTRAINT_UNIQUE')
         throw createError.Conflict("This record already exists");
       throw err;
     }

@@ -45,7 +45,7 @@ async function googleCallback(req, reply) {
                 body: JSON.stringify({
                     user_id: info.id,
                     username: info.username,
-                    avatar_url: AvatarUrl
+                    avatar_url: AvatarUrl.avatar_path
                 })
             });
 

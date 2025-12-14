@@ -10,7 +10,7 @@ async function add_friend(req, reply) {
                .run([requester_id, receiver_id]);
     }
     catch (err) {
-        if (err.code === SQLITE_CONSTRAINT_UNIQUE)
+        if (err.code === 'SQLITE_CONSTRAINT_UNIQUE')
             throw createError.Conflict("This record already exists");
         throw err;
     }
