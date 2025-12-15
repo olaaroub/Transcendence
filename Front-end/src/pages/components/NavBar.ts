@@ -100,14 +100,11 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 function realTimeNotifications(pendingUsers: IUserData[] | null)
 {
 	const markWatch = document.getElementById('notification-icon')?.querySelector('span');
-	const protocol = window.location.protocol === 'https:' ? 'ws:' : 'ws:';
-	const wsHost = window.location.hostname === 'localhost' 
-		? 'localhost:3002' 
-		: window.location.host;
-	const wsUrl = `${protocol}//${wsHost}/api/user/notification/${credentials.id}`;
-	console.log(wsUrl);
+	const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+	const wsUrl = `${protocol}//${window.location.host}/api/user/notification/${credentials.id}`;
 	const socket = new WebSocket(wsUrl);
 	
+	allPendingUsers = pendingUsers
 	socket.onopen = () => {
 		console.log('WebSocket connection established for notifications');
 	};
@@ -119,17 +116,13 @@ function realTimeNotifications(pendingUsers: IUserData[] | null)
 			const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
 			allPendingUsers = (allPendingUsers ?? []).concat(newUsers);
 			markWatch?.classList.remove('hidden');
-		} catch (err) {
-			if (pendingUsers && pendingUsers.length > 0) {
-				allPendingUsers = (allPendingUsers ?? []).concat(pendingUsers);
-			}
-		}
+		} catch (err) {console.error(err)}
 	};
-	
+
 	socket.onerror = (error) => {
 		console.error('WebSocket error:', error);
 	};
-	
+
 	socket.onclose = (event) => {
 		console.log('WebSocket connection closed:', event.code, event.reason);
 	};
@@ -139,8 +132,8 @@ function realTimeNotifications(pendingUsers: IUserData[] | null)
 export async function notifications()
 {
 	allPendingUsers = null;
-	console.log(allPendingUsers);
 	let pendingUsers : IUserData[] | null = await getPendingUsers();
+	console.log(pendingUsers);
 	realTimeNotifications(pendingUsers);
 
 	const notificationIcon = document.getElementById('notification-icon');
