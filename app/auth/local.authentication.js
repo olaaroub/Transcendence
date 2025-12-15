@@ -1,4 +1,5 @@
 import createError from 'http-errors';
+import argon2 from 'argon2';
 
 // function signUperrorHandler(error, request, reply) {
 // 	if (error.validation) {
@@ -24,8 +25,10 @@ async function signUpHandler(request, reply) {
 
 	let newUserData;
 	try {
+		const hashedPassword = await argon2.hash(data.password);
+		// console.log(hashedPassword);
 		newUserData = this.db.prepare("INSERT INTO users(username, password, email) VALUES (?, ?, ?) RETURNING id, username")
-			.get([data.username, data.password, data.email]);
+			.get([data.username, hashedPassword, data.email]);
 	}
 	catch (err) {
 		if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
@@ -105,8 +108,8 @@ async function loginHandler(req, reply) {
 	if (user.auth_provider !== "local") {
 		throw createError.Conflict(`Please login with your provider: ${user.auth_provider}`);
 	}
-
-	if (user.password !== body.password) {
+	const validPassword = await argon2.verify(user.password, body.password);
+	if (!validPassword) {
 		throw createError.Unauthorized("Invalid credentials");
 	}
 
