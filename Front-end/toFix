@@ -1,8 +1,8 @@
-fix login/signup colors
-optimize routing logic
 fix notification websockets
 add game buttons to the dashboard
 add forgot password option
+setup font
+fix login/signup colors
 
 
 
