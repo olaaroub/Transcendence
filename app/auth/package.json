@@ -18,6 +18,7 @@
     "@fastify/cors": "^11.1.0",
     "@fastify/jwt": "^10.0.0",
     "@fastify/oauth2": "^8.1.2",
+    "argon2": "^0.44.0",
     "better-sqlite3": "^12.4.1",
     "fastify": "^5.6.2",
     "fastify-metrics": "^12.1.0",
@@ -25,6 +26,8 @@
     "http-errors": "^2.0.1",
     "jsonwebtoken": "^9.0.2",
     "node-vault": "^0.10.9",
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0",
     "url": "^0.11.4",
     "uuid": "^9.0.1"
   },

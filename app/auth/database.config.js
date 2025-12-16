@@ -16,6 +16,9 @@ const creatTable = async () => {
         auth_provider TEXT NOT NULL DEFAULT 'local',
         email TEXT UNIQUE NOT NULL,
 
+        towFaSecret TEXT,
+        towFaEnabled BOOLEAN DEFAULT FALSE,
+    
         CHECK (auth_provider IN ('local', 'google', 'github', 'intra'))
     );`);
 
