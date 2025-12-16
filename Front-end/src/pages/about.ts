@@ -43,7 +43,7 @@ export async function renderAbout() {
 	<div class="w-full min-h-screen bg-bgColor flex flex-col items-center py-16 px-6">
 		<img id="about-logo" class="cursor-pointer xl:w-[150px] absolute top-8 left-16" src="${getImageUrl('images/logo.png')}" alt="Logo">
 		<div class="w-full max-w-6xl translate-y-[50px]">
-			<div class="bg-color3/45 backdrop-blur-md px-8 py-8 rounded-3xl shadow-2xl">
+			<div class="bg-color1/45 backdrop-blur-md px-8 py-8 rounded-3xl shadow-2xl">
 				<h1 class="text-4xl md:text-5xl font-extrabold text-txtColor mb-3 text-center">About <span class="text-color1">Us</span></h1>
 				<p class="text-[#b1b1b1] max-w-3xl mb-12 text-md md:text-lg mx-auto text-center [text-wrap:balance]">
 					We are a passionate team of developers, each specializing in different domains. Below are the teammates and their roles — click a card to learn more.
