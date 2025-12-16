@@ -6,20 +6,18 @@ let allPendingUsers: IUserData[] | null = null;
 export function renderNavBar (isLoged: boolean)
 {
     return `
-		<nav class="flex justify-between items-center p-6 sm:p-10">
+		<nav class="flex justify-between items-center pt-6 sm:pt-10">
 			<img id="navBar-logo" class="w-[120px] sm:w-[155px] h-auto cursor-pointer" src="/images/logo.png" alt="pong" />
 			<div  class=" ${isLoged ? "hidden" : ""} gap-3 sm:gap-5 flex">
-				<button id="go-sign-up"
-					class="py-2 px-4 sm:px-6 border text-color2 border-color2
+				<button id="go-sign-up" class="py-2 px-4 sm:px-6 border text-color2 border-color2
 					rounded-lg transition-all opacity-70 duration-500 hover:bg-color2
-					hover:text-black font-bold text-sm sm:text-base">
-					Sign Up
-				</button>
-				<button id="go-sign-in"
-				class="py-2 px-4 sm:px-6 bg-[#F0F0F0] rounded-lg
+					hover:text-black font-bold text-sm sm:text-base">Sign Up</button>
+				<button id="go-sign-in" class="py-2 px-4 sm:px-6 bg-[#F0F0F0] rounded-lg
 				transition-all opacity-70 duration-500 hover:bg-color2
-				font-bold text-sm sm:text-base">
-				Login</button>
+				font-bold text-sm sm:text-base">Login</button>
+				<button id="go-as-guest" class="py-2 px-4 sm:px-6 bg-[#F0F0F0] rounded-lg
+				transition-all opacity-70 duration-500 hover:bg-color2
+				font-bold text-sm sm:text-base">As Guest</button>
 			</div>
 		</nav>
     `

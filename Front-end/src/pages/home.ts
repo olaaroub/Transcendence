@@ -59,5 +59,6 @@ export async function renderHome()
 	document.getElementById('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
 	document.getElementById('go-sign-in')!.addEventListener('click',_ => {navigate("/login")})
 	document.getElementById('go-sign-up')!.addEventListener('click',_ => {navigate("/sign-up")})
+	document.getElementById('go-as-guest')!.addEventListener('click',_ => {navigate("##")})
 	document.getElementById('about-us')!.addEventListener('click',_ => {navigate("/about")})
 }

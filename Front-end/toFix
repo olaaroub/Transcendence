@@ -1,9 +1,15 @@
-add keyboard scrolling to the searchbar
-test searchbar
+fix about us colors
+add game buttons to the dashboard
+fix notification websockets
+optimize routing logic
+fix login/signup colors
+add forgot password option
+
+
+
 test front in firefox
 
 main :
-    compllete settings
     tailwind : what content is
 
 
