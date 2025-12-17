@@ -7,15 +7,16 @@ async function setupTowFaHandler(req, reply)
 {
     const id = req.params.id;
 
-    const towFactorEnabled = this.db.prepare("SELECT towFaEnabled FROM users WHERE id = ?").get(id);
+    const { towFaEnabled } = this.db.prepare("SELECT towFaEnabled FROM users WHERE id = ?").get(id);
 
-    if (!towFactorEnabled)
-        throw createError.Unauthorized("the tow Factor has not Enabled");
+    // console.log(towFaEnabled);
+    if (towFaEnabled)
+        throw createError.Unauthorized("you can't setup tow factor twise");
     const secret = speakeasy.generateSecret({
         name: `42TrancendensUserID_${id}` // I will change the id to username
     });
 
-    this.db.prepare("UPDATE users SET towFaSecret = ? WHERE id = ?")
+    this.db.prepare("UPDATE users SET towFaSecret = ?, towFaEnabled = TRUE  WHERE id = ?")
         .run(secret.base32, id)
 
     const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
@@ -53,14 +54,14 @@ async function verifyTowFaHandler(req, reply)
     }
 }
 
-async function towFaEnablingHandler(req, reply)
+async function towFaDisablingHandler(req, reply)
 {
     const id = req.params.id;
 
-    this.db.prepare('UPDATE users SET towFaEnabled = TRUE WHERE id = ?').run(id);
+    this.db.prepare('UPDATE users SET towFaEnabled = false, towFaSecret = NULL WHERE id = ?').run(id);
     return {
         success: true,
-        message: "you're successfly enabled towfa!"
+        message: "you're successfly disabled towfa!"
     }
 }
 
@@ -68,5 +69,5 @@ export default async function towFactorAuthentication(fastify)
 {
     fastify.get('/auth/2fa/setup/:id', setupTowFaHandler);
     fastify.post('/auth/2fa/verify/:id', verifyTowFaHandler);
-    fastify.post('/auth/2fa/enabel/:id', towFaEnablingHandler);
+    fastify.post('/auth/2fa/disable/:id', towFaDisablingHandler);
 }
