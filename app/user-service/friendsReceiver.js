@@ -1,28 +1,4 @@
-
-/*
-    {
-        accept: true/false,
-        id: 4
-    }
-
-
-    SELECT u.id, u.username, f.status, i.profileImage
-    FROM
-        users AS u
-        INNER JOIN
-            infos AS i
-            ON
-                u.id = i.id
-        LEFT JOIN friendships AS f
-            ON i.id = (
-                CASE
-                    WHEN userRequester = 1 THEN userReceiver
-                    WHEN userReceiver = 1 THEN userRequester
-                END
-            )
-        WHERE LOWER(u.username) LIKE LOWER('%am%')
-*/
-// 2
+import createError from 'http-errors';
 
 async function getPendingRequestes(req, reply) {
     const id = req.params.id
@@ -34,21 +10,43 @@ async function getPendingRequestes(req, reply) {
                         WHERE
                             f.userReceiver = ? AND f.status = 'PENDING'
         `,).all([id]);
-    req.log.info("getPendingRequestes");
+
+    req.log.info({ userId: id, count: data.length }, "Fetched pending friend requests");
     return data;
 }
 
 async function handleFriendRequest(req, reply) {
-
     const body = req.body;
     const receiver_id = req.params.id;
-    console.log(`requester number ${body.id} is ${body.accept}`);
-    if (body.accept)
-        this.db.prepare(`UPDATE friendships SET status = ? WHERE (userReceiver = ? AND userRequester = ?)`).run(["ACCEPTED", receiver_id, body.id]);
-    else
-        this.db.prepare(`DELETE FROM friendships WHERE (userReceiver = ? AND userRequester = ?)`).run([receiver_id, body.id]);
-    req.log.info("m3rftch ach ghanktb hnaya hhhhh")
-    return ({ success: true });
+
+    if (!body.id) {
+        throw createError.BadRequest("Sender ID is required in body");
+    }
+
+    if (body.accept) {
+        const info = this.db.prepare(`UPDATE friendships SET status = ? WHERE (userReceiver = ? AND userRequester = ?)`)
+            .run(["ACCEPTED", receiver_id, body.id]);
+
+        if (info.changes === 0)
+            throw createError.NotFound("Friend request not found or already handled");
+
+        req.log.info({ receiverId: receiver_id, senderId: body.id }, "Friend request ACCEPTED");
+        this.customMetrics.friendCounter.inc({ action: 'accepted' });
+    }
+    else {
+        const info = this.db.prepare(`DELETE FROM friendships WHERE (userReceiver = ? AND userRequester = ?)`)
+            .run([receiver_id, body.id]);
+
+        if (info.changes === 0)
+            req.log.warn({ receiverId: receiver_id, senderId: body.id }, "Attempted to reject non existent friend request");
+        else
+        {
+            req.log.info({ receiverId: receiver_id, senderId: body.id }, "Friend request REJECTED");
+            this.customMetrics.friendCounter.inc({ action: 'rejected' });
+        }
+    }
+
+    return { success: true, message: body.accept ? "Request accepted" : "Request rejected" };
 }
 
 async function routes(fastify) {
@@ -56,15 +54,4 @@ async function routes(fastify) {
     fastify.get("/user/:id/getPendingRequestes", getPendingRequestes);
 }
 
-// module.exports = routes;
 export default routes;
-
-
-/*
- /api/users/:id/friend-request -> to accept or refese amie;
- Body be like:
- {
-    accept: true/false,
-    id: the requester id (hadak li sift lik talab sada9a)
- }
-*/

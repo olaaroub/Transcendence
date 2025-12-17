@@ -3,12 +3,13 @@
 ## DevOps & Security (Me)
 
 - [x] Fix ModSecurity config loading order (Solved).
-- [ ] Add "Double Extension" rule to WAF (Block `image.php.jpg`).
+- [x] Add "Double Extension" rule to WAF (Block `image.php.jpg`).
 - [x] Update `scan_php.sh` to block non-image Magic Bytes (PDFs/EXEs).
 - [ ] Set up Rate Limiting in Nginx/ModSec to stop spam uploads.
 - [x] Ensure Prometheus & Grafana are scraping backend metrics.
-- [ ] Add false positive rules for searchbar and password.
-- [ ] GRPC
+- [ ] Add false positive rules for searchbar and password.(half done)
+- [x] Microservices are done(logs and using createError() also the global err handling and bubbling is all set)
+- [x] Added /metrics and counting logging attempts and all other events.... optimized the whole backend code
 
 ## Frontend (MMONDAD)
 

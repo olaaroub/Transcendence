@@ -35,11 +35,15 @@ fclean:
 
 re: clean up
 
+
+
+
 dev: certs
 	docker compose -f compose.dev.yaml up -d --build
 	docker compose -f compose.dev.yaml logs -f auth-service-dev user-service-dev frontend-dev
 
 # frontend-dev backend-dev
+
 downdev:
 	docker compose -f compose.dev.yaml down
 
@@ -51,6 +55,18 @@ cleandev: downdev
 fcleandev:
 	docker compose -f compose.dev.yaml down -v
 
+
+
+#elk do not touch
+elk: certs
+	docker compose -f compose.elk.yaml up -d --build
+	docker compose -f compose.elk.yaml logs -f auth-service-elk user-service-elk frontend-elk
+
+cleanelk:
+	docker compose -f compose.elk.yaml down
+
+
+#ms7 images
 cleanimg: clean cleandev
 	@images=$$(docker images -q --filter "reference=*:1337" --filter "reference=*:latest" ; docker images -q --filter "dangling=true") ;\
 	if [ -n "$$images" ]; then\
@@ -58,3 +74,7 @@ cleanimg: clean cleandev
 	else \
 		echo "no images to delete"; \
 	fi
+
+# fach tbi tkhwi docker kaml
+force: cleandev
+	docker system prune -a --volumes
