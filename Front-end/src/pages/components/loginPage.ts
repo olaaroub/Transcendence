@@ -73,25 +73,21 @@ function footer(isSignup: boolean) {
 
 
 export function renderAuthPage(isSignup = false, errorMSG = "") {
+	document.querySelector(".login")?.remove();
 	const isValid = errorMSG === "";
-	const existing = document.querySelector(".login");
-	if (existing) existing.remove();
-
 	const container = document.createElement("div");
-	container.className = `
-		login absolute z-20 top-[45%] left-1/2
-		rounded-2xl md:rounded-3xl px-8 md:px-12 xl:px-14
-		w-[90vw] sm:w-[320px] md:w-[400px] xl:w-[450px] 2xl:w-[500px] 4k:w-[600px]
-		flex flex-col justify-center text-white border-[2px] border-transparent rounded-lg
+
+	container.className = `login absolute z-20 top-[45%] left-1/2
+		px-8 md:px-12 xl:px-14 w-[90vw] sm:w-[320px] md:w-[400px] xl:w-[450px] 2xl:w-[500px]
+		flex flex-col justify-center border-[2px] border-transparent rounded-2xl
 		bg-[linear-gradient(#1F2937,#1F2937),linear-gradient(135deg,#121212,#ed6f30)]
-		max-h-[90vh] sm:max-h-[80vh] overflow-y-auto
-		opacity-0 translate-x-[-50%] translate-y-[-60%]`;
+		overflow-y-auto opacity-0 translate-x-[-50%] translate-y-[-60%]`;
 
 	container.style.backgroundOrigin = 'border-box';
 	container.style.backgroundClip = 'padding-box, border-box';
 	container.style.boxShadow = '0 0 20px rgba(237, 111, 48, 0.4)';
-
 	container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+
 	setTimeout(() => {
 		container.style.opacity = '1';
 		container.style.transform = 'translate(-50%, -50%)';
@@ -99,12 +95,12 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 
 	container.innerHTML = `
 		<div class="my-6 md:my-8 xl:my-10">
-			<h2 class="font-bold text-3xl md:text-4xl xl:text-5xl text-[#F0F0F0] text-center mb-4 2xl:mb-6">
+			<h2 class="font-bold text-3xl md:text-4xl xl:text-5xl text-txtColor text-center mb-4 2xl:mb-6">
 				${isSignup ? "Sign Up" : "Login"}
-				${!isValid ? `<p class="text-red-500 text-xs mt-4">${errorMSG}</p>` : ""}
+				${!isValid ? `<p class="text-errorColor text-xs mt-4">${errorMSG}</p>` : ""}
 			</h2>
 			${authForm(isSignup)}
-			<h3 class="text-center text-[#F0F0F0] mt-6 text-sm md:text-base">or continue with</h3>
+			<h3 class="text-center text-txtColor mt-6 text-sm md:text-base">or continue with</h3>
 			${socialIcons()}
 			${footer(isSignup)}
 		</div>
@@ -123,7 +119,6 @@ document.body.addEventListener("click", (e) => {
 
 document.body.addEventListener("submit", (e) => {
 	e.preventDefault();
-
 	const form = e.target as HTMLFormElement;
 	const inputs = form.querySelectorAll("input");
 	let path: string = 'login';
