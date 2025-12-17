@@ -29,6 +29,10 @@ async function routes(fastify) {
                 log.info("Websocket disconnected");
             });
 
+            socket.on('error', (err) => {
+                log.error({ err }, "Websocket connection error");
+            });
+
             socket.on('message', async (message) => {
                 try {
                     const msgString = message.toString();

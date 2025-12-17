@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "--- Log Generator Script Starting ---"
+echo "--- Log generator starting---"
 
 echo "Installing netcat..."
 apk add --no-cache netcat-openbsd
@@ -15,7 +15,7 @@ echo "Starting log stream..."
 count=0
 while true; do
 
-  if [ $(($count % 4)) -eq 0 ]; then #json format
+  if [ $(($count % 4)) -eq 0 ]; then
     echo "{\"level\": \"error\", \"service\": \"log-generator\", \"message\": \"Fuuck, something broke!\"}"
   else
     echo "{\"level\": \"info\", \"service\": \"log-generator\", \"message\": \"This is a log message at $(date)\"}"

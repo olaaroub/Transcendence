@@ -22,7 +22,10 @@ async function DownoladImageFromUrl(url, provider, logger) {
 
     if (!mimType[contentType]) {
         logger.warn({ contentType }, "Unsupported image type from provider, using default");
-        return '/public/Default_pfp.jpg';
+        return {
+            file_name: 'Default_pfp.jpg',
+            avatar_path: '/public/Default_pfp.jpg'
+        };
     }
 
     const ext = mimType[contentType];
@@ -36,7 +39,11 @@ async function DownoladImageFromUrl(url, provider, logger) {
     logger.debug({ filePath: file_path }, "Saving avatar to disk");
 
     await fs.promises.writeFile(file_path, buffer);
-    return {file_name, avatar_path: `/public/${file_name}`};
+    return {
+        file_name,
+        avatar_path: `/public/${file_name}`,
+        file_path: file_path 
+    };
 }
 
 export default DownoladImageFromUrl;

@@ -1,9 +1,21 @@
 #!/bin/sh
 set -e
 
-echo "[Init] Waiting for Vault to start..."
+MAX_RETRIES=30
+SLEEP_SECONDS=1
+ATTEMPT_NUM=1
+
+echo "[Init] Waiting for Vault to start at ${VAULT_ADDR}..."
+
 until vault status -address=${VAULT_ADDR} > /dev/null 2>&1; do
-  sleep 1
+  if [ $ATTEMPT_NUM -ge $MAX_RETRIES ]; then
+    echo "[Init] Error: Timeout waiting for Vault after ${MAX_RETRIES} attempts."
+    exit 1
+  fi
+
+  echo "[Init] Attempt $ATTEMPT_NUM/$MAX_RETRIES: Vault not ready yet..."
+  sleep $SLEEP_SECONDS
+  ATTEMPT_NUM=$((ATTEMPT_NUM + 1))
 done
 
 echo "[Init] Vault is up."
@@ -20,7 +32,6 @@ vault kv put secret/auth-service \
       github_client_secret="$GITHUB_CLIENT_SECRET" \
       intra_client_id="$INTRA_CLIENT_ID" \
       intra_client_secret="$INTRA_CLIENT_SECRET"
-
 
 vault kv put secret/user-service \
     jwt_secret="$JWT_SECRET_VALUE" \

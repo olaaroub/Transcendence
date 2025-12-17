@@ -1,11 +1,10 @@
 services:
-
-  frontend-dev:
+  frontend-elk:
     build:
       context: ./Front-end
       dockerfile: Dockerfile.frontend.dev
-    image: frontend-dev:1337
-    container_name: frontend-dev
+    image: frontend-elk:1337
+    container_name: frontend-elk
     ports:
       - "5173:5173"
     volumes:
@@ -17,28 +16,27 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - SERVICE_EXT=-dev
     networks:
-      - transcendence-dev-net
+      - transcendence-elk-net
     depends_on:
-      - modSecurity-dev
+      - modSecurity-elk
 
-
-  auth-service-dev:
+  auth-service-elk:
     build:
       context: ./app/auth
       dockerfile: ../Dockerfile.microservices.dev
       args:
         - PORT=3001
-    image: auth-service-dev:1337
-    container_name: auth-service-dev
+    image: auth-service-elk:1337
+    container_name: auth-service-elk
     environment:
-      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ADDR=${VAULT_ADDR_ELK}
       - VAULT_SECRET_PATH=${AUTH_SECRET_PATH}
       - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
       - DATABASE_PATH=/data/auth.db
       - HOST=0.0.0.0
       - DOMAIN=${AUTH_DOMAIN_DEV}
-      - SERVICE_EXT=-dev
-      - LOG_LEVEL=debug
+      - SERVICE_EXT=-elk
+      - LOG_LEVEL=info
     ports:
       - "3001:3001"
     volumes:
@@ -47,28 +45,26 @@ services:
       - ./app/static:/app/static
       - /app/node_modules
     networks:
-      - transcendence-dev-net
+      - transcendence-elk-net
     depends_on:
-      vault-init-dev:
-          condition: service_completed_successfully
+      vault-init-elk:
+        condition: service_completed_successfully
 
-
-
-  user-service-dev:
+  user-service-elk:
     build:
       context: ./app/user-service
       dockerfile: ../Dockerfile.microservices.dev
       args:
         - PORT=3002
-    image: user-service-dev:1337
-    container_name: user-service-dev
+    image: user-service-elk:1337
+    container_name: user-service-elk
     environment:
-      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ADDR=${VAULT_ADDR_ELK}
       - VAULT_SECRET_PATH=${USER_SECRET_PATH}
       - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
       - DATABASE_PATH=/data/users.db
       - HOST=0.0.0.0
-      - SERVICE_EXT=-dev
+      - SERVICE_EXT=-elk
       - LOG_LEVEL=info
     ports:
       - "3002:3002"
@@ -78,17 +74,16 @@ services:
       - ./db/users:/data
       - /app/node_modules
     networks:
-      - transcendence-dev-net
+      - transcendence-elk-net
     depends_on:
-      vault-init-dev:
+      vault-init-elk:
         condition: service_completed_successfully
 
-
-  vault-dev:
+  vault-elk:
     image: hashicorp/vault:1.21.1
-    container_name: vault-dev
+    container_name: vault-elk
     networks:
-      - transcendence-dev-net
+      - transcendence-elk-net
     ports:
       - "8200:8200"
     environment:
@@ -97,15 +92,15 @@ services:
     cap_add:
       - IPC_LOCK
 
-  vault-init-dev:
+  vault-init-elk:
     image: hashicorp/vault:1.21.1
-    container_name: vault-init-dev
+    container_name: vault-init-elk
     networks:
-      - transcendence-dev-net
+      - transcendence-elk-net
     volumes:
       - ./vault/hashicorpVault.init.sh:/init.sh
     environment:
-      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ADDR=${VAULT_ADDR_ELK}
       - VAULT_TOKEN=${VAULT_TOKEN}
       - JWT_SECRET_VALUE=${JWT_SECRET_VALUE}
       - COOKIE_SECRET=${COOKIE_SECRET}
@@ -119,13 +114,13 @@ services:
       - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
     entrypoint: /init.sh
     depends_on:
-      - vault-dev
+      - vault-elk
 
-  modSecurity-dev:
+  modSecurity-elk:
     image: owasp/modsecurity-crs:4.21.0-nginx-alpine-202512071012
-    container_name: modSecurity-dev
+    container_name: modSecurity-elk
     networks:
-      - transcendence-dev-net
+      - transcendence-elk-net
     environment:
       - MODSEC_RULE_ENGINE=DetectionOnly
       - BLOCKING_PARANOIA=2
@@ -136,31 +131,30 @@ services:
       - ./waf/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     restart: on-failure
     depends_on:
-      - auth-service-dev
-      - user-service-dev
+      - auth-service-elk
+      - user-service-elk
 
-
-  prometheus-dev:
+  prometheus-elk:
     image: prom/prometheus:v3.8.1
-    container_name: prometheus-dev
+    container_name: prometheus-elk
     ports:
       - "9090:9090"
     networks:
-      - transcendence-dev-net
+      - transcendence-elk-net
     volumes:
-      - ./prometheus/prometheus.dev.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/prometheus.elk.yaml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     depends_on:
-      - auth-service-dev
-      - user-service-dev
+      - auth-service-elk
+      - user-service-elk
 
-  grafana-dev:
+  grafana-elk:
     image: grafana/grafana:12.3.0
-    container_name: grafana-dev
+    container_name: grafana-elk
     ports:
       - "3000:3000"
     networks:
-      - transcendence-dev-net
+      - transcendence-elk-net
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
@@ -169,17 +163,86 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
       - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
     depends_on:
-      - prometheus-dev
+      - prometheus-elk
 
+
+  setup-elk:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+    container_name: setup-elk
+    volumes:
+      - ./elk/setup:/usr/share/elasticsearch/config/setup:ro
+    networks:
+      - transcendence-elk-net
+    command: ["/bin/true"]
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - transcendence-elk-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.2.2
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - transcendence-elk-net
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.2.2
+    container_name: logstash
+    volumes:
+      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "50000:50000"
+    environment:
+      - XPACK_MONITORING_ENABLED=false
+    networks:
+      - transcendence-elk-net
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  fluent-bit:
+    image: fluent/fluent-bit:4.2.0
+    container_name: fluent-bit
+    user: root
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./elk/fluent-bit/config:/fluent-bit/etc:ro
+    networks:
+      - transcendence-elk-net
+    depends_on:
+      - logstash
 
 networks:
-  transcendence-dev-net:
-    name: transcendence-dev-net
+  transcendence-elk-net:
+    name: transcendence-elk-net
     driver: bridge
+
 volumes:
-  prometheus-data:
+  elasticsearch-data:
     driver: local
-  vault-data:
+  prometheus-data:
     driver: local
   grafana-data:
     driver: local

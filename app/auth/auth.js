@@ -3,6 +3,7 @@ import fastifyJwt from '@fastify/jwt';
 import fastifyCors from '@fastify/cors';
 import vault from 'node-vault';
 import createError from 'http-errors';
+import fastifyMetrics from 'fastify-metrics';
 
 import routes from './routes.js';
 import dbconfig from './database.config.js'
@@ -55,12 +56,25 @@ async function main() {
     }
   });
 
+  await fastify.register(fastifyMetrics, {
+    endpoint: '/metrics',
+    defaultMetrics: { enabled: true, prefix: 'auth_service_' }
+  });
+
+  const loginCounter = new fastify.metrics.client.Counter({
+    name: 'auth_login_attempts_total',
+    help: 'Total number of login attempts',
+    labelNames: ['status', 'provider']
+  });
+
+  fastify.decorate('customMetrics', { loginCounter });
+
   fastify.setErrorHandler(function (error, request, reply) {
     const statusCode = error.statusCode || 500;
 
     if (statusCode >= 500) {
       request.log.error({
-        msg: "Code crash hhh",
+        msg: "System crash",
         err: error,
         reqId: request.id
       });
@@ -100,7 +114,7 @@ async function main() {
     const db = await dbconfig();
     fastify.decorate('db', db);
 
-
+    fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
 
     fastify.register(routes, {
       prefix: '/api',
