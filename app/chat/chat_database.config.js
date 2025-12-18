@@ -1,11 +1,13 @@
 import { readFile } from 'fs/promises';
-import sqlite3 from 'better-sqlite3';
+import sqlite from 'better-sqlite3';
+import dotenv from 'dotenv'
 
 export async function configChatDatabase()
 {
-    const database = new sqlite3('../../db/chat/chat.db');
+    dotenv.config();
+    const database = new sqlite(process.env.DATABASE_PATH);
 
-    const tablesQuery = await readFile('tables.sql');
+    const tablesQuery = await readFile('tables.sql', 'utf-8');
 
     database.exec(tablesQuery);
     return database;

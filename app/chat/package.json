@@ -10,6 +10,7 @@
     "test": "node ."
   },
   "dependencies": {
+    "@fastify/websocket": "^11.2.0",
     "abstract-logging": "^2.0.1",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",

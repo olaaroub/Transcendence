@@ -39,7 +39,7 @@
 - [ ] **store the messages in database**
 - [ ] **get the data from the user services and store it in the cash while send it to the front:**
 - [ ] **get the data from users using amqp protocole and RabbitMQ brocker**
-
+<!-- union intersect distinct  -->
 ## Known Bugs
 
 - [ ]
