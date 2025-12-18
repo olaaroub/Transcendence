@@ -136,10 +136,9 @@ export async function notifications()
 	let pendingUsers : IUserData[] | null = await getPendingUsers();
 	realTimeNotifications(pendingUsers);
 
-	const notificationIcon = document.getElementById('notification-icon');
+	const notificationIcon = $('notification-icon');
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
-
 		const existingResult = $('notifications-result');
 		if (existingResult) {
 			existingResult.remove();
