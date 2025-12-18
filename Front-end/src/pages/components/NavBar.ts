@@ -133,7 +133,6 @@ export async function notifications()
 {
 	allPendingUsers = null;
 	let pendingUsers : IUserData[] | null = await getPendingUsers();
-	console.log(pendingUsers);
 	realTimeNotifications(pendingUsers);
 
 	const notificationIcon = document.getElementById('notification-icon');
@@ -186,7 +185,7 @@ export async function notifications()
 			`;
 			const acceptBtn = pandingUser.querySelector('.accept-btn');
 			const refuseBtn = pandingUser.querySelector('.refuse-btn');
-			
+
 			if (user.id) {
 				acceptBtn?.addEventListener('click', async () => {
 					await handleFriendRequest(String(user.id), true, pandingUser);

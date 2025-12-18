@@ -10,3 +10,9 @@ main :
 tailwind :
     truncate
     show backdrop-blur-lg effect
+
+
+hamza : 
+red star in login/sign-up
+replace username with alias site wide
+add email field in profile non-modifiable
