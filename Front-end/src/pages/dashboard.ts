@@ -8,7 +8,7 @@ import { showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
 import { chatEventHandler } from "./chat/chat";
 
-(window as any).navigate = navigate;
+// (window as any).navigate = navigate;
 const $ = (id : string) => document.getElementById(id as string);
 
 export let response: Response  | null = null;
