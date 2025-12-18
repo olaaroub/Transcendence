@@ -13,7 +13,7 @@ const creatTable = async () => {
     db.exec(`CREATE TABLE IF NOT EXISTS userInfo (
         id INTEGER UNIQUE NOT NULL,
         username TEXT UNIQUE NOT NULL,
-        bio TEXT DEFAULT 'Hello there i am using WhatsApp!',
+        bio TEXT DEFAULT 'Hello there i am using Pong game!',
         avatar_url TEXT DEFAULT '/public/Default_pfp.jpg',
         is_read BOOLEAN DEFAULT FALSE,
 
@@ -27,7 +27,6 @@ const creatTable = async () => {
         wins INTEGER DEFAULT 0,
         losses INTEGER DEFAULT 0
     );`);
-
 
     db.exec(`CREATE INDEX IF NOT EXISTS user_scor_indx
              ON userInfo(points DESC)
