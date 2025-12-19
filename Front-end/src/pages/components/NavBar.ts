@@ -3,6 +3,8 @@ import { shortString } from "../utils";
 
 let allPendingUsers: IUserData[] | null = null;
 
+const $ = (id: string) => document.getElementById(id as string)
+
 export function renderNavBar (isLoged: boolean)
 {
     return `
@@ -33,9 +35,9 @@ function searchBar() : string
 			<input
 				id="search-input"
 				type="text"
-				autocomplete="off" 
-				autocorrect="off" 
-				autocapitalize="off" 
+				autocomplete="off"
+				autocorrect="off"
+				autocapitalize="off"
 				spellcheck="false"
 				placeholder="Search, users..."
 				class="w-full bg-transparent text-gray-200 py-2
@@ -84,6 +86,8 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 			})
 		});
 		if (response.ok) {
+			console.log("is ok")
+			console.log(userElement)
 			userElement.remove();
 			return accept ? true : false;
 		} else {
@@ -97,24 +101,22 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 
 function realTimeNotifications(pendingUsers: IUserData[] | null)
 {
-	const markWatch = document.getElementById('notification-icon')?.querySelector('span');
-	const protocol = window.location.protocol === 'https:' ? 'ws:' : 'ws:';
-	const wsUrl = `${protocol}//localhost:3002/api/user/notification/${credentials.id}`;
-	console.log(wsUrl);
+	const markWatch = $('notification-icon')?.querySelector('span');
+	const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
 	const socket = new WebSocket(wsUrl);
-	
+
 	allPendingUsers = pendingUsers
 	socket.onopen = () => {
 		console.log('WebSocket connection established for notifications');
 	};
-	
+
 	socket.onmessage = (event) => {
 		console.log('Notification received:', event.data);
 		try {
 			const parsed = JSON.parse(event.data);
 			const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
 			allPendingUsers = (allPendingUsers ?? []).concat(newUsers);
-			markWatch?.classList.remove('hidden');
+			$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
 		} catch (err) {console.error(err)}
 	};
 
@@ -132,13 +134,12 @@ export async function notifications()
 {
 	allPendingUsers = null;
 	let pendingUsers : IUserData[] | null = await getPendingUsers();
-	console.log(pendingUsers);
 	realTimeNotifications(pendingUsers);
 
-	const notificationIcon = document.getElementById('notification-icon');
+	const notificationIcon = $('notification-icon');
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
-		const existingResult = document.getElementById('notifications-result');
+		const existingResult = $('notifications-result');
 		if (existingResult) {
 			existingResult.remove();
 			return;
@@ -185,7 +186,7 @@ export async function notifications()
 			`;
 			const acceptBtn = pandingUser.querySelector('.accept-btn');
 			const refuseBtn = pandingUser.querySelector('.refuse-btn');
-			
+
 			if (user.id) {
 				acceptBtn?.addEventListener('click', async () => {
 					await handleFriendRequest(String(user.id), true, pandingUser);

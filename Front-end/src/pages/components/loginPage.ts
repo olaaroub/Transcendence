@@ -2,6 +2,7 @@ import { navigate } from "../../router";
 import { sendAuthData } from "../../pages/sendData";
 
 function inputField(label: string, type: string, placeholder: string) {
+	label = label == "Username" ? "Alias/Email" : `${label}`
 	return `
     <li>
 		<h3 class="text-[#F0F0F0] text-sm md:text-base my-2">${label}</h3>
@@ -45,7 +46,7 @@ function authForm(isSignup: boolean) {
 	return `
     <form class="space-y-3 md:space-y-5">
 		<ul class="space-y-2 md:space-y-3 xl:space-y-4 ">
-        ${inputField("Username", "text", "Username")}
+        ${inputField("Username", "text", "Alias or email")}
 		${isSignup ? inputField("Email", "email", "Email") : ""}
         ${inputField("Password", "password", "Password")}
         ${
@@ -71,17 +72,18 @@ function footer(isSignup: boolean) {
 	`;
 }
 
-
 export function renderAuthPage(isSignup = false, errorMSG = "") {
 	document.querySelector(".login")?.remove();
 	const isValid = errorMSG === "";
 	const container = document.createElement("div");
-
-	container.className = `login absolute z-20 top-[45%] left-1/2
-		px-8 md:px-12 xl:px-14 w-[90vw] sm:w-[320px] md:w-[400px] xl:w-[450px] 2xl:w-[500px]
-		flex flex-col justify-center border-[2px] border-transparent rounded-2xl
-		bg-[linear-gradient(#1F2937,#1F2937),linear-gradient(135deg,#121212,#ed6f30)]
-		overflow-y-auto opacity-0 translate-x-[-50%] translate-y-[-60%]`;
+	container.className = `
+		login absolute z-20 top-[45%] left-1/2
+		rounded-2xl md:rounded-3xl px-8 md:px-12 xl:px-14
+		w-[90vw] sm:w-[320px] md:w-[400px] xl:w-[450px] 2xl:w-[500px] 4k:w-[600px]
+		flex flex-col justify-center text-white border-[2px] border-transparent rounded-lg
+		bg-[linear-gradient(90deg,#040505,#1a1e22),linear-gradient(135deg,#121212,#ed6f30)]
+		max-h-[90vh] sm:max-h-[80vh] overflow-y-auto
+		opacity-0 translate-x-[-50%] translate-y-[-60%]`;
 
 	container.style.backgroundOrigin = 'border-box';
 	container.style.backgroundClip = 'padding-box, border-box';
@@ -107,7 +109,11 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 	`;
 	document.body.appendChild(container);
 }
-
+/*
+is_read flag in get  pending users (false -> ma9rach, true -> 9rahom)
+type: NOTIFICATION_READED is a var called type send in the sockets  kat3ni bli 9ra notification ana li kansiftha
+type: MAKE_AS_READ nta li katsiftha liya katgol liya fiha bli luser chaf notification
+*/
 document.body.addEventListener("click", (e) => {
 	const target = e.target as HTMLElement;
 	const action = target.dataset.action;

@@ -262,8 +262,10 @@ function accountSettings() : string
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col flex-1 gap-6">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account Settings</p>
 			<div class="settings-name flex flex-col gap-2">
-				<p class="text-txtColor text-sm ">username</p>
-				${input("Change username", 'text', userData?.username ?? "", "username")}
+				<p class="text-txtColor text-sm ">Alias</p>
+				${input("Change Alias", 'text', userData?.username ?? "", "username")}
+				<p class="text-txtColor text-sm ">Mail</p>
+				${input("Change Mail", 'text', userData?.username ?? "", "")}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
 				<p class="text-txtColor text-sm">Your Bio</p>
