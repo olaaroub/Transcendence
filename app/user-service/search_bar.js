@@ -1,5 +1,4 @@
-async function searchBarHandler(req, reply)
-{
+async function searchBarHandler(req, reply) {
     const query = req.query.username || "";
     const id = req.params.id;
 
@@ -23,8 +22,8 @@ async function searchBarHandler(req, reply)
         LIMIT 15`)
         .all([id, id, `%${query}%`, id])
 
-        fastify.customMetrics.searchCounter.inc();
-        req.log.info({ userId: id, searchQuery: query, resultsCount: data.length }, "User performed a search");
+    this.customMetrics.searchCounter.inc();
+    req.log.info({ userId: id, searchQuery: query, resultsCount: data.length }, "User performed a search");
 
     return data;
 }
