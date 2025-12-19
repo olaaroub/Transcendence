@@ -69,7 +69,7 @@ services:
       - DATABASE_PATH=/data/users.db
       - HOST=0.0.0.0
       - SERVICE_EXT=-dev
-      - LOG_LEVEL=info
+      - LOG_LEVEL=debug
     ports:
       - "3002:3002"
     volumes:
