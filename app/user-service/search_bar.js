@@ -23,7 +23,7 @@ async function search_bar(fastify) {
             LIMIT 15`)
             .all([id, id, `%${query}%`, id])
 
-        this.customMetrics.searchCounter.inc();
+        fastify.customMetrics.searchCounter.inc();
         req.log.info({ userId: id, searchQuery: query, resultsCount: data.length }, "User performed a search");
 
         return data;

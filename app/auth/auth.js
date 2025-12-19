@@ -58,7 +58,7 @@ async function main() {
 
   await fastify.register(fastifyMetrics, {
     endpoint: '/metrics',
-    defaultMetrics: { enabled: true, prefix: 'auth_service_' }
+    defaultMetrics: { enabled: true }
   });
 
   const loginCounter = new fastify.metrics.client.Counter({
