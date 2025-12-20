@@ -171,7 +171,7 @@ async function deleteAvatar()
 		if (!confirmed) return;
 		try
 		{
-			const response = await fetch(`api/user/${userData?.id}/image`, { // bdelt url
+			const response = await fetch(`api/user/${userData?.id}/image`, {
 				method: 'DELETE',
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			});
@@ -344,7 +344,7 @@ async function deleteAccount() : Promise<void>
 {
 	try {
 		const response =  await fetch(`api/user/deleteAccount/${userData.id}`, {
-			method: 'POST',
+			method: 'DELETE',
 			headers: { "Authorization": `Bearer ${credentials.token}`},
 		});
 		if (response.ok) {
