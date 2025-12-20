@@ -2,7 +2,7 @@ import { credentials, getImageUrl, IUserData } from "../store";
 import { shortString } from "../utils";
 import { costumeButton } from "./buttons";
 
-let allPendingUsers: IUserData[] | null = null;
+let pendingUsers: IUserData[] | null = null;
 
 const $ = (id: string) => document.getElementById(id as string)
 
@@ -17,7 +17,7 @@ socket.onmessage = (event) => {
 	try {
 		const parsed = JSON.parse(event.data);
 		const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
-		allPendingUsers = (allPendingUsers ?? []).concat(newUsers);
+		pendingUsers = (pendingUsers ?? []).concat(newUsers);
 		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
 	} catch (err) {console.error(err)}
 };
@@ -27,11 +27,6 @@ socket.onerror = (error) => {
 socket.onclose = (event) => {
 	console.log('WebSocket connection closed:', event.code, event.reason);
 };
-
-
-// <button id="go-sign-up" class="py-2 px-4 sm:px-6 border text-color2 border-color2
-// rounded-lg transition-all opacity-70 duration-500 hover:bg-color2
-// hover:text-black font-bold text-sm sm:text-base">Sign Up</button>
 
 export function renderNavBar (isLoged: boolean)
 {
@@ -95,7 +90,7 @@ async function getPendingUsers() : Promise<IUserData[] | null>
 	}
 }
 
-async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement) : Promise<boolean> {
+async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement, user: IUserData) {
 	try {
 		const response = await fetch(`/api/user/${credentials.id}/friend-request`, {
 			method: 'POST',
@@ -110,19 +105,22 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 		});
 		if (response.ok) {
 			userElement.remove();
-			return accept ? true : false;
+			const index = pendingUsers?.indexOf(user);
+			if (index && index !== -1)
+				pendingUsers?.splice(index, 1);
+			console.log("pending users  :", pendingUsers)
 		} else {
 			console.error('Failed to handle friend request');
 		}
 	} catch (err) {
 		console.error('Error handling friend request:', err);
 	}
-	return false
 }
 
 export async function notifications()
 {
 	let pendingUsers : IUserData[] | null = await getPendingUsers();
+	console.log(pendingUsers)
 	const notificationIcon = $('notification-icon');
 
 	if (!notificationIcon) return;
@@ -142,7 +140,7 @@ export async function notifications()
 			border-b border-color3 pb-2">Notifications</p>
 		`;
 		notificationIcon.append(result);
-		if (!allPendingUsers || allPendingUsers.length === 0)
+		if (!pendingUsers || pendingUsers.length === 0)
 		{
 			const noNotifications = document.createElement('p');
 			noNotifications.className = "text-gray-400 text-sm mt-4";
@@ -150,7 +148,7 @@ export async function notifications()
 			result.append(noNotifications);
 			return;
 		}
-		for(const user of allPendingUsers)
+		for(const user of pendingUsers)
 		{
 			const pandingUser = document.createElement('div');
 			pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
@@ -177,10 +175,10 @@ export async function notifications()
 
 			if (user.id) {
 				acceptBtn?.addEventListener('click', async () => {
-					await handleFriendRequest(String(user.id), true, pandingUser);
+					await handleFriendRequest(String(user.id), true, pandingUser, user);
 				});
 				refuseBtn?.addEventListener('click', () => {
-					handleFriendRequest(String(user.id), false, pandingUser);
+					handleFriendRequest(String(user.id), false, pandingUser, user);
 				});
 			}
 			result.append(pandingUser);
