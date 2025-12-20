@@ -3,7 +3,7 @@ import { sendAuthData } from "../../pages/sendData";
 
 function inputField(label: string, type: string, placeholder: string) {
 	label = label == "Username" ? "Alias/Email" : `${label}`
-	return `
+	return /* html */ `
     <li>
 		<h3 class="text-[#F0F0F0] text-sm md:text-base my-2">${label}</h3>
 		<input
@@ -18,7 +18,7 @@ function inputField(label: string, type: string, placeholder: string) {
 }
 
 function mainButton(label: string) {
-	return `
+	return /* html */ `
     <button
 		class="text-center w-full bg-color1 text-[#0B0B0B] font-semibold
 		rounded-md md:rounded-lg py-2 md:py-3 hover:bg-[rgb(237_111_48_/_82%)] transition-all duration-200"
@@ -30,7 +30,7 @@ function mainButton(label: string) {
 }
 
 function socialIcons() {
-	return `
+	return /* html */ `
     <div class="flex justify-center gap-4 mt-4">
 		<a href="api/auth/google" id="googleIcon" class="border justify-center items-center flex border-color1 w-6 h-6
 			md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/googleIcon.svg"></a>
@@ -43,7 +43,7 @@ function socialIcons() {
 }
 
 function authForm(isSignup: boolean) {
-	return `
+	return /* html */ `
     <form class="space-y-3 md:space-y-5">
 		<ul class="space-y-2 md:space-y-3 xl:space-y-4 ">
         ${inputField("Username", "text", "Alias or email")}
@@ -61,7 +61,7 @@ function authForm(isSignup: boolean) {
 }
 
 function footer(isSignup: boolean) {
-	return `
+	return /* html */ `
     <p class="w-full text-center text-[#F0F0F0] text-sm md:text-base mt-4">
 		${
         isSignup
@@ -95,7 +95,7 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 		container.style.transform = 'translate(-50%, -50%)';
 	}, 250);
 
-	container.innerHTML = `
+	container.innerHTML = /* html */ `
 		<div class="my-6 md:my-8 xl:my-10">
 			<h2 class="font-bold text-3xl md:text-4xl xl:text-5xl text-txtColor text-center mb-4 2xl:mb-6">
 				${isSignup ? "Sign Up" : "Login"}

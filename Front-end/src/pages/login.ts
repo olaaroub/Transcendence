@@ -22,7 +22,7 @@ function AuthRedirect()
 export function renderLogin (isLoged: boolean)
 {
     AuthRedirect();
-    document.body.innerHTML = `
+    document.body.innerHTML = /* html */`
         <div id="app" class="flex-grow w-[90%]  mx-auto">
             ${renderNavBar(true)}
         </div>

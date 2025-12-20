@@ -54,17 +54,17 @@ export async function initDashboard(isDashboard: boolean = true) {
 
 function gameButtons(bg:string)
 {
-	return `
+	return /* html */ `
 		<button class="rounded-2xl transition-all h-[250px]
 		duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
-			<img class="w-full h-full" src=${bg}></img>
+			<img class="w-full h-full" src=${bg}>
 		</button>
 	`
 }
 
 function LocalPong() : string
 {
-	return `
+	return /* html */ `
 		<div class="relative ">
 			<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02]
 			transition-all duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px]
@@ -82,7 +82,7 @@ function LocalPong() : string
 
 function OnlinePong() : string
 {
-	return `
+	return /* html */ `
 		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all
 		duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px] items-center md:items-start gap-4
 		overflow-visible relative" style="animation-delay: 0.5s;">
@@ -103,7 +103,7 @@ function OnlinePong() : string
 
 function renderWelcome() : string
 {
-	return `
+	return /* html */ `
 		<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
 			${LocalPong()}
 			${OnlinePong()}
@@ -112,7 +112,7 @@ function renderWelcome() : string
 }
 
 function renderStatistics(): string {
-	return `
+	return /* html */ `
 		<div class="statistics mb-6">
 			<h2 class="text-txtColor font-bold text-2xl mb-4 transition-all duration">Your Statistic</h2>
 			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-3xl
@@ -162,7 +162,7 @@ function renderDashboardContent(): string {
 
 async function renderMain() : Promise<string>
 {
-	return `
+	return /* html */`
 		<div class="w-full">
 			<h2 class="font-bold mb-[20px] text-[#414658] text-3xl">Welcome back,
 			<span class="text-txtColor text-3xl"> ${userData?.username}</span></h2>
