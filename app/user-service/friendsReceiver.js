@@ -33,7 +33,7 @@ async function getPendingRequestes(req, reply) {
                             friendships AS f ON u.id = f.userRequester
                         WHERE
                             f.userReceiver = ? AND f.status = 'PENDING'
-        `,).all([id]);
+        `,).all(id);
     req.log.info("getPendingRequestes");
     return data;
 }

@@ -120,7 +120,6 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 export async function notifications()
 {
 	let pendingUsers : IUserData[] | null = await getPendingUsers();
-	console.log(pendingUsers)
 	const notificationIcon = $('notification-icon');
 
 	if (!notificationIcon) return;
