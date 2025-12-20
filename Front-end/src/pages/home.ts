@@ -2,6 +2,8 @@ import { navigate } from "../router";
 import { renderNavBar } from "./components/NavBar";
 import { renderFooter } from "./components/footer"
 
+const $ = (id: string) => document.getElementById(id as string)
+
 function renderHomeText (isLoged: boolean)
 {
     return /* html */ `
@@ -50,9 +52,9 @@ export async function renderHome()
 		</footer>
 	`
 
-	document.getElementById('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
-	document.getElementById('go-sign-in')!.addEventListener('click',_ => {navigate("/login")})
-	document.getElementById('go-sign-up')!.addEventListener('click',_ => {navigate("/sign-up")})
-	document.getElementById('go-as-guest')!.addEventListener('click',_ => {navigate("##")})
-	document.getElementById('about-us')!.addEventListener('click',_ => {navigate("/about")})
+	$('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
+	$('go-sign-in')!.addEventListener('click',_ => {navigate("/login")})
+	$('go-sign-up')!.addEventListener('click',_ => {navigate("/sign-up")})
+	$('go-as-guest')!.addEventListener('click',_ => {navigate("##")})
+	$('about-us')!.addEventListener('click',_ => {navigate("/about")})
 }
