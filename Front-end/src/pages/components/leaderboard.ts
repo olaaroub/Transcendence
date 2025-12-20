@@ -27,7 +27,7 @@ const fullLeaderboardData: LeaderboardPlayer[] = [
 ];
 
 export function dashboardLearderboard(): string {
-	return `
+	return /* html */ `
 		<div class="w-full">
 			<h2 class="text-txtColor font-bold text-2xl mb-4">Leaderboard</h2>
 			<div class="rounded-3xl text-txtColor relative flex flex-col  gap-6">
@@ -52,7 +52,7 @@ export async function renderLeaderboard() {
 	await initDashboard(false);
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
-		dashContent.innerHTML = `
+		dashContent.innerHTML = /* html */ `
 		<div class="w-full h-full flex flex-col gap-6 p-6">
 			<div class="flex items-end justify-center gap-6 mb-6 min-h-[280px]">
 				<div id="podium-2" class="group flex flex-col items-center cursor-pointer transition-all duration-500 hover:-translate-y-2">

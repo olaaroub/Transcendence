@@ -5,9 +5,32 @@ let allPendingUsers: IUserData[] | null = null;
 
 const $ = (id: string) => document.getElementById(id as string)
 
+const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
+const socket = new WebSocket(wsUrl);
+
+socket.onopen = () => {
+	console.log('WebSocket connection established for notifications');
+};
+socket.onmessage = (event) => {
+	console.log('Notification received:', event.data);
+	try {
+		const parsed = JSON.parse(event.data);
+		const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
+		allPendingUsers = (allPendingUsers ?? []).concat(newUsers);
+		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
+	} catch (err) {console.error(err)}
+};
+socket.onerror = (error) => {
+	console.error('WebSocket error:', error);
+};
+socket.onclose = (event) => {
+	console.log('WebSocket connection closed:', event.code, event.reason);
+};
+
+
 export function renderNavBar (isLoged: boolean)
 {
-    return `
+    return /* html */ `
 		<nav class="flex justify-between items-center pt-6 sm:pt-10">
 			<img id="navBar-logo" class="w-[120px] sm:w-[155px] h-auto cursor-pointer" src="/images/logo.png" alt="pong" />
 			<div  class=" ${isLoged ? "hidden" : ""} gap-3 sm:gap-5 flex">
@@ -27,12 +50,13 @@ export function renderNavBar (isLoged: boolean)
 
 function searchBar() : string
 {
-	return `
+	return /* html */`
 		<div id="search-bar" class="relative w-[150px] mx-2 sm:w-[250px]
 		md:w-[300px] lg:w-[400px] 2xl:w-[550px] bg-color4
 		border border-color4 rounded-full
 		flex items-center">
 			<input
+				
 				id="search-input"
 				type="text"
 				autocomplete="off" 
@@ -86,8 +110,6 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 			})
 		});
 		if (response.ok) {
-			console.log("is ok")
-			console.log(userElement)
 			userElement.remove();
 			return accept ? true : false;
 		} else {
@@ -99,44 +121,11 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 	return false
 }
 
-function realTimeNotifications(pendingUsers: IUserData[] | null)
-{
-	const markWatch = $('notification-icon')?.querySelector('span');
-	const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
-	const socket = new WebSocket(wsUrl);
-
-	allPendingUsers = pendingUsers
-	socket.onopen = () => {
-		console.log('WebSocket connection established for notifications');
-	};
-
-	socket.onmessage = (event) => {
-		console.log('Notification received:', event.data);
-		try {
-			const parsed = JSON.parse(event.data);
-			const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
-			allPendingUsers = (allPendingUsers ?? []).concat(newUsers);
-			$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
-		} catch (err) {console.error(err)}
-	};
-
-	socket.onerror = (error) => {
-		console.error('WebSocket error:', error);
-	};
-
-	socket.onclose = (event) => {
-		console.log('WebSocket connection closed:', event.code, event.reason);
-	};
-	return socket;
-}
-
 export async function notifications()
 {
-	allPendingUsers = null;
 	let pendingUsers : IUserData[] | null = await getPendingUsers();
-	realTimeNotifications(pendingUsers);
-
 	const notificationIcon = $('notification-icon');
+
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
 		const existingResult = $('notifications-result');
@@ -149,7 +138,7 @@ export async function notifications()
 		border border-borderColor rounded-2xl shadow-lg py-3 pl-3 pr-1 z-50 max-h-[300px] items-center
 		scrollbar-custom`;
 		result.id = "notifications-result";
-		result.innerHTML = `
+		result.innerHTML = /* html */ `
 			<p class="text-txtColor w-full text-lg font-bold text-center
 			border-b border-color3 pb-2">Notifications</p>
 		`;
@@ -166,7 +155,7 @@ export async function notifications()
 		{
 			const pandingUser = document.createElement('div');
 			pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
-			pandingUser.innerHTML = `
+			pandingUser.innerHTML = /* html */ `
 				<div class="flex gap-3 items-center">
 					<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(user.avatar_url)}" alt="">
 					<span class="text-txtColor">${user.username}</span>
@@ -206,7 +195,7 @@ export async function notifications()
 }
 
 export function renderDashboardNavBar(user: IUserData | null, imageUrl: string | null): string {
-	return `
+	return /* html */ `
 	<nav class="relative z-50 flex justify-between items-center py-14 w-full m-auto md:px-10 h-[70px] mb-7">
 		<img id="main-logo" src="/images/logo.png"
 		class="w-[100px] xl:w-[130px] my-10 xl:my-14 block cursor-pointer" />

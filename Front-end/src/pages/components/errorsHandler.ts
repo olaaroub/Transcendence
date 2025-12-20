@@ -29,7 +29,7 @@ export function showErrorMessage(message: string, statusCode: number) : void
     const body = document.querySelector('body');
     if (!body) return;
 
-    body.innerHTML = `
+    body.innerHTML = /* html */ `
     <div class="fixed inset-0 bg-bgColor bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 w-96">
             <h2 class="text-xl font-bold mb-4 text-red-600">Error

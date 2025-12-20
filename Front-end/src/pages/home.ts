@@ -4,7 +4,7 @@ import { renderFooter } from "./components/footer"
 
 function renderHomeText (isLoged: boolean)
 {
-    return `
+    return /* html */ `
 		<div class="data flex flex-col sm:flex-row items-center justify-between min-h-[calc(100vh-200px)]
 		gap-6 sm:gap-8 md:gap-10 xl:gap-12 2xl:gap-16 px-4 md:px-6 xl:px-8 2xl:px-10">
 			<div class="txt sm:w-1/2 transition-all duration-500 ${isLoged ? 'opacity-0' : ''}">
@@ -33,7 +33,7 @@ export async function renderHome()
 {
 	const existing = document.querySelector(".login");
 	if (existing) existing.remove();
-	document.body.innerHTML = `
+	document.body.innerHTML = /* html */`
 		<div id="app" class="flex-grow w-[90%] mx-auto">
 			<div class="absolute w-[45vw] h-[45vw] -z-10 rounded-full
 				right-0 top-[10vh] translate-x-1/2 bg-color1 animate-animateSlow blur-[306px]">
