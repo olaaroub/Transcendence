@@ -1,15 +1,21 @@
 
-function addSocketAndUserInfos(socket, fastify, userId) 
+async function addSocketAndUserInfos(socket, fastify, userId) 
 {
     if (!fastify.sockets.has(userId))
     {
+        console.log(userId);
         const isFoundedInDataBase = fastify.db.prepare("SELECT 1 FROM usersCash WHERE id = ?").get(userId);
 
         if (!isFoundedInDataBase)
         {
-            // fetch the data in userservice
-            fastify.db.prepare('INSERT INTO usersCash(id, username, avatar_url) VALUSE(?, ?, ?)')
-                .run(userId, `oussama_${userId}`, '/public/Default_pfp.jpg');
+            console.log(userId)
+            const userData = await fetch(`http://localhost:3002/api/user/chat/profile/${userId}`);
+            const {username, avatar_url} = await userData.json();
+            console.log(username, avatar_url)
+            if (!username || !avatar_url)
+                throw new Error("this user not founed");
+            fastify.db.prepare('INSERT INTO usersCash(id, username, avatar_url) VALUES(?, ?, ?)')
+                .run(userId, username, avatar_url);
             fastify.log.info("fetch the user Infos successfly");
         }
         fastify.sockets.set(userId, new Set())
@@ -36,6 +42,7 @@ function deletSocket(socket, fastify, userId)
     content: "ffffffffgfg",
 }
 
+1 [1, 2, 3], 2 [4, 3,2]
 */
 
 
@@ -46,13 +53,26 @@ async function  handleMessageEvent(socket, fastify, userId, message)
     const messageAsString = message.toString();
     const messageJson = JSON.parse(messageAsString);
 
-    this.db.prepare("INSERT INTO messages(sender_id, content) VALUES(?, ?)")
-        .run(userId, messageJson.content);
-    
+    const messageIteams = fastify.db.prepare("INSERT INTO messages(sender_id, content) VALUES(?, ?) RETURNING sender_id, content, created_at")
+                            .get(userId, messageJson.content);
+
+    const userData = fastify.db.prepare('SELECT * FROM usersCash WHERE id = ?').get(userId);
+
+    socket.send(JSON.stringify({
+        type: 'MESSAGE_SENDED_SUCCESSFULLY'
+    }));
+
+    const response = {
+        messageIteams,
+        username: userData.username,
+        avatar_url: userData.avatar_url
+    }
+
     const sockets = fastify.sockets;
-    sockets.forEach((userId, usersSockets) => {
-        usersSockets.forEach(userSocket => {
-            this.db.prepare('SELECT ')
+    sockets.forEach((userSockets, user_id) => {
+        userSockets.forEach(userSocket => {
+            if (userSocket !== socket)
+                userSocket.send(JSON.stringify(response));
         })
     });
 }
@@ -61,14 +81,30 @@ async function globalChatHandler(socket, request)
 {
     const id = request.params.id;
 
-    addSocketAndUserInfos(socket, request.server, id);
-    socket.on('close', () => deletSocket(socket, request.server, id));
-    socket.on('error', (err) => request.log.error({ err }, "Websocket connection error"))
-    socket.on('message', async (message) => await handleMessageEvent(socket, request.server, id, message));
+    try
+    {
+        await addSocketAndUserInfos(socket, request.server, id);
+
+        socket.on('close', () => deletSocket(socket, request.server, id));
+        socket.on('error', (err) => request.log.error({ err }, "Websocket connection error"))
+        socket.on('message', async (message) => await handleMessageEvent(socket, request.server, id, message));
+    } catch (err)
+    {
+        request.log.error(err);
+    }
 }
 
 
 export default async function main(fastify)
 {
-    fastify.get('/chat/globalChat/:id', {socket: true}, globalChatHandler);
+    const requestSchema = {
+        params: {
+            type: 'object',
+            properties: {
+                id: {type: 'integer'}
+            },
+            required: ['id']
+        }
+    }
+    fastify.get('/chat/globalChat/:id', { websocket: true, schema: requestSchema}, globalChatHandler);
 }

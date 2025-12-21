@@ -77,7 +77,7 @@ async function main() {
 
   fastify.setErrorHandler(function (error, request, reply) {
     const statusCode = error.statusCode || 500;
-
+  
     if (statusCode >= 500) {
       request.log.error({
         msg: "System Crash",

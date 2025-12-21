@@ -61,6 +61,21 @@ async function blockAndunblockFriend(req, reply) {
   reply.code(200).send({ success: true });
 }
 
+
+async function chatProfileHandler(req, reply)
+{
+    const id = req.params.id;
+
+    const userData = this.db.prepare('SELECT username, avatar_url FROM userInfo WHERE id = ?').get(id);
+
+    console.log(userData)
+    if (!userData)
+        createError.NotFound("this user not found");
+    
+    return userData
+}
+
+
 export async function publicRoutes(fastify) {
 
   const __dirname = import.meta.dirname;
@@ -80,6 +95,8 @@ export async function publicRoutes(fastify) {
     const data = fastify.db.prepare("SELECT userRequester, userReceiver, blocker_id, status FROM friendships").all();
     return data;
   })
+
+  fastify.get('/user/chat/profile/:id', chatProfileHandler);
 
   fastify.get("/user/all-users", async (req, reply) => {
     const data = fastify.db.prepare("SELECT * FROM userInfo").all();
