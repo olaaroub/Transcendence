@@ -2,6 +2,8 @@ import { mockMessages } from "../chat/mockMessages";
 import { initDashboard } from "../dashboard";
 import { getImageUrl } from "../store";
 
+const $ = (id: string) => document.getElementById(id as string)
+
 interface LeaderboardPlayer {
 	rank: number;
 	username: string;
@@ -27,7 +29,7 @@ const fullLeaderboardData: LeaderboardPlayer[] = [
 ];
 
 export function dashboardLearderboard(): string {
-	return `
+	return /* html */ `
 		<div class="w-full">
 			<h2 class="text-txtColor font-bold text-2xl mb-4">Leaderboard</h2>
 			<div class="rounded-3xl text-txtColor relative flex flex-col  gap-6">
@@ -50,9 +52,9 @@ export function dashboardLearderboard(): string {
 
 export async function renderLeaderboard() {
 	await initDashboard(false);
-	const dashContent = document.getElementById('dashboard-content');
+	const dashContent = $('dashboard-content');
 	if (dashContent)
-		dashContent.innerHTML = `
+		dashContent.innerHTML = /* html */ `
 		<div class="w-full h-full flex flex-col gap-6 p-6">
 			<div class="flex items-end justify-center gap-6 mb-6 min-h-[280px]">
 				<div id="podium-2" class="group flex flex-col items-center cursor-pointer transition-all duration-500 hover:-translate-y-2">
@@ -123,7 +125,7 @@ export async function renderLeaderboard() {
 				</div>
 				
 				<div class="overflow-y-auto scrollbar-custom pr-2 flex flex-col gap-2">
-					${fullLeaderboardData.map((player) => `
+					${fullLeaderboardData.map((player) => /* html */`
 						<div class="grid grid-cols-6 gap-4 items-center p-4 rounded-xl bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer
 							${player.rank <= 3 ? 'border-l-4' : 'border-l-2'} 
 							${player.rank === 1 ? 'border-color1 bg-color1/5' : player.rank === 2 ? 'border-gray-400' : player.rank === 3 ? 'border-amber-600' : 'border-color3'}">
@@ -165,7 +167,7 @@ export async function renderLeaderboard() {
 		`;
 	
 	const setupPodiumClicks = () => {
-		const detailsContainer = document.getElementById('player-details');
+		const detailsContainer = $('player-details');
 		if (!detailsContainer) return;
 
 		const showPlayerDetails = (playerIndex: number) => {
@@ -173,7 +175,7 @@ export async function renderLeaderboard() {
 			const isVisible = !detailsContainer.classList.contains('hidden');
 			const currentContent = detailsContainer.innerHTML;
 			
-			const newContent = `
+			const newContent = /* html */`
 				<div class="bg-color4 rounded-2xl p-6 animate-slideDown">
 					<div class="flex items-center justify-between mb-4">
 						<div class="flex items-center gap-4">
@@ -232,16 +234,16 @@ export async function renderLeaderboard() {
 				detailsContainer.innerHTML = newContent;
 				detailsContainer.classList.remove('hidden');
 				
-				const closeBtn = document.getElementById('close-details');
+				const closeBtn = $('close-details');
 				if (closeBtn) {
 					closeBtn.onclick = () => detailsContainer.classList.add('hidden');
 				}
 			}
 		};
 
-		document.getElementById('podium-1')?.addEventListener('click', () => showPlayerDetails(0));
-		document.getElementById('podium-2')?.addEventListener('click', () => showPlayerDetails(1));
-		document.getElementById('podium-3')?.addEventListener('click', () => showPlayerDetails(2));
+		$('podium-1')?.addEventListener('click', () => showPlayerDetails(0));
+		$('podium-2')?.addEventListener('click', () => showPlayerDetails(1));
+		$('podium-3')?.addEventListener('click', () => showPlayerDetails(2));
 	};
 
 	setupPodiumClicks();

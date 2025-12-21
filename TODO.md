@@ -13,6 +13,8 @@
 
 ## Frontend (MMONDAD)
 
+- the window inactive jwt expired if i refresh the page i should get that session expired login again
+
 - [ ] **JWT Not Updated:** When I log out and get back, the containers are EXITED, I refresh the page I get the
       sign in form, I do sign in the backend generates a new token, but the jwt token is not updated in
       local storage, so even if i am logged in i cant upload any image because i need the up to date jwt token.

@@ -64,6 +64,8 @@ elk: certs
 
 cleanelk:
 	docker compose -f compose.elk.yaml down
+fcleanelk:
+	docker compose -f compose.elk.yaml down -v
 
 
 #ms7 images

@@ -1,23 +1,42 @@
 import { credentials, getImageUrl, IUserData } from "../store";
 import { shortString } from "../utils";
+import { costumeButton } from "./buttons";
 
-let allPendingUsers: IUserData[] | null = null;
+let pendingUsers: IUserData[] | null = null;
+
+const $ = (id: string) => document.getElementById(id as string)
+
+const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
+const socket = new WebSocket(wsUrl);
+
+socket.onopen = () => {
+	console.log('WebSocket connection established for notifications');
+};
+socket.onmessage = (event) => {
+	console.log('Notification received:', event.data);
+	try {
+		const parsed = JSON.parse(event.data);
+		const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
+		pendingUsers = (pendingUsers ?? []).concat(newUsers);
+		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
+	} catch (err) {console.error(err)}
+};
+socket.onerror = (error) => {
+	console.error('WebSocket error:', error);
+};
+socket.onclose = (event) => {
+	console.log('WebSocket connection closed:', event.code, event.reason);
+};
 
 export function renderNavBar (isLoged: boolean)
 {
-    return `
+    return /* html */ `
 		<nav class="flex justify-between items-center pt-6 sm:pt-10">
 			<img id="navBar-logo" class="w-[120px] sm:w-[155px] h-auto cursor-pointer" src="/images/logo.png" alt="pong" />
 			<div  class=" ${isLoged ? "hidden" : ""} gap-3 sm:gap-5 flex">
-				<button id="go-sign-up" class="py-2 px-4 sm:px-6 border text-color2 border-color2
-					rounded-lg transition-all opacity-70 duration-500 hover:bg-color2
-					hover:text-black font-bold text-sm sm:text-base">Sign Up</button>
-				<button id="go-sign-in" class="py-2 px-4 sm:px-6 bg-[#F0F0F0] rounded-lg
-				transition-all opacity-70 duration-500 hover:bg-color2
-				font-bold text-sm sm:text-base">Login</button>
-				<button id="go-as-guest" class="py-2 px-4 sm:px-6 bg-[#F0F0F0] rounded-lg
-				transition-all opacity-70 duration-500 hover:bg-color2
-				font-bold text-sm sm:text-base">As Guest</button>
+				${costumeButton("Sign Up", "", "", ["", "color2", "color2"], "go-sign-up")}
+				${costumeButton("Login", "", "", ["[#F0F0F0]", "black", "color2"], "go-sign-in")}
+				${costumeButton("As Guest", "", "", ["[#F0F0F0]", "black", "color2"], "go-as-guest")}
 			</div>
 		</nav>
     `
@@ -25,17 +44,18 @@ export function renderNavBar (isLoged: boolean)
 
 function searchBar() : string
 {
-	return `
+	return /* html */`
 		<div id="search-bar" class="relative w-[150px] mx-2 sm:w-[250px]
 		md:w-[300px] lg:w-[400px] 2xl:w-[550px] bg-color4
 		border border-color4 rounded-full
 		flex items-center">
 			<input
+				
 				id="search-input"
 				type="text"
-				autocomplete="off" 
-				autocorrect="off" 
-				autocapitalize="off" 
+				autocomplete="off"
+				autocorrect="off"
+				autocapitalize="off"
 				spellcheck="false"
 				placeholder="Search, users..."
 				class="w-full bg-transparent text-gray-200 py-2
@@ -70,7 +90,7 @@ async function getPendingUsers() : Promise<IUserData[] | null>
 	}
 }
 
-async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement) : Promise<boolean> {
+async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement, user: IUserData) {
 	try {
 		const response = await fetch(`/api/user/${credentials.id}/friend-request`, {
 			method: 'POST',
@@ -85,60 +105,27 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 		});
 		if (response.ok) {
 			userElement.remove();
-			return accept ? true : false;
+			const index = pendingUsers?.indexOf(user);
+			if (index && index !== -1)
+				pendingUsers?.splice(index, 1);
+			console.log("pending users  :", pendingUsers)
 		} else {
 			console.error('Failed to handle friend request');
 		}
 	} catch (err) {
 		console.error('Error handling friend request:', err);
 	}
-	return false
-}
-
-function realTimeNotifications(pendingUsers: IUserData[] | null)
-{
-	const markWatch = document.getElementById('notification-icon')?.querySelector('span');
-	const protocol = window.location.protocol === 'https:' ? 'ws:' : 'ws:';
-	const wsUrl = `${protocol}//localhost:3002/api/user/notification/${credentials.id}`;
-	console.log(wsUrl);
-	const socket = new WebSocket(wsUrl);
-	
-	allPendingUsers = pendingUsers
-	socket.onopen = () => {
-		console.log('WebSocket connection established for notifications');
-	};
-	
-	socket.onmessage = (event) => {
-		console.log('Notification received:', event.data);
-		try {
-			const parsed = JSON.parse(event.data);
-			const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
-			allPendingUsers = (allPendingUsers ?? []).concat(newUsers);
-			markWatch?.classList.remove('hidden');
-		} catch (err) {console.error(err)}
-	};
-
-	socket.onerror = (error) => {
-		console.error('WebSocket error:', error);
-	};
-
-	socket.onclose = (event) => {
-		console.log('WebSocket connection closed:', event.code, event.reason);
-	};
-	return socket;
 }
 
 export async function notifications()
 {
-	allPendingUsers = null;
 	let pendingUsers : IUserData[] | null = await getPendingUsers();
-	console.log(pendingUsers);
-	realTimeNotifications(pendingUsers);
+	console.log(pendingUsers)
+	const notificationIcon = $('notification-icon');
 
-	const notificationIcon = document.getElementById('notification-icon');
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
-		const existingResult = document.getElementById('notifications-result');
+		const existingResult = $('notifications-result');
 		if (existingResult) {
 			existingResult.remove();
 			return;
@@ -148,12 +135,12 @@ export async function notifications()
 		border border-borderColor rounded-2xl shadow-lg py-3 pl-3 pr-1 z-50 max-h-[300px] items-center
 		scrollbar-custom`;
 		result.id = "notifications-result";
-		result.innerHTML = `
+		result.innerHTML = /* html */ `
 			<p class="text-txtColor w-full text-lg font-bold text-center
 			border-b border-color3 pb-2">Notifications</p>
 		`;
 		notificationIcon.append(result);
-		if (!allPendingUsers || allPendingUsers.length === 0)
+		if (!pendingUsers || pendingUsers.length === 0)
 		{
 			const noNotifications = document.createElement('p');
 			noNotifications.className = "text-gray-400 text-sm mt-4";
@@ -161,11 +148,11 @@ export async function notifications()
 			result.append(noNotifications);
 			return;
 		}
-		for(const user of allPendingUsers)
+		for(const user of pendingUsers)
 		{
 			const pandingUser = document.createElement('div');
 			pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
-			pandingUser.innerHTML = `
+			pandingUser.innerHTML = /* html */ `
 				<div class="flex gap-3 items-center">
 					<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(user.avatar_url)}" alt="">
 					<span class="text-txtColor">${user.username}</span>
@@ -185,13 +172,13 @@ export async function notifications()
 			`;
 			const acceptBtn = pandingUser.querySelector('.accept-btn');
 			const refuseBtn = pandingUser.querySelector('.refuse-btn');
-			
+
 			if (user.id) {
 				acceptBtn?.addEventListener('click', async () => {
-					await handleFriendRequest(String(user.id), true, pandingUser);
+					await handleFriendRequest(String(user.id), true, pandingUser, user);
 				});
 				refuseBtn?.addEventListener('click', () => {
-					handleFriendRequest(String(user.id), false, pandingUser);
+					handleFriendRequest(String(user.id), false, pandingUser, user);
 				});
 			}
 			result.append(pandingUser);
@@ -205,7 +192,7 @@ export async function notifications()
 }
 
 export function renderDashboardNavBar(user: IUserData | null, imageUrl: string | null): string {
-	return `
+	return /* html */ `
 	<nav class="relative z-50 flex justify-between items-center py-14 w-full m-auto md:px-10 h-[70px] mb-7">
 		<img id="main-logo" src="/images/logo.png"
 		class="w-[100px] xl:w-[130px] my-10 xl:my-14 block cursor-pointer" />

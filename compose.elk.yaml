@@ -14,7 +14,7 @@ services:
       - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - SERVICE_EXT=-dev
+      - SERVICE_EXT=-elk
     networks:
       - transcendence-elk-net
     depends_on:
@@ -36,7 +36,7 @@ services:
       - HOST=0.0.0.0
       - DOMAIN=${AUTH_DOMAIN_DEV}
       - SERVICE_EXT=-elk
-      - LOG_LEVEL=info
+      - LOG_LEVEL=debug
     ports:
       - "3001:3001"
     volumes:
@@ -65,7 +65,7 @@ services:
       - DATABASE_PATH=/data/users.db
       - HOST=0.0.0.0
       - SERVICE_EXT=-elk
-      - LOG_LEVEL=info
+      - LOG_LEVEL=debug
     ports:
       - "3002:3002"
     volumes:
@@ -130,6 +130,11 @@ services:
       - ./waf/scan_php.sh:/usr/local/bin/scan_php.sh:ro
       - ./waf/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     depends_on:
       - auth-service-elk
       - user-service-elk
@@ -193,6 +198,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'    # Limit to 1 core max
+          memory: 2G
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.2.2
@@ -221,6 +231,11 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'   # Limit to 50% of one core
+          memory: 1G
 
   fluent-bit:
     image: fluent/fluent-bit:4.2.0
@@ -228,11 +243,16 @@ services:
     user: root
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./elk/fluent-bit/config:/fluent-bit/etc:ro
     networks:
       - transcendence-elk-net
     depends_on:
       - logstash
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
 
 networks:
   transcendence-elk-net:

@@ -4,11 +4,16 @@ import { navigate } from "../router";
 export async function sendAuthData(data: Record<string, string>, path:string) {
 	try
 	{
+		console.log(data)
 		const isSignup = (path === 'signUp');
 		const response = await fetch("api/auth/" + path, { // zet auth/
 			method: "POST",
 			headers: {"Content-Type": "application/json",},
-			body: JSON.stringify(data),
+			body: JSON.stringify({
+				username: data["alias or email"],
+				password: data["password"],
+				email: data["email"] || ""
+			}),
 		});
 
 		// if (!response.ok && response.status != 401){throw new Error("Request failed");}

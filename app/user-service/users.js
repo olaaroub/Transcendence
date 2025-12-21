@@ -48,7 +48,7 @@ async function main() {
 
   await fastify.register(fastifyMetrics, {
     endpoint: '/metrics',
-    defaultMetrics: { enabled: true, prefix: 'user_service_' }
+    defaultMetrics: { enabled: true }
   });
 
   const friendCounter = new fastify.metrics.client.Counter({
@@ -68,7 +68,7 @@ async function main() {
     labelNames: ['status']
   });
 
- 
+
   fastify.decorate('customMetrics', {
       friendCounter,
       searchCounter,

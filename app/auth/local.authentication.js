@@ -78,6 +78,7 @@ async function loginHandler(req, reply) {
 	}
 
 	req.log.info({ userId: user.id, username: user.username }, "User logged in succcessfully");
+	req.log.warn(">>> DEBUG: INCREMENTING LOGIN COUNTER NOW <<<");
 
 	this.customMetrics.loginCounter.inc({ status: 'success', provider: 'local' });
 
