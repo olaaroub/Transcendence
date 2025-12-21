@@ -93,7 +93,9 @@ function SaveChanges()
 						delete newUserData[key as keyof IUserData];
 					}
 					if (Object.keys(newUserData).length === 0) renderSettings();
+
 				}
+				navigate('/dashboard');
 		}catch (err) {
 			console.error("Error saving changes", err);
 			return;
