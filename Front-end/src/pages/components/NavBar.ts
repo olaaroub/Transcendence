@@ -3,7 +3,7 @@ import { shortString } from "../utils";
 import { costumeButton } from "./buttons";
 
 const $ = (id: string) => document.getElementById(id as string)
-let pendingUsers: IUserData[] | null = await getPendingUsers();
+let pendingUsers: IUserData[] | null = null;
 
 const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
 const socket = new WebSocket(wsUrl);
@@ -12,7 +12,6 @@ socket.onopen = () => {
 	console.log('WebSocket connection established for notifications');
 };
 socket.onmessage = (event) => {
-	console.log('Notification received:', event.data);
 	try {
 		const parsed = JSON.parse(event.data);
 		
@@ -112,8 +111,9 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 		if (response.ok) {
 			userElement.remove();
 			const index = pendingUsers?.indexOf(user);
-			if (index && index !== -1)
+			if (index !== undefined && index !== -1)
 				pendingUsers?.splice(index, 1);
+			console.log("in handler : ", pendingUsers)
 		} else {
 			console.error('Failed to handle friend request');
 		}
@@ -125,13 +125,10 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 export async function notifications()
 {
 	const notificationIcon = $('notification-icon');
-	if (pendingUsers)
-		console.log("data : " ,pendingUsers?.length,  pendingUsers[0].is_read)
+	pendingUsers = await getPendingUsers();
+
 	if (pendingUsers && pendingUsers?.length !== 0 && !pendingUsers[0].is_read)
-	{
-		console.log("nejma hamra");
 		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');	
-	}
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
 		const existingResult = $('notifications-result');
@@ -139,7 +136,7 @@ export async function notifications()
 		socket.send(JSON.stringify({
 			type: 'MAKE_AS_READ'
 		}))
-		
+
 		if (existingResult) {
 			existingResult.remove();
 			return;
@@ -162,7 +159,6 @@ export async function notifications()
 			result.append(noNotifications);
 			return;
 		}
-		console.log("by simo : ", pendingUsers)
 		for(const user of pendingUsers)
 		{
 			const pandingUser = document.createElement('div');
