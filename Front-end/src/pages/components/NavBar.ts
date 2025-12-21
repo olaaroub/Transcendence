@@ -2,9 +2,8 @@ import { credentials, getImageUrl, IUserData } from "../store";
 import { shortString } from "../utils";
 import { costumeButton } from "./buttons";
 
-let pendingUsers: IUserData[] | null = null;
-
 const $ = (id: string) => document.getElementById(id as string)
+let pendingUsers: IUserData[] | null = await getPendingUsers();
 
 const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
 const socket = new WebSocket(wsUrl);
@@ -16,9 +15,16 @@ socket.onmessage = (event) => {
 	console.log('Notification received:', event.data);
 	try {
 		const parsed = JSON.parse(event.data);
-		const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
-		pendingUsers = (pendingUsers ?? []).concat(newUsers);
-		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
+		
+		console.log(parsed.type)
+		if (parsed.type ==  'NOTIFICATION_READED')
+			$("notification-icon")?.querySelector('span')?.classList.add('hidden')
+		else if (parsed.type == 'SEND_NOTIFICATION')
+		{
+			const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
+			pendingUsers = (pendingUsers ?? []).concat(newUsers);
+			$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
+		}
 	} catch (err) {console.error(err)}
 };
 socket.onerror = (error) => {
@@ -108,7 +114,6 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 			const index = pendingUsers?.indexOf(user);
 			if (index && index !== -1)
 				pendingUsers?.splice(index, 1);
-			console.log("pending users  :", pendingUsers)
 		} else {
 			console.error('Failed to handle friend request');
 		}
@@ -119,12 +124,22 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 
 export async function notifications()
 {
-	let pendingUsers : IUserData[] | null = await getPendingUsers();
 	const notificationIcon = $('notification-icon');
-
+	if (pendingUsers)
+		console.log("data : " ,pendingUsers?.length,  pendingUsers[0].is_read)
+	if (pendingUsers && pendingUsers?.length !== 0 && !pendingUsers[0].is_read)
+	{
+		console.log("nejma hamra");
+		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');	
+	}
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
 		const existingResult = $('notifications-result');
+		if (!existingResult)
+		socket.send(JSON.stringify({
+			type: 'MAKE_AS_READ'
+		}))
+		
 		if (existingResult) {
 			existingResult.remove();
 			return;
@@ -147,6 +162,7 @@ export async function notifications()
 			result.append(noNotifications);
 			return;
 		}
+		console.log("by simo : ", pendingUsers)
 		for(const user of pendingUsers)
 		{
 			const pandingUser = document.createElement('div');
