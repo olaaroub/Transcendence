@@ -128,14 +128,19 @@ export async function notifications()
 	pendingUsers = await getPendingUsers();
 
 	if (pendingUsers && pendingUsers?.length !== 0 && !pendingUsers[0].is_read)
+	{
+		console.log("here by simo");
 		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');	
+	}
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
 		const existingResult = $('notifications-result');
 		if (!existingResult)
-		socket.send(JSON.stringify({
-			type: 'MAKE_AS_READ'
-		}))
+		{
+			socket.send(JSON.stringify({
+				type: 'MAKE_AS_READ'
+			}))
+		}
 
 		if (existingResult) {
 			existingResult.remove();
