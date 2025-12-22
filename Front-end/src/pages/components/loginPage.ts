@@ -3,6 +3,7 @@ import { sendAuthData } from "../../pages/sendData";
 
 function inputField(label: string, type: string, placeholder: string) {
 	label = label == "Username" ? "Alias/Email" : `${label}`
+	// console.log(`placeholder : ${placeholder} label : ${label}`)
 	return /* html */ `
     <li>
 		<h3 class="text-[#F0F0F0] text-sm md:text-base my-2">${label}</h3>
