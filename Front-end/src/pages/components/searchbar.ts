@@ -9,6 +9,8 @@ interface UserData {
 	avatar_url: string;
 }
 
+const searchBarIcons = ["", "", ""]
+
 async function ViewProfile(userId: string) {
 	document.querySelector('#search-results')?.remove();
 	navigate('/profile/' + userId);

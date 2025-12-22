@@ -1,5 +1,5 @@
 import * as data from "./dashboard"
-import { navigate } from "../router";
+import { navigate, navigateBack } from "../router";
 import { credentials,IUserData, userData, getImageUrl} from "./store"
 
 const $ = (id : String) => document.getElementById(id as string);
@@ -92,8 +92,9 @@ function SaveChanges()
 					} else {
 						delete newUserData[key as keyof IUserData];
 					}
-					if (Object.keys(newUserData).length === 0) renderSettings();
+
 				}
+				navigateBack();
 		}catch (err) {
 			console.error("Error saving changes", err);
 			return;
