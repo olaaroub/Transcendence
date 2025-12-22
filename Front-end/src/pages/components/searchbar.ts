@@ -9,8 +9,6 @@ interface UserData {
 	avatar_url: string;
 }
 
-const searchBarIcons = ["", "", ""]
-
 async function ViewProfile(userId: string) {
 	document.querySelector('#search-results')?.remove();
 	navigate('/profile/' + userId);
@@ -29,22 +27,30 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		const buttonsDiv = document.createElement('div');
 		buttonsDiv.className = "flex gap-4 items-center";
 		const addFriend = document.createElement('img');
-		// state
-		console.log("user state : ", user.status);
-		addFriend.src = `/images/addFriend.svg`;
 		addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110`;
-		if (!user.status && user.id != userData.id)
-			buttonsDiv.appendChild(addFriend);
-		addFriend.addEventListener('click', async _=> {
-			if (user.status == 'pending' || user.status)
-				return;
-		try {
-			await sendFriendRequest(user!.id);
-			addFriend.src = `/images/pending.gif`
-		} catch (error) {
-			alert('Error sending friend request: ' + error);
+		const status = user.status?.toLowerCase();
+		if (user.id != userData.id)
+		{
+			if (status == 'pending')
+				addFriend.src = '/images/pending.svg';
+			else if (status == 'accepted')
+				addFriend.src = '/images/addFriend.svg';
+			else if (status == null)
+				addFriend.src = '/images/addFriend.svg';
+			if (status != 'accepted')
+				buttonsDiv.appendChild(addFriend);
 		}
-		});
+		if (status == null)
+		{
+			addFriend.addEventListener('click', async _=> {
+				try {
+					await sendFriendRequest(user!.id);
+					addFriend.src = '/images/pending.svg';
+				} catch (error) {
+					alert('Error sending friend request: ' + error);
+				}
+			});
+		}
 		const view  = document.createElement('button');
 		view.textContent = 'view';
 		view.className = "font-bold text-color2 hover:scale-110 hover:text-white";
