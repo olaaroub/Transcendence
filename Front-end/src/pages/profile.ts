@@ -66,8 +66,7 @@ export async function sendFriendRequest (receiverId: string | number | null) : P
 
 export async function renderProfile(userId: string | null = null)
 {
-	if (!userData || !userData.id || !userData.username)
-		await data.initDashboard(false);
+	await data.initDashboard(false);
 	let tmpUserData : IUserData | null = null;
 	const isMyProfile = userId == userData.id;
 	if (isMyProfile)
