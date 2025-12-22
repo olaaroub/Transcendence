@@ -1,0 +1,16 @@
+{
+  "name": "private_chat",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "oumondad",
+  "type": "module",
+  "main": "private_chat.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ."
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.5.0"
+  }
+}
