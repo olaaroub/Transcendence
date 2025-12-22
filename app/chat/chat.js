@@ -1,17 +1,24 @@
 import Fastify from "fastify";
-import dotenv from 'dotenv'
-import {configChatDatabase} from './chat_database.config.js'
+import { configChatDatabase } from './chat_database.config.js'
 import websocket from '@fastify/websocket'
 
-async function startChatService() 
-{
-    dotenv.config()
-    const fastify = new Fastify({logger: true});
+async function startChatService() {
+    const fastify = Fastify({
+        logger: {
+            level: process.env.LOG_LEVEL || 'info',
+            base: {
+                service: 'global_chat-service',
+                env: process.env.NODE_ENV || 'development'
+            },
+
+            redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password']
+        }
+    });
 
     const db = await configChatDatabase();
     fastify.decorate('db', db);
 
-    fastify.log.info('the database created');
+    fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
 
     fastify.register((await import('@fastify/websocket')).default);
 
@@ -21,10 +28,11 @@ async function startChatService()
     fastify.register((await import('./globalChat.js')).default, {
         prefix: '/api'
     });
+    fastify.log.debug( "Test msg");
 
     fastify.listen({
         port: process.env.PORT,
-        hostname: process.env.HOST
+        host: process.env.HOST
     })
 }
 

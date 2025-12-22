@@ -84,6 +84,35 @@ services:
         condition: service_completed_successfully
 
 
+  global-chat-dev:
+    build:
+      context: ./app/chat
+      dockerfile: ../Dockerfile.microservices.dev
+      args:
+        - PORT=3003
+    image: global-chat-dev:1337
+    container_name: global-chat-dev
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_SECRET_PATH=${GLOBAL_CHAT_SECRET_PATH}
+      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/global-chat.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-dev
+      - LOG_LEVEL=debug
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./app/chat:/app
+      - ./app/static:/app/static
+      - ./db/chat:/data
+      - /app/node_modules
+    networks:
+      - transcendence-dev-net
+    depends_on:
+      vault-init-dev:
+        condition: service_completed_successfully
+
   vault-dev:
     image: hashicorp/vault:1.21.1
     container_name: vault-dev
@@ -143,6 +172,7 @@ services:
     depends_on:
       - auth-service-dev
       - user-service-dev
+      - global-chat-dev
 
 
   prometheus-dev:
@@ -158,6 +188,7 @@ services:
     depends_on:
       - auth-service-dev
       - user-service-dev
+      - global-chat-dev
 
   grafana-dev:
     image: grafana/grafana:12.3.0

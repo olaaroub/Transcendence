@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS usersCash (
 CREATE TABLE IF NOT EXISTS messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     sender_id INTEGER,
-    content TEXT,
+    msg TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY( sender_id ) REFERENCES usersCash(id) ON DELETE CASCADE
