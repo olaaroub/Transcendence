@@ -66,15 +66,13 @@ export async function sendFriendRequest (receiverId: string | number | null) : P
 
 export async function renderProfile(userId: string | null = null)
 {
-	if (!userData || !userData.id || !userData.username)
-		await data.initDashboard(false);
+	await data.initDashboard(false);
 	let tmpUserData : IUserData | null = null;
 	const isMyProfile = userId == userData.id;
 	if (isMyProfile)
 		tmpUserData = userData;
 	else
 		tmpUserData = await getUserDataById(userId);
-	console.log(tmpUserData)
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
 		const imageUrl = getImageUrl(tmpUserData?.avatar_url);

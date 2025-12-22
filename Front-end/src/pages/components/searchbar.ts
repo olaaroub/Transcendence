@@ -21,18 +21,18 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		const divp = document.createElement('div');
 		divp.className = `flex justify-between px-4 py-1 text-gray-200 hover:bg-[#ffffff10]
 						cursor-pointer transition-colors items-center duration-200`;
-		divp.innerHTML = /* html */`<div class="flex gap-3 items-center">
-			<img src="${getImageUrl(user.avatar_url)}" alt="${user.username}" class="w-10 h-10 rounded-full">
-			<div>
+		divp.innerHTML = /* html */`
+			<div class="flex gap-3 items-center">
+				<img src="${getImageUrl(user.avatar_url)}" alt="${user.username}" class="w-10 h-10 rounded-full">
 				<p class="font-bold">${user.username}</p>
-			</div>
-		</div>`;
+			</div>`;
 		const buttonsDiv = document.createElement('div');
 		buttonsDiv.className = "flex gap-4 items-center";
 		const addFriend = document.createElement('img');
-		addFriend.src = `/images/addFriends.svg`;
+		// state
+		console.log("user state : ", user.status);
+		addFriend.src = `/images/addFriend.svg`;
 		addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110`;
-		addFriend.title = "Add Friend";
 		if (!user.status && user.id != userData.id)
 			buttonsDiv.appendChild(addFriend);
 		addFriend.addEventListener('click', async _=> {

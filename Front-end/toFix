@@ -1,8 +1,7 @@
-fix notification websockets
+fix searchbar icons
 add game buttons to the dashboard
 add forgot password option
 activate 2fa
-fix searchbar icons
 
 test front in firefox
 
@@ -15,7 +14,7 @@ tailwind :
     show backdrop-blur-lg effect
 
 
-hamza : 
+hamza :
 red star in login/sign-up
 replace username with alias site wide
 add email field in profile non-modifiable
