@@ -73,7 +73,6 @@ export async function renderProfile(userId: string | null = null)
 		tmpUserData = userData;
 	else
 		tmpUserData = await getUserDataById(userId);
-	console.log(tmpUserData)
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
 		const imageUrl = getImageUrl(tmpUserData?.avatar_url);
