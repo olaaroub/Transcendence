@@ -2,9 +2,8 @@ import { credentials, getImageUrl, IUserData } from "../store";
 import { shortString } from "../utils";
 import { costumeButton } from "./buttons";
 
-let pendingUsers: IUserData[] | null = null;
-
 const $ = (id: string) => document.getElementById(id as string)
+let pendingUsers: IUserData[] | null = null;
 
 const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
 const socket = new WebSocket(wsUrl);
@@ -13,12 +12,18 @@ socket.onopen = () => {
 	console.log('WebSocket connection established for notifications');
 };
 socket.onmessage = (event) => {
-	console.log('Notification received:', event.data);
 	try {
 		const parsed = JSON.parse(event.data);
-		const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
-		pendingUsers = (pendingUsers ?? []).concat(newUsers);
-		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
+		
+		console.log(parsed.type)
+		if (parsed.type ==  'NOTIFICATION_READED')
+			$("notification-icon")?.querySelector('span')?.classList.add('hidden')
+		else if (parsed.type == 'SEND_NOTIFICATION')
+		{
+			const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
+			pendingUsers = (pendingUsers ?? []).concat(newUsers);
+			$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
+		}
 	} catch (err) {console.error(err)}
 };
 socket.onerror = (error) => {
@@ -34,9 +39,9 @@ export function renderNavBar (isLoged: boolean)
 		<nav class="flex justify-between items-center pt-6 sm:pt-10">
 			<img id="navBar-logo" class="w-[120px] sm:w-[155px] h-auto cursor-pointer" src="/images/logo.png" alt="pong" />
 			<div  class=" ${isLoged ? "hidden" : ""} gap-3 sm:gap-5 flex">
-				${costumeButton("Sign Up", "", "", ["", "color2", "color2"], "go-sign-up")}
-				${costumeButton("Login", "", "", ["[#F0F0F0]", "black", "color2"], "go-sign-in")}
-				${costumeButton("As Guest", "", "", ["[#F0F0F0]", "black", "color2"], "go-as-guest")}
+				${costumeButton("Sign Up", "", "", "py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base", "go-sign-up")}
+				${costumeButton("Login", "", "", "bg-[#F0F0F0] py-2 px-4 sm:px-6 text-black border border-color2 transition-all duration-500 hover:bg-color2 rounded-lg hover:text-black font-bold text-sm sm:text-base opacity-70", "go-sign-in")}
+				${costumeButton("As Guest", "", "", "bg-[#F0F0F0] py-2 px-4 sm:px-6 text-black border border-color2 transition-all duration-500 hover:bg-color2 rounded-lg hover:text-black font-bold text-sm sm:text-base opacity-70", "go-as-guest")}
 			</div>
 		</nav>
     `
@@ -106,9 +111,9 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 		if (response.ok) {
 			userElement.remove();
 			const index = pendingUsers?.indexOf(user);
-			if (index && index !== -1)
+			if (index !== undefined && index !== -1)
 				pendingUsers?.splice(index, 1);
-			console.log("pending users  :", pendingUsers)
+			console.log("in handler : ", pendingUsers)
 		} else {
 			console.error('Failed to handle friend request');
 		}
@@ -119,12 +124,24 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 
 export async function notifications()
 {
-	let pendingUsers : IUserData[] | null = await getPendingUsers();
 	const notificationIcon = $('notification-icon');
+	pendingUsers = await getPendingUsers();
 
+	if (pendingUsers && pendingUsers?.length !== 0 && !pendingUsers[0].is_read)
+	{
+		console.log("here by simo");
+		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');	
+	}
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
 		const existingResult = $('notifications-result');
+		if (!existingResult)
+		{
+			socket.send(JSON.stringify({
+				type: 'MAKE_AS_READ'
+			}))
+		}
+
 		if (existingResult) {
 			existingResult.remove();
 			return;

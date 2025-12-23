@@ -1,31 +1,81 @@
 import Fastify from "fastify";
-import dotenv from 'dotenv'
-import {configChatDatabase} from './chat_database.config.js'
+import { configChatDatabase } from './chat_database.config.js'
 import websocket from '@fastify/websocket'
+import vault from 'node-vault';
+import fastifyMetrics from 'fastify-metrics';
 
-async function startChatService() 
-{
-    dotenv.config()
-    const fastify = new Fastify({logger: true});
+async function getSecrets(logger) {
+    try {
 
-    const db = await configChatDatabase();
-    fastify.decorate('db', db);
+        const vaultPath = process.env.VAULT_SECRET_PATH
 
-    fastify.log.info('the database created');
+        const options = {
+            apiVersion: 'v1',
+            endpoint: process.env.VAULT_ADDR,
+            token: process.env.GLOBAL_CHAT_SERVICE_TOKEN
+        };
 
-    fastify.register((await import('@fastify/websocket')).default);
+        const vaultClient = vault(options);
+        logger.info(`reading secrets from: ${vaultPath}`);
+        const { data } = await vaultClient.read(vaultPath);
+        return {
+            jwtSecret: data.data.jwt_secret,
+        };
 
-    const sockets = new Map();
-    fastify.decorate('sockets', sockets);
+    } catch (err) {
+        logger.error({ msg: "CRITICAL: Error fetching secret from Vault", err: err });
+        process.exit(1);
+    }
+}
 
-    fastify.register((await import('./globalChat.js')).default, {
-        prefix: '/api'
+async function startChatService() {
+    const fastify = Fastify({
+        logger: {
+            level: process.env.LOG_LEVEL || 'info',
+            base: {
+                service: 'global-chat-service',
+                env: process.env.NODE_ENV || 'development'
+            },
+
+            redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password']
+        }
     });
 
-    fastify.listen({
-        port: process.env.PORT,
-        hostname: process.env.HOST
-    })
+    await fastify.register(fastifyMetrics, {
+        endpoint: '/metrics',
+        defaultMetrics: { enabled: true }
+    });
+
+    try {
+        fastify.log.info("Auth service is starting...");
+        const secrets = await getSecrets(fastify.log);
+        fastify.log.info("Secrets fetched successfully");
+
+        const db = await configChatDatabase();
+        fastify.decorate('db', db);
+
+        fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
+
+        fastify.register((await import('@fastify/websocket')).default);
+
+        const sockets = new Map();
+        fastify.decorate('sockets', sockets);
+
+        fastify.register((await import('./globalChat.js')).default, {
+            prefix: '/api'
+        });
+
+        fastify.log.debug("Test msg");
+
+        fastify.listen({
+            port: process.env.PORT,
+            host: process.env.HOST
+        })
+    }
+    catch (err) {
+        fastify.log.error({ msg: "Starting failed", err: err });
+        process.exit(1)
+    }
 }
 
 startChatService()

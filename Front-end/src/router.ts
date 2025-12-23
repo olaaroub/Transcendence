@@ -2,6 +2,8 @@ import { showErrorMessage } from "./pages/components/errorsHandler";
 
 const app = document.getElementById("app");
 
+let previousPath: string = "/dashboard";
+
 interface Route {
 	path: string;
 	render: (params: Record<string, string>) => Promise<void>;
@@ -83,8 +85,13 @@ const routes: Route[] = [
 export function navigate(path: string) {
 	const current = window.location.pathname;
 	if (current === path) return;
+	previousPath = current;
 	window.history.pushState({}, "", path);
 	router();
+}
+
+export function navigateBack() {
+	navigate(previousPath || "/dashboard");
 }
 
 function matchRoute(path: string, routePath: string) : { matched: boolean, params?: Record<string, string> } {

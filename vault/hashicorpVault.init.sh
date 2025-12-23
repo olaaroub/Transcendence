@@ -22,7 +22,8 @@ echo "[Init] Vault is up."
 
 export VAULT_ADDR=${VAULT_ADDR}
 
-echo "[Init] Writing Auth secrets..."
+echo "[Init] Writing secrets..."
+
 vault kv put secret/auth-service \
       jwt_secret="$JWT_SECRET_VALUE" \
       cookie_secret="$COOKIE_SECRET" \
@@ -36,6 +37,9 @@ vault kv put secret/auth-service \
 vault kv put secret/user-service \
     jwt_secret="$JWT_SECRET_VALUE" \
 
+vault kv put secret/global-chat \
+    jwt_secret="$JWT_SECRET_VALUE" \
+
 
 
 echo "[Init] Writing Access Policies..."
@@ -45,7 +49,6 @@ path "secret/data/auth-service" {
   capabilities = ["read"]
 }
 ' > /tmp/policy-auth.hcl
-
 vault policy write auth-policy /tmp/policy-auth.hcl
 
 
@@ -58,6 +61,15 @@ vault policy write user-service-policy /tmp/policy-user-service.hcl
 
 
 
+echo '
+path "secret/data/global-chat" {
+  capabilities = ["read"]
+}
+' > /tmp/policy-global-chat.hcl
+vault policy write global-chat-policy /tmp/policy-global-chat.hcl
+
+
+
 echo "[Init] Issuing Service Tokens..."
 
 vault token revoke "$AUTH_SERVICE_TOKEN" 2>/dev/null || true
@@ -66,10 +78,6 @@ vault token create \
     -policy="auth-policy" \
     -ttl="720h" \
     -no-default-policy > /dev/null
-
-echo "[Init] Auth Service Token created."
-
-
 
 
 vault token revoke "$USER_SERVICE_TOKEN" 2>/dev/null || true
@@ -80,6 +88,12 @@ vault token create \
     -no-default-policy > /dev/null
 
 
+vault token revoke "$GLOBAL_CHAT_SERVICE_TOKEN" 2>/dev/null || true
+vault token create \
+    -id="$GLOBAL_CHAT_SERVICE_TOKEN" \
+    -policy="global-chat-policy" \
+    -ttl="720h" \
+    -no-default-policy > /dev/null
 
 
 
