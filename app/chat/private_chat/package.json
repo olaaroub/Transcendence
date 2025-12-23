@@ -11,6 +11,7 @@
     "start": "node ."
   },
   "dependencies": {
-    "better-sqlite3": "^12.5.0"
+    "better-sqlite3": "^12.5.0",
+    "fastify": "^5.6.2"
   }
 }
