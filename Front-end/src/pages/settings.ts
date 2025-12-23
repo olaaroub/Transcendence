@@ -139,9 +139,9 @@ function confirmPopUp(message: string) : Promise<boolean>
 		const deletePopUp = document.createElement('div');
 		deletePopUp.className = `h-screen absolute w-screen`;
 		deletePopUp.innerHTML = `
-			<div class="bg-white top-1/2 left-1/2 absolute z-20 transform -translate-x-1/2
+			<div class="bg-[#1a1e22] top-1/2 left-1/2 absolute z-20 transform -translate-x-1/2
 			-translate-y-1/2 rounded-2xl p-6 flex flex-col gap-4">
-				<p class="font-bold">${message}</p>
+				<p class="font-bold text-txtColor">${message}</p>
 				<button id="confirm-btn" class="bg-color1 hover:bg-orange-600  transition-all duration-200 hover:scale-[1.01] rounded-2xl p-2" id="confirm-delete">Yes</button>
 				<button id="cancel-btn" class="bg-color1  hover:bg-orange-600 transition-all duration-200 hover:scale-[1.01] rounded-2xl p-2" id="cancel-delete">No</button>
 			</div>
