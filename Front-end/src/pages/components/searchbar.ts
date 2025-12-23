@@ -19,7 +19,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		const divp = document.createElement('div');
 		divp.className = `flex justify-between px-4 py-1 text-gray-200 hover:bg-[#ffffff10]
 						cursor-pointer transition-colors items-center duration-200`;
-		divp.innerHTML = `<div class="flex gap-3 items-center">
+		divp.innerHTML = /* html */`<div class="flex gap-3 items-center">
 			<img src="${getImageUrl(user.avatar_url)}" alt="${user.username}" class="w-10 h-10 rounded-full">
 			<div>
 				<p class="font-bold">${user.username}</p>

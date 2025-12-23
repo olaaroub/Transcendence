@@ -22,11 +22,9 @@ function AuthRedirect()
 export function renderLogin (isLoged: boolean)
 {
     AuthRedirect();
-    document.body.innerHTML = `
+    document.body.innerHTML = /* html */`
         <div id="app" class="flex-grow w-[90%]  mx-auto">
-            <div class=" content mx-auto">
-                ${renderNavBar(true)}
-            </div>
+            ${renderNavBar(true)}
         </div>
         <footer id="footer" class="w-[90%] absolute bottom-0 left-1/2 transform -translate-x-1/2
         mx-auto flex flex-col sm:flex-row justify-between items-center gap-4

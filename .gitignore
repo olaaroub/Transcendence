@@ -1,7 +1,6 @@
 # Dependencies
 node_modules/
 database.db
-*.db
 .env
 app/static/*
 !app/static/Default_pfp.jpg
@@ -15,3 +14,7 @@ dist/
 build/
 certs/
 *.tsbuildinfo
+
+*.db
+*-shm
+*-wal

@@ -1,8 +1,11 @@
 import oauth2 from '@fastify/oauth2';
 import cookie from '@fastify/cookie';
 import DownoladImageFromUrl from './utils.js';
+import fs from 'fs';
 
 const domain = process.env.DOMAIN;
+const ext = process.env.SERVICE_EXT || '-prod';
+const USER_SERVICE_URL = `http://user-service${ext}:3002`;
 
 
 async function callbackHandler(req, reply) {
@@ -28,10 +31,10 @@ async function callbackHandler(req, reply) {
             const AvatarUrl = await DownoladImageFromUrl(userdata.image.versions.small, "_intra", req.log);
             data = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
                 .get([userdata.usual_full_name, userdata.email, "intra"]);
-            
+
             if (!data) throw new Error("Database insert failed");
 
-            const createNewUserRes = await fetch('http://user-service-dev:3002/api/user/createNewUser', {
+            const createNewUserRes = await fetch(`${USER_SERVICE_URL}/api/user/createNewUser`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -42,65 +45,63 @@ async function callbackHandler(req, reply) {
                     avatar_url: AvatarUrl.avatar_path
                 })
             });
-            console.log(createNewUserRes);
+
             if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
             {
-                await fs.promises.unlink(AvatarUrl.file_name).catch(() => {});
+                await fs.promises.unlink(AvatarUrl.file_path).catch(() => { });
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([data.id]);
-                reply.redirect(`${domain}/login?auth=failed&message='failed to create new user'`);
+                throw new Error("Failed to sync new user with User Service");
             }
+            req.log.info({ userId: data.id }, "New user registered via 42 Intra");
         }
+        this.customMetrics.loginCounter.inc({ status: 'success', provider: 'intra' });
         const token = this.jwt.sign(data, { expiresIn: '1h' });
         reply.redirect(`${domain}/login?token=${token}&id=${data.id}`);
     }
     catch (err) {
-        console.log(err)
+        this.customMetrics.loginCounter.inc({ status: 'failure', provider: 'intra' });
+        req.log.error({ msg: "Intra OAuth Failed", err: err });
         reply.redirect(`${domain}/login?auth=failed`);
-        // reply.redirect(`${domain}/login?error=${encodeURIComponent(err.message || "Internal Server Error")}`);
     }
 }
 
 
 
 async function authIntra(fastify, opts) {
-    try {
-        const { intraId, intraSecret, cookieSecret } = opts.secrets;
-        if (!intraId || !intraSecret || !cookieSecret)
-            throw ("No intra credentials provided!")
-        await fastify.register(cookie, {
-            secret: cookieSecret
-        })
-        await fastify.register(oauth2, {
-            name: 'authIntra',
-            scope: ['public'],
 
-            credentials: {
-                client: {
-                    id: intraId,
-                    secret: intraSecret
-                },
-                auth: {
-                    authorizeHost: 'https://api.intra.42.fr',
-                    authorizePath: '/oauth/authorize',
-                    tokenHost: 'https://api.intra.42.fr',
-                    tokenPath: '/oauth/token'
-                }
+    const { intraId, intraSecret, cookieSecret } = opts.secrets;
+
+    if (!intraId || !intraSecret || !cookieSecret)
+        throw new Error("No intra credentials provided!")
+
+    await fastify.register(cookie, {
+        secret: cookieSecret
+    })
+    await fastify.register(oauth2, {
+        name: 'authIntra',
+        scope: ['public'],
+
+        credentials: {
+            client: {
+                id: intraId,
+                secret: intraSecret
             },
-            startRedirectPath: '/auth/intra',
-            callbackUri: `${domain}/api/auth/intra/callback`,
-            cookie: {
-                secure: false,
-                sameSite: 'lax',
-                path: '/api/auth/intra/callback'
+            auth: {
+                authorizeHost: 'https://api.intra.42.fr',
+                authorizePath: '/oauth/authorize',
+                tokenHost: 'https://api.intra.42.fr',
+                tokenPath: '/oauth/token'
             }
+        },
+        startRedirectPath: '/auth/intra',
+        callbackUri: `${domain}/api/auth/intra/callback`,
+        cookie: {
+            secure: false,
+            sameSite: 'lax',
+            path: '/api/auth/intra/callback'
         }
-        );
-        fastify.get("/auth/intra/callback", callbackHandler);
-    }
-    catch (error) {
-        console.log(error);
-    }
+    });
+    fastify.get("/auth/intra/callback", callbackHandler);
 }
 
-// module.exports = authIntra;
 export default authIntra;

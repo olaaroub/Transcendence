@@ -2,21 +2,21 @@ import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
 import createError from 'http-errors';
 
-
-async function setupTowFaHandler(req, reply)
-{
+async function setupTowFaHandler(req, reply) {
     const id = req.params.id;
+    const { towFaEnabled } = this.db.prepare("SELECT towFaEnabled FROM users WHERE id = ?").get(id);
 
-    const towFactorEnabled = this.db.prepare("SELECT towFaEnabled FROM users WHERE id = ?").get(id);
+    if (towFaEnabled)
+        throw createError.Unauthorized("2FA is already enabled");
 
-    if (!towFactorEnabled)
-        throw createError.Unauthorized("the tow Factor has not Enabled");
     const secret = speakeasy.generateSecret({
         name: `42TrancendensUserID_${id}` // I will change the id to username
     });
 
-    this.db.prepare("UPDATE users SET towFaSecret = ? WHERE id = ?")
-        .run(secret.base32, id)
+    this.db.prepare("UPDATE users SET towFaSecret = ? WHERE id = ?").run(secret.base32, id)// hna knti tadir two fa enabled 9bl ma yscani qr
+    // matalan ma9derch yscani w 3awd loga aytl3 lih idkhel lcode whow mascanach asln, dkchi 3lach madirch towofa enabled 7ta t verifyi...
+
+    req.log.info({ userId: id }, "2FA Setup initiated (Secret generated)");
 
     const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
     return {
@@ -25,48 +25,48 @@ async function setupTowFaHandler(req, reply)
     }
 }
 
-async function verifyTowFaHandler(req, reply)
-{
-    const {token} = req.body;
+async function verifyTowFaHandler(req, reply) {
+    const { token } = req.body;
     const id = req.params.id;
 
-    const {towFaSecret, towFaEnabled} = this.db.prepare("SELECT towFaSecret, towFaEnabled FROM users WHERE id = ?")
-                                            .get(id);
+    const { towFaSecret, towFaEnabled } = this.db.prepare("SELECT towFaSecret, towFaEnabled FROM users WHERE id = ?")
+        .get(id);
 
-    if (!towFaEnabled)
-        throw createError.BadRequest("please enable the tow factor authentication !");
-    else if (!towFaSecret)
-        throw createError.BadRequest("please setup the tow factor authentication first, and then request this endpoint !");
-    console.log(towFaSecret, towFaEnabled);
+    if (!towFaEnabled && !towFaSecret)
+        throw createError.BadRequest("2FA setup not initialized");
+
     const verify = speakeasy.totp.verify({
         secret: towFaSecret,
         encoding: 'base32',
         token: token
     });
 
-    if (!verify)
-        throw createError.Unauthorized("the digits-code is invalid");
-
-    return {
-        success: true,
-        message: "you're successfly verifyed !"
+    if (!verify) {
+        req.log.warn({ userId: id }, "2FA Verification Failed (Invalid Token)");
+        throw createError.Unauthorized("Invalid 2FA token");
     }
+
+    if (!towFaEnabled) { //  awal mra ydkhl, khsni n updati status to true, (7it mab9inach kndiroha lfo9)
+        this.db.prepare('UPDATE users SET towFaEnabled = TRUE WHERE id = ?').run(id);
+        req.log.info({ userId: id }, "2FA Enabled Successfully");
+    }
+    else
+        req.log.info({ userId: id }, "2FA Verified Successfully");
+
+    return { success: true, message: "Verification successful" }
 }
 
-async function towFaEnablingHandler(req, reply)
-{
+async function towFaDisablingHandler(req, reply) {
     const id = req.params.id;
+    this.db.prepare('UPDATE users SET towFaEnabled = FALSE, towFaSecret = NULL WHERE id = ?').run(id);
 
-    this.db.prepare('UPDATE users SET towFaEnabled = TRUE WHERE id = ?').run(id);
-    return {
-        success: true,
-        message: "you're successfly enabled towfa!"
-    }
+    req.log.warn({ userId: id }, "2FA Disabled");
+
+    return { success: true, message: "2FA disabled successfully" }
 }
 
-export default async function towFactorAuthentication(fastify)
-{
+export default async function towFactorAuthentication(fastify) {
     fastify.get('/auth/2fa/setup/:id', setupTowFaHandler);
     fastify.post('/auth/2fa/verify/:id', verifyTowFaHandler);
-    fastify.post('/auth/2fa/enabel/:id', towFaEnablingHandler);
+    fastify.post('/auth/2fa/disable/:id', towFaDisablingHandler);
 }
