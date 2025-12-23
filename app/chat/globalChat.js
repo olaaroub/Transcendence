@@ -1,5 +1,5 @@
-
-
+import createError from 'http-errors';
+import getChatMessages from './getMessages.js'
 
 const ext = process.env.SERVICE_EXT || '-prod';
 const USER_SERVICE_URL = `http://user-service${ext}:3002`;
@@ -82,6 +82,23 @@ async function globalChatHandler(socket, request) {
 }
 
 
+async function JwtHandler(request, reply) {
+  try {
+
+    const payload = await request.jwtVerify();
+
+    request.userId = payload.id;
+    request.username = payload.username;
+
+    request.log.debug({ userId: payload.id, username: payload.username }, "JWT Verified");
+  }
+  catch (err) {
+    request.log.warn("Unauthorized access attempt (Invalid or missing token)");
+    // throw createError.Unauthorized("Invalid or missing token");
+  }
+}
+
+
 export default async function main(fastify) {
     const requestSchema = {
         params: {
@@ -92,5 +109,8 @@ export default async function main(fastify) {
             required: ['id']
         }
     }
-    fastify.get('/chat/globalChat/:id', { websocket: true, schema: requestSchema }, globalChatHandler);
+
+    fastify.addHook('preHandler', JwtHandler)
+    fastify.register(getChatMessages);
+    fastify.get('/global-chat/:id', { websocket: true, schema: requestSchema }, globalChatHandler);
 }

@@ -12,4 +12,6 @@ CREATE TABLE IF NOT EXISTS messages (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY( sender_id ) REFERENCES usersCash(id) ON DELETE CASCADE
-)
+);
+
+CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages (created_at DESC);

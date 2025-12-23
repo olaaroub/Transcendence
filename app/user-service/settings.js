@@ -1,7 +1,9 @@
 import createError from 'http-errors';
+import { changeItemInOtherService } from './utils.js';
 
 const ext = process.env.SERVICE_EXT || '-prod';
 const AUTH_SERVICE_URL = `http://auth-service${ext}:3001`;
+const GLOBAL_CHAT_SERVICE_URL = `http://global-chat${ext}:3003`;
 
 async function change_username(req, reply) {
 	const id = req.params.id;
@@ -9,23 +11,11 @@ async function change_username(req, reply) {
 
 	if (!username) throw createError.BadRequest("Username is required");
 
+	await changeItemInOtherService(`${AUTH_SERVICE_URL}/api/auth/changeUsername/${id}`, { username });
+	await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/global-chat/username/${id}`, { username });
+
 	this.db.prepare("UPDATE userInfo SET username = ? WHERE id = ?").run([username, id]);
 	// khansni ndir lih update hta fe database tanya
-
-	const changeAuthUserNameResponse = await fetch(`${AUTH_SERVICE_URL}/api/auth/changeUsername/${id}`, {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			"username": username
-		})
-	});
-
-	if (!changeAuthUserNameResponse.ok) {
-		req.log.error({ userId: id, status: changeAuthUserNameResponse.status }, "Failed to update username in Auth Service");
-		throw createError.BadGateway("Failed to sync username change with Auth Service");
-	}
 
 	req.log.info({ userId: id, newUsername: username }, "Username updated successfully");
 

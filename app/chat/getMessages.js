@@ -1,0 +1,16 @@
+
+async function getMessages(req, reply)
+{
+    const lastMessages = this.db.prepare(`SELECT 
+                                            m.sender_id, u.username, u.avatar_url, m.msg, m.created_at
+                                            FROM
+                                                usersCash u INNER JOIN messages m ON u.id = m.sender_id
+                                            ORDER BY m.created_at DESC
+                                            LIMIT 50`).all();
+    return lastMessages;
+}
+
+export default async function getChatMessages(fastify) 
+{
+    fastify.get('/global-chat/messages', getMessages);
+}

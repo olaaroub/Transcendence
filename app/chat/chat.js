@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import { configChatDatabase } from './chat_database.config.js'
-import websocket from '@fastify/websocket'
+// import websocket from '@fastify/websocket'
+import fastifyJwt from '@fastify/jwt';
 import vault from 'node-vault';
 import fastifyMetrics from 'fastify-metrics';
 
@@ -47,10 +48,13 @@ async function startChatService() {
     });
 
     try {
-        fastify.log.info("Auth service is starting...");
-        const secrets = await getSecrets(fastify.log);
+        fastify.log.info("global chat service is starting...");
+        const { jwtSecret } = await getSecrets(fastify.log);
         fastify.log.info("Secrets fetched successfully");
 
+        await fastify.register(fastifyJwt, {
+            secret: jwtSecret
+        });
         const db = await configChatDatabase();
         fastify.decorate('db', db);
 

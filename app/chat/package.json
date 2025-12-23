@@ -13,6 +13,7 @@
   "dependencies": {
     "@fastify/websocket": "^11.2.0",
     "better-sqlite3": "^12.5.0",
+    "@fastify/jwt": "^10.0.0",
     "fastify": "^5.6.2",
     "node-vault": "^0.10.9",
     "fastify-metrics": "^12.1.0",
