@@ -146,6 +146,7 @@ services:
       - INTRA_CLIENT_SECRET=${INTRA_CLIENT_SECRET}
       - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
       - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
+      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
     entrypoint: /init.sh
     depends_on:
       - vault-dev
