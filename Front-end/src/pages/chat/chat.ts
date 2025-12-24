@@ -13,7 +13,7 @@ export function chatEventHandler() {
 }
 
 function renderMessages() : string {
-	return `
+	return /* html */`
 		<div class="relative w-[70%] bg-color4 rounded-2xl min-h-[calc(100vh-200px)]
 		p-6 flex flex-col justify-between">
 			<div>
@@ -29,7 +29,6 @@ function renderMessages() : string {
 					</div>
 				</div>
 			</div>
-
 			<div class="flex justify-center gap-2 mt-4 w-full items-center">
 				<input type="text" placeholder="Type a message..."
 				class=" bg-black text-txtColor px-4 py-2 rounded-full w-[60%]
@@ -44,15 +43,15 @@ function renderMessages() : string {
 async function listFriends() : Promise<string> {
 	const friends = await getFriends();
 	if (friends.length === 0) {
-		return `
+		return /* html */`
 		<p class="pt-24 text-txtColor text-center">No friends to display.</p>
 		`;
 	}
-	return `
+	return /* html */`
 		<div class="flex flex-col gap-2">
 			<p class="text-txtColor text-lg font-bold mb-2">Friends</p>
 			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-200px)]">
-				${friends.map(friend => `
+				${friends.map(friend => /* html */`
 					<div class="flex bg-[#273445] p-3 rounded-2xl">
 						<div class="flex w-full gap-4">
 							<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(friend.avatar_url)}" alt="">
@@ -75,7 +74,7 @@ export async function renderChat() {
 	await data.initDashboard(false);
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
-		dashContent.innerHTML = `
+		dashContent.innerHTML = /* html */`
 		<div class="w-full h-full flex">
 			<div class="w-[30%] bg-color4 rounded-2xl p-6 mr-4">
 				<div id="search-chat" class="relative mx-2 bg-color4
@@ -105,4 +104,3 @@ export async function renderChat() {
 		</div>
 	`;
 }
-// <p class="pt-24 text-txtColor text-center">No friends to display.</p>

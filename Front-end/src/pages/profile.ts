@@ -61,6 +61,9 @@ export async function sendFriendRequest (receiverId: string | number | null) : P
 		const errorData = await response.json();
 		throw new Error(errorData.message || 'Failed to send friend request');
 	}
+	// const button = document.getElementById('add-friend');
+	// if (button)
+	// 	button.textContent = 'hello simo';
 	alert('Friend request sent successfully!');
 }
 
@@ -87,7 +90,6 @@ export async function renderProfile(userId: string | null = null)
 						${tmpUserData?.status !== 'ACCEPTED' ? `<button id="${isMyProfile ? 'edit-profile' : 'add-friend'}" class="bg-gradient-to-r from-color1 to-[#af4814]
 						min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center"><img class="inline w-[24px] h-[24px]"
 						src="${isMyProfile ? 'images/edit.svg' : 'images/addFriend.svg'}">${isMyProfile ? 'Edit My Profile' : 'Add Friend'}</button>` : ''}
-					
 					</div>
 				</div>
 				${UserStats()}

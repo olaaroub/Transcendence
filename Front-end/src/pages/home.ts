@@ -33,8 +33,7 @@ function renderHomeText (isLoged: boolean)
 
 export async function renderHome()
 {
-	const existing = document.querySelector(".login");
-	if (existing) existing.remove();
+	document.querySelector(".login")?.remove();
 	document.body.innerHTML = /* html */`
 		<div id="app" class="flex-grow w-[90%] mx-auto">
 			<div class="absolute w-[45vw] h-[45vw] -z-10 rounded-full
