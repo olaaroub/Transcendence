@@ -9,8 +9,9 @@ export async function changeItemInOtherService(url, newValue) {
         body: JSON.stringify(newValue)
     });
 
-    if (!response.ok) {
-        console.log("---------------------------------========")
+    const responsAsJson = await response.json();
+
+    if (!responsAsJson.ok) {
         throw createError.BadGateway("Failed to sync changes with Other Service");
     }
 }

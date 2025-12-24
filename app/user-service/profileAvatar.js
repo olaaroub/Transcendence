@@ -74,9 +74,7 @@ async function modifyAvatar(req, reply) {
     reply.code(201).send({ success: true, message: "Profile image updated successfully" });
 
   } catch (err) {
-    console.log(err);
     req.log.error({ err, userId: req.params.id }, "Avatar update failed, cleaning up new file");
-    this.db.prepare("UPDATE userInfo SET avatar_url = ? WHERE id = ?").run(["/public/Default_pfp.jpg", id]);
     await fs.promises.unlink(paths.file_path).catch((unlinkErr) => {
       req.log.warn({ err: unlinkErr, file: paths.file_path }, "Failed to clean up orphaned file");
     });

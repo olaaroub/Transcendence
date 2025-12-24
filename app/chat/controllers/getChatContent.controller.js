@@ -1,5 +1,5 @@
 
-async function getMessages(req, reply)
+export async function getMessages(req, reply)
 {
     const lastMessages = this.db.prepare(`SELECT 
                                             m.sender_id, u.username, u.avatar_url, m.msg, m.created_at
@@ -8,9 +8,4 @@ async function getMessages(req, reply)
                                             ORDER BY m.created_at DESC
                                             LIMIT 50`).all();
     return lastMessages;
-}
-
-export default async function getChatMessages(fastify) 
-{
-    fastify.get('/global-chat/messages', getMessages);
 }

@@ -1,9 +1,10 @@
 import Fastify from "fastify";
-import { configChatDatabase } from './chat_database.config.js'
+import { configChatDatabase } from './db/chat_database.config.js'
 // import websocket from '@fastify/websocket'
 import fastifyJwt from '@fastify/jwt';
 import vault from 'node-vault';
 import fastifyMetrics from 'fastify-metrics';
+import userProfile from './routes/user.profile.routes.js';
 
 async function getSecrets(logger) {
     try {
@@ -65,7 +66,11 @@ async function startChatService() {
         const sockets = new Map();
         fastify.decorate('sockets', sockets);
 
-        fastify.register((await import('./globalChat.js')).default, {
+        fastify.register((await import('./routes/globalChat.routes.js')).default, {
+            prefix: '/api'
+        });
+
+        fastify.register(userProfile, { // thats for user-servise to change the user profile data 
             prefix: '/api'
         });
 

@@ -106,6 +106,7 @@ async function authgoogle(fastify, opts) {
             path: '/api/auth/google/callback'
         }
     })
+
     fastify.get('/auth/google/callback', googleCallback);
 }
 

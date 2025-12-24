@@ -1,6 +1,3 @@
-import createError from 'http-errors';
-import getChatMessages from './getMessages.js'
-
 const ext = process.env.SERVICE_EXT || '-prod';
 const USER_SERVICE_URL = `http://user-service${ext}:3002`;
 
@@ -13,6 +10,12 @@ async function addSocketAndUserInfos(socket, fastify, userId) {
             console.log(userId)
             fastify.log.debug({userId}, "Test msg");
             const userData = await fetch(`${USER_SERVICE_URL}/api/user/chat/profile/${userId}`);
+            if (!userData.ok) {
+                fastify.log.error({ userId }, "Failed to fetch user data");
+                socket.close();
+                return;
+            }
+
             const { username, avatar_url } = await userData.json();
             console.log(username, avatar_url)
             if (!username || !avatar_url)
@@ -41,6 +44,7 @@ function deletSocket(socket, fastify, userId) {
 
 async function handleMessageEvent(socket, fastify, userId, message) {
     const messageAsString = message.toString();
+    console.log("Received message:", messageAsString);
     const messageJson = JSON.parse(messageAsString);
 
     const messageBody = fastify.db.prepare("INSERT INTO messages(sender_id, msg) VALUES(?, ?) RETURNING sender_id, msg, created_at")
@@ -67,7 +71,7 @@ async function handleMessageEvent(socket, fastify, userId, message) {
     });
 }
 
-async function globalChatHandler(socket, request) {
+export async function globalChatHandler(socket, request) {
     const id = request.params.id;
 
     try {
@@ -79,38 +83,4 @@ async function globalChatHandler(socket, request) {
     } catch (err) {
         request.log.error(err);
     }
-}
-
-
-async function JwtHandler(request, reply) {
-  try {
-
-    const payload = await request.jwtVerify();
-
-    request.userId = payload.id;
-    request.username = payload.username;
-
-    request.log.debug({ userId: payload.id, username: payload.username }, "JWT Verified");
-  }
-  catch (err) {
-    request.log.warn("Unauthorized access attempt (Invalid or missing token)");
-    // throw createError.Unauthorized("Invalid or missing token");
-  }
-}
-
-
-export default async function main(fastify) {
-    const requestSchema = {
-        params: {
-            type: 'object',
-            properties: {
-                id: { type: 'integer' }
-            },
-            required: ['id']
-        }
-    }
-
-    fastify.addHook('preHandler', JwtHandler)
-    fastify.register(getChatMessages);
-    fastify.get('/global-chat/:id', { websocket: true, schema: requestSchema }, globalChatHandler);
 }
