@@ -9,15 +9,20 @@ async function createNewUser(req, reply) {
     throw createError.BadRequest("Invalid user data: user_id and username are required");
   }
 
-  try {
-    if (newUserData.avatar_url) {
+  const bio = newUserData.bio || 'Hello there i am using Pong game!';
+  const avatar_url = newUserData.avatar_url || '/public/Default_pfp.jpg';
 
-      this.db.prepare(`INSERT INTO userInfo(id, username, avatar_url) VALUES(?, ?, ?)`)
-        .run([newUserData.user_id, newUserData.username, newUserData.avatar_url]);
-    } else {
-      this.db.prepare(`INSERT INTO userInfo(id, username) VALUES(?, ?)`)
-        .run([newUserData.user_id, newUserData.username]);
-    }
+  console.log(bio, " ", newUserData.bio)
+
+  try {
+    // if (newUserData.avatar_url) {
+
+      this.db.prepare(`INSERT INTO userInfo(id, username, avatar_url, bio) VALUES(?, ?, ?, ?)`)
+        .run([newUserData.user_id, newUserData.username, avatar_url, bio]);
+    // } else {
+    //   this.db.prepare(`INSERT INTO userInfo(id, username, bio) VALUES(?, ?, ?)`)
+    //     .run([newUserData.user_id, newUserData.username, bio]);
+    // }
 
     req.log.info({ userId: newUserData.user_id, username: newUserData.username }, "New user synced from Auth Service");
 
