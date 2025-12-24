@@ -3,23 +3,15 @@ const USER_SERVICE_URL = `http://user-service${ext}:3002`;
 
 async function addSocketAndUserInfos(socket, fastify, userId) {
     if (!fastify.sockets.has(userId)) {
-        console.log(userId);
         const isFoundedInDataBase = fastify.db.prepare("SELECT 1 FROM usersCash WHERE id = ?").get(userId);
 
         if (!isFoundedInDataBase) {
-            console.log(userId)
-            fastify.log.debug({userId}, "Test msg");
             const userData = await fetch(`${USER_SERVICE_URL}/api/user/chat/profile/${userId}`);
-            if (!userData.ok) {
-                fastify.log.error({ userId }, "Failed to fetch user data");
-                socket.close();
-                return;
-            }
+
+            if (!userData.ok)
+                throw new Error("Failed to fetch user info from User Service");
 
             const { username, avatar_url } = await userData.json();
-            console.log(username, avatar_url)
-            if (!username || !avatar_url)
-                throw new Error("this user not founed");
             fastify.db.prepare('INSERT INTO usersCash(id, username, avatar_url) VALUES(?, ?, ?)')
                 .run(userId, username, avatar_url);
             fastify.log.info("fetch the user Infos successfly");
@@ -43,9 +35,12 @@ function deletSocket(socket, fastify, userId) {
 
 
 async function handleMessageEvent(socket, fastify, userId, message) {
+    try {
     const messageAsString = message.toString();
-    console.log("Received message:", messageAsString);
     const messageJson = JSON.parse(messageAsString);
+
+    if (!messageJson.msg || typeof messageJson.msg !== 'string' || messageJson.msg.trim() === '')
+        throw new Error("Message content is required");
 
     const messageBody = fastify.db.prepare("INSERT INTO messages(sender_id, msg) VALUES(?, ?) RETURNING sender_id, msg, created_at")
         .get(userId, messageJson.msg);
@@ -55,6 +50,8 @@ async function handleMessageEvent(socket, fastify, userId, message) {
     socket.send(JSON.stringify({
         type: 'MESSAGE_SENT_SUCCESSFULLY'
     }));
+
+    fastify.log.info({ userId, message: messageJson.msg }, "User sent a message");
 
     const response = {
         messageBody,
@@ -69,6 +66,13 @@ async function handleMessageEvent(socket, fastify, userId, message) {
                 userSocket.send(JSON.stringify(response));
         })
     });
+    } catch (err) {
+        fastify.log.error({ err, userId }, "Error handling message event");
+        socket.send(JSON.stringify({
+            type: 'MESSAGE_SEND_FAILURE',
+            error: err.message || 'Internal Server Error'
+        }));
+    }
 }
 
 export async function globalChatHandler(socket, request) {
@@ -82,5 +86,6 @@ export async function globalChatHandler(socket, request) {
         socket.on('message', async (message) => await handleMessageEvent(socket, request.server, id, message));
     } catch (err) {
         request.log.error(err);
+        socket.close();
     }
 }

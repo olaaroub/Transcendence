@@ -1,5 +1,5 @@
 
-import { getMessages } from '../controllers/getChatContent.controller.js';
+import { getMessages } from '../controllers/chat.messages.controller.js';
 
 export default async function getChatMessages(fastify) 
 {
