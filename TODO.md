@@ -31,16 +31,19 @@
 - [x] **Create indexes to facilitate the sort users based on scor**
 - [x] **add  leader Bord route**
 - [x] **Validation:** Use `file-type` library to check Magic Bytes before saving (Safety Net).
-- [ ] **Logs:** Ensure errors are printed as JSON for the ELK stack.
+- [x] **Logs:** Ensure errors are printed as JSON for the ELK stack.
 - [x] **Use node modules:** Import instead of  require.
 - [canceled] **learn gRPC:** to build mecro sirveces
 - [ ] **send the email to the front:**
-- [ ] **setup the app chat service**
-- [ ] **create a chat databases:** cash database to store the user information and message database to store the last messages
-- [ ] **open the sockets and start users commencation:** send messages with users
-- [ ] **store the messages in database**
-- [ ] **get the data from the user services and store it in the cash while send it to the front:**
+- [x] **setup the app chat service**
+- [x] **create a chat databases:** cash database to store the user information and message database to store the last messages
+- [x] **open the sockets and start users commencation:** send messages with users
+- [x] **store the messages in database**
+- [x] **get the data from the user services and store it in the cash while send it to the front:**
 - [ ] **get the data from users using amqp protocole and RabbitMQ brocker**
+- [ ] **send the state of user online/offline**
+- [ ] **is_read re structur**
+- [ ] **send the prives messages to the front**
 <!-- union intersect distinct  -->
 ## Known Bugs
 
