@@ -65,8 +65,6 @@ async function callbackHandler(req, reply) {
     }
 }
 
-
-
 async function authIntra(fastify, opts) {
 
     const { intraId, intraSecret, cookieSecret } = opts.secrets;

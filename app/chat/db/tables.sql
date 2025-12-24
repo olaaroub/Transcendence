@@ -1,4 +1,3 @@
-
 CREATE TABLE IF NOT EXISTS usersCash (
     id INTEGER PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,

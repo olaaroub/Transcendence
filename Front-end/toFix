@@ -1,12 +1,12 @@
-fix notification websockets
+test front in firefox
+fix home page colors
+
+
+add unfriend to the profile page
 add game buttons to the dashboard
 add forgot password option
-setup font
-fix login/signup colors
+activate 2fa
 
-
-
-test front in firefox
 
 main :
     tailwind : what content is
@@ -17,7 +17,7 @@ tailwind :
     show backdrop-blur-lg effect
 
 
-hamza : 
+hamza :
 red star in login/sign-up
 replace username with alias site wide
 add email field in profile non-modifiable

@@ -109,11 +109,7 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 	`;
 	document.body.appendChild(container);
 }
-/*
-is_read flag in get  pending users (false -> ma9rach, true -> 9rahom)
-type: NOTIFICATION_READED is a var called type send in the sockets  kat3ni bli 9ra notification ana li kansiftha
-type: MAKE_AS_READ nta li katsiftha liya katgol liya fiha bli luser chaf notification
-*/
+
 document.body.addEventListener("click", (e) => {
 	const target = e.target as HTMLElement;
 	const action = target.dataset.action;

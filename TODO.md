@@ -48,3 +48,5 @@
 ## Known Bugs
 
 - [ ]
+
+"npx depcheck" ==> checks unused packages in package.json
