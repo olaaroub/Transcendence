@@ -2,16 +2,17 @@ services:
 
   frontend-dev:
     build:
-      context: ./Front-end
-      dockerfile: Dockerfile.frontend.dev
+      context: .
+      dockerfile: ./Front-end/Dockerfile.frontend.dev
     image: frontend-dev:1337
     container_name: frontend-dev
     ports:
       - "5173:5173"
     volumes:
-      - ./Front-end:/app
-      - ./certs:/app/certs:ro
-      - /app/node_modules
+      - ./Front-end:/app/Front-end
+      - ./Pong:/app/Pong
+      - ./certs:/app/Front-end/certs:ro
+      - /app/Front-end/node_modules
       - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     environment:
       - CHOKIDAR_USEPOLLING=true

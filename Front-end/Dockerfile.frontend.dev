@@ -1,9 +1,30 @@
+# FROM node:20-alpine
+
+# WORKDIR /app
+
+# COPY package*.json ./
+# RUN npm install
+
+# EXPOSE 5173
+
+# CMD ["npm", "run", "dev"]
+
+
 FROM node:20-alpine
 
 WORKDIR /app
+COPY Pong /app/Pong
 
-COPY package*.json ./
+WORKDIR /app/Pong/Shared
+RUN npm install && npm run build
+
+WORKDIR /app/Front-end
+
+COPY Front-end/package*.json ./
+
 RUN npm install
+
+# COPY Front-end .
 
 EXPOSE 5173
 
