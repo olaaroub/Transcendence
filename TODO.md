@@ -20,6 +20,8 @@
 - [ ] **Uploads:** Add `accept="image/png, image/jpeg"` to the file input HTML.
 - [ ] **Error Handling:** Display generic error messages from backend (example: "Upload failed").
 - [ ] **UX:** When I finish uploading an avatar, I should get out from the settings page.
+		PS. (hes-safi) I don't agree with this! You should stay in Settings.
+- [ ] **Offline Session:** Add session storage info for offline PvP & PvAI (Look for file sessionStorage.ts in Front).
 
 ## Backend (OHAMMOU-)
 
@@ -31,6 +33,10 @@
 - [ ] **Logs:** Ensure errors are printed as JSON for the ELK stack.
 - [x] **Use node modules:** Import instead of  require.
 - [ ] **learn gRPC:** to build mecro sirveces
+
+## Game (HES-SAFI)
+
+- [ ] **Prod .JS Filename:** Need to change the randomly generated name with 'pong.js'. VITE Bundler knowledge.
 
 ## Known Bugs
 

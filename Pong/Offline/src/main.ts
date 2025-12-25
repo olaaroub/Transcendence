@@ -4,6 +4,8 @@ import {
 	createScene,
 	createGUI,
 	optionsButton,
+	addHUDs,
+	scoreGoal,
 	createArena,
 	createSky,
 	createPaddles,
@@ -15,7 +17,7 @@ import {
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 
 const { engine, scene, cameras } = createScene(canvas);
-const ui = createGUI();
+createGUI();
 
 const sky = createSky(scene);
 const arena = createArena(scene);
@@ -37,6 +39,9 @@ scene.activeCamera = cameras['1'];
 
 const gameEngine = new PongEngine();
 
+addHUDs(gameEngine.getSession());
+optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
+
 window.addEventListener('keydown', (e) =>
 {
 	const cam = cameras[e.key];
@@ -57,26 +62,24 @@ window.addEventListener('keyup', (e) =>
 		gameEngine.setInput(press.player === 'p1Input' ? 1 : 2, 0);
 });
 
-window.addEventListener('resize', () => {
-	engine.resize();
-});
+window.addEventListener('resize', () => {engine.resize();});
 
-optionsButton(ui, scene, cameras, [ball.material, paddles.p1.material, paddles.p2.material]);
-
-// Game loop
 let lastTime = performance.now();
-const gameLoop = (currentTime: number) => {
+let accumulator = 0;
+
+const gameLoop = (currentTime: number) =>
+{
 	const deltaTime = (currentTime - lastTime) / 1000;
 	lastTime = currentTime;
-
-	// Update game logic
-	gameEngine.tick();
-
-	// Update graphics from game state
+	const clampedDelta = Math.min(deltaTime, 0.1);
+	accumulator += clampedDelta;
+	while (accumulator >= TICKDT)
+	{
+		gameEngine.tick();
+		accumulator -= TICKDT;
+	}
 	const gameState = gameEngine.getState();
 	renderer.updateGameState(gameState);
-
-	// Render scene
 	renderer.render();
 
 	requestAnimationFrame(gameLoop);

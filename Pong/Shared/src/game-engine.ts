@@ -1,5 +1,6 @@
 import { GameState, Input, Instance, AI, State, Diff } from './types.js';
 import { WIDTH, HEIGHT, PWIDTH, PHEIGHT, PSPEED, BSPEED, BRADIUS, ULGAP, DRGAP, TICKDT, diffMap } from './constants.js';
+import { scoreGoal } from './graphics/gui.js';
 
 export class PongEngine
 {
@@ -20,7 +21,9 @@ export class PongEngine
 			oppAI: false,
 			diff: 'None',
 			p1Alias: 'Player 1',
+			p1Avatar: 'default.png',
 			p2Alias: 'Player 2',
+			p2Avatar: 'default.png'
 		};
 		this.state =
 		{
@@ -46,6 +49,8 @@ export class PongEngine
 	getCurrentState(): State {return this.currentState;}
 
 	getCurrentTick(): number {return this.currentTick;}
+
+	getSession(): Instance {return this.session}
 
 	getWinner(): string {return this.winner;}
 
@@ -185,21 +190,24 @@ export class PongEngine
 		{
 			this.state.p1++;
 			this.lastGoal = 1;
+			scoreGoal(1, this.state.p1);
 		}
 		else if (this.state.ballX > WIDTH + BRADIUS)
 		{
 			this.state.p2++;
 			this.lastGoal = -1;
+			scoreGoal(2, this.state.p2);
 		}
-		if (this.state.p1 === 3 || this.state.p2 === 3)
+		if (this.state.p1 === 5 || this.state.p2 === 5)
 		{
-			this.winner = this.state.p1 === 3 ? this.session.p1Alias : this.session.p2Alias;
+			this.winner = this.state.p1 === 5 ? this.session.p1Alias : this.session.p2Alias;
 			this.setState('Over');
 		}
 		this.resetBall();
 	}
 
-	tick(): void {
+	tick(): void
+	{
 		this.currentTick++;
 		if (this.currentState !== 'Playing')
 			return;
