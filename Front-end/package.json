@@ -7,13 +7,6 @@
         "build": "tsc && vite build",
         "preview": "vite preview"
     },
-    "dependencies": {
-        "pong-shared": "file:../Pong/Shared",
-        "socket.io-client": "^4.8.0",
-        "@babylonjs/core": "^8.0.0",
-        "@babylonjs/gui": "^8.0.0",
-        "@babylonjs/materials": "^8.0.0"
-    },
     "devDependencies": {
         "@types/node": "^25.0.3",
         "autoprefixer": "^10.4.0",

@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY . .
+
+WORKDIR /app/Shared
+RUN npm install && npm run build
+
+WORKDIR /app/Offline
+RUN npm install
+
+EXPOSE 3000
+
+CMD [ "npm", "run", "dev", "--", "--host", "--base=/game/" ]
