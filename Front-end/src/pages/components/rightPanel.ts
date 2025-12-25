@@ -1,4 +1,4 @@
-import { credentials, getImageUrl, IUserData } from "../store";
+import { credentials, IUserData } from "../store";
 
 export async function getFriends(): Promise<IUserData[]> {
 	try {
