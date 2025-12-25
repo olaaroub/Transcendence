@@ -5,7 +5,7 @@ export async function configChatDatabase()
 {
     const database = new sqlite(process.env.DATABASE_PATH);
 
-    const tablesQuery = await readFile('tables.sql', 'utf-8');
+    const tablesQuery = await readFile('./db/tables.sql', 'utf-8');
 
     database.exec(tablesQuery);
     return database;
