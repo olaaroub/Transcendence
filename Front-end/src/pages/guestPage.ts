@@ -3,7 +3,6 @@ import { renderNavBar } from "./components/NavBar";
 import { AliasPopUp } from "./home"
 
 const $ = (id : string) => document.getElementById(id as string);
-
 export async function renderGuest()
 {
     document.body.innerHTML = /* html */`
@@ -11,9 +10,9 @@ export async function renderGuest()
 			<div class="absolute w-[45vw] h-[45vw] -z-10 rounded-full
 				right-0 top-[10vh] translate-x-1/2 bg-color1 animate-animateSlow blur-[306px]">
 			</div>
-			<div class=" content mx-auto">
+			<div class=" content mx-auto ">
 				${renderNavBar(false)}
-                <div id="guest-content" class="h-[70vh] w-full flex justify-center items-center gap-3">
+                <div id="guest-content" class="h-[70vh] w-full flex justify-center items-center gap-3 w-[80%]">
                     <button class="bg-black/40 flex-1 p-4 py-8 rounded-2xl glow-effect"><span class="text-bold text-color1 text-[100px]">Vs AI</span></button>
                     <button class="bg-black/40 flex-1 p-4 py-8 rounded-2xl glow-effect"><span class="text-bold text-color1 text-[100px]">Vs Player</span></button>
                     <button class="bg-black/40 flex-1 p-4 py-8 rounded-2xl glow-effect"><span class="text-bold text-color1 text-[100px]">Tournament</span></button>
@@ -23,7 +22,6 @@ export async function renderGuest()
 	`
 	$("go-as-guest")!.textContent = sessionStorage.getItem("guest");
     $('go-as-guest')!.addEventListener('click',_ => {
-		console.log("called");
 		AliasPopUp(true, "guest");
 	})
     $('navBar-logo')!.addEventListener('click',_ => {navigate("/")})

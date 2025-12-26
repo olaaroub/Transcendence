@@ -55,15 +55,17 @@ export function AliasPopUp(isGuest : boolean, item: string)
 		aliasPopUp?.remove();
 	})
 	$("confirm-alias")?.addEventListener('click', _=> {
-		const AliasInput = $("alias-input") as HTMLInputElement;
+		const AliasInput = $("alias-input") as HTMLInputElement ;
 		const value = AliasInput.value.trim();
 		if (value == "")
 			$("alias-error")?.classList.remove("hidden");
 		else
 		{
 			sessionStorage.setItem(item, value);
+			aliasPopUp?.remove();
 			if (isGuest)
-			{
+			{		
+				$("go-as-guest")!.textContent = sessionStorage.getItem(item);
 				navigate("/guest");
 			}
 		}

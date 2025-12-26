@@ -27,7 +27,7 @@ const path = window.location.pathname;
 
 if ((!credentials.id || !credentials.token) && path != '/') {
 	console.warn('Missing credentials in store');
-	navigate('/sign-up');
+	// navigate('/sign-up');
 }
 
 export const userData : IUserData = {
