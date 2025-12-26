@@ -164,10 +164,7 @@ function confirmPopUp(message: string) : Promise<boolean>
 
 async function deleteAvatar()
 {
-	const deleteAvatarBtn = $('delete-avatar');
-	if(!deleteAvatarBtn)
-			return ;
-	deleteAvatarBtn.addEventListener('click', async ()=> {
+	$('delete-avatar')?.addEventListener('click', async ()=> {
 		const confirmed = await confirmPopUp('Are you sure you want to delete your avatar?');
 		if (!confirmed) return;
 		try
@@ -389,6 +386,7 @@ export async function renderSettings()
 		</div>
 	`;
 	$('delete-account')?.addEventListener('click', _=>{deleteAccount();})
+	$("delete-avatar")?.addEventListener('click', _=> {deleteAvatar()});
 	addInputListeners();
 	cancelChanges();
 }

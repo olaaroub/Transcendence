@@ -2,17 +2,16 @@ services:
 
   frontend-dev:
     build:
-      context: .
-      dockerfile: ./Front-end/Dockerfile.frontend.dev
+      context: ./Front-end
+      dockerfile: Dockerfile.frontend.dev
     image: frontend-dev:1337
     container_name: frontend-dev
     ports:
       - "5173:5173"
     volumes:
-      - ./Front-end:/app/Front-end
-      - ./Pong:/app/Pong
-      - ./certs:/app/Front-end/certs:ro
-      - /app/Front-end/node_modules
+      - ./Front-end:/app
+      - ./certs:/app/certs:ro
+      - /app/node_modules
       - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     environment:
       - CHOKIDAR_USEPOLLING=true
@@ -22,6 +21,31 @@ services:
     depends_on:
       - modSecurity-dev
 
+  # pong-offline-dev:
+  #   build:
+  #     context: ./Pong
+  #     dockerfile: Dockerfile.pong.dev
+  #   image: pong-offline:1337
+  #   container_name: pong-offline
+  #   environment:
+  #     - HOST=0.0.0.0
+  #   networks:
+  #     - transcendence-dev-net
+  #   depends_on:
+  #     - frontend-dev
+
+  pong-offline-prod:
+    build:
+      context: ./Pong
+      dockerfile: Dockerfile.pong.prod
+    image: pong-offline:1337
+    container_name: pong-offline
+    environment:
+      - HOST=0.0.0.0
+    networks:
+      - transcendence-dev-net
+    depends_on:
+      - frontend-dev
 
   auth-service-dev:
     build:
@@ -87,8 +111,8 @@ services:
 
   global-chat-dev:
     build:
-      context: ./app/chat
-      dockerfile: ../Dockerfile.microservices.dev
+      context: ./app/chat/global
+      dockerfile: ../../Dockerfile.microservices.dev
       args:
         - PORT=3003
     image: global-chat-dev:1337
@@ -97,14 +121,14 @@ services:
       - VAULT_ADDR=${VAULT_ADDR}
       - VAULT_SECRET_PATH=${GLOBAL_CHAT_SECRET_PATH}
       - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/global-chat.db
+      - DATABASE_PATH=/data/global.db
       - HOST=0.0.0.0
       - SERVICE_EXT=-dev
       - LOG_LEVEL=debug
     ports:
       - "3003:3003"
     volumes:
-      - ./app/chat:/app
+      - ./app/chat/global:/app
       - ./app/static:/app/static
       - ./db/chat:/data
       - /app/node_modules

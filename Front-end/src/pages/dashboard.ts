@@ -52,7 +52,7 @@ export async function initDashboard(isDashboard: boolean = true) {
 		renderDashboard(isDashboard);
 }
 
-// function gameButtons(bg:string) //old
+// function gameButtons(bg:string) //old hadi mafihach id
 // {
 // 	return /* html */ `
 // 		<button class="rounded-2xl transition-all h-[250px]
@@ -72,35 +72,22 @@ function gameButtons(bg: string, id: string = "")
     `
 }
 
-// function LocalPong() : string //old
-// {
-// 	return /* html */ `
-// 		<div class="relative ">
-// 			<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02]
-// 			transition-all duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px]
-// 			items-center md:items-start gap-4 overflow-visible relative">
-// 				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
-// 				<div class="flex h-full gap-3 justify-center w-full">
-// 					${gameButtons('images/online.webp')}
-// 					${gameButtons('images/online.webp')}
-// 					${gameButtons('images/online.webp')}
-// 				</div>
-// 			</div>
-// 		</div>
-// 	`
-// }
-function LocalPong() : string
+function LocalPong() : string //zdt had id btn-play-local
 {
-    return `
-        <div class="relative ">
-            ...
-            <div class="flex h-full gap-3 justify-center w-full">
-                ${gameButtons('images/online.webp', 'btn-play-local')}
-                ${gameButtons('images/online.webp')}
-                ${gameButtons('images/online.webp')}
-            </div>
-        </div>
-    `
+	return /* html */ `
+		<div class="relative ">
+			<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02]
+			transition-all duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px]
+			items-center md:items-start gap-4 overflow-visible relative">
+				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
+				<div class="flex h-full gap-3 justify-center w-full">
+					${gameButtons('images/online.webp', 'btn-play-local')}
+					${gameButtons('images/online.webp')}
+					${gameButtons('images/online.webp')}
+				</div>
+			</div>
+		</div>
+	`
 }
 
 function OnlinePong() : string
@@ -226,28 +213,36 @@ export async function renderDashboard(isDashboard: boolean = true)
 		</div>
 	`;
 
-	const playBtn = $('btn-play-local');
+	const playBtn = $('btn-play-local'); /// ana
     if (playBtn) {
-        playBtn.addEventListener('click', async () => {
-            // 1. WIPE THE SCREEN
-            // The game script expects to find <canvas id="game"> immediately.
-            // We also inject the CSS the game expects.
+        playBtn.addEventListener('click', () => {
+            // 1. Swap the screen to the Game Iframe
+            // This destroys the Dashboard HTML and loads the Game Container via Nginx
             document.body.innerHTML = `
                 <style>
-                    body { margin: 0; background: #222; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
-                    canvas { width: 100%; height: 80%; image-rendering: crisp-edges; }
+                    body { margin: 0; background: #000; height: 100vh; overflow: hidden; }
+                    iframe { width: 100%; height: 100%; border: none; display: block; }
+                    .exit-btn {
+                        position: absolute; top: 20px; left: 20px; z-index: 999;
+                        background: rgba(255, 255, 255, 0.1); color: white;
+                        border: 1px solid rgba(255, 255, 255, 0.5);
+                        padding: 10px 20px; cursor: pointer; font-family: sans-serif;
+                        border-radius: 8px; backdrop-filter: blur(4px);
+                        transition: all 0.2s;
+                    }
+                    .exit-btn:hover { background: rgba(255, 0, 0, 0.5); border-color: red; }
                 </style>
-                <canvas id="game"></canvas>
+
+                <button id="exit-game-btn" class="exit-btn">← EXIT GAME</button>
+                <iframe src="/game/index.html"></iframe>
             `;
 
-            // 2. TRIGGER THE GAME
-            // We use dynamic import. This loads the file and executes it instantly.
-            try {
-                // @ts-ignore
-                await import('../game/testGame.ts');
-            } catch (err) {
-                console.error("Game failed to start:", err);
-            }
+            // 2. Add the listener for the Exit Button
+            // When clicked, we simply call renderDashboard() again.
+            // This destroys the Iframe (cleaning up the game memory) and redraws your UI.
+            document.getElementById('exit-game-btn')?.addEventListener('click', () => {
+                renderDashboard();
+            });
         });
     }
 

@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-import { configChatDatabase } from './db/chat_database.config.js'
+import { configChatDatabase } from './db/database.config.js'
 // import websocket from '@fastify/websocket'
 import fastifyJwt from '@fastify/jwt';
 import vault from 'node-vault';
@@ -70,7 +70,7 @@ async function startChatService() {
             prefix: '/api'
         });
 
-        fastify.register(userProfile, { // thats for user-servise to change the user profile data 
+        fastify.register(userProfile, { // thats for user-servise to change the user profile data
             prefix: '/api'
         });
 
