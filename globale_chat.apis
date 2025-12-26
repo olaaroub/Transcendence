@@ -28,3 +28,5 @@ global chat Websocket:
 global chat apis:
     to get previous messages:
         method: get, url: '/api/chat/global/messages'
+
+(ah nsit maglt lik : ra zet lik status fe getfriend api 'wach online ola offline)
