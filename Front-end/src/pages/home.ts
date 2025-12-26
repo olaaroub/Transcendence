@@ -31,13 +31,14 @@ function renderHomeText (isLoged: boolean)
     `
 }
 
-function AliasPopUp()
+export function AliasPopUp(isGuest : boolean, item: string)
 {
 	const aliasPopUp = document.createElement('div');
+	aliasPopUp.id = "Alias-popup";
 	aliasPopUp.className = `h-screen absolute w-screen bg-[#000000c9]`;
 	aliasPopUp.innerHTML = /* html */`
 		<div class="bg-[#1a1e22] top-1/2 left-1/2 absolute z-20 transform -translate-x-1/2
-		-translate-y-1/2 rounded-2xl p-6 flex flex-col gap-3 w-[20%] ">
+		-translate-y-1/2 rounded-2xl p-6 flex flex-col gap-3 w-[400px]">
 			<span class="text-bold text-[20px] text-txtColor">Enter Your Alias</span>
 			<p id="alias-error" class="text-red-500 text-center hidden">Invalid Alias</p>
 			<input id="alias-input" type="text" placeholder="Alias"
@@ -57,13 +58,14 @@ function AliasPopUp()
 		const AliasInput = $("alias-input") as HTMLInputElement;
 		const value = AliasInput.value.trim();
 		if (value == "")
-		{
 			$("alias-error")?.classList.remove("hidden");
-		}
 		else
 		{
-			sessionStorage.setItem("guest", value);
-			navigate("/guest");
+			sessionStorage.setItem(item, value);
+			if (isGuest)
+			{
+				navigate("/guest");
+			}
 		}
 	})
 }
@@ -91,6 +93,6 @@ export async function renderHome()
 	$('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
 	$('go-sign-in')!.addEventListener('click',_ => {navigate("/login")})
 	$('go-sign-up')!.addEventListener('click',_ => {navigate("/sign-up")})
-	$('go-as-guest')!.addEventListener('click',_ => {AliasPopUp()})
+	$('go-as-guest')!.addEventListener('click',_ => {AliasPopUp(true, "guest")})
 	$('about-us')!.addEventListener('click',_ => {navigate("/about")})
 }

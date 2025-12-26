@@ -1,6 +1,6 @@
 import { navigate } from "../router";
-import { initDashboard } from "./dashboard";
 import { renderNavBar } from "./components/NavBar";
+import { AliasPopUp } from "./home"
 
 const $ = (id : string) => document.getElementById(id as string);
 
@@ -21,6 +21,11 @@ export async function renderGuest()
 			</div>
 		</div>
 	`
+	$("go-as-guest")!.textContent = sessionStorage.getItem("guest");
+    $('go-as-guest')!.addEventListener('click',_ => {
+		console.log("called");
+		AliasPopUp(true, "guest");
+	})
     $('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
 	$('go-sign-in')!.addEventListener('click',_ => {navigate("/login")})
 	$('go-sign-up')!.addEventListener('click',_ => {navigate("/sign-up")})
