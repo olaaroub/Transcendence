@@ -65,7 +65,7 @@ async function modifyAvatar(req, reply) {
 
     const imageUri = `/public/${paths.file_name}`;
 
-    await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/global-chat/avatar_url/${id}`, { newAvatarUrl: imageUri });
+    await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/chat/global/avatar_url/${id}`, { newAvatarUrl: imageUri });
 
     this.db.prepare("UPDATE userInfo SET avatar_url = ?  WHERE id = ?").run([imageUri, id]);
 
@@ -100,7 +100,7 @@ async function deleteAvatar(req, reply) {
 
   this.db.prepare("UPDATE userInfo SET avatar_url = ? WHERE id = ?").run(["/public/Default_pfp.jpg", id]);
 
-  await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/global-chat/avatar_url/${id}`, { newAvatarUrl: "/public/Default_pfp.jpg" });
+  await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/chat/global/avatar_url/${id}`, { newAvatarUrl: "/public/Default_pfp.jpg" });
 
   // if (updateChatAvatarResponse.ok === undefined) {
   //     req.log.error({ userId: id, status: updateChatAvatarResponse.status }, "Failed to update avatar in Global Chat Service");
