@@ -58,7 +58,7 @@ async function main() {
 
   await fastify.register(fastifyMetrics, {
     endpoint: '/metrics',
-    defaultMetrics: { enabled: true, prefix: 'auth_service_' }
+    defaultMetrics: { enabled: true }
   });
 
   const loginCounter = new fastify.metrics.client.Counter({
@@ -70,7 +70,23 @@ async function main() {
   fastify.decorate('customMetrics', { loginCounter });
 
   fastify.setErrorHandler(function (error, request, reply) {
-    const statusCode = error.statusCode || 500;
+    let statusCode = error.statusCode || 500;
+
+    let userMessage = error.message;
+
+
+    if (error.validation) {
+      statusCode = 400;
+
+      userMessage = userMessage
+        .replace('body/', '')
+        .replace('querystring/', '')
+        .replace('params/', '')
+        .replace('headers/', '');
+
+      userMessage = userMessage.charAt(0).toUpperCase() + userMessage.slice(1);
+    }
+
 
     if (statusCode >= 500) {
       request.log.error({
@@ -78,19 +94,21 @@ async function main() {
         err: error,
         reqId: request.id
       });
-    }
-    else {
+      userMessage = "Internal Server Error";
+    } else {
       request.log.warn({
-        msg: error.message,
+        msg: "Client Error",
+        error: error.message,
         code: statusCode,
         reqId: request.id
       });
     }
 
-    const response = { // response for the front end
+    const response = {
       success: false,
-      error: statusCode >= 500 ? "Internal Server Error" : error.message
+      error: userMessage
     };
+
     reply.status(statusCode).send(response);
   });
 

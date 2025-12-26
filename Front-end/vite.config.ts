@@ -18,6 +18,12 @@ export default defineConfig(({ command }) => {
     },
     server: {
       host: '0.0.0.0',
+      fs: {
+        allow: [
+          resolve(process.cwd()),
+          resolve(process.cwd(), "../Pong")
+        ],
+      },
       proxy: {
         '/api/': {
           target: `http://modSecurity${serviceExt}:8080`,
@@ -32,8 +38,8 @@ export default defineConfig(({ command }) => {
     try {
       config.server = config.server || {};
       config.server.https = {
-        key: fs.readFileSync('/app/certs/nginx.key'),
-        cert: fs.readFileSync('/app/certs/nginx.crt'),
+        key: fs.readFileSync('/app/Front-end/certs/nginx.key'),
+        cert: fs.readFileSync('/app/Front-end/certs/nginx.crt'),
       };
     } catch (e) {
       console.warn("SSL Certs not found. Falling back to HTTP for Dev Server.");

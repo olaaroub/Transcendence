@@ -2,16 +2,17 @@ services:
 
   frontend-dev:
     build:
-      context: ./Front-end
-      dockerfile: Dockerfile.frontend.dev
+      context: .
+      dockerfile: ./Front-end/Dockerfile.frontend.dev
     image: frontend-dev:1337
     container_name: frontend-dev
     ports:
       - "5173:5173"
     volumes:
-      - ./Front-end:/app
-      - ./certs:/app/certs:ro
-      - /app/node_modules
+      - ./Front-end:/app/Front-end
+      - ./Pong:/app/Pong
+      - ./certs:/app/Front-end/certs:ro
+      - /app/Front-end/node_modules
       - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     environment:
       - CHOKIDAR_USEPOLLING=true
@@ -69,7 +70,7 @@ services:
       - DATABASE_PATH=/data/users.db
       - HOST=0.0.0.0
       - SERVICE_EXT=-dev
-      - LOG_LEVEL=info
+      - LOG_LEVEL=debug
     ports:
       - "3002:3002"
     volumes:
@@ -83,6 +84,35 @@ services:
       vault-init-dev:
         condition: service_completed_successfully
 
+
+  global-chat-dev:
+    build:
+      context: ./app/chat
+      dockerfile: ../Dockerfile.microservices.dev
+      args:
+        - PORT=3003
+    image: global-chat-dev:1337
+    container_name: global-chat-dev
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_SECRET_PATH=${GLOBAL_CHAT_SECRET_PATH}
+      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/global-chat.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-dev
+      - LOG_LEVEL=debug
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./app/chat:/app
+      - ./app/static:/app/static
+      - ./db/chat:/data
+      - /app/node_modules
+    networks:
+      - transcendence-dev-net
+    depends_on:
+      vault-init-dev:
+        condition: service_completed_successfully
 
   vault-dev:
     image: hashicorp/vault:1.21.1
@@ -117,6 +147,7 @@ services:
       - INTRA_CLIENT_SECRET=${INTRA_CLIENT_SECRET}
       - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
       - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
+      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
     entrypoint: /init.sh
     depends_on:
       - vault-dev
@@ -135,9 +166,15 @@ services:
       - ./waf/scan_php.sh:/usr/local/bin/scan_php.sh:ro
       - ./waf/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     depends_on:
       - auth-service-dev
       - user-service-dev
+      - global-chat-dev
 
 
   prometheus-dev:
@@ -153,6 +190,7 @@ services:
     depends_on:
       - auth-service-dev
       - user-service-dev
+      - global-chat-dev
 
   grafana-dev:
     image: grafana/grafana:12.3.0

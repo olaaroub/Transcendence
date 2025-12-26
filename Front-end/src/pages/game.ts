@@ -4,7 +4,7 @@ export function renderGame() {
     data.renderDashboard(); // just brikol
     const dashContent = document.getElementById('dashboard-content');
     if (dashContent)
-        dashContent.innerHTML = `
+        dashContent.innerHTML = /* html */`
             <div class="h-[80vh] w-screen relative">
                 <div class="font-bold text-4xl text-color1 absolute
                 left-1/2 bottom-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center">

@@ -4,8 +4,13 @@ import fastifyMultipart from '@fastify/multipart';
 import fileType from 'file-type';
 import { v4 as uuidv4 } from 'uuid';
 import createError from 'http-errors';
+import { changeItemInOtherService } from './utils.js';
+
 
 const __dirname = import.meta.dirname;
+const ext = process.env.SERVICE_EXT || '-prod';
+const GLOBAL_CHAT_SERVICE_URL = `http://global-chat${ext}:3003`;
+
 
 async function UploadToServer(req) {
   const datafile = await req.file();
@@ -59,6 +64,9 @@ async function modifyAvatar(req, reply) {
     }
 
     const imageUri = `/public/${paths.file_name}`;
+
+    await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/global-chat/avatar_url/${id}`, { newAvatarUrl: imageUri });
+
     this.db.prepare("UPDATE userInfo SET avatar_url = ?  WHERE id = ?").run([imageUri, id]);
 
     req.log.info({ userId: id, newImage: imageUri }, "Avatar updated");
@@ -92,6 +100,12 @@ async function deleteAvatar(req, reply) {
 
   this.db.prepare("UPDATE userInfo SET avatar_url = ? WHERE id = ?").run(["/public/Default_pfp.jpg", id]);
 
+  await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/global-chat/avatar_url/${id}`, { newAvatarUrl: "/public/Default_pfp.jpg" });
+
+  // if (updateChatAvatarResponse.ok === undefined) {
+  //     req.log.error({ userId: id, status: updateChatAvatarResponse.status }, "Failed to update avatar in Global Chat Service");
+  //     throw createError.BadGateway("Failed to sync avatar change with Global Chat Service");
+  // }
   req.log.info({ userId: id }, "Avatar reset to default");
   this.customMetrics.avatarCounter.inc({ status: 'deleted' });
   reply.code(200).send({ success: true, message: "Profile image deleted" });

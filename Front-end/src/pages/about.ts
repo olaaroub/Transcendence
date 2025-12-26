@@ -39,7 +39,7 @@ export async function renderAbout() {
 			gradientTo: '#1B1A1DD6',
 		},
 	]
-	document.body.innerHTML = `
+	document.body.innerHTML = /* html */`
 	<div class="w-full min-h-screen bg-bgColor flex flex-col items-center py-16 px-6">
 		<img id="about-logo" class="cursor-pointer xl:w-[150px] absolute top-8 left-16" src="${getImageUrl('images/logo.png')}" alt="Logo">
 		<div class="w-full max-w-6xl translate-y-[50px]">
@@ -50,7 +50,7 @@ export async function renderAbout() {
 				</p>
 
 				<div class="flex flex-wrap justify-center gap-10">
-					${cardsData.map((card) => `
+					${cardsData.map((card) => /* html */`
 						<div class="w-full sm:w-[48%] lg:w-[30%]  transform hover:scale-[1.02] transition-all duration-200 cursor-pointer overflow-visible" onclick="void(0)">
 							<div style="background: linear-gradient(135deg, ${card.gradientFrom}, ${card.gradientTo});" class="p-6 flex flex-col rounded-2xl shadow-lg items-center text-center">
 								<div class="w-28 h-28 rounded-full overflow-hidden ring-4 ring-white -mt-12 shadow-md">

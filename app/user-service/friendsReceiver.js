@@ -2,14 +2,21 @@ import createError from 'http-errors';
 
 async function getPendingRequestes(req, reply) {
     const id = req.params.id
-    const data = this.db.prepare(`SELECT u.username, u.id, u.avatar_url, u.is_read
+    const data = this.db.prepare(`SELECT u.username, u.id, u.avatar_url
                         FROM
                             userInfo AS u
                         INNER JOIN
                             friendships AS f ON u.id = f.userRequester
                         WHERE
                             f.userReceiver = ? AND f.status = 'PENDING'
+                        
         `,).all([id]);
+
+    if(data)
+    {
+        const { is_read } = this.db.prepare('SELECT is_read FROM userInfo WHERE id = ?').get(id);
+        data["is_read"] = is_read;
+    }
 
     req.log.info({ userId: id, count: data.length }, "Fetched pending friend requests");
     return data;

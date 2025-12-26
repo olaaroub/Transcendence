@@ -11,11 +11,11 @@ const stats = [
 
 function UserStats() : string
 {
-	return `
+	return /* html */`
 		<div class="flex gap-6 md:gap-8 2xl:gap-11 w-full">
 			${stats.map(
 				(stat)=>
-					`
+					/* html */`
 					<div class="${stat.label==="MATCHES" ? "w-[60%]" : "w-full"} rounded-2xl hover:bg-[#ff6a2071]
 					bg-color4 glow-effect py-9 flex items-center flex-col hover:scale-105 transition-all duration-200 px-2">
 						<p class="text-gray-400 text-lg lg:text-xl">${stat.label}</p>
@@ -29,7 +29,7 @@ function UserStats() : string
 
 function recentMatches() : string
 {
-	return `
+	return /* html */ `
 		<div class="w-full sm:px-4 p-6 bg-color4 glow-effect rounded-3xl">
 			<h2 class="text-txtColor text-2xl font-bold">Recent Matches</h2>
 		</div>
@@ -61,24 +61,25 @@ export async function sendFriendRequest (receiverId: string | number | null) : P
 		const errorData = await response.json();
 		throw new Error(errorData.message || 'Failed to send friend request');
 	}
+	// const button = document.getElementById('add-friend');
+	// if (button)
+	// 	button.textContent = 'hello simo';
 	alert('Friend request sent successfully!');
 }
 
 export async function renderProfile(userId: string | null = null)
 {
-	if (!userData || !userData.id || !userData.username)
-		await data.initDashboard(false);
+	await data.initDashboard(false);
 	let tmpUserData : IUserData | null = null;
 	const isMyProfile = userId == userData.id;
 	if (isMyProfile)
 		tmpUserData = userData;
 	else
 		tmpUserData = await getUserDataById(userId);
-	console.log(tmpUserData)
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
 		const imageUrl = getImageUrl(tmpUserData?.avatar_url);
-		dashContent.innerHTML = `
+		dashContent.innerHTML = /* html */`
 			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8">
 				<div class="bg-color4 glow-effect mx-auto w-full rounded-3xl p-6 2xl:pl-12 flex gap-5 items-center
 				border-t-4 border-color1">
@@ -89,7 +90,6 @@ export async function renderProfile(userId: string | null = null)
 						${tmpUserData?.status !== 'ACCEPTED' ? `<button id="${isMyProfile ? 'edit-profile' : 'add-friend'}" class="bg-gradient-to-r from-color1 to-[#af4814]
 						min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center"><img class="inline w-[24px] h-[24px]"
 						src="${isMyProfile ? 'images/edit.svg' : 'images/addFriend.svg'}">${isMyProfile ? 'Edit My Profile' : 'Add Friend'}</button>` : ''}
-					
 					</div>
 				</div>
 				${UserStats()}

@@ -1,5 +1,5 @@
 import * as data from "./dashboard"
-import { navigate } from "../router";
+import { navigate, navigateBack } from "../router";
 import { credentials,IUserData, userData, getImageUrl} from "./store"
 
 const $ = (id : String) => document.getElementById(id as string);
@@ -92,8 +92,9 @@ function SaveChanges()
 					} else {
 						delete newUserData[key as keyof IUserData];
 					}
-					if (Object.keys(newUserData).length === 0) renderSettings();
+
 				}
+				navigateBack();
 		}catch (err) {
 			console.error("Error saving changes", err);
 			return;
@@ -138,9 +139,9 @@ function confirmPopUp(message: string) : Promise<boolean>
 		const deletePopUp = document.createElement('div');
 		deletePopUp.className = `h-screen absolute w-screen`;
 		deletePopUp.innerHTML = `
-			<div class="bg-white top-1/2 left-1/2 absolute z-20 transform -translate-x-1/2
+			<div class="bg-[#1a1e22] top-1/2 left-1/2 absolute z-20 transform -translate-x-1/2
 			-translate-y-1/2 rounded-2xl p-6 flex flex-col gap-4">
-				<p class="font-bold">${message}</p>
+				<p class="font-bold text-txtColor">${message}</p>
 				<button id="confirm-btn" class="bg-color1 hover:bg-orange-600  transition-all duration-200 hover:scale-[1.01] rounded-2xl p-2" id="confirm-delete">Yes</button>
 				<button id="cancel-btn" class="bg-color1  hover:bg-orange-600 transition-all duration-200 hover:scale-[1.01] rounded-2xl p-2" id="cancel-delete">No</button>
 			</div>
@@ -171,7 +172,7 @@ async function deleteAvatar()
 		if (!confirmed) return;
 		try
 		{
-			const response = await fetch(`api/user/${userData?.id}/image`, { // bdelt url
+			const response = await fetch(`api/user/${userData?.id}/image`, {
 				method: 'DELETE',
 				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 			});
@@ -202,7 +203,7 @@ function sendAvatar() : FormData | null
 
 function avatarSettings() : string
 {
-	return `
+	return  /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl bg-color4 glow-effect flex-1 flex flex-col gap-6">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
 			<div class="flex gap-16">
@@ -234,7 +235,7 @@ function avatarSettings() : string
 
 function render2FA() : string
 {
-	return `
+	return /* html */ `
 		<div class="flex justify-between mb-6">
 			<div class="logo flex gap-3">
 				<img src="images/2FA.svg" alt="">
@@ -258,12 +259,14 @@ function render2FA() : string
 
 function accountSettings() : string
 {
-	return `
+	return /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col flex-1 gap-6">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account Settings</p>
 			<div class="settings-name flex flex-col gap-2">
-				<p class="text-txtColor text-sm ">username</p>
-				${input("Change username", 'text', userData?.username ?? "", "username")}
+				<p class="text-txtColor text-sm ">Alias</p>
+				${input("Change Alias", 'text', userData?.username ?? "", "username")}
+				<p class="text-txtColor text-sm ">Mail</p>
+				${input("Change Mail", 'text', userData?.username ?? "", "")}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
 				<p class="text-txtColor text-sm">Your Bio</p>
@@ -280,7 +283,7 @@ function accountSettings() : string
 
 function input(placeholder: string, type: string, value: string = "", name: string) : string
 {
-	return `
+	return /* html */ `
 		<input
 		${userData.auth_provider !== 'local' ? 'disabled' : ''}
 		value="${value}"
@@ -295,7 +298,7 @@ function input(placeholder: string, type: string, value: string = "", name: stri
 
 function security() : string
 {
-	return `
+	return /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col gap-6 flex-1">
 			<p class=" text-color1 font-bold text-lg xl:text-2xl">Security</p>
 			<div class="flex flex-col gap-2">
@@ -313,7 +316,7 @@ function security() : string
 
 function Account() : string
 {
-	return `
+	return /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col gap-6 flex-1">
 			<p class="text-color1 font-bold text-lg xl:text-2xl">Account</p>
 			<div class="flex flex-col gap-4">
@@ -342,7 +345,7 @@ async function deleteAccount() : Promise<void>
 {
 	try {
 		const response =  await fetch(`api/user/deleteAccount/${userData.id}`, {
-			method: 'POST',
+			method: 'DELETE',
 			headers: { "Authorization": `Bearer ${credentials.token}`},
 		});
 		if (response.ok) {
@@ -364,7 +367,7 @@ export async function renderSettings()
 	await data.initDashboard(false);
 	const dashContent = $('dashboard-content');
 	if (dashContent)
-		dashContent.innerHTML = `
+		dashContent.innerHTML = /* html */`
 		<div id="settings-page" class="sm:px-16 flex-1 flex flex-col gap-6">
 			<div class=" flex flex-row justify-between">
 				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Settings</h1>

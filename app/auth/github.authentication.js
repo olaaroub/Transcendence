@@ -32,6 +32,7 @@ async function githubCallback(req, reply) {
             }
         });
         const userInfo = await userResponse.json();
+
         if (!userInfo)
             throw new Error("get userinfo failed");
 
@@ -41,7 +42,6 @@ async function githubCallback(req, reply) {
                 'User-Agent': 'transendance_app'
             }
         })
-
         const emails = await emailResponse.json();
 
         const emailData = emails.find(email => email.primary == true);
@@ -62,7 +62,8 @@ async function githubCallback(req, reply) {
                 body: JSON.stringify({
                     user_id: data.id,
                     username: data.username,
-                    avatar_url: AvatarUrl.avatar_path
+                    avatar_url: AvatarUrl.avatar_path,
+                    bio: userInfo.bio
                 })
             });
             if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
@@ -71,10 +72,12 @@ async function githubCallback(req, reply) {
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([data.id]);
                 throw new Error("Failed to sync new user with User Service");
             }
+
             req.log.info({ userId: data.id }, "New user registered via GitHub");
         }
         this.customMetrics.loginCounter.inc({ status: 'success', provider: 'github' });
         const token = this.jwt.sign(data, { expiresIn: '1h' });
+        req.log.info(`user logged successfly to github and redirect them to ${domain}/login?token=${token}&id=${data.id}`)
         reply.redirect(`${domain}/login?token=${token}&id=${data.id}`);
     }
     catch (err) {

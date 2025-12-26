@@ -9,15 +9,20 @@ async function createNewUser(req, reply) {
     throw createError.BadRequest("Invalid user data: user_id and username are required");
   }
 
-  try {
-    if (newUserData.avatar_url) {
+  const bio = newUserData.bio || 'Hello there i am using Pong game!';
+  const avatar_url = newUserData.avatar_url || '/public/Default_pfp.jpg';
 
-      this.db.prepare(`INSERT INTO userInfo(id, username, avatar_url) VALUES(?, ?, ?)`)
-        .run([newUserData.user_id, newUserData.username, newUserData.avatar_url]);
-    } else {
-      this.db.prepare(`INSERT INTO userInfo(id, username) VALUES(?, ?)`)
-        .run([newUserData.user_id, newUserData.username]);
-    }
+  console.log(bio, " ", newUserData.bio)
+
+  try {
+    // if (newUserData.avatar_url) {
+
+      this.db.prepare(`INSERT INTO userInfo(id, username, avatar_url, bio) VALUES(?, ?, ?, ?)`)
+        .run([newUserData.user_id, newUserData.username, avatar_url, bio]);
+    // } else {
+    //   this.db.prepare(`INSERT INTO userInfo(id, username, bio) VALUES(?, ?, ?)`)
+    //     .run([newUserData.user_id, newUserData.username, bio]);
+    // }
 
     req.log.info({ userId: newUserData.user_id, username: newUserData.username }, "New user synced from Auth Service");
 
@@ -61,6 +66,21 @@ async function blockAndunblockFriend(req, reply) {
   reply.code(200).send({ success: true });
 }
 
+
+async function chatProfileHandler(req, reply)
+{
+    const id = req.params.id;
+
+    const userData = this.db.prepare('SELECT username, avatar_url FROM userInfo WHERE id = ?').get(id);
+
+    console.log(userData)
+    if (!userData)
+        createError.NotFound("this user not found");
+    
+    return userData
+}
+
+
 export async function publicRoutes(fastify) {
 
   const __dirname = import.meta.dirname;
@@ -80,6 +100,8 @@ export async function publicRoutes(fastify) {
     const data = fastify.db.prepare("SELECT userRequester, userReceiver, blocker_id, status FROM friendships").all();
     return data;
   })
+
+  fastify.get('/user/chat/profile/:id', chatProfileHandler);
 
   fastify.get("/user/all-users", async (req, reply) => {
     const data = fastify.db.prepare("SELECT * FROM userInfo").all();

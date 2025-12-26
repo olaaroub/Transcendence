@@ -6,6 +6,8 @@ import friendsRequester from './friendsRequester.js'
 import deleteAccount from './deleteAccount.js'
 import userStatistic from './user.statistic.js'
 
+import createError from 'http-errors';
+
 async function JwtHandler(request, reply) {
   try {
 

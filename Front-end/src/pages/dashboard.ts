@@ -8,7 +8,7 @@ import { showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
 import { chatEventHandler } from "./chat/chat";
 
-(window as any).navigate = navigate;
+// (window as any).navigate = navigate;
 const $ = (id : string) => document.getElementById(id as string);
 
 export let response: Response  | null = null;
@@ -52,37 +52,60 @@ export async function initDashboard(isDashboard: boolean = true) {
 		renderDashboard(isDashboard);
 }
 
-function gameButtons(bg:string)
+// function gameButtons(bg:string) //old
+// {
+// 	return /* html */ `
+// 		<button class="rounded-2xl transition-all h-[250px]
+// 		duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
+// 			<img class="w-full h-full" src=${bg}>
+// 		</button>
+// 	`
+// }
+
+function gameButtons(bg: string, id: string = "")
 {
-	return `
-		<button class="rounded-2xl transition-all h-[250px]
-		duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
-			<img class="w-full h-full" src=${bg}></img>
-		</button>
-	`
+    return `
+        <button id="${id}" class="rounded-2xl transition-all h-[250px]
+        duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
+            <img class="w-full h-full" src=${bg}></img>
+        </button>
+    `
 }
 
+// function LocalPong() : string //old
+// {
+// 	return /* html */ `
+// 		<div class="relative ">
+// 			<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02]
+// 			transition-all duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px]
+// 			items-center md:items-start gap-4 overflow-visible relative">
+// 				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
+// 				<div class="flex h-full gap-3 justify-center w-full">
+// 					${gameButtons('images/online.webp')}
+// 					${gameButtons('images/online.webp')}
+// 					${gameButtons('images/online.webp')}
+// 				</div>
+// 			</div>
+// 		</div>
+// 	`
+// }
 function LocalPong() : string
 {
-	return `
-		<div class="relative ">
-			<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02]
-			transition-all duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px]
-			items-center md:items-start gap-4 overflow-visible relative">
-				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
-				<div class="flex h-full gap-3 justify-center w-full">
-					${gameButtons('images/online.webp')}
-					${gameButtons('images/online.webp')}
-					${gameButtons('images/online.webp')}
-				</div>
-			</div>
-		</div>
-	`
+    return `
+        <div class="relative ">
+            ...
+            <div class="flex h-full gap-3 justify-center w-full">
+                ${gameButtons('images/online.webp', 'btn-play-local')}
+                ${gameButtons('images/online.webp')}
+                ${gameButtons('images/online.webp')}
+            </div>
+        </div>
+    `
 }
 
 function OnlinePong() : string
 {
-	return `
+	return /* html */ `
 		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all
 		duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px] items-center md:items-start gap-4
 		overflow-visible relative" style="animation-delay: 0.5s;">
@@ -103,7 +126,7 @@ function OnlinePong() : string
 
 function renderWelcome() : string
 {
-	return `
+	return /* html */ `
 		<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
 			${LocalPong()}
 			${OnlinePong()}
@@ -112,7 +135,7 @@ function renderWelcome() : string
 }
 
 function renderStatistics(): string {
-	return `
+	return /* html */ `
 		<div class="statistics mb-6">
 			<h2 class="text-txtColor font-bold text-2xl mb-4 transition-all duration">Your Statistic</h2>
 			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-3xl
@@ -162,7 +185,7 @@ function renderDashboardContent(): string {
 
 async function renderMain() : Promise<string>
 {
-	return `
+	return /* html */`
 		<div class="w-full">
 			<h2 class="font-bold mb-[20px] text-[#414658] text-3xl">Welcome back,
 			<span class="text-txtColor text-3xl"> ${userData?.username}</span></h2>
@@ -202,6 +225,32 @@ export async function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
+
+	const playBtn = $('btn-play-local');
+    if (playBtn) {
+        playBtn.addEventListener('click', async () => {
+            // 1. WIPE THE SCREEN
+            // The game script expects to find <canvas id="game"> immediately.
+            // We also inject the CSS the game expects.
+            document.body.innerHTML = `
+                <style>
+                    body { margin: 0; background: #222; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
+                    canvas { width: 100%; height: 80%; image-rendering: crisp-edges; }
+                </style>
+                <canvas id="game"></canvas>
+            `;
+
+            // 2. TRIGGER THE GAME
+            // We use dynamic import. This loads the file and executes it instantly.
+            try {
+                // @ts-ignore
+                await import('../game/testGame.ts');
+            } catch (err) {
+                console.error("Game failed to start:", err);
+            }
+        });
+    }
+
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	addClickInRightPanel();
 	notifications();

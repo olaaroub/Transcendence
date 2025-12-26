@@ -1,3 +1,4 @@
+import { navigate } from "../router";
 
 export interface IUserData {
 	id: number | string | null;
@@ -7,7 +8,9 @@ export interface IUserData {
 	status: string | null;
 	auth_provider: string | null;
 	avatar_url: string | null;
+	is_read: string | null;
 }
+
 
 export const credentials = {
 	id: localStorage.getItem('id'),
@@ -20,8 +23,11 @@ export function setCredentials()
 	credentials.token = localStorage.getItem('token');
 }
 
-if (!credentials.id || !credentials.token) {
+const path = window.location.pathname;
+
+if ((!credentials.id || !credentials.token) && path != '/') {
 	console.warn('Missing credentials in store');
+	navigate('/sign-up');
 }
 
 export const userData : IUserData = {
@@ -31,7 +37,8 @@ export const userData : IUserData = {
 	bio: null,
 	status: null,
 	auth_provider: null,
-	avatar_url: null
+	avatar_url: null,
+	is_read: null
 };
 
 export function setUserData(newData: IUserData)

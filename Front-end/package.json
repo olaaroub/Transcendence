@@ -1,10 +1,18 @@
 {
     "name": "frontend-spa",
     "version": "1.0.0",
+    "type": "module",
     "scripts": {
-        "dev": "vite",
+        "dev": "vite --host",
         "build": "tsc && vite build",
         "preview": "vite preview"
+    },
+    "dependencies": {
+        "pong-shared": "file:../Pong/Shared",
+        "socket.io-client": "^4.8.0",
+        "@babylonjs/core": "^8.0.0",
+        "@babylonjs/gui": "^8.0.0",
+        "@babylonjs/materials": "^8.0.0"
     },
     "devDependencies": {
         "@types/node": "^25.0.3",
@@ -13,7 +21,7 @@
         "postcss": "^8.4.0",
         "tailwind-scrollbar": "^3.1.0",
         "tailwindcss": "^3.3.0",
-        "typescript": "^5.2.0",
+        "typescript": "^5.9.3",
         "vite": "^7.2.2",
         "vite-plugin-html": "^3.2.0"
     }

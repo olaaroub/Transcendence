@@ -40,7 +40,7 @@ re: clean up
 
 dev: certs
 	docker compose -f compose.dev.yaml up -d --build
-	docker compose -f compose.dev.yaml logs -f auth-service-dev user-service-dev frontend-dev
+	docker compose -f compose.dev.yaml logs -f auth-service-dev user-service-dev frontend-dev global-chat-dev
 
 # frontend-dev backend-dev
 
@@ -64,6 +64,8 @@ elk: certs
 
 cleanelk:
 	docker compose -f compose.elk.yaml down
+fcleanelk:
+	docker compose -f compose.elk.yaml down -v
 
 
 #ms7 images

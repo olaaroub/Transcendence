@@ -2,13 +2,18 @@ import { renderAuthPage } from "./components/loginPage"
 import { navigate } from "../router";
 
 export async function sendAuthData(data: Record<string, string>, path:string) {
+	const isSignup = (path === 'signUp');
 	try
 	{
-		const isSignup = (path === 'signUp');
+		console.log(data)
 		const response = await fetch("api/auth/" + path, { // zet auth/
 			method: "POST",
 			headers: {"Content-Type": "application/json",},
-			body: JSON.stringify(data),
+			body: JSON.stringify({
+				username: data["alias or email"],
+				password: data["password"],
+				email: data["email"] || ""
+			}),
 		});
 
 		// if (!response.ok && response.status != 401){throw new Error("Request failed");}
@@ -26,10 +31,11 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 				navigate('/login');
 		}
 		else
-			renderAuthPage(isSignup, result.message || "Authentication failed");
+			renderAuthPage(isSignup, result.error || "Authentication failed");
 	}
 	catch (error)
 	{
 		console.error("Error sending auth data:", error);
+		renderAuthPage(isSignup, "Server unreachable. Please try again.");
 	}
 }

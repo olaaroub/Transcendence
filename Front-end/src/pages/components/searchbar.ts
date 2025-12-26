@@ -19,30 +19,38 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		const divp = document.createElement('div');
 		divp.className = `flex justify-between px-4 py-1 text-gray-200 hover:bg-[#ffffff10]
 						cursor-pointer transition-colors items-center duration-200`;
-		divp.innerHTML = `<div class="flex gap-3 items-center">
-			<img src="${getImageUrl(user.avatar_url)}" alt="${user.username}" class="w-10 h-10 rounded-full">
-			<div>
+		divp.innerHTML = /* html */`
+			<div class="flex gap-3 items-center">
+				<img src="${getImageUrl(user.avatar_url)}" alt="${user.username}" class="w-10 h-10 rounded-full">
 				<p class="font-bold">${user.username}</p>
-			</div>
-		</div>`;
+			</div>`;
 		const buttonsDiv = document.createElement('div');
 		buttonsDiv.className = "flex gap-4 items-center";
 		const addFriend = document.createElement('img');
-		addFriend.src = `/images/addFriends.svg`;
 		addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110`;
-		addFriend.title = "Add Friend";
-		if (!user.status && user.id != userData.id)
-			buttonsDiv.appendChild(addFriend);
-		addFriend.addEventListener('click', async _=> {
-			if (user.status == 'pending' || user.status)
-				return;
-		try {
-			await sendFriendRequest(user!.id);
-			addFriend.src = `/images/pending.gif`
-		} catch (error) {
-			alert('Error sending friend request: ' + error);
+		const status = user.status?.toLowerCase();
+		if (user.id != userData.id)
+		{
+			if (status == 'pending')
+				addFriend.src = '/images/pending.svg';
+			else if (status == 'accepted')
+				addFriend.src = '/images/addFriend.svg';
+			else if (status == null)
+				addFriend.src = '/images/addFriend.svg';
+			if (status != 'accepted')
+				buttonsDiv.appendChild(addFriend);
 		}
-		});
+		if (status == null)
+		{
+			addFriend.addEventListener('click', async _=> {
+				try {
+					await sendFriendRequest(user!.id);
+					addFriend.src = '/images/pending.svg';
+				} catch (error) {
+					alert('Error sending friend request: ' + error);
+				}
+			});
+		}
 		const view  = document.createElement('button');
 		view.textContent = 'view';
 		view.className = "font-bold text-color2 hover:scale-110 hover:text-white";
