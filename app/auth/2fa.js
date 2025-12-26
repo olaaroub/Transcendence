@@ -21,7 +21,7 @@ async function setupTowFaHandler(req, reply) {
     const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
     return {
         secret: secret.base32,
-        qrCodeUrl: qrCodeUrl
+        qrCode: qrCodeUrl
     }
 }
 
