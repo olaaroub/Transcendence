@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Chat - Socket.io Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        #messages { border: 1px solid #ddd; height: 300px; overflow-y: auto; margin: 15px 0; padding: 10px; border-radius: 5px; background: #fafafa; }
+        .msg-item { margin-bottom: 10px; padding: 8px; border-radius: 5px; }
+        .received { background: #e1ffc7; text-align: left; }
+        .sent { background: #cfe9ff; text-align: right; }
+        input { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #218838; }
+        .status { font-size: 0.8em; color: gray; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>💬 Private Chat Test</h2>
+    
+    <div id="connection-panel">
+        <input type="number" id="myId" placeholder="Enter My User ID (e.g., 1)">
+        <button type="button" onclick="connectToServer()">Step 1: Connect & Go Online</button>
+    </div>
+
+    <div id="chat-panel" style="display:none;">
+        <div id="status-bar" class="status">Offline</div>
+        <div id="messages"></div>
+        <input type="number" id="toId" placeholder="Receiver User ID">
+        <input type="text" id="msg" placeholder="Write a message...">
+        <button type="button" onclick="sendMessage(event)">Step 2: Send Message</button>
+    </div>
+</div>
+
+<script>
+    let socket;
+
+    function connectToServer() {
+        const userId = document.getElementById('myId').value;
+        if (!userId) return alert("Please enter your User ID first!");
+
+        // الاتصال بالسيرفر
+        socket = io("http://localhost:8405");
+
+        socket.on("connect", () => {
+            console.log("Connected to Socket.io Server");
+            
+            // الانضمام لغرفة خاصة
+            socket.emit("join_private", userId);
+
+            // تحديث الواجهة
+            document.getElementById('connection-panel').style.display = 'none';
+            document.getElementById('chat-panel').style.display = 'block';
+            document.getElementById('status-bar').innerText = `Logged in as User: ${userId} (Online)`;
+        });
+
+        // استقبال الرسائل من الطرف الآخر
+        socket.on("receive_message", (data) => {
+            console.log("New Message:", data);
+            appendMessage(data.senderId, data.content, 'received');
+        });
+
+        socket.on("disconnect", () => {
+            document.getElementById('status-bar').innerText = "Disconnected from Server";
+            document.getElementById('status-bar').style.color = "red";
+        });
+    }
+
+    function sendMessage(event) {
+        // منع تحديث الصفحة تماماً مهما كان نوع الزر
+        if (event) event.preventDefault();
+
+        const myId = document.getElementById('myId').value;
+        const receiverId = document.getElementById('toId').value;
+        const content = document.getElementById('msg').value;
+
+        if (!receiverId || !content) return alert("Please fill Receiver ID and Message");
+
+        const payload = {
+            conversationId: 1, // تأكد أن المحادثة رقم 1 موجودة في الـ DB
+            senderId: myId,
+            receiverId: receiverId,
+            content: content
+        };
+
+        // إرسال عبر السوكيت
+        socket.emit("send_message", payload);
+
+        // إظهار الرسالة في شاشتي
+        appendMessage('Me', content, 'sent');
+        
+        // مسح خانة الرسالة بعد الإرسال
+        document.getElementById('msg').value = '';
+    }
+
+    function appendMessage(sender, text, type) {
+        const msgDiv = document.getElementById('messages');
+        const newMsg = document.createElement('div');
+        newMsg.className = `msg-item ${type}`;
+        newMsg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        msgDiv.appendChild(newMsg);
+        
+        // النزول لآخر رسالة تلقائياً
+        msgDiv.scrollTop = msgDiv.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
