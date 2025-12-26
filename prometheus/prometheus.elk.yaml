@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 10s
+
+scrape_configs:
+
+  - job_name: 'prometheus-elk'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'auth-service-elk'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['auth-service-elk:3001']
+
+  - job_name: 'user-service-elk'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['user-service-elk:3002']

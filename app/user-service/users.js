@@ -4,6 +4,7 @@ import fastifyCors from '@fastify/cors';
 import websocket from '@fastify/websocket';
 import vault from 'node-vault';
 import createError from 'http-errors';
+import fastifyMetrics from 'fastify-metrics';
 
 import dbconfig from './database.config.js';
 import privateRoutes from './private.routes.js';
@@ -45,18 +46,65 @@ async function main() {
     }
   });
 
+  await fastify.register(fastifyMetrics, {
+    endpoint: '/metrics',
+    defaultMetrics: { enabled: true }
+  });
+
+  const friendCounter = new fastify.metrics.client.Counter({
+    name: 'user_friendship_actions_total',
+    help: 'Total number of friendship actions',
+    labelNames: ['action']
+  });
+
+  const searchCounter = new fastify.metrics.client.Counter({
+    name: 'user_searches_total',
+    help: 'Total number of user searches performed'
+  });
+
+  const avatarCounter = new fastify.metrics.client.Counter({
+    name: 'user_avatar_updates_total',
+    help: 'Total number of avatar updates',
+    labelNames: ['status']
+  });
+
+
+  fastify.decorate('customMetrics', {
+    friendCounter,
+    searchCounter,
+    avatarCounter
+  });
+
   fastify.setErrorHandler(function (error, request, reply) {
-    const statusCode = error.statusCode || 500;
+    let statusCode = error.statusCode || 500;
+
+    let userMessage = error.message;
+
+
+    if (error.validation) {
+      statusCode = 400;
+
+      userMessage = userMessage
+        .replace('body/', '')
+        .replace('querystring/', '')
+        .replace('params/', '')
+        .replace('headers/', '');
+
+      userMessage = userMessage.charAt(0).toUpperCase() + userMessage.slice(1);
+    }
+
 
     if (statusCode >= 500) {
       request.log.error({
-        msg: "System Crash",
+        msg: "System crash",
         err: error,
         reqId: request.id
       });
+      userMessage = "Internal Server Error";
     } else {
       request.log.warn({
-        msg: error.message,
+        msg: "Client Error",
+        error: error.message,
         code: statusCode,
         reqId: request.id
       });
@@ -64,8 +112,9 @@ async function main() {
 
     const response = {
       success: false,
-      error: statusCode >= 500 ? "Internal Server Error" : error.message
+      error: userMessage
     };
+
     reply.status(statusCode).send(response);
   });
 
@@ -88,6 +137,8 @@ async function main() {
     const db = await dbconfig();
     fastify.decorate('db', db);
 
+    fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
+
     const sockets = new Map();
     fastify.decorate('sockets', sockets);
 
@@ -95,8 +146,8 @@ async function main() {
     fastify.register(publicRoutes, { prefix: '/api' });
 
     await fastify.listen({
-      port: process.env.PORT || 3002,
-      host: process.env.HOST || '0.0.0.0'
+      port: process.env.PORT,
+      host: process.env.HOST
     });
 
   } catch (err) {

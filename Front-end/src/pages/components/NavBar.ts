@@ -58,9 +58,9 @@ function searchBar() : string
 				
 				id="search-input"
 				type="text"
-				autocomplete="off" 
-				autocorrect="off" 
-				autocapitalize="off" 
+				autocomplete="off"
+				autocorrect="off"
+				autocapitalize="off"
 				spellcheck="false"
 				placeholder="Search, users..."
 				class="w-full bg-transparent text-gray-200 py-2

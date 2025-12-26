@@ -1,16 +1,29 @@
 #!/bin/sh
 set -e
 
-echo "[Init] Waiting for Vault to start..."
+MAX_RETRIES=30
+SLEEP_SECONDS=1
+ATTEMPT_NUM=1
+
+echo "[Init] Waiting for Vault to start at ${VAULT_ADDR}..."
+
 until vault status -address=${VAULT_ADDR} > /dev/null 2>&1; do
-  sleep 1
+  if [ $ATTEMPT_NUM -ge $MAX_RETRIES ]; then
+    echo "[Init] Error: Timeout waiting for Vault after ${MAX_RETRIES} attempts."
+    exit 1
+  fi
+
+  echo "[Init] Attempt $ATTEMPT_NUM/$MAX_RETRIES: Vault not ready yet..."
+  sleep $SLEEP_SECONDS
+  ATTEMPT_NUM=$((ATTEMPT_NUM + 1))
 done
 
 echo "[Init] Vault is up."
 
 export VAULT_ADDR=${VAULT_ADDR}
 
-echo "[Init] Writing Auth secrets..."
+echo "[Init] Writing secrets..."
+
 vault kv put secret/auth-service \
       jwt_secret="$JWT_SECRET_VALUE" \
       cookie_secret="$COOKIE_SECRET" \
@@ -21,8 +34,10 @@ vault kv put secret/auth-service \
       intra_client_id="$INTRA_CLIENT_ID" \
       intra_client_secret="$INTRA_CLIENT_SECRET"
 
-
 vault kv put secret/user-service \
+    jwt_secret="$JWT_SECRET_VALUE" \
+
+vault kv put secret/global-chat \
     jwt_secret="$JWT_SECRET_VALUE" \
 
 
@@ -34,7 +49,6 @@ path "secret/data/auth-service" {
   capabilities = ["read"]
 }
 ' > /tmp/policy-auth.hcl
-
 vault policy write auth-policy /tmp/policy-auth.hcl
 
 
@@ -47,6 +61,15 @@ vault policy write user-service-policy /tmp/policy-user-service.hcl
 
 
 
+echo '
+path "secret/data/global-chat" {
+  capabilities = ["read"]
+}
+' > /tmp/policy-global-chat.hcl
+vault policy write global-chat-policy /tmp/policy-global-chat.hcl
+
+
+
 echo "[Init] Issuing Service Tokens..."
 
 vault token revoke "$AUTH_SERVICE_TOKEN" 2>/dev/null || true
@@ -55,10 +78,6 @@ vault token create \
     -policy="auth-policy" \
     -ttl="720h" \
     -no-default-policy > /dev/null
-
-echo "[Init] Auth Service Token created."
-
-
 
 
 vault token revoke "$USER_SERVICE_TOKEN" 2>/dev/null || true
@@ -69,6 +88,12 @@ vault token create \
     -no-default-policy > /dev/null
 
 
+vault token revoke "$GLOBAL_CHAT_SERVICE_TOKEN" 2>/dev/null || true
+vault token create \
+    -id="$GLOBAL_CHAT_SERVICE_TOKEN" \
+    -policy="global-chat-policy" \
+    -ttl="720h" \
+    -no-default-policy > /dev/null
 
 
 

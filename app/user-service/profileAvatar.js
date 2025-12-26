@@ -4,8 +4,13 @@ import fastifyMultipart from '@fastify/multipart';
 import fileType from 'file-type';
 import { v4 as uuidv4 } from 'uuid';
 import createError from 'http-errors';
+import { changeItemInOtherService } from './utils.js';
+
 
 const __dirname = import.meta.dirname;
+const ext = process.env.SERVICE_EXT || '-prod';
+const GLOBAL_CHAT_SERVICE_URL = `http://global-chat${ext}:3003`;
+
 
 async function UploadToServer(req) {
   const datafile = await req.file();
@@ -29,7 +34,6 @@ async function UploadToServer(req) {
   return { file_name, file_path };
 }
 
-
 async function getProfileImages(req, reply) {
   const id = req.params.id;
   const img = this.db.prepare("SELECT avatar_url FROM userInfo WHERE id = ?").get([id]);
@@ -51,21 +55,29 @@ async function modifyAvatar(req, reply) {
 
     if (!data) throw createError.NotFound("User not found");
 
-    const imgpath = path.basename(data.avatar_url);
+    const oldImgPath = path.basename(data.avatar_url);
 
-    if (imgpath !== `Default_pfp.jpg`) {
-      await fs.promises.unlink(path.join(__dirname, 'static', imgpath)).catch(() => { });
+    if (oldImgPath !== `Default_pfp.jpg`) {
+      await fs.promises.unlink(path.join(__dirname, 'static', oldImgPath)).catch(() => {
+        req.log.warn({ err, file: oldImgPath }, "Failed to delete old avatar");
+      });
     }
 
     const imageUri = `/public/${paths.file_name}`;
+
+    await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/global-chat/avatar_url/${id}`, { newAvatarUrl: imageUri });
+
     this.db.prepare("UPDATE userInfo SET avatar_url = ?  WHERE id = ?").run([imageUri, id]);
 
     req.log.info({ userId: id, newImage: imageUri }, "Avatar updated");
+    this.customMetrics.avatarCounter.inc({ status: 'updated' });
     reply.code(201).send({ success: true, message: "Profile image updated successfully" });
 
   } catch (err) {
-    console.log(err)
-    await fs.promises.unlink(paths.file_path).catch(() => { });
+    req.log.error({ err, userId: req.params.id }, "Avatar update failed, cleaning up new file");
+    await fs.promises.unlink(paths.file_path).catch((unlinkErr) => {
+      req.log.warn({ err: unlinkErr, file: paths.file_path }, "Failed to clean up orphaned file");
+    });
     throw err;
   }
 }
@@ -82,11 +94,20 @@ async function deleteAvatar(req, reply) {
     throw createError.BadRequest("Cannot delete the default avatar");
   }
 
-  await fs.promises.unlink(path.join(__dirname, 'static', imgpath)).catch(() => { });
+  await fs.promises.unlink(path.join(__dirname, 'static', imgpath)).catch(() => {
+    req.log.warn({ err, file: imgpath }, "Failed to delete avatar file from disk");
+  });
 
   this.db.prepare("UPDATE userInfo SET avatar_url = ? WHERE id = ?").run(["/public/Default_pfp.jpg", id]);
 
-  request.log.info({ userId: id }, "Avatar deleted (reset to default)");
+  await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/global-chat/avatar_url/${id}`, { newAvatarUrl: "/public/Default_pfp.jpg" });
+
+  // if (updateChatAvatarResponse.ok === undefined) {
+  //     req.log.error({ userId: id, status: updateChatAvatarResponse.status }, "Failed to update avatar in Global Chat Service");
+  //     throw createError.BadGateway("Failed to sync avatar change with Global Chat Service");
+  // }
+  req.log.info({ userId: id }, "Avatar reset to default");
+  this.customMetrics.avatarCounter.inc({ status: 'deleted' });
   reply.code(200).send({ success: true, message: "Profile image deleted" });
 }
 

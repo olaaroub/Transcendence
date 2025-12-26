@@ -52,17 +52,27 @@ export async function initDashboard(isDashboard: boolean = true) {
 		renderDashboard(isDashboard);
 }
 
-function gameButtons(bg:string)
+// function gameButtons(bg:string) //old hadi mafihach id
+// {
+// 	return /* html */ `
+// 		<button class="rounded-2xl transition-all h-[250px]
+// 		duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
+// 			<img class="w-full h-full" src=${bg}>
+// 		</button>
+// 	`
+// }
+
+function gameButtons(bg: string, id: string = "")
 {
-	return /* html */ `
-		<button class="rounded-2xl transition-all h-[250px]
-		duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
-			<img class="w-full h-full" src=${bg}>
-		</button>
-	`
+    return `
+        <button id="${id}" class="rounded-2xl transition-all h-[250px]
+        duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
+            <img class="w-full h-full" src=${bg}></img>
+        </button>
+    `
 }
 
-function LocalPong() : string
+function LocalPong() : string //zdt had id btn-play-local
 {
 	return /* html */ `
 		<div class="relative ">
@@ -71,7 +81,7 @@ function LocalPong() : string
 			items-center md:items-start gap-4 overflow-visible relative">
 				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
 				<div class="flex h-full gap-3 justify-center w-full">
-					${gameButtons('images/online.webp')}
+					${gameButtons('images/online.webp', 'btn-play-local')}
 					${gameButtons('images/online.webp')}
 					${gameButtons('images/online.webp')}
 				</div>
@@ -202,6 +212,40 @@ export async function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
+
+	const playBtn = $('btn-play-local'); /// ana
+    if (playBtn) {
+        playBtn.addEventListener('click', () => {
+            // 1. Swap the screen to the Game Iframe
+            // This destroys the Dashboard HTML and loads the Game Container via Nginx
+            document.body.innerHTML = `
+                <style>
+                    body { margin: 0; background: #000; height: 100vh; overflow: hidden; }
+                    iframe { width: 100%; height: 100%; border: none; display: block; }
+                    .exit-btn {
+                        position: absolute; top: 20px; left: 20px; z-index: 999;
+                        background: rgba(255, 255, 255, 0.1); color: white;
+                        border: 1px solid rgba(255, 255, 255, 0.5);
+                        padding: 10px 20px; cursor: pointer; font-family: sans-serif;
+                        border-radius: 8px; backdrop-filter: blur(4px);
+                        transition: all 0.2s;
+                    }
+                    .exit-btn:hover { background: rgba(255, 0, 0, 0.5); border-color: red; }
+                </style>
+
+                <button id="exit-game-btn" class="exit-btn">← EXIT GAME</button>
+                <iframe src="/game/index.html"></iframe>
+            `;
+
+            // 2. Add the listener for the Exit Button
+            // When clicked, we simply call renderDashboard() again.
+            // This destroys the Iframe (cleaning up the game memory) and redraws your UI.
+            document.getElementById('exit-game-btn')?.addEventListener('click', () => {
+                renderDashboard();
+            });
+        });
+    }
+
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	addClickInRightPanel();
 	notifications();

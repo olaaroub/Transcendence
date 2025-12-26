@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "--- Log generator script starting ---"
+echo "--- Log generator starting ---"
 count=0
 while true; do
 

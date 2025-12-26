@@ -2,10 +2,10 @@ import { renderAuthPage } from "./components/loginPage"
 import { navigate } from "../router";
 
 export async function sendAuthData(data: Record<string, string>, path:string) {
+	const isSignup = (path === 'signUp');
 	try
 	{
 		console.log(data)
-		const isSignup = (path === 'signUp');
 		const response = await fetch("api/auth/" + path, { // zet auth/
 			method: "POST",
 			headers: {"Content-Type": "application/json",},
@@ -31,10 +31,11 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 				navigate('/login');
 		}
 		else
-			renderAuthPage(isSignup, result.message || "Authentication failed");
+			renderAuthPage(isSignup, result.error || "Authentication failed");
 	}
 	catch (error)
 	{
 		console.error("Error sending auth data:", error);
+		renderAuthPage(isSignup, "Server unreachable. Please try again.");
 	}
 }
