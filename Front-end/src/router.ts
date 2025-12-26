@@ -80,6 +80,13 @@ const routes: Route[] = [
 			renderLeaderboard();
 		},
 	},
+	{
+		path: "/guest",
+		render: async (params) => {
+			const { renderGuest }  = await import("./pages/guestPage");
+			renderGuest();
+		}
+	},
 ];
 
 export function navigate(path: string) {
