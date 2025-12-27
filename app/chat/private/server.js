@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import socketio from "fastify-socket.io";
 import chatRoutes from "./routes/private_chat.js";
 
 const fastify = Fastify({ logger: true });
@@ -8,6 +9,7 @@ fastify.get("/", async () =>
   return { status: "ok" };
 });
 
+fastify.register(socketio, {cors: { origin: "*" }});
 fastify.register(chatRoutes);
 
 fastify.listen({ port: 8405 }, (err) =>
