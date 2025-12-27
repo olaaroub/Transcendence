@@ -49,42 +49,48 @@ async function add_friend(req, reply) {
     reply.code(201).send({ success: true, message: "Friend request sent" });
 }
 
+export async function getFriendsQuery(id, fastify) 
+{
+    return fastify.db.prepare(`SELECT u.id, u.username, u.avatar_url
+                                FROM
+                                    userInfo u
+                                INNER JOIN
+                                        friendships f ON u.id = (
+                                            CASE
+                                                WHEN f.userRequester = ? THEN f.userReceiver
+                                                WHEN f.userReceiver = ? THEN f.userRequester
+                                            END
+                                        )
+                                WHERE
+                                    (f.userRequester = ? OR f.userReceiver = ?) AND f.status = 'ACCEPTED'
+                                   `).all([id, id, id, id]);
+}
+
 async function getFriends(req, reply) {
     const id = req.params.id;
-    const friends = this.db.prepare(`SELECT u.id, u.username, u.avatar_url
-                                    FROM
-                                        userInfo u
-                                    INNER JOIN
-                                            friendships f ON u.id = (
-                                                CASE
-                                                    WHEN f.userRequester = ? THEN f.userReceiver
-                                                    WHEN f.userReceiver = ? THEN f.userRequester
-                                                END
-                                            )
-                                    WHERE
-                                        (f.userRequester = ? OR f.userReceiver = ?) AND f.status = 'ACCEPTED'
-                                           `).all([id, id, id, id]);
+    // const friends = this.db.prepare(`SELECT u.id, u.username, u.avatar_url
+    //                                 FROM
+    //                                     userInfo u
+    //                                 INNER JOIN
+    //                                         friendships f ON u.id = (
+    //                                             CASE
+    //                                                 WHEN f.userRequester = ? THEN f.userReceiver
+    //                                                 WHEN f.userReceiver = ? THEN f.userRequester
+    //                                             END
+    //                                         )
+    //                                 WHERE
+    //                                     (f.userRequester = ? OR f.userReceiver = ?) AND f.status = 'ACCEPTED'
+    //                                        `).all([id, id, id, id]);
+    const friends = await getFriendsQuery(id, this);
+    friends.forEach((friendData) => {
+        const userId = String(friendData.id);
 
-    // friends.forEach( (firendData) => {
-    //     console.log("sockets length: ", this.sockets.size)
-    //     const idToCheck = String(firendData.id);
-    //     if (this.sockets.has(idToCheck))
-    //         firendData["status"] = "ONLINE"
-    //     else
-    //         firendData["status"] = "OFFLINE"
-    //     console.log(firendData, " ", firendData.id, " ",this.sockets.has(idToCheck));
-    // });
-    friends.forEach((firendData) => {
-        // 1. Force the ID to be a String
-        const userId = String(firendData.id);
-    
-        // 2. Check the Map using the String version
         if (this.sockets.has(userId)) {
-            firendData["status"] = "ONLINE";
+            friendData["status"] = "ONLINE";
         } else {
-            firendData["status"] = "OFFLINE";
+            friendData["status"] = "OFFLINE";
         }
-        console.log(firendData)
+        console.log(friendData)
     });
     req.log.info({ userId: id, count: friends.length }, "Fetched friend list");
     return (friends);
