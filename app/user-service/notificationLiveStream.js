@@ -1,3 +1,22 @@
+import {getFriendsQuery} from './friendsRequester.js';
+
+async function updateFriendOnlineStatus(userId, fastify, type) {
+    const friends = await getFriendsQuery(userId, fastify);
+    friends.forEach(friend => {
+        const friendId = String(friend.id);
+        if (fastify.sockets.has(friendId)) {
+            const response = JSON.stringify({
+                type,
+                friend_id: userId
+            });
+            const friendSockets = fastify.sockets.get(friendId);
+            for (const s of friendSockets) {
+                if (s.readyState === 1) s.send(response);
+            }
+        }
+    });
+}
+
 async function routes(fastify) {
 
     fastify.get('/user/notification/:id', { websocket: true }, async (socket, req) => {
@@ -14,6 +33,7 @@ async function routes(fastify) {
 
         try {
             if (!fastify.sockets.has(id)) {
+                updateFriendOnlineStatus(id, fastify, 'FRIEND_ONLINE');
                 fastify.sockets.set(id, new Set());
             }
             fastify.sockets.get(id).add(socket);
@@ -23,6 +43,7 @@ async function routes(fastify) {
                 if (userSockets) {
                     userSockets.delete(socket);
                     if (userSockets.size === 0) {
+                        updateFriendOnlineStatus(id, fastify, 'FRIEND_OFFLINE');
                         fastify.sockets.delete(id);
                     }
                 }
