@@ -7,7 +7,7 @@ from '../controllers/user.profile.controller.js';
 
 export default async function updateUserCashItems(fastify)
 {
-    fastify.put('/global-chat/username/:id', updateUsername);
-    fastify.put('/global-chat/avatar_url/:id', updateAvatarUrl);
-    fastify.delete('/global-chat/account/:id', deleteAccount); 
+    fastify.put('/chat/global/username/:id', updateUsername);
+    fastify.put('/chat/global/avatar_url/:id', updateAvatarUrl);
+    fastify.delete('/chat/global/account/:id', deleteAccount); 
 }

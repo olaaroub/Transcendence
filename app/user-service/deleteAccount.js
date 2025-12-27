@@ -13,7 +13,7 @@ async function deleteAccountHandler(req, reply) {
     const respons = await fetch(`${AUTH_SERVICE_URL}/api/auth/deletAccount/${id}`, {
         method: 'DELETE'
     });
-
+    // delete chat globale user
     if (!respons.ok) {
         req.log.error({ userId: id, status: respons.status }, "Failed to delete account in Auth Service");
         throw createError.BadGateway("Failed to synchronize deletion with Auth Service");

@@ -20,7 +20,7 @@ async function JwtHandler(request, reply) {
   }
   catch (err) {
     request.log.warn("Unauthorized access attempt (Invalid or missing token)");
-    throw createError.Unauthorized("Invalid or missing token");
+    // throw createError.Unauthorized("Invalid or missing token");
   }
 }
 

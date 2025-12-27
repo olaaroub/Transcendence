@@ -14,6 +14,6 @@ export default async function main(fastify) {
     }
     fastify.addHook('preHandler', JwtHandler)
     fastify.register(getChatMessages);
-    fastify.get('/global-chat/:id', { websocket: true, schema: requestSchema }, globalChatHandler);
-    fastify.get('/all/users', async (request, reply) => { return fastify.db.prepare('SELECT * FROM usersCash').all() });
+    fastify.get('/chat/global/:id', { websocket: true, schema: requestSchema }, globalChatHandler);
+    fastify.get('/chat/global/all/users', async (request, reply) => { return fastify.db.prepare('SELECT * FROM usersCash').all() });
 }

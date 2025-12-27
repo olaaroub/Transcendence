@@ -64,6 +64,28 @@ async function getFriends(req, reply) {
                                     WHERE
                                         (f.userRequester = ? OR f.userReceiver = ?) AND f.status = 'ACCEPTED'
                                            `).all([id, id, id, id]);
+
+    // friends.forEach( (firendData) => {
+    //     console.log("sockets length: ", this.sockets.size)
+    //     const idToCheck = String(firendData.id);
+    //     if (this.sockets.has(idToCheck))
+    //         firendData["status"] = "ONLINE"
+    //     else
+    //         firendData["status"] = "OFFLINE"
+    //     console.log(firendData, " ", firendData.id, " ",this.sockets.has(idToCheck));
+    // });
+    friends.forEach((firendData) => {
+        // 1. Force the ID to be a String
+        const userId = String(firendData.id);
+    
+        // 2. Check the Map using the String version
+        if (this.sockets.has(userId)) {
+            firendData["status"] = "ONLINE";
+        } else {
+            firendData["status"] = "OFFLINE";
+        }
+        console.log(firendData)
+    });
     req.log.info({ userId: id, count: friends.length }, "Fetched friend list");
     return (friends);
 }

@@ -12,7 +12,7 @@ async function change_username(req, reply) {
 	if (!username) throw createError.BadRequest("Username is required");
 
 	await changeItemInOtherService(`${AUTH_SERVICE_URL}/api/auth/changeUsername/${id}`, { username });
-	await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/global-chat/username/${id}`, { username });
+	await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/chat/global/username/${id}`, { username });
 
 	this.db.prepare("UPDATE userInfo SET username = ? WHERE id = ?").run([username, id]);
 	// khansni ndir lih update hta fe database tanya
