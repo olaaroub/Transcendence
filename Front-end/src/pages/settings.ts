@@ -137,16 +137,45 @@ function confirmPopUp(message: string) : Promise<boolean>
 {
 	return new Promise((resolve) => {
 		const deletePopUp = document.createElement('div');
-		deletePopUp.className = `h-screen absolute w-screen`;
+		deletePopUp.className = `fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm`;
 		deletePopUp.innerHTML = `
-			<div class="bg-[#1a1e22] top-1/2 left-1/2 absolute z-20 transform -translate-x-1/2
-			-translate-y-1/2 rounded-2xl p-6 flex flex-col gap-4">
-				<p class="font-bold text-txtColor">${message}</p>
-				<button id="confirm-btn" class="bg-color1 hover:bg-orange-600  transition-all duration-200 hover:scale-[1.01] rounded-2xl p-2" id="confirm-delete">Yes</button>
-				<button id="cancel-btn" class="bg-color1  hover:bg-orange-600 transition-all duration-200 hover:scale-[1.01] rounded-2xl p-2" id="cancel-delete">No</button>
+			<div class="relative bg-gradient-to-br from-bgColor/95 to-black/90 backdrop-blur-xl
+				rounded-3xl p-8 flex flex-col gap-6 w-[380px] border border-color1/30
+				shadow-2xl transform transition-all duration-300"
+				style="box-shadow: 0 0 40px rgba(237, 111, 48, 0.15);">
+				<div class="flex justify-center">
+					<div class="w-16 h-16 rounded-full bg-color1/20 flex items-center justify-center">
+						<svg class="w-8 h-8 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+					</div>
+				</div>
+				<div class="text-center">
+					<h3 class="text-xl font-bold text-txtColor mb-2">Confirm Action</h3>
+					<p class="text-txtColor/70">${message}</p>
+				</div>
+				<div class="flex flex-col gap-3">
+					<button id="confirm-btn" class="bg-gradient-to-r from-color1 to-color2 
+						rounded-xl py-3 px-6 font-bold text-bgColor
+						transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-color1/30">
+						Yes, Confirm
+					</button>
+					<button id="cancel-btn" class="bg-transparent border border-color3/50 
+						rounded-xl py-3 px-6 font-semibold text-txtColor/70
+						transition-all duration-300 hover:border-txtColor hover:text-txtColor hover:bg-white/5">
+						Cancel
+					</button>
+				</div>
 			</div>
 		`;
 		document.body.appendChild(deletePopUp);
+		deletePopUp.addEventListener('click', (e) => {
+			if (e.target === deletePopUp) {
+				deletePopUp.remove();
+				resolve(false);
+			}
+		});
+		
 		const confirmBtn = deletePopUp.querySelector("#confirm-btn") as HTMLButtonElement;
 		const cancelBtn = deletePopUp.querySelector("#cancel-btn") as HTMLButtonElement;
 
@@ -189,8 +218,26 @@ function sendAvatar() : FormData | null
 			return null;
 	if (!uploadAvatar.files || uploadAvatar.files.length === 0) return null;
 	const file = uploadAvatar.files[0];
+	
+	const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+	const fileName = file.name.toLowerCase();
+	const fileExtension = fileName.split('.').pop();
+	if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
+		alert(`Invalid file type. Allowed formats: ${allowedExtensions.join(', ').toUpperCase()}`);
+		uploadAvatar.value = '';
+		return null;
+	}
+	
+	const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+	if (!allowedMimeTypes.includes(file.type)) {
+		alert(`Invalid file type. Please upload a valid image file.`);
+		uploadAvatar.value = '';
+		return null;
+	}
+	
 	if (file.size > 2097152) {
 		alert("Image is too large. Max size 2MB.");
+		uploadAvatar.value = '';
 		return null;
 	}
 	const formData = new FormData;
@@ -340,6 +387,9 @@ function cancelChanges()
 
 async function deleteAccount() : Promise<void>
 {
+	const confirmed = await confirmPopUp('Are you sure you want to delete your account? This action cannot be undone.');
+	if (!confirmed) return;
+	
 	try {
 		const response =  await fetch(`api/user/deleteAccount/${userData.id}`, {
 			method: 'DELETE',
