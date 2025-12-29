@@ -55,59 +55,54 @@ export async function initDashboard(isDashboard: boolean = true) {
 function LocalPong() : string
 {
 	return /* html */ `
-		<div class="relative">
-			<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)]
-			transition-all duration-300 rounded-3xl px-6 py-6 flex flex-col h-[400px]
-			items-center md:items-start gap-4 overflow-visible relative">
-				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
-				<div class="flex h-full gap-4 justify-center w-full">
-					<!-- Vs Player Button -->
-					<button id="btn-local-vs-player" class="group relative flex-1 bg-black/50 
-						rounded-2xl border border-borderColor 
-						hover:border-color1 transition-all duration-300 
-						hover:bg-color1/10 overflow-hidden cursor-pointer">
-						<div class="h-full flex flex-col items-center justify-center gap-4 p-4">
-							<div class="w-16 h-16 rounded-full bg-color1/20 flex items-center justify-center
-								group-hover:bg-color1/30 group-hover:scale-110 transition-all duration-300">
-								<svg class="w-8 h-8 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-								</svg>
-							</div>
-							<span class="text-txtColor font-bold text-xl group-hover:text-color1 transition-colors duration-300">Vs Player</span>
-							<span class="text-color3 text-sm text-center">1v1 Local Match</span>
+		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] glow-effect rounded-2xl p-6
+		transition-all duration-300 border border-white/5">
+			<div class="flex items-center gap-3 mb-6">
+				<h3 class="text-white text-2xl font-bold">Local Pong</h3>
+			</div>
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+				<button id="btn-local-vs-player" class="group relative bg-[#0f0f1a] hover:bg-[#1a1a2e] 
+					rounded-xl p-5 border border-white/5 hover:border-color1/50 
+					transition-all duration-200 cursor-pointer text-left">
+					<div class="flex items-center gap-3 mb-3">
+						<div class="w-10 h-10 rounded-lg bg-color1/10 group-hover:bg-color1/20 
+							flex items-center justify-center transition-colors duration-200">
+							<svg class="w-5 h-5 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+							</svg>
 						</div>
-					</button>
-					<button id="btn-local-vs-ai" class="group relative flex-1 bg-black/50 
-						rounded-2xl border border-borderColor 
-						hover:border-color2 transition-all duration-300 
-						hover:bg-color2/10 overflow-hidden cursor-pointer">
-						<div class="h-full flex flex-col items-center justify-center gap-4 p-4">
-							<div class="w-16 h-16 rounded-full bg-color2/20 flex items-center justify-center
-								group-hover:bg-color2/30 group-hover:scale-110 transition-all duration-300">
-								<svg class="w-8 h-8 text-color2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-								</svg>
-							</div>
-							<span class="text-txtColor font-bold text-xl group-hover:text-color2 transition-colors duration-300">Vs AI</span>
-							<span class="text-color3 text-sm text-center">Challenge the Bot</span>
+						<span class="text-white font-medium group-hover:text-color1 transition-colors duration-200">1v1 Player</span>
+					</div>
+					<p class="text-gray-500 text-sm">Challenge a friend locally</p>
+				</button>
+				<button id="btn-local-vs-ai" class="group relative bg-[#0f0f1a] hover:bg-[#1a1a2e] 
+					rounded-xl p-5 border border-white/5 hover:border-color2/50 
+					transition-all duration-200 cursor-pointer text-left">
+					<div class="flex items-center gap-3 mb-3">
+						<div class="w-10 h-10 rounded-lg bg-color2/10 group-hover:bg-color2/20 
+							flex items-center justify-center transition-colors duration-200">
+							<svg class="w-5 h-5 text-color2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+							</svg>
 						</div>
-					</button>
-					<button id="btn-local-tournament" class="group relative flex-1 bg-black/50 
-						rounded-2xl border border-borderColor 
-						hover:border-color1 transition-all duration-300 
-						hover:bg-color1/10 overflow-hidden cursor-pointer">
-						<div class="h-full flex flex-col items-center justify-center gap-4 p-4">
-							<div class="w-16 h-16 rounded-full bg-color1/20 flex items-center justify-center
-								group-hover:bg-color1/30 group-hover:scale-110 transition-all duration-300">
-								<svg class="w-8 h-8 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-								</svg>
-							</div>
-							<span class="text-txtColor font-bold text-xl group-hover:text-color1 transition-colors duration-300">Tournament</span>
-							<span class="text-color3 text-sm text-center">Local Competition</span>
+						<span class="text-white font-medium group-hover:text-color2 transition-colors duration-200">Vs AI</span>
+					</div>
+					<p class="text-gray-500 text-sm">Test your skills against AI</p>
+				</button>
+				<button id="btn-local-tournament" class="group relative bg-[#0f0f1a] hover:bg-[#1a1a2e] 
+					rounded-xl p-5 border border-white/5 hover:border-yellow-500/50 
+					transition-all duration-200 cursor-pointer text-left">
+					<div class="flex items-center gap-3 mb-3">
+						<div class="w-10 h-10 rounded-lg bg-yellow-500/10 group-hover:bg-yellow-500/20 
+							flex items-center justify-center transition-colors duration-200">
+							<svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+							</svg>
 						</div>
-					</button>
-				</div>
+						<span class="text-white font-medium group-hover:text-yellow-500 transition-colors duration-200">Tournament</span>
+					</div>
+					<p class="text-gray-500 text-sm">Compete in local brackets</p>
+				</button>
 			</div>
 		</div>
 	`
@@ -116,47 +111,40 @@ function LocalPong() : string
 function OnlinePong() : string
 {
 	return /* html */ `
-		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] transition-all
-		duration-300 rounded-3xl px-6 py-6 flex flex-col h-[400px] items-center md:items-start gap-4
-		overflow-visible relative" style="animation-delay: 0.5s;">
-			<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Online Pong</p>
-			<div class="flex gap-4 w-full md:w-[65%] h-full">
-				<button id="btn-online-matchmaking" class="group relative flex-1 bg-black/50 
-					rounded-2xl border border-borderColor 
-					hover:border-color1 transition-all duration-300 
-					hover:bg-color1/10 overflow-hidden cursor-pointer">
-					<div class="h-full flex flex-col items-center justify-center gap-4 p-4">
-						<div class="w-16 h-16 rounded-full bg-color1/20 flex items-center justify-center
-							group-hover:bg-color1/30 group-hover:scale-110 transition-all duration-300">
-							<svg class="w-8 h-8 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] glow-effect rounded-2xl p-6
+		transition-all duration-300 border border-white/5">
+			<div class="flex items-center gap-3 mb-6">
+				<h3 class="text-white text-2xl font-bold">Online Pong</h3>
+			</div>
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+				<button id="btn-online-matchmaking" class="group relative bg-[#0f0f1a] hover:bg-[#1a1a2e] 
+					rounded-xl p-5 border border-white/5 hover:border-color1/50 
+					transition-all duration-200 cursor-pointer text-left">
+					<div class="flex items-center gap-3 mb-3">
+						<div class="w-10 h-10 rounded-lg bg-color1/10 group-hover:bg-color1/20 
+							flex items-center justify-center transition-colors duration-200">
+							<svg class="w-5 h-5 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
 							</svg>
 						</div>
-						<span class="text-txtColor font-bold text-xl group-hover:text-color1 transition-colors duration-300">MatchMaking</span>
-						<span class="text-color3 text-sm text-center">Find Opponent</span>
+						<span class="text-white font-medium group-hover:text-color1 transition-colors duration-200">Matchmaking</span>
 					</div>
+					<p class="text-gray-500 text-sm">Find a ranked opponent</p>
 				</button>
-				<button id="btn-online-tournament" class="group relative flex-1 bg-black/50 
-					rounded-2xl border border-borderColor 
-					hover:border-color2 transition-all duration-300 
-					hover:bg-color2/10 overflow-hidden cursor-pointer">
-					<div class="h-full flex flex-col items-center justify-center gap-4 p-4">
-						<div class="w-16 h-16 rounded-full bg-color2/20 flex items-center justify-center
-							group-hover:bg-color2/30 group-hover:scale-110 transition-all duration-300">
-							<svg class="w-8 h-8 text-color2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<button id="btn-online-tournament" class="group relative bg-[#0f0f1a] hover:bg-[#1a1a2e] 
+					rounded-xl p-5 border border-white/5 hover:border-color2/50 
+					transition-all duration-200 cursor-pointer text-left">
+					<div class="flex items-center gap-3 mb-3">
+						<div class="w-10 h-10 rounded-lg bg-color2/10 group-hover:bg-color2/20 
+							flex items-center justify-center transition-colors duration-200">
+							<svg class="w-5 h-5 text-color2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
 							</svg>
 						</div>
-						<span class="text-txtColor font-bold text-xl group-hover:text-color2 transition-colors duration-300">Tournament</span>
-						<span class="text-color3 text-sm text-center">Online Competition</span>
+						<span class="text-white font-medium group-hover:text-color2 transition-colors duration-200">Tournament</span>
 					</div>
+					<p class="text-gray-500 text-sm">Join competitive brackets</p>
 				</button>
-			</div>
-			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
-			lg:right-0 md:top-[65%] md:-translate-y-1/2">
-				<img class="h-auto w-[280px] lg:w-[340px] xl:w-[380px]
-				md:translate-x-[40px] md:-translate-y-[95px]
-				object-contain drop-shadow-2xl" src="images/pongOnline.png" alt="">
 			</div>
 		</div>
 	`

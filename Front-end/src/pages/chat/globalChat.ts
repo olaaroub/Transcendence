@@ -1,41 +1,143 @@
-import { mockMessages } from "./mockMessages";
-import { credentials, IUserData } from "../store";
+import { credentials, getImageUrl, userData } from "../store";
 
-// const wsUrl = `ws://localhost:3002/api/chat/global/${credentials.id}`;
-// const golobalChatSocket = new WebSocket(wsUrl);
-
-// golobalChatSocket.onopen = () => {
-// 	console.log('WebSocket connection established for global chat');
-// }
-
-// golobalChatSocket.onmessage = (event) => {
-//     console.log("golobal chat message recieved");
-// }
-
-// golobalChatSocket.onerror = (error) =>{
-//     console.error("global chat websocket error", error);
-// }
-
-// golobalChatSocket.onclose = (event) => {
-// 	console.log('WebSocket connection closed:', event.code, event.reason);
-// };
-
-let users: IUserData[] = [];
-try
-{
-	const response = await fetch(`/api/chat/global/messages`, {
-		headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
-	});
-	if (!response.ok)
-	{
-		console.error('Failed to fetch prev messages in global chat', response.statusText);
-	}
-	users = await response.json();
-} catch(err){
-	console.error('Error fetching prev messages in global chat:', err);
+interface ChatMessage {
+	sender_id: string | number;
+	username: string;
+	avatar_url: string;
+	msg: string;
+	created_at: string;
 }
 
-console.log("global chat users : ", users);
+let globalChatMessages: ChatMessage[] = [];
+let golobalChatSocket: WebSocket | null = null;
+
+async function fetchPreviousMessages() {
+	try {
+		const response = await fetch(`/api/chat/global/messages`, {
+			headers: {"Authorization": `Bearer ${credentials.token}`},
+		});
+		if (!response.ok) {
+			console.error('Failed to fetch prev messages in global chat', response.statusText);
+			return;
+		}
+		globalChatMessages = await response.json();
+		globalChatMessages.reverse();
+		updateChatUI();
+	} catch(err) {
+		console.error('Error fetching prev messages in global chat:', err);
+	}
+}
+
+function initializeWebSocket() {
+	const wsUrl = `ws://localhost:3003/api/chat/global/${credentials.id}`;
+	golobalChatSocket = new WebSocket(wsUrl);
+
+	golobalChatSocket.onopen = () => {
+		console.log('WebSocket connection established for global chat');
+	}
+
+	golobalChatSocket.onmessage = (event) => {
+		try {
+			const data = JSON.parse(event.data);
+			
+			if (data.type === 'MESSAGE_SENT_SUCCESSFULLY') {
+				console.log('Message sent successfully confirmation received');
+				return;
+			}
+			const message: ChatMessage = {
+				sender_id: data.messageBody.sender_id,
+				username: data.username,
+				avatar_url: data.avatar_url,
+				msg: data.messageBody.msg,
+				created_at: data.messageBody.created_at
+			};
+			if (message.msg && message.msg.trim()) {
+				globalChatMessages.push(message);
+				updateChatUI();
+			}
+		} catch(err) {
+			console.error('Error parsing WebSocket message:', err);
+		}
+	}
+
+	golobalChatSocket.onerror = (error) => {
+		console.error("global chat websocket error", error);
+	}
+
+	golobalChatSocket.onclose = (event) => {
+		console.log('WebSocket connection closed:', event.code, event.reason);
+	};
+}
+
+function updateChatUI() {
+	const chatContainer = document.getElementById('global-chat-messages');
+	const chatCount = document.getElementById('global-chat-count');
+	
+	if (!chatContainer) return;
+	chatContainer.innerHTML = renderChatMessages();
+	if (chatCount)
+		chatCount.textContent = `${globalChatMessages.length} messages`;
+	chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function renderChatMessages(): string {
+	return globalChatMessages.map(msg => `
+		<div class="group hover:bg-white/5 rounded-xl p-2 -mx-2 transition-colors duration-200">
+			<div class="flex items-start gap-3">
+				<img src="${getImageUrl(msg.avatar_url)}" class="w-9 h-9 rounded-full border border-borderColor
+					group-hover:border-color1 transition-colors duration-200" alt="${msg.username}">
+				<div class="flex-1 min-w-0">
+					<div class="flex items-center gap-2 mb-1">
+						<span class="text-txtColor font-semibold text-sm hover:text-color1
+							cursor-pointer transition-colors">${msg.username}</span>
+						<span class="text-color3 text-xs">${new Date(msg.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+					</div>
+					<p class="text-txtColor/80 text-sm leading-relaxed break-words">${msg.msg}</p>
+				</div>
+			</div>
+		</div>
+	`).join('');
+}
+
+function sendMessage(content: string) {
+	if (!golobalChatSocket || golobalChatSocket.readyState !== WebSocket.OPEN) {
+		console.error('WebSocket is not connected');
+		return;
+	}
+
+	const optimisticMessage: ChatMessage = {
+		sender_id: Number(credentials.id),
+		username: userData.username || 'You',
+		avatar_url: userData.avatar_url || '',
+		msg: content.trim(),
+		created_at: new Date().toISOString()
+	};
+	globalChatMessages.push(optimisticMessage);
+	updateChatUI();
+	golobalChatSocket.send(JSON.stringify({msg: content.trim()}));
+}
+
+function setupChatEventListeners() {
+	const input = document.getElementById('global-chat-input') as HTMLInputElement;
+	const sendBtn = document.getElementById('global-chat-send');
+
+	if (sendBtn) {
+		sendBtn.addEventListener('click', () => {
+			if (input && input.value.trim()) {
+				sendMessage(input.value);
+				input.value = '';
+			}
+		});
+	}
+	if (input) {
+		input.addEventListener('keypress', (e) => {
+			if (e.key === 'Enter' && input.value.trim()) {
+				sendMessage(input.value);
+				input.value = '';
+			}
+		});
+	}
+}
 
 function renderChat() : string
 { 
@@ -51,7 +153,7 @@ function renderChat() : string
 					</div>
 					<div>
 						<p class="text-txtColor font-semibold">Global Chat</p>
-						<p class="text-color3 text-xs">${mockMessages.length} messages</p>
+						<p class="text-color3 text-xs" id="global-chat-count">${globalChatMessages.length} messages</p>
 					</div>
 				</div>
 				<div class="flex items-center gap-2">
@@ -59,27 +161,11 @@ function renderChat() : string
 					<span class="text-color3 text-xs">Live</span>
 				</div>
 			</div>
-			<div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent
+			<div id="global-chat-messages" class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent
 				hover:scrollbar-thumb-color2 pr-2 space-y-4">
-				${mockMessages.map(msg => `
-					<div class="group hover:bg-white/5 rounded-xl p-2 -mx-2 transition-colors duration-200">
-						<div class="flex items-start gap-3">
-							<img src="${msg.avatar}" class="w-9 h-9 rounded-full border border-borderColor 
-								group-hover:border-color1 transition-colors duration-200" alt="${msg.senderName}">
-							<div class="flex-1 min-w-0">
-								<div class="flex items-center gap-2 mb-1">
-									<span class="text-txtColor font-semibold text-sm hover:text-color1 
-										cursor-pointer transition-colors">${msg.senderName}</span>
-									<span class="text-color3 text-xs">${new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-								</div>
-								<p class="text-txtColor/80 text-sm leading-relaxed break-words">${msg.content}</p>
-							</div>
-						</div>
-					</div>
-				`).join('')}
+				${renderChatMessages()}
 			</div>
 			
-			<!-- Input Area -->
 			<div class="mt-4 pt-4 border-t border-borderColor">
 				<div class="flex gap-3 items-center">
 					<input type="text" id="global-chat-input" placeholder="Type a message..." 
@@ -100,10 +186,23 @@ function renderChat() : string
 }
 
 export function renderGlobalChat(): string {
+	setTimeout(() => {
+		fetchPreviousMessages();
+		initializeWebSocket();
+		setupChatEventListeners();
+	}, 0);
+
 	return `
 		<div class="group-chat w-full md:w-[50%] hidden md:block">
 			<h2 class="text-txtColor font-bold text-2xl mb-4">Global Chat</h2>
 			${renderChat()}
 		</div>
 	`;
+}
+
+export function cleanupGlobalChat() {
+	if (golobalChatSocket) {
+		golobalChatSocket.close();
+		golobalChatSocket = null;
+	}
 }
