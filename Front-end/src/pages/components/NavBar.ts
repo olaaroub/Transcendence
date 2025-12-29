@@ -15,7 +15,6 @@ socket.onmessage = (event) => {
 	try {
 		const parsed = JSON.parse(event.data);
 		
-		console.log(parsed.type)
 		if (parsed.type ==  'NOTIFICATION_READED')
 			$("notification-icon")?.querySelector('span')?.classList.add('hidden')
 		else if (parsed.type == 'SEND_NOTIFICATION')
@@ -75,7 +74,7 @@ function searchBar() : string
 	`
 }
 
-async function getPendingUsers() : Promise<IUserData[] | null>
+async function getPendingUsers() : Promise<{users: IUserData[], is_read: boolean} | null>
 {
 	try
 	{
@@ -87,8 +86,10 @@ async function getPendingUsers() : Promise<IUserData[] | null>
 			console.error('Failed to fetch pending users:', response.statusText);
 			return null;
 		}
-		const users: IUserData[] = await response.json();
-		return users;
+		const data: any = await response.json();
+		const users: IUserData[] = Array.isArray(data) ? data : [];
+		const is_read = data.is_read !== undefined ? data.is_read : true;
+		return { users, is_read };
 	} catch(err){
 		console.error('Error fetching pending users:', err);
 		return null;
@@ -125,9 +126,16 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 export async function notifications()
 {
 	const notificationIcon = $('notification-icon');
-	pendingUsers = await getPendingUsers();
+	const pendingData = await getPendingUsers();
+	
+	if (!pendingData) {
+		pendingUsers = null;
+		return;
+	}
+	pendingUsers = pendingData.users;
+	const isRead = pendingData.is_read;
 
-	if (pendingUsers && pendingUsers?.length !== 0 && !pendingUsers[0].is_read)
+	if (pendingUsers && pendingUsers.length !== 0 && !isRead)
 		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');	
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
