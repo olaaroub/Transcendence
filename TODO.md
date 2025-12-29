@@ -63,5 +63,5 @@ this what happens when i refresh the page, (mse7t database w restartit server):
 (simo: tatrj3 lik 404 wmatadir walo)
 (ohammou: 9ra dok logs w protecti code dialk)
 ![logs li tel3o](./screenshots/logs_err.png)
-![dashboard](./dashboard_err.png)
-![profile](./profile_err.png)
+![dashboard](./screenshots/dashboard_err.png)
+![profile](./screenshots/profile_err.png)
