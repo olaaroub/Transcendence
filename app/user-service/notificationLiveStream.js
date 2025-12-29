@@ -35,6 +35,9 @@ async function routes(fastify) {
             if (!fastify.sockets.has(id)) {
                 updateFriendOnlineStatus(id, fastify, 'FRIEND_ONLINE');
                 fastify.sockets.set(id, new Set());
+                if (fastify.customMetrics?.onlineUsersGauge) {
+                    fastify.customMetrics.onlineUsersGauge.inc();
+                }
             }
             fastify.sockets.get(id).add(socket);
 
@@ -45,6 +48,9 @@ async function routes(fastify) {
                     if (userSockets.size === 0) {
                         updateFriendOnlineStatus(id, fastify, 'FRIEND_OFFLINE');
                         fastify.sockets.delete(id);
+                        if (fastify.customMetrics?.onlineUsersGauge) {
+                            fastify.customMetrics.onlineUsersGauge.dec();
+                        }
                     }
                 }
                 log.info("Websocket disconnected");

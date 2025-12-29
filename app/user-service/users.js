@@ -51,10 +51,25 @@ async function main() {
     defaultMetrics: { enabled: true }
   });
 
+  const totalUsersGauge = new fastify.metrics.client.Gauge({
+    name: 'app_users_total',
+    help: 'Total number of registered users'
+  });
+
+  const onlineUsersGauge = new fastify.metrics.client.Gauge({
+    name: 'app_users_online',
+    help: 'Number of users currently connected via websocket'
+  })
+
   const friendCounter = new fastify.metrics.client.Counter({
     name: 'user_friendship_actions_total',
     help: 'Total number of friendship actions',
     labelNames: ['action']
+  });
+
+  const friendAction = ['sent', 'accepted', 'rejected', 'blocked', 'unblocked'];
+  friendAction.forEach(action =>{
+    friendCounter.labels(action).inc(0);
   });
 
   const searchCounter = new fastify.metrics.client.Counter({
@@ -62,17 +77,11 @@ async function main() {
     help: 'Total number of user searches performed'
   });
 
-  const avatarCounter = new fastify.metrics.client.Counter({
-    name: 'user_avatar_updates_total',
-    help: 'Total number of avatar updates',
-    labelNames: ['status']
-  });
-
-
   fastify.decorate('customMetrics', {
     friendCounter,
     searchCounter,
-    avatarCounter
+    totalUsersGauge,
+    onlineUsersGauge,
   });
 
   fastify.setErrorHandler(function (error, request, reply) {
@@ -136,6 +145,16 @@ async function main() {
 
     const db = await dbconfig();
     fastify.decorate('db', db);
+
+    try {
+      const countResult = db.prepare('SELECT COUNT(id) as count FROM userInfo').get(); //ohammou dir lia query tat3tik users li kaynin kamlin
+      if (countResult) {
+        totalUsersGauge.set(countResult.count);
+        fastify.log.info(`Metrics initialized: ${countResult.count} total users`);
+      }
+    } catch (dbErr) {
+      fastify.log.error("Failed to initialize total user metric", dbErr);
+    }
 
     fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
 

@@ -31,6 +31,11 @@ async function deleteAccountHandler(req, reply) {
 
     this.db.prepare(`DELETE FROM userInfo WHERE id = ?`).run([id]);
     req.log.info({ userId: id }, "User account deleted successfully");
+
+    if (this.customMetrics?.totalUsersGauge) {
+        this.customMetrics.totalUsersGauge.dec();
+    }
+
     reply.code(204).send();
 }
 

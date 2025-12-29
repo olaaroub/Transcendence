@@ -1,6 +1,11 @@
 async function searchBarHandler(req, reply) {
+
     const query = req.query.username || "";
+    if(!query || query.trim() == 0){
+        return []
+    }
     const id = req.params.id;
+    req.log.debug({query})
 
     const data = this.db.prepare(`
         SELECT u.id, u.username, f.status, u.avatar_url

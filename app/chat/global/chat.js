@@ -1,6 +1,5 @@
 import Fastify from "fastify";
 import { configChatDatabase } from './db/database.config.js'
-// import websocket from '@fastify/websocket'
 import fastifyJwt from '@fastify/jwt';
 import vault from 'node-vault';
 import fastifyMetrics from 'fastify-metrics';
@@ -47,6 +46,19 @@ async function startChatService() {
         endpoint: '/metrics',
         defaultMetrics: { enabled: true }
     });
+
+    const chatMessageCounter = new fastify.metrics.client.Counter({
+        name: 'chat_message_sent_total',
+        help: 'Total number of messages sent',
+        labelNames: ['chat_type']
+    })
+
+    fastify.decorate('customMetrics',{
+        chatMessageCounter,
+    });
+
+    /// dir hadi flblasa fach kisift user msg:
+    // fastify.customMetrics.chatMessagesCounter.inc({ chat_type: 'global' });
 
     try {
         fastify.log.info("global chat service is starting...");
