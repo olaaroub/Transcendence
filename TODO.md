@@ -26,6 +26,7 @@
   PS. (hes-safi) I don't agree with this! You should stay in Settings.
 - [ ] **Offline Session:** Add session storage info for offline PvP & PvAI (Look for file sessionStorage.ts in Front).
 
+
 ## Backend (OHAMMOU-)
 
 - [x] **Global Error Handler:** Stop returning 502s. Catch errors and return JSON `{ "message": "..." }
@@ -48,8 +49,10 @@
 - [x] **send the prives messages to the front**
 - [ ] **Unfriend api**
 - [ ] **change username and avatar_url error ...**
+- [ ] **bugs in notification sockets**
+- [ ] **global chat time bug** 
 <!-- union intersect distinct  -->
-- [ ] **learn gRPC:** to build mecro sirveces
+- [cancled] **learn gRPC:** to build micro sirveces
 
 ## Game (HES-SAFI)
 

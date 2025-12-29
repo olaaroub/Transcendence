@@ -12,14 +12,20 @@ async function getPendingRequestes(req, reply) {
                         
         `,).all([id]);
 
-    if(data)
+    if (!data)
     {
-        const { is_read } = this.db.prepare('SELECT is_read FROM userInfo WHERE id = ?').get(id);
-        data["is_read"] = is_read;
+        req.log.info({ userId: id, count: response.length }, "Fetched pending friend requests but it is empty");
+        return ([]);
     }
 
-    req.log.info({ userId: id, count: data.length }, "Fetched pending friend requests");
-    return data;
+    const { is_read } = this.db.prepare('SELECT is_read FROM userInfo WHERE id = ?').get(id);
+    const response = {
+        is_read,
+        "userFriends": data
+    };
+
+    req.log.info({ userId: id, count: response.length }, "Fetched pending friend requests");
+    return response;
 }
 
 async function handleFriendRequest(req, reply) {

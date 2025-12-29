@@ -33,7 +33,7 @@ async function add_friend(req, reply) {
     if (this.sockets) {
         const notificationSockets = this.sockets.get(receiver_id);
         if (notificationSockets) {
-            requester_Data.is_read = false;
+            // requester_Data.is_read = false;
             requester_Data["type"] = 'SEND_NOTIFICATION';
 
             req.log.debug({ receiverId: receiver_id }, "Sending friend request notification");

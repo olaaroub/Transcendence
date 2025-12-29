@@ -87,8 +87,10 @@ async function getPendingUsers() : Promise<{users: IUserData[], is_read: boolean
 			return null;
 		}
 		const data: any = await response.json();
-		const users: IUserData[] = Array.isArray(data) ? data : [];
+		// console.log(data);
+		const users: IUserData[] = data.userFriends;
 		const is_read = data.is_read !== undefined ? data.is_read : true;
+		console.log(users, " is_read ", data.is_read)
 		return { users, is_read };
 	} catch(err){
 		console.error('Error fetching pending users:', err);

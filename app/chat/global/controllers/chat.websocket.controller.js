@@ -54,7 +54,9 @@ async function handleMessageEvent(socket, fastify, userId, message) {
     fastify.log.info({ userId, message: messageJson.msg }, "User sent a message");
 
     const response = {
-        messageBody,
+        sender_id: messageBody.sender_id,
+        msg: messageBody.msg,
+        created_at: messageBody.created_at,
         username: userData.username,
         avatar_url: userData.avatar_url
     }

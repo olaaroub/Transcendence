@@ -44,13 +44,7 @@ function initializeWebSocket() {
 				console.log('Message sent successfully confirmation received');
 				return;
 			}
-			const message: ChatMessage = {
-				sender_id: data.messageBody.sender_id,
-				username: data.username,
-				avatar_url: data.avatar_url,
-				msg: data.messageBody.msg,
-				created_at: data.messageBody.created_at
-			};
+			const message: ChatMessage = data;
 			if (message.msg && message.msg.trim()) {
 				globalChatMessages.push(message);
 				updateChatUI();

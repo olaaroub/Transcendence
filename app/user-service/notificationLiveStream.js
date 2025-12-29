@@ -70,9 +70,12 @@ async function routes(fastify) {
                         const notificationSockets = fastify.sockets.get(id);
                         if (notificationSockets) {
                             for (const s of notificationSockets) {
+                                log.debug({socketStatus: s.readyState, clientUserId: id}, "socket status");
                                 if (s.readyState === 1) s.send(response);
                             }
                         }
+                        else
+                            log.debug({clientUserId: id}, "user not found to send to them notification")
                     }
                 } catch (err) {
                     log.error({ err: err }, "Failed to process websocket message");
