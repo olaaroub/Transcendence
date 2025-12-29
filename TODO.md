@@ -18,7 +18,7 @@
 - [ ] **JWT Not Updated:** When I log out and get back, the containers are EXITED, I refresh the page I get the
       sign in form, I do sign in the backend generates a new token, but the jwt token is not updated in
       local storage, so even if i am logged in i cant upload any image because i need the up to date jwt token.
-      ![screenshot_of_error](./images/screenshot_jwt_notUpdated_error.png)
+      ![screenshot_of_error](./screenshots/screenshot_jwt_notUpdated_error.png)
 
 - [ ] **Uploads:** Add `accept="image/png, image/jpeg"` to the file input HTML.
 - [ ] **Error Handling:** Display generic error messages from backend (example: "Upload failed").
@@ -58,3 +58,10 @@
 - [ ]
 
 "npx depcheck" ==> checks unused packages in package.json
+
+this what happens when i refresh the page, (mse7t database w restartit server):
+(simo: tatrj3 lik 404 wmatadir walo)
+(ohammou: 9ra dok logs w protecti code dialk)
+![logs li tel3o](./screenshots/logs_err.png)
+![dashboard](./dashboard_err.png)
+![profile](./profile_err.png)
