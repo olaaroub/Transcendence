@@ -49,11 +49,7 @@ function authForm(isSignup: boolean) {
         ${inputField("Username", "text", "Alias or email")}
 		${isSignup ? inputField("Email", "email", "Email") : ""}
         ${inputField("Password", "password", "Password")}
-        ${
-			isSignup
-            ? inputField("Confirm Password", "password", "Confirm password")
-            : `<a href="#" class="text-[#F0F0F0] text-xs md:text-sm hover:underline block mt-1">Forgot Password?</a>`
-        }
+        ${isSignup ? inputField("Confirm Password", "password", "Confirm password") : ''}
 		</ul>
 		${mainButton(isSignup ? "Create Account" : "Sign In")}
     </form>

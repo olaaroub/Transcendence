@@ -81,7 +81,7 @@ function updateChatUI() {
 }
 
 function renderChatMessages(): string {
-	return globalChatMessages.map(msg => `
+	return globalChatMessages.map(msg => /* html */`
 		<div class="group hover:bg-white/5 rounded-xl p-2 -mx-2 transition-colors duration-200">
 			<div class="flex items-start gap-3">
 				<img src="${getImageUrl(msg.avatar_url)}" class="w-9 h-9 rounded-full border border-borderColor
@@ -141,7 +141,7 @@ function setupChatEventListeners() {
 
 function renderChat() : string
 { 
-	return `
+	return /* html */`
 		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-300 
 			py-6 px-6 flex flex-col rounded-3xl h-[509px] border border-borderColor">
 			<div class="flex items-center justify-between pb-4 border-b border-borderColor mb-4">
@@ -192,7 +192,7 @@ export function renderGlobalChat(): string {
 		setupChatEventListeners();
 	}, 0);
 
-	return `
+	return /* html */`
 		<div class="group-chat w-full md:w-[50%] hidden md:block">
 			<h2 class="text-txtColor font-bold text-2xl mb-4">Global Chat</h2>
 			${renderChat()}
