@@ -1,18 +1,18 @@
-add unfriend to the profile page
 
 test front in firefox
 add game buttons to the dashboard
-activate 2fa
-activate mail in settings page
 
-main :
-    tailwind : what content is
+ohammou- : 
+    add unfriend to the profile page
+    add email field in profile non-modifiable
+    make as read
 
+hamza :
+    merge game
 
 tailwind :
     truncate
+    tailwind : what content is
     show backdrop-blur-lg effect
 
 
-hamza :
-    add email field in profile non-modifiable

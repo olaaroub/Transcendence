@@ -232,19 +232,31 @@ function addClickInRightPanel()
 	});
 }
 
+function mainBackground() : string
+{
+	return `
+		<video
+		class="fixed top-0 left-0 w-full h-full object-cover z-[-2] pointer-events-none"
+		autoplay
+		muted
+		loop
+		playsinline
+		preload="auto"
+		disablepictureinpicture
+		tabindex="-1"
+		aria-hidden="true"
+		style="pointer-events: none;"
+		>
+		<source src="images/bg.webm" type="video/webm">
+		</video>
+	`
+}
+
 export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
 		<div class=" min-h-screen">
-			<div class="absolute inset-0 bg-black opacity-70 blur-3xl z-[-1]"></div>
-			<video class="fixed w-full h-full object-cover z-[-2]"
-			loop
-			autoplay
-			muted
-			playsinline
-			<source src="images/bg.webm" type="video/webm">
-			Your browser does not support the video tag.
-			</video>
+			${mainBackground()}
 			${renderDashboardNavBar(userData, getImageUrl(userData?.avatar_url))}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
 				${isDashboard ? await renderMain() : ''}

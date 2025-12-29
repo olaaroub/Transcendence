@@ -13,6 +13,11 @@ export async function renderGuest()
 			autoplay
 			muted
 			playsinline
+			disablepictureinpicture
+			tabindex="-1"
+			aria-hidden="true"
+			style="pointer-events: none;"
+			>
 			<source src="images/bg.webm" type="video/webm">
 			Your browser does not support the video tag.
 			</video>
