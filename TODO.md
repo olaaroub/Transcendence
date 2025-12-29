@@ -42,10 +42,12 @@
 - [x] **open the sockets and start users commencation:** send messages with users
 - [x] **store the messages in database**
 - [x] **get the data from the user services and store it in the cash while send it to the front:**
-- [ ] **get the data from users using amqp protocole and RabbitMQ brocker**
-- [ ] **send the state of user online/offline**
-- [ ] **is_read re structur**
-- [ ] **send the prives messages to the front**
+- [cancled] **get the data from users using amqp protocole and RabbitMQ brocker**
+- [x] **send the state of user online/offline**
+- [x] **is_read re structur**
+- [x] **send the prives messages to the front**
+- [ ] **Unfriend api**
+- [ ] **change username and avatar_url error ...**
 <!-- union intersect distinct  -->
 - [ ] **learn gRPC:** to build mecro sirveces
 
