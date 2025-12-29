@@ -36,22 +36,22 @@ function deletSocket(socket, fastify, userId) {
 
 async function handleMessageEvent(socket, fastify, userId, message) {
     try {
-    const messageAsString = message.toString();
-    const messageJson = JSON.parse(messageAsString);
+        const messageAsString = message.toString();
+        const messageJson = JSON.parse(messageAsString);
 
-    if (!messageJson.msg || typeof messageJson.msg !== 'string' || messageJson.msg.trim() === '')
-        throw new Error("Message content is required");
+        if (!messageJson.msg || typeof messageJson.msg !== 'string' || messageJson.msg.trim() === '')
+            throw new Error("Message content is required");
 
-    const messageBody = fastify.db.prepare("INSERT INTO messages(sender_id, msg) VALUES(?, ?) RETURNING sender_id, msg, created_at")
-        .get(userId, messageJson.msg);
+        const messageBody = fastify.db.prepare("INSERT INTO messages(sender_id, msg) VALUES(?, ?) RETURNING sender_id, msg, created_at")
+            .get(userId, messageJson.msg);
 
-    const userData = fastify.db.prepare('SELECT * FROM usersCash WHERE id = ?').get(userId);
+        const userData = fastify.db.prepare('SELECT * FROM usersCash WHERE id = ?').get(userId);
 
-    socket.send(JSON.stringify({
-        type: 'MESSAGE_SENT_SUCCESSFULLY'
-    }));
+        socket.send(JSON.stringify({
+            type: 'MESSAGE_SENT_SUCCESSFULLY'
+        }));
 
-    fastify.log.info({ userId, message: messageJson.msg }, "User sent a message");
+        fastify.log.info({ userId, message: messageJson.msg }, "User sent a message");
 
     const response = {
         sender_id: messageBody.sender_id,
@@ -61,13 +61,16 @@ async function handleMessageEvent(socket, fastify, userId, message) {
         avatar_url: userData.avatar_url
     }
 
-    const sockets = fastify.sockets;
-    sockets.forEach((userSockets, user_id) => {
-        userSockets.forEach(userSocket => {
-            if (userSocket !== socket)
-                userSocket.send(JSON.stringify(response));
-        })
-    });
+        const sockets = fastify.sockets;
+        sockets.forEach((userSockets, user_id) => {
+            userSockets.forEach(userSocket => {
+                if (userSocket !== socket)
+                    userSocket.send(JSON.stringify(response));
+            })
+        });
+
+        fastify.customMetrics.chatMessagesCounter.inc({ chat_type: 'global' });
+
     } catch (err) {
         fastify.log.error({ err, userId }, "Error handling message event");
         socket.send(JSON.stringify({

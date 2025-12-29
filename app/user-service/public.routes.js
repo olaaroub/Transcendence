@@ -26,6 +26,10 @@ async function createNewUser(req, reply) {
 
     req.log.info({ userId: newUserData.user_id, username: newUserData.username }, "New user synced from Auth Service");
 
+    if (this.customMetrics?.totalUsersGauge) {
+      this.customMetrics.totalUsersGauge.inc();
+    }
+
     reply.code(201).send({ message: "User created successfully", ok: true });
   }
   catch (err) {
@@ -76,7 +80,7 @@ async function chatProfileHandler(req, reply)
     console.log(userData)
     if (!userData)
         createError.NotFound("this user not found");
-    
+
     return userData
 }
 
