@@ -1,3 +1,5 @@
+import { navigate } from "../../router";
+
 const $ = (id: string) => document.getElementById(id as string);
 
 function renderDifficultyButton(difficulty: string, color: string, icon: string, description: string): string {
@@ -30,19 +32,19 @@ export function showDifficultyModal() {
 	
 	const difficulties = [
 		{
-			level: 'easy',
+			level: 'Easy',
 			color: 'green',
 			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
 			description: 'Perfect for beginners'
 		},
 		{
-			level: 'normal',
+			level: 'Normal',
 			color: 'yellow',
 			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>',
 			description: 'Balanced challenge'
 		},
 		{
-			level: 'hard',
+			level: 'Hard',
 			color: 'red',
 			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path>',
 			description: 'For experienced players'
@@ -84,9 +86,9 @@ export function showDifficultyModal() {
 		btn.addEventListener('click', (e) => {
 			const difficulty = (e.currentTarget as HTMLElement).getAttribute('data-difficulty');
 			console.log(`Selected difficulty: ${difficulty}`);
-			// TODO: Navigate to game with selected difficulty
-			// navigate(`/game/local-ai?difficulty=${difficulty}`);
 			closeModal();
+			// Navigate to game with AI mode and selected difficulty
+			navigate(`/game?mode=local-vs-ai&difficulty=${difficulty}`);
 		});
 	});
 }

@@ -239,47 +239,29 @@ export async function renderDashboard(isDashboard: boolean = true)
 		</div>
 	`;
 
-	// const playBtn = $('btn-play-local'); /// ana
-    // if (playBtn) {
-    //     playBtn.addEventListener('click', () => {
-    //         // 1. Swap the screen to the Game Iframe
-    //         // This destroys the Dashboard HTML and loads the Game Container via Nginx
-    //         document.body.innerHTML = `
-
-    //             <style>
-    //                 body { margin: 0; background: #000; height: 100vh; overflow: hidden; }
-    //                 iframe { width: 100%; height: 100%; border: none; display: block; }
-    //                 .exit-btn {
-    //                     position: absolute; top: 20px; left: 20px; z-index: 999;
-    //                     background: rgba(255, 255, 255, 0.1); color: white;
-    //                     border: 1px solid rgba(255, 255, 255, 0.5);
-    //                     padding: 10px 20px; cursor: pointer; font-family: sans-serif;
-    //                     border-radius: 8px; backdrop-filter: blur(4px);
-    //                     transition: all 0.2s;
-    //                 }
-    //                 .exit-btn:hover { background: rgba(255, 0, 0, 0.5); border-color: red; }
-    //             </style>
-    //             <button id="exit-game-btn" class="exit-btn">← EXIT GAME</button>
-    //             <iframe src="/game/index.html"></iframe>
-    //         `;
-
-    //         // 2. Add the listener for the Exit Button
-    //         // When clicked, we simply call renderDashboard() again.
-    //         // This destroys the Iframe (cleaning up the game memory) and redraws your UI.
-    //         document.getElementById('exit-game-btn')?.addEventListener('click', () => {
-    //             renderDashboard();
-    //         });
-    //     });
-    // }
-
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	notifications();
 	chatEventHandler();
 	$('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
 	
+	const btnLocalVsPlayer = $('btn-local-vs-player');
+	btnLocalVsPlayer?.addEventListener('click', () => {
+		navigate('/game?mode=local-vs-player');
+	});
+
 	const btnLocalVsAi = $('btn-local-vs-ai');
 	btnLocalVsAi?.addEventListener('click', () => {
 		showDifficultyModal();
+	});
+
+	const btnOnlineMatchmaking = $('btn-online-matchmaking');
+	btnOnlineMatchmaking?.addEventListener('click', () => {
+		navigate('/game?mode=online-matchmaking');
+	});
+
+	const btnOnlineRoom = $('btn-online-room');
+	btnOnlineRoom?.addEventListener('click', () => {
+		navigate('/game?mode=online-room');
 	});
 
 	const avatar = $('avatar');
