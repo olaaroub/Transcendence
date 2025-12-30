@@ -7,7 +7,7 @@
 - [x] Update `scan_php.sh` to block non-image Magic Bytes (PDFs/EXEs).
 - [ ] Set up Rate Limiting in Nginx/ModSec to stop spam uploads.
 - [x] Ensure Prometheus & Grafana are scraping backend metrics.
-- [ ] Add false positive rules for searchbar and password.(half done)
+- [x] Add false positive rules for searchbar and password.(half done)
 - [x] Microservices are done(logs and using createError() also the global err handling and bubbling is all set)
 - [x] Added /metrics and counting logging attempts and all other events.... optimized the whole backend code
 
@@ -15,17 +15,20 @@
 
 - the window inactive jwt expired if i refresh the page i should get that session expired login again
 
-- [ ] **JWT Not Updated:** When I log out and get back, the containers are EXITED, I refresh the page I get the
+- [x] **JWT Not Updated:** When I log out and get back, the containers are EXITED, I refresh the page I get the
       sign in form, I do sign in the backend generates a new token, but the jwt token is not updated in
       local storage, so even if i am logged in i cant upload any image because i need the up to date jwt token.
       ![screenshot_of_error](./screenshots/screenshot_jwt_notUpdated_error.png)
 
 - [ ] **Uploads:** Add `accept="image/png, image/jpeg"` to the file input HTML.
 - [ ] **Error Handling:** Display generic error messages from backend (example: "Upload failed").
-- [ ] **UX:** When I finish uploading an avatar, I should get out from the settings page.
+- [x] **UX:** When I finish uploading an avatar, I should get out from the settings page.
   PS. (hes-safi) I don't agree with this! You should stay in Settings.
 - [ ] **Offline Session:** Add session storage info for offline PvP & PvAI (Look for file sessionStorage.ts in Front).
 
+- [x] (i fixed it) You were hardcoding the host and port for all the websocket connections and you werent talking throught the docker network
+  you were using bind mount which is bad (IT WILL FAIL IN PROD BECAUSE I WONT BIND MOUNT THE PORTS FOR YOU) and also you were using not sercure ws (ws://localhost:3003) THIS IS WRONG, i fixed it to be
+  wss://window.location.host/api/... it works for (prod and dev)
 
 ## Backend (OHAMMOU-)
 
@@ -50,7 +53,7 @@
 - [x] **Unfriend api**
 - [ ] **change username and avatar_url error ...**
 - [ ] **bugs in notification sockets**
-- [ ] **global chat time bug** 
+- [ ] **global chat time bug**
 <!-- union intersect distinct  -->
 - [cancled] **learn gRPC:** to build micro sirveces
 
