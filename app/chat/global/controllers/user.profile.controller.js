@@ -6,16 +6,22 @@ export async function updateUsername(req, reply)
     const { username } = req.body;
 
     // console.log(username, " ------------- ", id);
-    this.db.prepare('UPDATE usersCash SET username = ? WHERE id = ?').run(id, username);
-    req.log.info({ userId: id, NewUserName: username }, "User username updated in cache");
+    try {
+        this.db.prepare('UPDATE usersCash SET username = ? WHERE id = ?').run(username, id);
+        req.log.info({ userId: id, NewUserName: username }, "User username updated in cache");
+        return {ok: true}
+    } catch(err)
+    {
+        req.log.err({userID:id ,err}, "error in updateUsername");
+    }
 }
 
 export async function updateAvatarUrl(req, reply)
 {
     const id = req.params.id;
-    const { newAvatarUrl } = req.body.newAvatarUrl;
+    const { newAvatarUrl } = req.body;
 
-    this.db.prepare('UPDATE usersCash SET avatar_url = ? WHERE id = ?').run(id, newAvatarUrl);
+    this.db.prepare('UPDATE usersCash SET avatar_url = ? WHERE id = ?').run(newAvatarUrl, id);
     req.log.info({ userId: id, newAvatarUrl }, "User avatar URL updated in cache");
 }
 

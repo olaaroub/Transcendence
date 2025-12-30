@@ -5,7 +5,8 @@ import { costumeButton } from "./buttons";
 const $ = (id: string) => document.getElementById(id as string)
 let pendingUsers: IUserData[] | null = null;
 
-const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
+// const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
+const wsUrl = `wss://${window.location.host}/api/user/notification/${credentials.id}`;
 const socket = new WebSocket(wsUrl);
 
 socket.onopen = () => {
@@ -14,7 +15,7 @@ socket.onopen = () => {
 socket.onmessage = (event) => {
 	try {
 		const parsed = JSON.parse(event.data);
-		
+
 		if (parsed.type ==  'NOTIFICATION_READED')
 			$("notification-icon")?.querySelector('span')?.classList.add('hidden')
 		else if (parsed.type == 'SEND_NOTIFICATION')
@@ -54,7 +55,7 @@ function searchBar() : string
 		border border-color4 rounded-full
 		flex items-center">
 			<input
-				
+
 				id="search-input"
 				type="text"
 				autocomplete="off"
@@ -129,7 +130,7 @@ export async function notifications()
 {
 	const notificationIcon = $('notification-icon');
 	const pendingData = await getPendingUsers();
-	
+
 	if (!pendingData) {
 		pendingUsers = null;
 		return;
@@ -138,7 +139,7 @@ export async function notifications()
 	const isRead = pendingData.is_read;
 
 	if (pendingUsers && pendingUsers.length !== 0 && !isRead)
-		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');	
+		$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
 		const existingResult = $('notifications-result');

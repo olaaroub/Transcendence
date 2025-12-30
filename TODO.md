@@ -26,6 +26,10 @@
   PS. (hes-safi) I don't agree with this! You should stay in Settings.
 - [ ] **Offline Session:** Add session storage info for offline PvP & PvAI (Look for file sessionStorage.ts in Front).
 
+- [ ] **handle the scket not established when login**
+- [ ] **handle the globl chat time error**
+- [ ] **close the sockets when logout**
+
 - [x] (i fixed it) You were hardcoding the host and port for all the websocket connections and you werent talking throught the docker network
   you were using bind mount which is bad (IT WILL FAIL IN PROD BECAUSE I WONT BIND MOUNT THE PORTS FOR YOU) and also you were using not sercure ws (ws://localhost:3003) THIS IS WRONG, i fixed it to be
   wss://window.location.host/api/... it works for (prod and dev)

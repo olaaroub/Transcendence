@@ -21,20 +21,7 @@ services:
     depends_on:
       - modSecurity-dev
 
-  # pong-offline-dev:
-  #   build:
-  #     context: ./Pong
-  #     dockerfile: Dockerfile.pong.dev
-  #   image: pong-offline:1337
-  #   container_name: pong-offline
-  #   environment:
-  #     - HOST=0.0.0.0
-  #   networks:
-  #     - transcendence-dev-net
-  #   depends_on:
-  #     - frontend-dev
-
-  pong-offline-prod:
+  pong-offline-dev:
     build:
       context: ./Pong
       dockerfile: Dockerfile.pong.prod

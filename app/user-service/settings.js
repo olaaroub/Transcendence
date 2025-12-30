@@ -87,7 +87,7 @@ async function getProfileData(req, reply) {
 	if (!responseData) {
 		throw createError.NotFound("User not found");
 	}
-
+	req.log.debug("user profile: ", responseData);
 	return responseData;
 }
 

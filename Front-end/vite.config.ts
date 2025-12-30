@@ -23,9 +23,10 @@ export default defineConfig(({ command }) => {
           target: `http://modSecurity${serviceExt}:8080`,
           changeOrigin: true,
           secure: false,
+          ws: true
         },
         '/game/': {
-          target: 'http://pong-offline-prod:80',
+          target: 'http://pong-offline-dev:80',
           changeOrigin: true,
           secure: false,
           ws: true

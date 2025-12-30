@@ -70,7 +70,6 @@ async function modifyAvatar(req, reply) {
     this.db.prepare("UPDATE userInfo SET avatar_url = ?  WHERE id = ?").run([imageUri, id]);
 
     req.log.info({ userId: id, newImage: imageUri }, "Avatar updated");
-    this.customMetrics.avatarCounter.inc({ status: 'updated' });
     reply.code(201).send({ success: true, message: "Profile image updated successfully" });
 
   } catch (err) {
@@ -102,12 +101,7 @@ async function deleteAvatar(req, reply) {
 
   await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/chat/global/avatar_url/${id}`, { newAvatarUrl: "/public/Default_pfp.jpg" });
 
-  // if (updateChatAvatarResponse.ok === undefined) {
-  //     req.log.error({ userId: id, status: updateChatAvatarResponse.status }, "Failed to update avatar in Global Chat Service");
-  //     throw createError.BadGateway("Failed to sync avatar change with Global Chat Service");
-  // }
   req.log.info({ userId: id }, "Avatar reset to default");
-  this.customMetrics.avatarCounter.inc({ status: 'deleted' });
   reply.code(200).send({ success: true, message: "Profile image deleted" });
 }
 

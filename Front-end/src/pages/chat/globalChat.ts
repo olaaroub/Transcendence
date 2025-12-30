@@ -29,7 +29,8 @@ async function fetchPreviousMessages() {
 }
 
 function initializeWebSocket() {
-	const wsUrl = `ws://localhost:3003/api/chat/global/${credentials.id}`;
+	// const wsUrl = `ws://localhost:3003/api/chat/global/${credentials.id}`;
+	const wsUrl = `wss://${window.location.host}/api/chat/global/${credentials.id}`;
 	golobalChatSocket = new WebSocket(wsUrl);
 
 	golobalChatSocket.onopen = () => {
@@ -39,7 +40,7 @@ function initializeWebSocket() {
 	golobalChatSocket.onmessage = (event) => {
 		try {
 			const data = JSON.parse(event.data);
-			
+
 			if (data.type === 'MESSAGE_SENT_SUCCESSFULLY') {
 				console.log('Message sent successfully confirmation received');
 				return;
@@ -66,7 +67,7 @@ function initializeWebSocket() {
 function updateChatUI() {
 	const chatContainer = document.getElementById('global-chat-messages');
 	const chatCount = document.getElementById('global-chat-count');
-	
+
 	if (!chatContainer) return;
 	chatContainer.innerHTML = renderChatMessages();
 	if (chatCount)
@@ -134,9 +135,9 @@ function setupChatEventListeners() {
 }
 
 function renderChat() : string
-{ 
+{
 	return /* html */`
-		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-300 
+		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-300
 			py-6 px-6 flex flex-col rounded-3xl h-[509px] border border-borderColor">
 			<div class="flex items-center justify-between pb-4 border-b border-borderColor mb-4">
 				<div class="flex items-center gap-3">
@@ -159,14 +160,14 @@ function renderChat() : string
 				hover:scrollbar-thumb-color2 pr-2 space-y-4">
 				${renderChatMessages()}
 			</div>
-			
+
 			<div class="mt-4 pt-4 border-t border-borderColor">
 				<div class="flex gap-3 items-center">
-					<input type="text" id="global-chat-input" placeholder="Type a message..." 
-						class="flex-1 bg-black/50 text-txtColor px-5 py-3 rounded-xl 
-						outline-none border border-borderColor focus:border-color1 
+					<input type="text" id="global-chat-input" placeholder="Type a message..."
+						class="flex-1 bg-black/50 text-txtColor px-5 py-3 rounded-xl
+						outline-none border border-borderColor focus:border-color1
 						transition-colors placeholder:text-color3 text-sm">
-					<button id="global-chat-send" class="bg-color1 hover:bg-color2 w-11 h-11 
+					<button id="global-chat-send" class="bg-color1 hover:bg-color2 w-11 h-11
 						rounded-xl flex items-center justify-center
 						transition-all duration-300 hover:scale-105">
 						<svg class="w-5 h-5 text-bgColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
