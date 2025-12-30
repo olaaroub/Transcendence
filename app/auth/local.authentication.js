@@ -82,7 +82,7 @@ async function loginHandler(req, reply) {
 
 	this.customMetrics.loginCounter.inc({ status: 'success', provider: 'local' });
 
-	const token = this.jwt.sign({ id: user.id, username: user.username }, { expiresIn: '1h' });
+	const token = this.jwt.sign({ id: user.id, username: user.username }, { expiresIn: '30m' });
 
 	return {
 		success: true,
