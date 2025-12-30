@@ -32,3 +32,10 @@ export interface GameState
 	ballY:		number;
 	ballS:		number;
 }
+
+export interface Match
+{
+	state:		GameState;
+	currState:	State;
+	session:	Instance;
+}
