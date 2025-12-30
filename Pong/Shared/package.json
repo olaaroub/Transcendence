@@ -11,9 +11,9 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@babylonjs/core": "^8",
-    "@babylonjs/materials": "^8",
-	"@babylonjs/gui": "^8"
+    "@babylonjs/core": "^8.43.0",
+    "@babylonjs/materials": "^8.43.0",
+	"@babylonjs/gui": "^8.43.0"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
