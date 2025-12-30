@@ -69,7 +69,7 @@ async function handleMessageEvent(socket, fastify, userId, message) {
             })
         });
 
-        fastify.customMetrics.chatMessagesCounter.inc({ chat_type: 'global' });
+        // fastify.customMetrics.chatMessagesCounter.inc({ chat_type: 'global' });
 
     } catch (err) {
         fastify.log.error({ err, userId }, "Error handling message event");

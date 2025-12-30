@@ -1,0 +1,20 @@
+delete friend:
+    url: http://localhost:3002/api/user/:id/delete-friend, Method: delete
+    send it this body:
+        {
+            "friend_id": "2"
+        }
+
+send email: I sent to you when you requested the user profile (/user/:id/profile) var name: email
+
+
+block and unblock api
+    url: http://localhost:3002/api/user/blockAndunblock-friend/:id, Method: put ,(id = id dyal luser)
+    body:
+    {
+        "friend_id": "example: 3",
+        "block": set true for block and false for unblock (boolen)
+    }
+
+
+*send token in request

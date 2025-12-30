@@ -25,6 +25,7 @@ async function change_username(req, reply) {
 	});
 }
 
+
 async function change_bio(req, reply) {
 	const id = req.params.id;
 	const { bio } = req.body;
@@ -52,8 +53,13 @@ async function getProfileData(req, reply) {
 		if (responseData) {
 			const authProviderResponse = await fetch(`${AUTH_SERVICE_URL}/api/auth/provider/${user_id}`);
 			if (authProviderResponse.ok) {
-				const { auth_provider } = await authProviderResponse.json();
-				responseData.auth_provider = auth_provider
+				let { auth_provider, email } = await authProviderResponse.json();
+				responseData.auth_provider = auth_provider;
+				responseData.email = email;
+			}
+			else {
+				responseData.auth_provider = 'unknown';
+				responseData.email = 'unknown';
 			}
 		}
 	}

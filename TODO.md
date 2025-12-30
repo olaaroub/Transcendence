@@ -47,7 +47,7 @@
 - [x] **send the state of user online/offline**
 - [x] **is_read re structur**
 - [x] **send the prives messages to the front**
-- [ ] **Unfriend api**
+- [x] **Unfriend api**
 - [ ] **change username and avatar_url error ...**
 - [ ] **bugs in notification sockets**
 - [ ] **global chat time bug** 

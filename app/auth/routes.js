@@ -36,7 +36,7 @@ async function changeUserNameHandler(req, reply) {
 
 async function getAuthProviderHandler(req, reply) {
   const id = req.params.id;
-  const authprovider = this.db.prepare("SELECT auth_provider FROM users WHERE id = ?").get([id]);
+  const authprovider = this.db.prepare("SELECT auth_provider, email FROM users WHERE id = ?").get([id]);
 
   if (!authprovider)
     throw new Error("User not found");

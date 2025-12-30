@@ -39,6 +39,7 @@ async function add_friend(req, reply) {
             req.log.debug({ receiverId: receiver_id }, "Sending friend request notification");
 
             for (const socket of notificationSockets) {
+                req.log.debug({ socketStatus: socket.readyState, clientUserId: receiver_id }, "socket status");
                 if (socket && socket.readyState == 1)
                     socket.send(JSON.stringify(requester_Data));
             }
@@ -96,9 +97,25 @@ async function getFriends(req, reply) {
     return (friends);
 }
 
+async function delete_friend(req, reply) 
+{
+    const { friend_id } = req.body;
+    const user_id = req.userId || req.params.id;
+    
+    console.log("user_id:", user_id, "friend_id:", friend_id);
+    if (!friend_id)
+        throw createError.BadRequest("Friend ID (friend_id) is required");
+
+    this.db.prepare("DELETE FROM friendships WHERE (userRequester = ? AND userReceiver = ?) OR (userRequester = ? AND userReceiver = ?)").run(user_id, friend_id, friend_id, user_id);
+
+    req.log.info({ userId: user_id, friendId: friend_id }, "Friend deleted successfully");
+    reply.code(200).send({ success: true, message: "Friend deleted successfully" });
+}
+
 async function routes(fastify) {
     fastify.put("/user/:id/add-friend", add_friend);
     fastify.get("/user/:id/friends", getFriends);
+    fastify.delete("/user/:id/delete-friend",  delete_friend);
 }
 
 export default routes;

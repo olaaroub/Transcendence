@@ -3,10 +3,11 @@
 export async function updateUsername(req, reply)
 {
     const id = req.params.id;
-    const { newUserName } = req.body.username;
+    const { username } = req.body;
 
-    this.db.prepare('UPDATE usersCash SET username = ? WHERE id = ?').run(id, newUserName);
-    req.log.info({ userId: id, newUsername: newUserName }, "User username updated in cache");
+    // console.log(username, " ------------- ", id);
+    this.db.prepare('UPDATE usersCash SET username = ? WHERE id = ?').run(id, username);
+    req.log.info({ userId: id, NewUserName: username }, "User username updated in cache");
 }
 
 export async function updateAvatarUrl(req, reply)
@@ -17,6 +18,7 @@ export async function updateAvatarUrl(req, reply)
     this.db.prepare('UPDATE usersCash SET avatar_url = ? WHERE id = ?').run(id, newAvatarUrl);
     req.log.info({ userId: id, newAvatarUrl }, "User avatar URL updated in cache");
 }
+
 
 export async function deleteAccount(req, reply)
 {
