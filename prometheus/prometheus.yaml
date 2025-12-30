@@ -16,3 +16,8 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ['user-service:3002']
+
+  - job_name: 'global-chat'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['global-chat-dev:3003']

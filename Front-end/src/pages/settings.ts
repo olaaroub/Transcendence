@@ -92,7 +92,6 @@ function SaveChanges()
 					} else {
 						delete newUserData[key as keyof IUserData];
 					}
-
 				}
 				navigateBack();
 		}catch (err) {
