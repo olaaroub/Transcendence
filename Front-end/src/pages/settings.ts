@@ -28,7 +28,7 @@ async function checkPasswordChange() : Promise<boolean>
 		return false;
 	}
 	try {
-		const response = await fetch(`api/auth/${userData?.id}/settings-password`, { // hada zet lih auth
+		const response = await fetch(`api/auth/${userData?.id}/settings-password`, {
 			method: 'PUT',
 			body: JSON.stringify({ currentPassword, newPassword: value }),
 			headers: {
@@ -310,7 +310,7 @@ function accountSettings() : string
 				<p class="text-txtColor text-sm ">Alias</p>
 				${input("Change Alias", 'text', userData?.username ?? "", "username")}
 				<p class="text-txtColor text-sm ">Mail</p>
-				${input("Change Mail", 'text', userData?.username ?? "", "")}
+				${input("Change Mail", 'text', userData?.email ?? "", "")}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
 				<p class="text-txtColor text-sm">Your Bio</p>
@@ -327,14 +327,15 @@ function accountSettings() : string
 
 function input(placeholder: string, type: string, value: string = "", name: string) : string
 {
+	const flag : boolean = (userData.auth_provider !== 'local' || placeholder == "Change Mail")
 	return /* html */ `
 		<input
-		${userData.auth_provider !== 'local' ? 'disabled' : ''}
+		${flag ? 'disabled' : ''}
 		value="${value}"
 		type="${type}"
 		name="${name}"
 		placeholder="${placeholder}"
-		class="${userData.auth_provider === 'local' ? 'bg-transparent'  : ''} border focus:outline-none focus:border-color1
+		class="${flag ?  '' : 'bg-transparent'} border focus:outline-none focus:border-color1
 		focus:border-[2px] text-txtColor w-full placeholder:text-sm border-color2 rounded-2xl p-3"
 		>
 	`
@@ -389,7 +390,7 @@ async function deleteAccount() : Promise<void>
 {
 	const confirmed = await confirmPopUp('Are you sure you want to delete your account? This action cannot be undone.');
 	if (!confirmed) return;
-	
+
 	try {
 		const response =  await fetch(`api/user/deleteAccount/${userData.id}`, {
 			method: 'DELETE',
