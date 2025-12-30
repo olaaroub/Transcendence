@@ -5,6 +5,13 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
 	chunkSizeWarningLimit: 10000,
+	rollupOptions: {
+      output: {
+        entryFileNames: 'main.js',
+        chunkFileNames: '[name].js',
+        assetFileNames: '[name].[ext]',
+      },
+    },
   },
   server: {
     port: 80,

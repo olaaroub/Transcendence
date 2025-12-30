@@ -16,15 +16,7 @@ export class PongEngine
 
 	constructor(session?: Instance)
 	{
-		this.session = session ||
-		{
-			oppAI: false,
-			diff: 'None',
-			p1Alias: 'Player 1',
-			p1Avatar: 'default.png',
-			p2Alias: 'Player 2',
-			p2Avatar: 'default.png'
-		};
+		this.session = session || this.getSessionStorage();
 		this.state =
 		{
 			p1: 0,
@@ -56,9 +48,34 @@ export class PongEngine
 
 	setInput(player: 1 | 2, input: Input): void
 	{
-		if (player === 1 ? this.state.p1Input = input : this.state.p2Input = input)
+		player === 1 ? this.state.p1Input = input : this.state.p2Input = input;
 		if (this.currentState === 'Open' && input !== 0)
 			this.setState('Playing');
+	}
+
+	private getSessionStorage(): Instance
+	{
+		const sessionData = sessionStorage.getItem('gameSession');
+		if (sessionData)
+		{
+			sessionStorage.removeItem('gameSession');
+			const session = JSON.parse(sessionData);
+			if (session)
+			{
+				const ret: Instance = session;
+				if (ret)
+					return ret;
+			}
+		}
+		console.warn('No session data found, using default session.');
+		return {
+			oppAI: false,
+			diff: 'None',
+			p1Alias: 'Player 1',
+			p1Avatar: 'default.png',
+			p2Alias: 'Player 2',
+			p2Avatar: 'default.png'
+		};
 	}
 
 	setSessionAI(oppAI: boolean, diff: Diff): void
