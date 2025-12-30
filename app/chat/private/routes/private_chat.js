@@ -1,149 +1,75 @@
-// import {
-//     getOrCreateConversation,
-//     sendMessage,
-//     getMessages
-//   } from "../conversation.js";
-	
-// export default async function chatRoutes(fastify)
-// {
-//   fastify.post("/conversation", (req, reply) =>
-//   {
-//     const { userA, userB } = req.body;
-
-//     const conversationId = getOrCreateConversation(userA, userB);
-
-//     reply.send({ conversationId });
-//   });
-// }
-
-
 import {
 	getOrCreateConversation,
 	sendMessage,
 	getMessages
 } from "../conversation.js";
 
-// export default async function chatRoutes(fastify)
-// {
-
-// 	fastify.post("/conversation", (req, reply) =>
-// 	{
-// 		const { userA, userB } = req.body;
-
-// 		if (!userA || !userB) {
-// 			return reply.status(400).send({ error: "userA and userB are required" });
-// 		}
-
-// 		const conversationId = getOrCreateConversation(userA, userB);
-// 		reply.send({ conversationId });
-// 	});
-
-// 	fastify.post("/message", (req, reply) =>
-// 	{
-// 		const { conversationId, senderId, content } = req.body;
-
-// 		if (!conversationId || !senderId || !content) {
-// 			return reply.status(400).send({ error: "conversationId, senderId, and content are required" });
-// 		}
-
-// 		const result = sendMessage(conversationId, senderId, content);
-// 		reply.send({ messageId: result.lastInsertRowid });
-// 	});
-
-// 	fastify.get("/messages/:conversationId", (req, reply) =>
-// 	{
-// 		const conversationId = parseInt(req.params.conversationId);
-// 		const limit = parseInt(req.query.limit) || 20;
-// 		const offset = parseInt(req.query.offset) || 0;
-
-// 		if (!conversationId) {
-// 			return reply.status(400).send({ error: "conversationId is required" });
-// 		}
-
-// 		const messages = getMessages(conversationId, limit, offset);
-// 		reply.send({ messages });
-// 	});
-// }
-
-export default async function chatRoutes(fastify) {
+export default async function chatRoutes(fastify)
+{
 
 	fastify.ready((err) => {
 		if (err) throw err;
 
 		fastify.io.on("connection", (socket) => {
-			console.log("New connection:", socket.id);
-			socket.on("join_private", (userId) => {
-				socket.join(`user_${userId}`);
-				console.log(`User ${userId} is now online and in their room`);
+			console.log("New user connected:", socket.id);
+	
+			socket.on("open_chat", async (data) =>
+			{
+				const { senderId, receiverId } = data;
+				try {
+					const conversationId = getOrCreateConversation(senderId, receiverId);
+					const roomName = `chat_${conversationId}`;
+				
+					socket.join(roomName);
+
+					const oldMessages = getMessages(conversationId, 20, 0);
+				
+					socket.emit("chat_initialized", { 
+						conversationId, 
+						messages: oldMessages 
+					});
+
+					console.log(`User ${senderId} opened chat ${conversationId}`);
+				} catch (error) {
+					socket.emit("error", { message: "Failed to load chat" });
+				}
 			});
 
-			socket.on("send_message", async (data) => {
+			socket.on("send_message", async (data) =>
+			{
 				const { conversationId, senderId, receiverId, content } = data;
 
-				try
-				{
+				try {
 					const result = sendMessage(conversationId, senderId, content);
-					const messageId = result.lastInsertRowid;
-
-					fastify.io.to(`user_${receiverId}`).emit("receive_message",
-					{
-						messageId,
+					const payload = {
+						messageId: result.lastInsertRowid,
 						senderId,
 						content,
 						conversationId,
 						createdAt: new Date()
+					};
+				
+					fastify.io.to(`chat_${conversationId}`).emit("receive_message", payload);
+				
+					fastify.io.to(`user_${receiverId}`).emit("new_notification",
+					{
+						type: "NEW_MESSAGE",
+						from: senderId,
+						conversationId: conversationId,
+						text: "You have a new message!" 
 					});
+				
+					socket.emit("message_sent", { status: "sent" });
+				} catch (error) { console.error(error); }
+			});
 
-					socket.emit("message_sent", { messageId, status: "sent" });
-
-				}
-				catch (error)
-				{
-					console.error("DB Error:", error);
-				}
+			socket.on("join_private", (userId) => {
+				socket.join(`user_${userId}`);
 			});
 
 			socket.on("disconnect", () => {
 				console.log("User disconnected");
 			});
 		});
-	});
-
-	fastify.post("/conversation", (req, reply) =>
-	{
-		const { userA, userB } = req.body;
-
-		if (!userA || !userB) {
-			return reply.status(400).send({ error: "userA and userB are required" });
-		}
-
-		const conversationId = getOrCreateConversation(userA, userB);
-		reply.send({ conversationId });
-	});
-
-	fastify.post("/message", (req, reply) =>
-	{
-		const { conversationId, senderId, content } = req.body;
-
-		if (!conversationId || !senderId || !content) {
-			return reply.status(400).send({ error: "conversationId, senderId, and content are required" });
-		}
-
-		const result = sendMessage(conversationId, senderId, content);
-		reply.send({ messageId: result.lastInsertRowid });
-	});
-
-	fastify.get("/messages/:conversationId", (req, reply) =>
-	{
-		const conversationId = parseInt(req.params.conversationId);
-		const limit = parseInt(req.query.limit) || 20;
-		const offset = parseInt(req.query.offset) || 0;
-
-		if (!conversationId) {
-			return reply.status(400).send({ error: "conversationId is required" });
-		}
-
-		const messages = getMessages(conversationId, limit, offset);
-		reply.send({ messages });
 	});
 }

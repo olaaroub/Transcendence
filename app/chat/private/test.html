@@ -1,113 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Private Chat - Socket.io Test</title>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f4f9; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        #messages { border: 1px solid #ddd; height: 300px; overflow-y: auto; margin: 15px 0; padding: 10px; border-radius: 5px; background: #fafafa; }
-        .msg-item { margin-bottom: 10px; padding: 8px; border-radius: 5px; }
-        .received { background: #e1ffc7; text-align: left; }
-        .sent { background: #cfe9ff; text-align: right; }
-        input { width: calc(100% - 22px); padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #218838; }
-        .status { font-size: 0.8em; color: gray; margin-bottom: 10px; }
-    </style>
+<meta charset="UTF-8">
+<title>Socket.IO Chat Test</title>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: #e5e7eb;
+}
+input, button {
+  padding: 6px;
+  margin: 4px;
+}
+button {
+  cursor: pointer;
+}
+#log, #chat {
+  background: #020617;
+  border: 1px solid #334155;
+  padding: 10px;
+  height: 200px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+.section {
+  border: 1px solid #334155;
+  padding: 10px;
+  margin-top: 10px;
+}
+</style>
 </head>
+
 <body>
 
-<div class="container">
-    <h2>💬 Private Chat Test</h2>
-    
-    <div id="connection-panel">
-        <input type="number" id="myId" placeholder="Enter My User ID (e.g., 1)">
-        <button type="button" onclick="connectToServer()">Step 1: Connect & Go Online</button>
-    </div>
+<h2>Socket.IO Chat + Notifications Test</h2>
 
-    <div id="chat-panel" style="display:none;">
-        <div id="status-bar" class="status">Offline</div>
-        <div id="messages"></div>
-        <input type="number" id="toId" placeholder="Receiver User ID">
-        <input type="text" id="msg" placeholder="Write a message...">
-        <button type="button" onclick="sendMessage(event)">Step 2: Send Message</button>
-    </div>
+<div class="section">
+  <h3>Connection</h3>
+  <input id="userId" placeholder="Your userId (ex: 1)" />
+  <button onclick="connect()">Connect</button>
+  <button onclick="joinPrivate()">Join Private</button>
+</div>
+
+<div class="section">
+  <h3>Open Chat</h3>
+  <input id="receiverId" placeholder="Receiver userId (ex: 2)" />
+  <button onclick="openChat()">Open Chat</button>
+</div>
+
+<div class="section">
+  <h3>Send Message</h3>
+  <input id="message" placeholder="Message..." />
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<div class="section">
+  <h3>Chat Messages</h3>
+  <div id="chat"></div>
+</div>
+
+<div class="section">
+  <h3>Logs / Notifications</h3>
+  <div id="log"></div>
 </div>
 
 <script>
-    let socket;
+let socket;
+let conversationId = null;
 
-    function connectToServer() {
-        const userId = document.getElementById('myId').value;
-        if (!userId) return alert("Please enter your User ID first!");
+function log(msg) {
+  const el = document.getElementById("log");
+  el.innerHTML += `<div>${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
 
-        // الاتصال بالسيرفر
-        socket = io("http://localhost:8405");
+function chat(msg) {
+  const el = document.getElementById("chat");
+  el.innerHTML += `<div>${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
 
-        socket.on("connect", () => {
-            console.log("Connected to Socket.io Server");
-            
-            // الانضمام لغرفة خاصة
-            socket.emit("join_private", userId);
+function connect() {
+  socket = io("http://localhost:8405");
 
-            // تحديث الواجهة
-            document.getElementById('connection-panel').style.display = 'none';
-            document.getElementById('chat-panel').style.display = 'block';
-            document.getElementById('status-bar').innerText = `Logged in as User: ${userId} (Online)`;
-        });
+  socket.on("connect", () => {
+    log(`✅ Connected (socket.id = ${socket.id})`);
+  });
 
-        // استقبال الرسائل من الطرف الآخر
-        socket.on("receive_message", (data) => {
-            console.log("New Message:", data);
-            appendMessage(data.senderId, data.content, 'received');
-        });
+  socket.on("disconnect", () => {
+    log("❌ Disconnected");
+  });
 
-        socket.on("disconnect", () => {
-            document.getElementById('status-bar').innerText = "Disconnected from Server";
-            document.getElementById('status-bar').style.color = "red";
-        });
-    }
+  socket.on("new_notification", (data) => {
+    log(`🔔 Notification: ${JSON.stringify(data)}`);
+  });
 
-    function sendMessage(event) {
-        // منع تحديث الصفحة تماماً مهما كان نوع الزر
-        if (event) event.preventDefault();
+  socket.on("chat_initialized", (data) => {
+    conversationId = data.conversationId;
+    chat(`🟢 Chat opened (conversationId = ${conversationId})`);
+    data.messages.forEach(m => {
+      chat(`[${m.senderId}] ${m.content}`);
+    });
+  });
 
-        const myId = document.getElementById('myId').value;
-        const receiverId = document.getElementById('toId').value;
-        const content = document.getElementById('msg').value;
+  socket.on("receive_message", (data) => {
+    chat(`[${data.senderId}] ${data.content}`);
+  });
 
-        if (!receiverId || !content) return alert("Please fill Receiver ID and Message");
+  socket.on("message_sent", () => {
+    log("📨 Message sent");
+  });
+}
 
-        const payload = {
-            conversationId: 1, // تأكد أن المحادثة رقم 1 موجودة في الـ DB
-            senderId: myId,
-            receiverId: receiverId,
-            content: content
-        };
+function joinPrivate() {
+  const userId = document.getElementById("userId").value;
+  socket.emit("join_private", userId);
+  log(`📥 Joined private room: user_${userId}`);
+}
 
-        // إرسال عبر السوكيت
-        socket.emit("send_message", payload);
+function openChat() {
+  const senderId = document.getElementById("userId").value;
+  const receiverId = document.getElementById("receiverId").value;
 
-        // إظهار الرسالة في شاشتي
-        appendMessage('Me', content, 'sent');
-        
-        // مسح خانة الرسالة بعد الإرسال
-        document.getElementById('msg').value = '';
-    }
+  socket.emit("open_chat", { senderId, receiverId });
+  log(`💬 Opening chat with user ${receiverId}`);
+}
 
-    function appendMessage(sender, text, type) {
-        const msgDiv = document.getElementById('messages');
-        const newMsg = document.createElement('div');
-        newMsg.className = `msg-item ${type}`;
-        newMsg.innerHTML = `<strong>${sender}:</strong> ${text}`;
-        msgDiv.appendChild(newMsg);
-        
-        // النزول لآخر رسالة تلقائياً
-        msgDiv.scrollTop = msgDiv.scrollHeight;
-    }
+function sendMessage() {
+  const senderId = document.getElementById("userId").value;
+  const receiverId = document.getElementById("receiverId").value;
+  const content = document.getElementById("message").value;
+
+  if (!conversationId) {
+    alert("Open chat first");
+    return;
+  }
+
+  socket.emit("send_message", {
+    conversationId,
+    senderId,
+    receiverId,
+    content
+  });
+
+  document.getElementById("message").value = "";
+}
 </script>
 
 </body>

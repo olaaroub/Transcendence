@@ -1,0 +1,100 @@
+# 💬 Real-Time Chat API Documentation
+
+This API uses **Socket.io** for real-time messaging and notifications.
+
+**Server URL:** `http://localhost:8405`
+
+8405 <== ha lport (rah machi 7mo ana)
+
+l3robi ila derti node . wmakhdemch hadchi (dir : node creat_tables.js) 3ad dir node .
+---
+
+## 1. Initialization (Essential)
+
+As soon as the user logs into the app, they **must** join their private notification room.
+
+* **Event to Emit:** `userId`
+* **Data:** `Number` (The ID of the logged-in user)
+* **Purpose:** Allows the user to receive notifications even if they don't have a chat window open.
+
+---
+
+## 2. Opening a Chat
+
+When a user clicks on a contact to start/view a conversation:
+
+* **Event to Emit:** `open_chat`
+* **Payload:**
+
+```json
+{
+  "senderId": 1,
+  "receiverId": 2
+}
+
+```
+
+* **Response to Listen for:** `chat_initialized`
+* **Returns:** An object containing `conversationId` and an array of the last 20 `messages`.
+
+---
+
+## 3. Sending a Message
+
+* **Event to Emit:** `send_message`
+* **Payload:**
+
+```json
+{
+  "conversationId": 10,
+  "senderId": 1,
+  "receiverId": 2,
+  "content": "Hello there!"
+}
+
+```
+
+* **Confirmation (Optional):** Listen for `message_sent` to know the message hit the database.
+
+---
+
+## 4. Incoming Events (Listeners)
+
+The frontend should always be listening for these two events:
+
+### **A. Receiving a Live Message**
+
+* **Event Name:** `receive_message`
+* **Trigger:** Only happens if the user is currently inside the specific chat room.
+* **Action:** Append the message to the chat screen.
+
+### **B. Receiving a Notification**
+
+* **Event Name:** `new_notification`
+* **Trigger:** Happens whenever someone sends the user a message, regardless of where they are in the app.
+* **Action:** Show a "New Message" alert or a red dot on the chat icon.
+* **Data Received:**
+
+```json
+{
+  "type": "NEW_MESSAGE",
+  "from": 1,
+  "conversationId": 10,
+  "text": "You have a new message!"
+}
+
+```
+
+---
+
+### **Summary Table for Frontend**
+
+|         Action        | Socket Event (Emit) | Socket Event (Listen) |
+| --------------------- | ------------------- | --------------------- |
+| **Login/Connect**     | `userId`            | --------------------- |
+| **Open Chat**         | `open_chat`         | `chat_initialized`    |
+| **Send Text**         | `send_message`      | `message_sent`        |
+| **Watch for Content** | ------------------- | `receive_message`     |
+| **Watch for Alerts**  | ------------------- | `new_notification`    |
+
+---
