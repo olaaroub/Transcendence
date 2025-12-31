@@ -12,13 +12,8 @@ async function getPendingRequestes(req, reply) {
                         
         `,).all([id]);
 
-    if (!data)
-    {
-        req.log.info({ userId: id, count: response.length }, "Fetched pending friend requests but it is empty");
-        return ([]);
-    }
-
     const { is_read } = this.db.prepare('SELECT is_read FROM userInfo WHERE id = ?').get(id);
+
     const response = {
         is_read,
         "userFriends": data

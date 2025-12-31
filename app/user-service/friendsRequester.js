@@ -28,10 +28,11 @@ async function add_friend(req, reply) {
     }
 
     this.db.prepare("UPDATE userInfo SET  is_read = FALSE WHERE id = ?")
-        .run([receiver_id.id]);
+        .run([receiver_id]);
 
     if (this.sockets) {
         const notificationSockets = this.sockets.get(receiver_id);
+
         if (notificationSockets) {
             // requester_Data.is_read = false;
             requester_Data["type"] = 'SEND_NOTIFICATION';

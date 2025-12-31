@@ -69,6 +69,7 @@ async function routes(fastify) {
                     const data = JSON.parse(msgString);
 
                     if (data.type === 'MAKE_AS_READ') {
+                        fastify.log.debug(`user ${id} make as read`);
                         fastify.db.prepare("UPDATE userInfo SET is_read = TRUE WHERE id = ?").run([id]);
 
                         const response = JSON.stringify({ type: 'NOTIFICATION_READED' });
