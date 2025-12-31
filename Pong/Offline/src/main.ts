@@ -50,7 +50,7 @@ window.addEventListener('keydown', (e) =>
 		scene.activeCamera = cam;
 		return;
 	}
-	const press = keyMap[e.key];
+	const press = keyMap[e.key.toLowerCase()];
 	if (press)
 		gameEngine.setInput(press.player === 'p1Input' ? 1 : 2, press.value);
 });

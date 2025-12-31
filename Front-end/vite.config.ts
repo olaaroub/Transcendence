@@ -25,12 +25,6 @@ export default defineConfig(({ command }) => {
           secure: false,
           ws: true
         },
-        '/game/': {
-          target: 'http://pong-offline-dev:80',
-          changeOrigin: true,
-          secure: false,
-          ws: true
-        }
       },
     }
   };
