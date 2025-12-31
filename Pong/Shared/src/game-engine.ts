@@ -72,9 +72,9 @@ export class PongEngine
 			oppAI: false,
 			diff: 'None',
 			p1Alias: 'Player 1',
-			p1Avatar: 'default.png',
+			p1Avatar: '/game/default.png',
 			p2Alias: 'Player 2',
-			p2Avatar: 'default.png'
+			p2Avatar: '/game/default.png'
 		};
 	}
 
@@ -219,6 +219,9 @@ export class PongEngine
 		{
 			this.winner = this.state.p1 === 5 ? this.session.p1Alias : this.session.p2Alias;
 			this.setState('Over');
+			const div = document.getElementById("exit-game-btn");
+			console.log("div by hamza : ", div);
+			div?.click();
 		}
 		this.resetBall();
 	}

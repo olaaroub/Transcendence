@@ -4,8 +4,8 @@ import "@babylonjs/core/Meshes/meshBuilder";
 import { GridMaterial } from "@babylonjs/materials";
 import { Instance } from "../types";
 
-const colIcon = ['ball.svg', 'p1.svg', 'p2.svg'];
-const camIcon = ['cam1.svg', 'cam2.svg', 'cam3.svg', 'cam4.svg'];
+const colIcon = ['/game/ball.svg', '/game/p1.svg', '/game/p2.svg'];
+const camIcon = ['/game/cam1.svg', '/game/cam2.svg', '/game/cam3.svg', '/game/cam4.svg'];
 const clicked = [false, false, false];
 
 let ui:GUI.AdvancedDynamicTexture;
@@ -101,7 +101,7 @@ function colorButtons(mesh: BABYLON.Material[]): void
 
 export function optionsButton(scene: BABYLON.Scene, cameras : { [key: string]: BABYLON.Camera }, mesh: BABYLON.Material[]): void
 {
-	const button = GUI.Button.CreateImageOnlyButton('Options', 'options.svg');
+	const button = GUI.Button.CreateImageOnlyButton('Options', '/game/options.svg');
 	button.thickness = 0;
 	button.width = '50px';
 	button.height = '50px';
@@ -135,7 +135,7 @@ export function optionsButton(scene: BABYLON.Scene, cameras : { [key: string]: B
 
 function createHUD(player: number, alias: string): GUI.Image
 {
-	const hudSVG = player === 1 ? 'player1.svg' : 'player2.svg'
+	const hudSVG = player === 1 ? '/game/player1.svg' : '/game/player2.svg'
 	const horAllign = player === 1 ? GUI.Control.HORIZONTAL_ALIGNMENT_LEFT : GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
 	const hud = new GUI.Image(alias + 'HUD', hudSVG);
 	hud.horizontalAlignment = horAllign;
@@ -198,11 +198,11 @@ export function addHUDs(session: Instance): void
 	ui.addControl(p2Name);
 	ui.addControl(p2Frame);
 }
- 
+
 export function scoreGoal(player: number, goals: number)
 {
 	const horAllign = player === 1 ? GUI.Control.HORIZONTAL_ALIGNMENT_LEFT : GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-	const goal = new GUI.Image('GOAL', 'goal.svg');
+	const goal = new GUI.Image('GOAL', '/game/goal.svg');
 	goal.horizontalAlignment = horAllign;
 	goal.verticalAlignment = GUI.Image.VERTICAL_ALIGNMENT_TOP;
 	goal.height = '26px';

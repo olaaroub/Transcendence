@@ -11,10 +11,5 @@ WORKDIR /app/Offline
 RUN npm install
 RUN npm run build -- --base=/game/
 
-FROM nginx:alpine
-
-COPY --from=0 /app/Offline/dist /usr/share/nginx/html/game
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Copy dist to shared volume on startup, then keep container alive (for your Node server later)
+CMD ["sh", "-c", "cp -r /app/Offline/dist/* /pong-dist/ && echo 'Pong dist copied to volume' && tail -f /dev/null"]

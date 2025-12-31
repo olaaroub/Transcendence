@@ -13,6 +13,7 @@ services:
       - ./certs:/app/certs:ro
       - /app/node_modules
       - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
+      - pong-offline-dist:/app/assets/game:ro
     environment:
       - CHOKIDAR_USEPOLLING=true
       - SERVICE_EXT=-dev
@@ -20,6 +21,7 @@ services:
       - transcendence-dev-net
     depends_on:
       - modSecurity-dev
+      - pong-offline-prod
 
   # pong-offline-dev:
   #   build:
@@ -42,10 +44,10 @@ services:
     container_name: pong-offline
     environment:
       - HOST=0.0.0.0
+    volumes:
+      - pong-offline-dist:/pong-dist
     networks:
       - transcendence-dev-net
-    depends_on:
-      - frontend-dev
 
   auth-service-dev:
     build:
@@ -244,4 +246,6 @@ volumes:
   vault-data:
     driver: local
   grafana-data:
+    driver: local
+  pong-offline-dist:
     driver: local
