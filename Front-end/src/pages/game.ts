@@ -19,13 +19,13 @@ export function renderGame() {
 
     document.body.innerHTML = /* html */`
         <div class="fixed inset-0 bg-black overflow-hidden">
-            <button id="exit-game-btn" 
-                class="absolute top-5 left-5 z-[999] bg-white/10 text-white border border-white/50 
+            <button id="exit-game-btn"
+                class="absolute top-5 left-5 z-[999] bg-white/10 text-white border border-white/50
                 px-5 py-2.5 cursor-pointer font-sans rounded-lg backdrop-blur transition-all duration-200
                 hover:bg-red-500/50 hover:border-red-500">
                 ← EXIT GAME
             </button>
-            <iframe id="game-iframe" 
+            <iframe id="game-iframe"
                 class="w-full h-full">
             </iframe>
         </div>
@@ -33,13 +33,13 @@ export function renderGame() {
 
     const gameIframe = document.getElementById('game-iframe') as HTMLIFrameElement;
     if (gameIframe) {
-        gameIframe.src = '/game/index.html';
-        
+        gameIframe.src = '/api/game/index.html';
+
         gameIframe.onload = () => {
             if (gameIframe.contentWindow) {
                 try {
                     const iframeSession = gameIframe.contentWindow.sessionStorage.getItem('gameSession');
-                    
+
                     if (!iframeSession) {
                         gameIframe.contentWindow.sessionStorage.setItem('gameSession', JSON.stringify(gameSession));
                         console.log('Session manually set in iframe sessionStorage');
