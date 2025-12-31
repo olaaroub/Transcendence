@@ -18,3 +18,16 @@ block and unblock api
 
 
 *send token in request
+
+
+friend status:
+    fe api dyal get friend kansift lik 'status' (ONLINE / OFFLINE);
+    sockets:
+        kansift lik fe socket dyal notification:
+        {
+            "type": "FRIEND_ONLINE" OR "FRIEND_OFFLINE"
+            "friend_id": "lfriend li tchonjat status dyalo"
+        }
+        ila matalan sift lik 
+            type: "FRIEND_ONLINE" ou friend_id: 1 , kat3ni bli luser 1 wla online
+
