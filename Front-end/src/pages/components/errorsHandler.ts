@@ -1,5 +1,6 @@
 import { navigate } from "../../router";
 import { closeNotificationSocket } from "./NavBar";
+import { cleanupGlobalChat } from "../chat/globalChat";
 
 
 export async function isUserAuthenticated(): Promise<boolean> {
@@ -16,6 +17,7 @@ export async function isUserAuthenticated(): Promise<boolean> {
         });
         if (response.status === 401 || response.status === 403) {
             closeNotificationSocket();
+            cleanupGlobalChat();
             localStorage.clear();
             navigate('/login');
             return false;

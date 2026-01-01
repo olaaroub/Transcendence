@@ -1,6 +1,6 @@
 import { notifications, renderDashboardNavBar, closeNotificationSocket } from "./components/NavBar";
 import { navigate } from "../router";
-import { renderGlobalChat } from "./chat/globalChat";
+import { renderGlobalChat, cleanupGlobalChat } from "./chat/globalChat";
 import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
 import { dashboardLearderboard } from "./components/leaderboard";
@@ -26,6 +26,7 @@ export async function fetchProfile(userId: string | number | null) : Promise<IUs
 		});
 		if (response.status === 401 || response.status === 403) {
 			closeNotificationSocket();
+			cleanupGlobalChat();
 			localStorage.clear();
 			navigate('/login');
 			return null;

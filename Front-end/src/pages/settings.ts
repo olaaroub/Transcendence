@@ -3,6 +3,7 @@ import { navigate, navigateBack } from "../router";
 import { credentials,IUserData, userData, getImageUrl} from "./store"
 import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/toast";
 import { closeNotificationSocket } from "./components/NavBar";
+import { cleanupGlobalChat } from "./chat/globalChat";
 
 const $ = (id : String) => document.getElementById(id as string);
 
@@ -401,6 +402,7 @@ async function deleteAccount() : Promise<void>
 		});
 		if (response.ok) {
 			closeNotificationSocket();
+			cleanupGlobalChat();
 			localStorage.clear();
 			navigate('/sign-up');
 			toastSuccess('Account deleted successfully.');
