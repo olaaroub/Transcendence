@@ -1,6 +1,7 @@
 import { getImageUrl, userData } from "../store";
 import { navigate } from "../../router";
 import { sendFriendRequest, unfriend, blockFriend } from "../profile";
+import { confirmPopUp } from "../settings";
 
 interface UserData {
     id: string;
@@ -59,7 +60,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 				unfriendIcon.onerror = () => { unfriendIcon.style.display = 'none'; };
 				unfriendIcon.addEventListener('click', async (e) => {
 					e.stopPropagation();
-					if (confirm('Are you sure you want to unfriend this user?')) {
+					if (await confirmPopUp('Are you sure you want to unfriend this user?')) {
 						try {
 							await unfriend(user.id);
 							divp.remove();
@@ -76,7 +77,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 				blockIcon.onerror = () => { blockIcon.style.display = 'none'; };
 				blockIcon.addEventListener('click', async (e) => {
 					e.stopPropagation();
-					if (confirm('Are you sure you want to block this user?')) {
+					if (await confirmPopUp('Are you sure you want to block this user?')) {
 						try {
 							await blockFriend(user.id);
 							divp.remove();

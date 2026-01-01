@@ -1,6 +1,7 @@
 import * as data from "./dashboard"
 import { userData, IUserData, getImageUrl } from "./store";
 import { navigate } from "../router";
+import { confirmPopUp } from "./settings";
 
 const stats = [
 	{ label: "XP", value: "2500" },
@@ -204,7 +205,7 @@ export async function renderProfile(userId: string | null = null)
 			}
 		});
 		profileCard?.querySelector('#unfriend-btn')?.addEventListener('click', async () => {
-			if (confirm('Are you sure you want to unfriend this user?')) {
+			if (await confirmPopUp('Are you sure you want to unfriend this user?')) {
 				try {
 					await unfriend(tmpUserData!.id);
 					renderProfile(userId);
@@ -214,7 +215,7 @@ export async function renderProfile(userId: string | null = null)
 			}
 		});
 		profileCard?.querySelector('#block-btn')?.addEventListener('click', async () => {
-			if (confirm('Are you sure you want to block this user?')) {
+			if (await confirmPopUp('Are you sure you want to block this user?')) {
 				try {
 					await blockFriend(tmpUserData!.id);
 					renderProfile(userId);

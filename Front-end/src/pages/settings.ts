@@ -132,7 +132,7 @@ function addInputListeners()
 	SaveChanges();
 }
 
-function confirmPopUp(message: string) : Promise<boolean>
+export function confirmPopUp(message: string) : Promise<boolean>
 {
 	return new Promise((resolve) => {
 		const deletePopUp = document.createElement('div');
