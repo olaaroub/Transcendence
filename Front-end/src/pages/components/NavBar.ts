@@ -88,7 +88,6 @@ async function getPendingUsers() : Promise<{users: IUserData[], is_read: boolean
 			return null;
 		}
 		const data: any = await response.json();
-		// console.log(data);
 		const users: IUserData[] = data.userFriends;
 		const is_read = data.is_read !== undefined ? data.is_read : true;
 		console.log(users, " is_read ", data.is_read)

@@ -78,7 +78,7 @@ export async function searchbar() {
 		div.id = 'search-results';
 		div.className = `absolute z-10 top-[44px] left-0 w-full max-h-[300px]
 		overflow-y-auto bg-color4 border py-3 border-[#87878766] rounded-xl scrollbar-custom`;
-		const response = await fetch(`api/user/search/${userData.id}?username=${value}`, {
+		const response = await fetch(`api/user/search/${userData.id}?username=${value}`, { // i must catch error for this fetch
 			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
 		});
 		const users: UserData[] = await response.json();
