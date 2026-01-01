@@ -2,6 +2,7 @@ import fastifyStatic from '@fastify/static'
 import path from 'path';
 import createError from 'http-errors';
 import notificationLiveStream from './notificationLiveStream.js'
+import gameEndPoints from './game.match.js'
 
 async function createNewUser(req, reply) {
   const newUserData = req.body;
@@ -12,7 +13,6 @@ async function createNewUser(req, reply) {
   const bio = newUserData.bio || 'Hello there i am using Pong game!';
   const avatar_url = newUserData.avatar_url || '/public/Default_pfp.jpg';
 
-  console.log(bio, " ", newUserData.bio)
 
   try {
     // if (newUserData.avatar_url) {
@@ -112,6 +112,8 @@ export async function publicRoutes(fastify) {
 
   fastify.register(fastifyStatic, staticOps);
   fastify.register(notificationLiveStream);
+
+  fastify.register(gameEndPoints);
 
   fastify.post('/user/createNewUser', createNewUser);
   fastify.put("/user/blockAndunblock-friend/:id", blockAndunblockFriend);

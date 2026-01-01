@@ -17,15 +17,15 @@ const creatTable = async () => {
         avatar_url TEXT DEFAULT '/public/Default_pfp.jpg',
         is_read BOOLEAN DEFAULT FALSE,
 
-        TotalWins INTEGER,
-        WinRate FLOAT,
-        CurrentStreak INTEGER,
-        Rating INTEGER,
-
-        points INTEGER DEFAULT 0,
-        gamesPlayed INTEGER DEFAULT 0,
-        wins INTEGER DEFAULT 0,
-        losses INTEGER DEFAULT 0
+        GamesPlayed INTEGER DEFAULT 0,
+        TotalWins INTEGER DEFAULT 0,
+        TotalLosses INTEGER DEFAULT 0,
+        WinRate FLOAT DEFAULT 0,
+        GoalsScored INTEGER DEFAULT 0,
+        GoalsTaken INTEGER DEFAULT 0,
+        CurrentStreak INTEGER DEFAULT 0,
+        MaxStreak INTEGER DEFAULT 0,
+        Rating INTEGER DEFAULT 1000
     );`);
 
     db.exec(`CREATE INDEX IF NOT EXISTS user_scor_indx
