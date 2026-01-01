@@ -1,4 +1,4 @@
-import { Input, Diff, State } from './types.js';
+import { Input, Diff } from './types.js';
 
 const i = 1;
 
@@ -21,18 +21,10 @@ export const keyMap: { [key: string]: { player: "p1Input" | "p2Input"; value: In
 	a:			{ player: "p1Input", value: -1 },
 	s:			{ player: "p1Input", value:  1 },
 	d:			{ player: "p1Input", value:  1 },
-	ArrowUp:	{ player: "p2Input", value: -1 },
-	ArrowLeft:	{ player: "p2Input", value: -1 },
-	ArrowDown:	{ player: "p2Input", value:  1 },
-	ArrowRight:	{ player: "p2Input", value:  1 },
+	arrowup:	{ player: "p2Input", value: -1 },
+	arrowleft:	{ player: "p2Input", value: -1 },
+	arrowdown:	{ player: "p2Input", value:  1 },
+	arrowright:	{ player: "p2Input", value:  1 },
 };
 
 export const diffMap: { [key in Diff]: number } = { None: 0, Easy: 2, Normal: 4, Hard: 8 };
-
-export const stateMap: { [key in State]: string } =
-{
-	"Error":	"INVALID SESSION",
-	"Open":		"PRESS ANY KEY TO START",
-	"Over":		"GAME OVER",
-	"Playing":	"N/A"
-};

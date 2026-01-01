@@ -5,7 +5,7 @@ import { scoreGoal } from './graphics/gui.js';
 export class PongEngine
 {
 	private state: GameState;
-	private currentState: State = 'Open';
+	private currentState: State = 'Waiting';
 	private currentTick: number = 0;
 	private lastGoal: -1 | 1 = 1;
 	private ballVX: number = 0;
@@ -46,12 +46,7 @@ export class PongEngine
 
 	getWinner(): string {return this.winner;}
 
-	setInput(player: 1 | 2, input: Input): void
-	{
-		player === 1 ? this.state.p1Input = input : this.state.p2Input = input;
-		if (this.currentState === 'Open' && input !== 0)
-			this.setState('Playing');
-	}
+	setInput(player: 1 | 2, input: Input): void {player === 1 ? this.state.p1Input = input : this.state.p2Input = input;}
 
 	private getSessionStorage(): Instance
 	{
@@ -72,9 +67,9 @@ export class PongEngine
 			oppAI: false,
 			diff: 'None',
 			p1Alias: 'Player 1',
-			p1Avatar: '/game/default.png',
+			p1Avatar: '../Assets/default.png',
 			p2Alias: 'Player 2',
-			p2Avatar: '/game/default.png'
+			p2Avatar: '../Assets/default.png'
 		};
 	}
 
@@ -102,7 +97,7 @@ export class PongEngine
 		this.ballVY = 0;
 	}
 
-	private setState(newState: State): void
+	setState(newState: State): void
 	{
 		this.currentState = newState;
 		console.log(`State Changed To: ${this.currentState}`);
@@ -219,9 +214,6 @@ export class PongEngine
 		{
 			this.winner = this.state.p1 === 5 ? this.session.p1Alias : this.session.p2Alias;
 			this.setState('Over');
-			const div = document.getElementById("exit-game-btn");
-			console.log("div by hamza : ", div);
-			div?.click();
 		}
 		this.resetBall();
 	}
