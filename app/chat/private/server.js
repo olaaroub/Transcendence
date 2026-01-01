@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import socketio from "fastify-socket.io";
 import chatRoutes from "./routes/private_chat.js";
+import "./create_tables.js";
 
 const fastify = Fastify({ logger: true });
 
