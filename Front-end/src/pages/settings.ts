@@ -378,8 +378,10 @@ function cancelChanges()
 	const cancelButton = $('cancel-changes');
 	if (cancelButton) {
 		cancelButton.addEventListener('click', () => {
-			if (Object.keys(newUserData).length === 0)
+			if (Object.keys(newUserData).length === 0) {
+				toastInfo('No changes to cancel.');
 				return;
+			}
 			newUserData = {};
 			renderSettings();
 		});
