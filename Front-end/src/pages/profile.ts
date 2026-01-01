@@ -2,6 +2,7 @@ import * as data from "./dashboard"
 import { userData, IUserData, getImageUrl } from "./store";
 import { navigate } from "../router";
 import { confirmPopUp } from "./settings";
+import { toastSuccess, toastError, toastWarning } from "./components/toast";
 
 const stats = [
 	{ label: "XP", value: "2500" },
@@ -43,7 +44,7 @@ async function getUserDataById(userId: string | null) : Promise<IUserData | null
 		return null;
 	const tmpUserData = await data.fetchProfile(userId);
 	if (!tmpUserData) {
-		alert('User data not found for ID: ' + userId);
+		toastError('User data not found for ID: ' + userId);
 		return null;
 	}
 	return tmpUserData;
@@ -51,7 +52,7 @@ async function getUserDataById(userId: string | null) : Promise<IUserData | null
 
 export async function sendFriendRequest (receiverId: string | number | null) : Promise<void>{
 	if (!receiverId) {
-		alert('Invalid user ID');
+		toastError('Invalid user ID');
 		return;
 	}
 	const response = await fetch(`/api/user/${userData.id}/add-friend?receiver_id=${receiverId}`, { 
@@ -62,12 +63,12 @@ export async function sendFriendRequest (receiverId: string | number | null) : P
 		const errorData = await response.json();
 		throw new Error(errorData.message || 'Failed to send friend request');
 	}
-	alert('Friend request sent successfully!');
+	toastSuccess('Friend request sent successfully!');
 }
 
 export async function unfriend(friendId: string | number | null): Promise<void> {
 	if (!friendId) {
-		alert('Invalid user ID');
+		toastError('Invalid user ID');
 		return;
 	}
 	const response = await fetch(`/api/user/${userData.id}/delete-friend`, {
@@ -82,12 +83,12 @@ export async function unfriend(friendId: string | number | null): Promise<void> 
 		const errorData = await response.json();
 		throw new Error(errorData.message || 'Failed to unfriend');
 	}
-	alert('Friend removed successfully!');
+	toastSuccess('Friend removed successfully!');
 }
 
 export async function blockFriend(friendId: string | number | null): Promise<void> {
 	if (!friendId) {
-		alert('Invalid user ID');
+		toastError('Invalid user ID');
 		return;
 	}
 	const response = await fetch(`/api/user/blockAndunblock-friend/${userData.id}`, {
@@ -101,12 +102,12 @@ export async function blockFriend(friendId: string | number | null): Promise<voi
 		const errorData = await response.json();
 		throw new Error(errorData.message || 'Failed to block friend');
 	}
-	alert('Friend blocked successfully!');
+	toastSuccess('Friend blocked successfully!');
 }
 
 export async function unblockFriend(friendId: string | number | null): Promise<void> {
 	if (!friendId) {
-		alert('Invalid user ID');
+		toastError('Invalid user ID');
 		return;
 	}
 	const response = await fetch(`/api/user/blockAndunblock-friend/${userData.id}`, {
@@ -120,7 +121,7 @@ export async function unblockFriend(friendId: string | number | null): Promise<v
 		const errorData = await response.json();
 		throw new Error(errorData.message || 'Failed to unblock friend');
 	}
-	alert('Friend unblocked successfully!');
+	toastSuccess('Friend unblocked successfully!');
 }
 
 export async function renderProfile(userId: string | null = null)
@@ -201,7 +202,7 @@ export async function renderProfile(userId: string | null = null)
 				await sendFriendRequest(tmpUserData!.id);
 				renderProfile(userId);
 			} catch (error) {
-				alert('Error sending friend request: ' + error);
+				toastError('Error sending friend request: ' + error);
 			}
 		});
 		profileCard?.querySelector('#unfriend-btn')?.addEventListener('click', async () => {
@@ -210,7 +211,7 @@ export async function renderProfile(userId: string | null = null)
 					await unfriend(tmpUserData!.id);
 					renderProfile(userId);
 				} catch (error) {
-					alert('Error unfriending: ' + error);
+					toastError('Error unfriending: ' + error);
 				}
 			}
 		});
@@ -220,7 +221,7 @@ export async function renderProfile(userId: string | null = null)
 					await blockFriend(tmpUserData!.id);
 					renderProfile(userId);
 				} catch (error) {
-					alert('Error blocking user: ' + error);
+					toastError('Error blocking user: ' + error);
 				}
 			}
 		});
@@ -229,7 +230,7 @@ export async function renderProfile(userId: string | null = null)
 				await unblockFriend(tmpUserData!.id);
 				renderProfile(userId);
 			} catch (error) {
-				alert('Error unblocking user: ' + error);
+				toastError('Error unblocking user: ' + error);
 			}
 		});
 	}

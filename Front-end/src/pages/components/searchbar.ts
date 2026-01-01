@@ -2,6 +2,7 @@ import { getImageUrl, userData } from "../store";
 import { navigate } from "../../router";
 import { sendFriendRequest, unfriend, blockFriend } from "../profile";
 import { confirmPopUp } from "../settings";
+import { toastError } from "./toast";
 
 interface UserData {
     id: string;
@@ -46,7 +47,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 							addFriend.src = '/images/pending.svg';
 							addFriend.title = 'Request Pending';
 						} catch (error) {
-							alert('Error sending friend request: ' + error);
+							toastError('Error sending friend request: ' + error);
 						}
 					});
 				}
@@ -65,7 +66,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 							await unfriend(user.id);
 							divp.remove();
 						} catch (error) {
-							alert('Error unfriending: ' + error);
+							toastError('Error unfriending: ' + error);
 						}
 					}
 				});
@@ -82,7 +83,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 							await blockFriend(user.id);
 							divp.remove();
 						} catch (error) {
-							alert('Error blocking user: ' + error);
+							toastError('Error blocking user: ' + error);
 						}
 					}
 				});
