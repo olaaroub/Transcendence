@@ -1,6 +1,7 @@
 import * as data from "./dashboard"
 import { navigate, navigateBack } from "../router";
 import { credentials,IUserData, userData, getImageUrl} from "./store"
+import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/toast";
 
 const $ = (id : String) => document.getElementById(id as string);
 
@@ -20,11 +21,11 @@ async function checkPasswordChange() : Promise<boolean>
 		return true;
 	}
 	if (!currentPassword) {
-		alert('Current password is required to change the password.');
+		toastWarning('Current password is required to change the password.');
 		return false;
 	}
 	if (!confirmPassword || value !== confirmPassword) {
-		alert('Invalid password confirmation.');
+		toastWarning('Invalid password confirmation.');
 		return false;
 	}
 	try {
@@ -37,7 +38,7 @@ async function checkPasswordChange() : Promise<boolean>
 			}
 		});
 		if (!response.ok) {
-			alert('Current password is incorrect.');
+			toastError('Current password is incorrect.');
 			return false;
 		}
 	} catch (error) {
@@ -55,7 +56,7 @@ function SaveChanges()
 	if (!saveBtn) return;
 		saveBtn.addEventListener('click', async () => {
 			if (Object.keys(newUserData).length === 0) {
-				alert('No changes to save.');
+				toastInfo('No changes to save.');
 				return;
 			}
 			if (!await checkPasswordChange()) return;
@@ -88,7 +89,7 @@ function SaveChanges()
 						headers,
 					})
 					if (!response.ok) {
-						alert(`Failed to update ${key}.`);
+						toastError(`Failed to update ${key}.`);
 					} else {
 						delete newUserData[key as keyof IUserData];
 					}
@@ -132,7 +133,7 @@ function addInputListeners()
 	SaveChanges();
 }
 
-function confirmPopUp(message: string) : Promise<boolean>
+export function confirmPopUp(message: string) : Promise<boolean>
 {
 	return new Promise((resolve) => {
 		const deletePopUp = document.createElement('div');
@@ -222,20 +223,20 @@ function sendAvatar() : FormData | null
 	const fileName = file.name.toLowerCase();
 	const fileExtension = fileName.split('.').pop();
 	if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
-		alert(`Invalid file type. Allowed formats: ${allowedExtensions.join(', ').toUpperCase()}`);
+		toastWarning(`Invalid file type. Allowed formats: ${allowedExtensions.join(', ').toUpperCase()}`);
 		uploadAvatar.value = '';
 		return null;
 	}
 	
 	const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 	if (!allowedMimeTypes.includes(file.type)) {
-		alert(`Invalid file type. Please upload a valid image file.`);
+		toastWarning(`Invalid file type. Please upload a valid image file.`);
 		uploadAvatar.value = '';
 		return null;
 	}
 	
 	if (file.size > 2097152) {
-		alert("Image is too large. Max size 2MB.");
+		toastWarning("Image is too large. Max size 2MB.");
 		uploadAvatar.value = '';
 		return null;
 	}
@@ -398,13 +399,13 @@ async function deleteAccount() : Promise<void>
 		if (response.ok) {
 			localStorage.clear();
 			navigate('/sign-up');
-			alert('account deleted succ...');
+			toastSuccess('Account deleted successfully.');
 		} else {
 			console.error('failed to delete account');
-			alert('failed to delete account');
+			toastError('Failed to delete account.');
 		}
 	} catch(error) {
-		alert('failed in fetch to delete account');
+		toastError('Failed to delete account. Please try again.');
 		console.error(error);
 	}
 }
