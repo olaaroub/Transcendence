@@ -2,6 +2,7 @@ import * as data from "./dashboard"
 import { navigate, navigateBack } from "../router";
 import { credentials,IUserData, userData, getImageUrl} from "./store"
 import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/toast";
+import { closeNotificationSocket } from "./components/NavBar";
 
 const $ = (id : String) => document.getElementById(id as string);
 
@@ -399,6 +400,7 @@ async function deleteAccount() : Promise<void>
 			headers: { "Authorization": `Bearer ${credentials.token}`},
 		});
 		if (response.ok) {
+			closeNotificationSocket();
 			localStorage.clear();
 			navigate('/sign-up');
 			toastSuccess('Account deleted successfully.');

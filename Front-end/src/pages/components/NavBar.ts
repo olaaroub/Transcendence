@@ -4,34 +4,46 @@ import { costumeButton } from "./buttons";
 
 const $ = (id: string) => document.getElementById(id as string)
 let pendingUsers: IUserData[] | null = null;
+let socket: WebSocket | null = null;
 
-// const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
-const wsUrl = `wss://${window.location.host}/api/user/notification/${credentials.id}`;
-const socket = new WebSocket(wsUrl);
+function initNotificationSocket(): void {
+	if (!credentials.id || socket) return;
 
-socket.onopen = () => {
-	console.log('WebSocket connection established for notifications');
-};
-socket.onmessage = (event) => {
-	try {
-		const parsed = JSON.parse(event.data);
+	const wsUrl = `wss://${window.location.host}/api/user/notification/${credentials.id}`;
+	socket = new WebSocket(wsUrl);
 
-		if (parsed.type ==  'NOTIFICATION_READED')
-			$("notification-icon")?.querySelector('span')?.classList.add('hidden')
-		else if (parsed.type == 'SEND_NOTIFICATION')
-		{
-			const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
-			pendingUsers = (pendingUsers ?? []).concat(newUsers);
-			$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
-		}
-	} catch (err) {console.error(err)}
-};
-socket.onerror = (error) => {
-	console.error('WebSocket error:', error);
-};
-socket.onclose = (event) => {
-	console.log('WebSocket connection closed:', event.code, event.reason);
-};
+	socket.onopen = () => {
+		console.log('WebSocket connection established for notifications');
+	};
+	socket.onmessage = (event) => {
+		try {
+			const parsed = JSON.parse(event.data);
+
+			if (parsed.type ==  'NOTIFICATION_READED')
+				$("notification-icon")?.querySelector('span')?.classList.add('hidden')
+			else if (parsed.type == 'SEND_NOTIFICATION')
+			{
+				const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
+				pendingUsers = (pendingUsers ?? []).concat(newUsers);
+				$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
+			}
+		} catch (err) {console.error(err)}
+	};
+	socket.onerror = (error) => {
+		console.error('WebSocket error:', error);
+	};
+	socket.onclose = (event) => {
+		console.log('WebSocket connection closed:', event.code, event.reason);
+		socket = null;
+	};
+}
+
+export function closeNotificationSocket(): void {
+	if (socket) {
+		socket.close();
+		socket = null;
+	}
+}
 
 export function renderNavBar (isLoged: boolean)
 {
@@ -127,6 +139,8 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 
 export async function notifications()
 {
+	initNotificationSocket();
+	
 	const notificationIcon = $('notification-icon');
 	const pendingData = await getPendingUsers();
 
@@ -142,7 +156,7 @@ export async function notifications()
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
 		const existingResult = $('notifications-result');
-		if (!existingResult)
+		if (!existingResult && socket)
 		{
 			socket.send(JSON.stringify({
 				type: 'MAKE_AS_READ'

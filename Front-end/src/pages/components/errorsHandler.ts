@@ -1,4 +1,5 @@
 import { navigate } from "../../router";
+import { closeNotificationSocket } from "./NavBar";
 
 
 export async function isUserAuthenticated(): Promise<boolean> {
@@ -14,6 +15,7 @@ export async function isUserAuthenticated(): Promise<boolean> {
             headers: { "Authorization": `Bearer ${token}` },
         });
         if (response.status === 401 || response.status === 403) {
+            closeNotificationSocket();
             localStorage.clear();
             navigate('/login');
             return false;

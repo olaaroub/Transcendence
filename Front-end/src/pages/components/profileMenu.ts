@@ -1,10 +1,11 @@
 import { navigate } from "../../router";
+import { closeNotificationSocket } from "./NavBar";
 
 export function logout()
 {
+    closeNotificationSocket();
     localStorage.removeItem('token');
     localStorage.removeItem('id');
-    // remove sockets 
 	navigate('/login');
 }
 
