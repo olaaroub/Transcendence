@@ -1,6 +1,6 @@
 import { getImageUrl, userData } from "../store";
 import { navigate } from "../../router";
-import { sendFriendRequest } from "../profile";
+import { sendFriendRequest, unfriend, blockFriend } from "../profile";
 
 interface UserData {
     id: string;
@@ -25,39 +25,79 @@ function listUsers(users: UserData[], div: HTMLElement) {
 				<p class="font-bold">${user.username}</p>
 			</div>`;
 		const buttonsDiv = document.createElement('div');
-		buttonsDiv.className = "flex gap-4 items-center";
-		const addFriend = document.createElement('img');
-		addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110`;
+		buttonsDiv.className = "flex gap-3 items-center";
 		const status = user.status?.toLowerCase();
-		if (user.id != userData.id)
-		{
-			if (status == 'pending')
-				addFriend.src = '/images/pending.svg';
-			else if (status == 'accepted')
-				addFriend.src = '/images/addFriend.svg';
-			else if (status == null)
-				addFriend.src = '/images/addFriend.svg';
-			if (status != 'accepted')
-				buttonsDiv.appendChild(addFriend);
-		}
-		if (status == null)
-		{
-			addFriend.addEventListener('click', async _=> {
-				try {
-					await sendFriendRequest(user!.id);
+		
+		if (user.id != userData.id) {
+			if (status !== 'accepted' && status !== 'blocked') {
+				const addFriend = document.createElement('img');
+				addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110 transition-transform`;
+				addFriend.title = status === 'pending' ? 'Request Pending' : 'Add Friend';
+				
+				if (status === 'pending') {
 					addFriend.src = '/images/pending.svg';
-				} catch (error) {
-					alert('Error sending friend request: ' + error);
+				} else {
+					addFriend.src = '/images/addFriend.svg';
+					addFriend.addEventListener('click', async (e) => {
+						e.stopPropagation();
+						try {
+							await sendFriendRequest(user.id);
+							addFriend.src = '/images/pending.svg';
+							addFriend.title = 'Request Pending';
+						} catch (error) {
+							alert('Error sending friend request: ' + error);
+						}
+					});
 				}
-			});
+				buttonsDiv.appendChild(addFriend);
+			}
+			if (status === 'accepted') {
+				const unfriendIcon = document.createElement('img');
+				unfriendIcon.src = '/images/unfriend.svg';
+				unfriendIcon.className = `w-6 h-6 cursor-pointer hover:scale-110 transition-transform`;
+				unfriendIcon.title = 'Unfriend';
+				unfriendIcon.onerror = () => { unfriendIcon.style.display = 'none'; };
+				unfriendIcon.addEventListener('click', async (e) => {
+					e.stopPropagation();
+					if (confirm('Are you sure you want to unfriend this user?')) {
+						try {
+							await unfriend(user.id);
+							divp.remove();
+						} catch (error) {
+							alert('Error unfriending: ' + error);
+						}
+					}
+				});
+				buttonsDiv.appendChild(unfriendIcon);
+				const blockIcon = document.createElement('img');
+				blockIcon.src = '/images/block.svg';
+				blockIcon.className = `w-5 h-5 cursor-pointer hover:scale-110 transition-transform opacity-60 hover:opacity-100`;
+				blockIcon.title = 'Block User';
+				blockIcon.onerror = () => { blockIcon.style.display = 'none'; };
+				blockIcon.addEventListener('click', async (e) => {
+					e.stopPropagation();
+					if (confirm('Are you sure you want to block this user?')) {
+						try {
+							await blockFriend(user.id);
+							divp.remove();
+						} catch (error) {
+							alert('Error blocking user: ' + error);
+						}
+					}
+				});
+				buttonsDiv.appendChild(blockIcon);
+			}
 		}
-		const view  = document.createElement('button');
+		
+		const view = document.createElement('button');
 		view.textContent = 'view';
-		view.className = "font-bold text-color2 hover:scale-110 hover:text-white";
+		view.className = "font-bold text-color2 hover:scale-110 hover:text-white transition-transform";
 		buttonsDiv.appendChild(view);
-		view.addEventListener('click', _=> {
+		view.addEventListener('click', (e) => {
+			e.stopPropagation();
 			ViewProfile(user.id);
 		});
+		
 		divp.append(buttonsDiv);
 		div.appendChild(divp);
 	});
