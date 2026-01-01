@@ -63,7 +63,8 @@ export async function sendFriendRequest (receiverId: string | number | null) : P
 		const errorData = await response.json();
 		throw new Error(errorData.message || 'Failed to send friend request');
 	}
-	toastSuccess('Friend request sent successfully!');
+	
+	setInterval( ()=>{toastSuccess('Friend request sent successfully!');}, 200);
 }
 
 export async function unfriend(friendId: string | number | null): Promise<void> {
@@ -102,7 +103,8 @@ export async function blockFriend(friendId: string | number | null): Promise<voi
 		const errorData = await response.json();
 		throw new Error(errorData.message || 'Failed to block friend');
 	}
-	toastSuccess('Friend blocked successfully!');
+	setTimeout(() => {toastSuccess('Friend blocked successfully!');}, 100);
+
 }
 
 export async function unblockFriend(friendId: string | number | null): Promise<void> {
