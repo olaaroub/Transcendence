@@ -63,7 +63,7 @@ export default async function chatRoutes(fastify)
 				} catch (error) { console.error(error); }
 			});
 
-			socket.on("join_private", (userId) => {
+			socket.on("userId", (userId) => {
 				socket.join(`user_${userId}`);
 			});
 
