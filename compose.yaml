@@ -1,53 +1,137 @@
 services:
 
-  frontend:
+  frontend-prod:
     build:
       context: ./Front-end
       dockerfile: Dockerfile.frontend.prod
-    image: frontend:1337
+    image: frontend-prod:1337
     container_name: frontend-prod
     ports:
-      - "8080:80"
-      - "8443:443" #mac dzb (cant access 443, galoha f subject)
+      - "5173:5173"
     volumes:
-      - ./certs:/etc/nginx/certs:ro
-    networks:
-      - transcendence-net
-    restart: on-failure
-    depends_on:
-      - modSecurity
-
-  backend:
-    build:
-      context: ./app
-      dockerfile: Dockerfile.backend.prod
-    image: backend:1337
-    container_name: backend-prod
-    networks:
-      - transcendence-net
-    expose:
-      - "3000"
+      - ./Front-end:/app
+      - ./certs:/app/certs:ro
+      - /app/node_modules
+      - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
+      - pong-offline-dist:/app/assets/game:ro
     environment:
-      - VAULT_ADDR=${VAULT_ADDR}
-      - VAULT_TOKEN=${VAULT_TOKEN}
-      - PORT=${BACKEND_PORT}
-      - HOST=${BACKEND_HOST}
-    volumes:
-      - ./app/static:/app/static
-      - ./db:/data
-    restart: always
+      - CHOKIDAR_USEPOLLING=true
+      - SERVICE_EXT=-prod
+    networks:
+      - transcendence-prod-net
     depends_on:
-      vault-init:
+      - modSecurity-prod
+      - pong-offline-prod
+
+  pong-offline-prod:
+    build:
+      context: ./Pong
+      dockerfile: Dockerfile.pong.prod
+    image: pong-offline:1337
+    container_name: pong-offline
+    environment:
+      - HOST=0.0.0.0
+    volumes:
+      - pong-offline-dist:/pong-dist
+    networks:
+      - transcendence-prod-net
+
+  auth-service-prod:
+    build:
+      context: ./app/auth
+      dockerfile: ../Dockerfile.microservices.prod
+      args:
+        - PORT=3001
+    image: auth-service-prod:1337
+    container_name: auth-service-prod
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_PROD}
+      - VAULT_SECRET_PATH=${AUTH_SECRET_PATH}
+      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/auth.db
+      - HOST=0.0.0.0
+      - DOMAIN=${AUTH_DOMAIN}
+      - SERVICE_EXT=-prod
+      - LOG_LEVEL=info
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./app/auth:/app
+      - ./db/auth:/data
+      - ./app/static:/app/static
+      - /app/node_modules
+    networks:
+      - transcendence-prod-net
+    depends_on:
+      vault-init-prod:
+          condition: service_completed_successfully
+
+
+
+  user-service-prod:
+    build:
+      context: ./app/user-service
+      dockerfile: ../Dockerfile.microservices.prod
+      args:
+        - PORT=3002
+    image: user-service-prod:1337
+    container_name: user-service-prod
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_PROD}
+      - VAULT_SECRET_PATH=${USER_SECRET_PATH}
+      - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/users.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-prod
+      - LOG_LEVEL=info
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./app/user-service:/app
+      - ./app/static:/app/static
+      - ./db/users:/data
+      - /app/node_modules
+    networks:
+      - transcendence-prod-net
+    depends_on:
+      vault-init-prod:
         condition: service_completed_successfully
 
 
-
-
-  vault:
-    image: hashicorp/vault:1.21.0
-    container_name: vault
+  global-chat-prod:
+    build:
+      context: ./app/chat/global
+      dockerfile: ../../Dockerfile.microservices.prod
+      args:
+        - PORT=3003
+    image: global-chat-prod:1337
+    container_name: global-chat-prod
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_PROD}
+      - VAULT_SECRET_PATH=${GLOBAL_CHAT_SECRET_PATH}
+      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/global.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-prod
+      - LOG_LEVEL=info
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./app/chat/global:/app
+      - ./app/static:/app/static
+      - ./db/chat:/data
+      - /app/node_modules
     networks:
-      - transcendence-net
+      - transcendence-prod-net
+    depends_on:
+      vault-init-prod:
+        condition: service_completed_successfully
+
+  vault-prod:
+    image: hashicorp/vault:1.21.1
+    container_name: vault-prod
+    networks:
+      - transcendence-prod-net
     ports:
       - "8200:8200"
     environment:
@@ -56,71 +140,99 @@ services:
     cap_add:
       - IPC_LOCK
 
-  vault-init:
-    image: hashicorp/vault:1.21.0
-    container_name: vault-init
+  vault-init-prod:
+    image: hashicorp/vault:1.21.1
+    container_name: vault-init-prod
     networks:
-      - transcendence-net
+      - transcendence-prod-net
     volumes:
       - ./vault/hashicorpVault.init.sh:/init.sh
     environment:
+      - VAULT_ADDR=${VAULT_ADDR_PROD}
       - VAULT_TOKEN=${VAULT_TOKEN}
       - JWT_SECRET_VALUE=${JWT_SECRET_VALUE}
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - INTRA_CLIENT_ID=${INTRA_CLIENT_ID}
+      - INTRA_CLIENT_SECRET=${INTRA_CLIENT_SECRET}
+      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+      - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
+      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
     entrypoint: /init.sh
     depends_on:
-      - vault
+      - vault-prod
 
-  modSecurity:
-    image: owasp/modsecurity-crs:4.20-nginx-alpine-202511100111
-    container_name: modSecurity
+  modSecurity-prod:
+    image: owasp/modsecurity-crs:4.21.0-nginx-alpine-202512071012
+    container_name: modSecurity-prod
     networks:
-      - transcendence-net
+      - transcendence-prod-net
     environment:
-      - BACKEND=http://backend:3000
       - MODSEC_RULE_ENGINE=DetectionOnly
+      - BLOCKING_PARANOIA=2
+    volumes:
+      - ./waf/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
+      - ./waf/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
+      - ./waf/scan_php.sh:/usr/local/bin/scan_php.sh:ro
+      - ./waf/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     depends_on:
-      - backend
+      - auth-service-prod
+      - user-service-prod
+      - global-chat-prod
 
 
+  prometheus-prod:
+    image: prom/prometheus:v3.8.1
+    container_name: prometheus-prod
+    ports:
+      - "9090:9090"
+    networks:
+      - transcendence-prod-net
+    volumes:
+      - ./prometheus/prometheus.prod.yaml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - auth-service-prod
+      - user-service-prod
+      - global-chat-prod
 
-  # prometheus:
-  #   image: prom/prometheus:v3.7.3
-  #   container_name: prometheus
-  #   ports:
-  #     - "9090:9090"
-  #   networks:
-  #     - transcendence-net
-  #   volumes:
-  #     - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
-  #     - prometheus-data:/prometheus
-  #   depends_on:
-  #     - backend
-
-  # grafana:
-  #   image: grafana/grafana:12.3.0
-  #   container_name: grafana
-  #   ports:
-  #     - "3001:3000"
-  #   networks:
-  #     - transcendence-net
-  #   volumes:
-  #     - grafana-data:/var/lib/grafana
-  #   depends_on:
-  #     - prometheus
-
-
+  grafana-prod:
+    image: grafana/grafana:12.3.0
+    container_name: grafana-prod
+    ports:
+      - "3000:3000"
+    networks:
+      - transcendence-prod-net
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
+    depends_on:
+      - prometheus-prod
 
 
 networks:
-  transcendence-net:
-    name: transcendence-net
+  transcendence-prod-net:
+    name: transcendence-prod-net
     driver: bridge
-
-# volumes:
-#   prometheus-data:
-#     driver: local
-#   vault-data:
-#     driver: local
-#   grafana-data:
-#     driver: local
+volumes:
+  prometheus-data:
+    driver: local
+  vault-data:
+    driver: local
+  grafana-data:
+    driver: local
+  pong-offline-dist:
+    driver: local
