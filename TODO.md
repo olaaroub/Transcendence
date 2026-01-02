@@ -55,9 +55,10 @@
 - [x] **is_read re structur**
 - [x] **send the prives messages to the front**
 - [x] **Unfriend api**
-- [ ] **change username and avatar_url error ...**
-- [ ] **bugs in notification sockets**
-- [ ] **global chat time bug**
+- [x] **change username and avatar_url error ...**
+- [x] **bugs in notification sockets**
+- [simo_part] **global chat time bug**
+- [ ] **error when blocken friend and unblocken them and resend the add friend request**
 <!-- union intersect distinct  -->
 - [cancled] **learn gRPC:** to build micro sirveces
 

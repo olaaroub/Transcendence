@@ -7,6 +7,12 @@ async function add_friend(req, reply) {
     if (!receiver_id)
         throw createError.BadRequest("Reciever ID (friend_id) is required");
 
+    const friendshipsStmt = this.db.prepare("SELECT status, blocker_id FROM friendships WHERE status = 'BLOCKED' AND ((userRequester = ? AND userReceiver = ?) OR (userRequester = ? AND userReceiver = ?))");
+    const friendships = friendshipsStmt.get(requester_id, receiver_id, receiver_id, requester_id);
+
+    if (friendships)
+        return { success: true, message: "Friend request sent" };
+
     try {
         this.db.prepare(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`)
             .run([requester_id, receiver_id]);

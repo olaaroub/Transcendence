@@ -74,8 +74,8 @@ async function blockAndunblockFriend(req, reply) {
     this.customMetrics.friendCounter.inc({ action: 'blocked' });
   }
   else {
-    const info = this.db.prepare("UPDATE friendships SET status = ?, blocker_id = NULL WHERE (userRequester = ? AND userReceiver = ?) OR (userReceiver = ? AND userRequester = ?)")
-      .run(["ACCEPTED", id, friend_id, id, friend_id]);
+    const info = this.db.prepare("DELETE FROM friendships WHERE (userRequester = ? AND userReceiver = ?) OR (userReceiver = ? AND userRequester = ?)")
+      .run([id, friend_id, id, friend_id]); // delete it
 
     if (info.changes === 0) throw createError.NotFound("Friendship not found or not blocked");
 
