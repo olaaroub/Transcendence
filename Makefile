@@ -46,7 +46,7 @@ re: clean up
 # ==========================================
 dev: certs
 	docker compose -f compose.dev.yaml up -d --build
-	docker compose -f compose.dev.yaml logs -f auth-service-dev user-service-dev frontend-dev global-chat-dev
+	docker compose -f compose.dev.yaml logs -f auth-service-dev user-service-dev frontend-dev global-chat-dev private-chat-dev
 
 down-dev:
 	docker compose -f compose.dev.yaml down

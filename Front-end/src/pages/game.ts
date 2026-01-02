@@ -34,7 +34,7 @@ export async function renderGame() {
 
     // Load the game script AFTER the canvas is in the DOM
     const script = document.createElement('script');
-    script.src = '/game/main.js';
+    script.src = '/game/offline/main.js';
     script.type = 'module';
     document.body.appendChild(script);
 

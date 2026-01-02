@@ -12,21 +12,21 @@ export default async function chatRoutes(fastify)
 
 		fastify.io.on("connection", (socket) => {
 			console.log("New user connected:", socket.id);
-	
+
 			socket.on("open_chat", async (data) =>
 			{
 				const { senderId, receiverId } = data;
 				try {
 					const conversationId = getOrCreateConversation(senderId, receiverId);
 					const roomName = `chat_${conversationId}`;
-				
+
 					socket.join(roomName);
 
 					const oldMessages = getMessages(conversationId, 20, 0);
-				
-					socket.emit("chat_initialized", { 
-						conversationId, 
-						messages: oldMessages 
+
+					socket.emit("chat_initialized", {
+						conversationId,
+						messages: oldMessages
 					});
 
 					console.log(`User ${senderId} opened chat ${conversationId}`);
@@ -48,17 +48,17 @@ export default async function chatRoutes(fastify)
 						conversationId,
 						createdAt: new Date()
 					};
-				
+
 					fastify.io.to(`chat_${conversationId}`).emit("receive_message", payload);
-				
+
 					fastify.io.to(`user_${receiverId}`).emit("new_notification",
 					{
 						type: "NEW_MESSAGE",
 						from: senderId,
 						conversationId: conversationId,
-						text: "You have a new message!" 
+						text: "You have a new message!"
 					});
-				
+
 					socket.emit("message_sent", { status: "sent" });
 				} catch (error) { console.error(error); }
 			});

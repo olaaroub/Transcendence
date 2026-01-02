@@ -1,3 +1,27 @@
+# FROM node:20-alpine
+
+# WORKDIR /app
+
+# COPY . .
+
+# WORKDIR /app/Shared
+# RUN npm install && npm run build
+
+# WORKDIR /app/Offline
+# RUN npm install && npm run build
+
+# WORKDIR /app/Online
+# RUN npm install && npm run build
+
+# ENTRYPOINT ["sh", "init.sh"]
+# # cp -r /app/Offline/dist/* /pong-dist/Offline
+# # cp -r /app/Online/dist/* /pong-dist/Online
+# # cp -r /app/Assets /pong-dist/Assets
+
+# CMD ["tail -f /dev/null"]
+# # node run the server
+
+
 FROM node:20-alpine
 
 WORKDIR /app
@@ -8,15 +32,16 @@ WORKDIR /app/Shared
 RUN npm install && npm run build
 
 WORKDIR /app/Offline
-RUN npm install && npm run build
+RUN npm install && npm run build -- --base=/game/offline/
 
-WORKDIR /app/Online
-RUN npm install && npm run build
+# WORKDIR /app/Online/
+# RUN npm install && npm run build -- --base=/game/online/
 
-ENTRYPOINT ["bash", "init.sh"]
-# cp -r /app/Offline/dist/* /pong-dist/Offline
-# cp -r /app/Online/dist/* /pong-dist/Online
-# cp -r /app/Assets /pong-dist/Assets
 
-CMD ["tail -f /dev/null"]
-# node run the server
+RUN chmod +x /app/init.sh
+
+ARG PORT=3000
+ENV PORT=${PORT}
+EXPOSE ${PORT}
+
+ENTRYPOINT ["/app/init.sh"]

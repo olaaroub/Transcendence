@@ -56,11 +56,11 @@ async function getSecrets(logger)
 			endpoint: process.env.VAULT_ADDR,
 			token: process.env.PONG_SERVICE_TOKEN
 		};
-	
+
 		const vaultClient = Vault(options);
 		logger.info(`reading secrets from: ${vaultPath}`);
 		const { data } = await vaultClient.read(vaultPath);
-	
+
 		return { jwtSecret: data.data.jwt_secret };
 	}
 	catch (err)
@@ -77,7 +77,7 @@ const fastify = Fastify(
 		level: process.env.LOG_LEVEL || 'info',
 		base:
 		{
-			service: 'pong-server',
+			service: 'pong-game',
 			env: process.env.NODE_ENV || 'development'
 		},
 		redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password']
