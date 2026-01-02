@@ -84,6 +84,7 @@ async function getProfileData(req, reply) {
 					responseData.username = 'Pong User';
 					responseData.avatar_url = '/public/Default_pfp.jpg';
 					responseData.bio = '--';
+					responseData.status = null;
 				} else {
 					responseData.bio = '--';
 				}

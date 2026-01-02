@@ -1,3 +1,5 @@
+import createError from 'http-errors';
+
 /*
 interface Player
 {
@@ -18,6 +20,7 @@ interface Player
 }
 */
 
+
 async function matchDataController(req, reply)
 {
     const p1 = req.body.p1;
@@ -36,9 +39,9 @@ async function matchDataController(req, reply)
                                                     GamesPlayed = GamesPlayed + 1,
                                                     TotalWins = TotalWins + 1,
                                                     GoalsScored = GoalsScored + ?,
+                                                    MaxStreak = MaxValue(MaxStreak, CurrentStreak + 1),
                                                     CurrentStreak = CurrentStreak + 1,
-                                                    MaxStreak = MaxValue(MaxStreak, CurrentStreak),
-                                                    Rating = calculateWinRate(TotalWins, GamesPlayed)
+                                                    WinRate = calculateWinRate(TotalWins + 1, GamesPlayed + 1)
                                                 WHERE id = ?`);
         }
         else
@@ -48,15 +51,17 @@ async function matchDataController(req, reply)
                                                     TotalLosses = TotalLosses + 1,
                                                     GoalsTaken = GoalsTaken + ?,
                                                     CurrentStreak = 0,
-                                                    Rating = calculateWinRate(TotalWins, GamesPlayed)
+                                                    WinRate = calculateWinRate(TotalWins, GamesPlayed + 1)
                                                 WHERE id = ?`);
         }
         return stmt
 
     }
     const runQury = this.db.transaction(() => {
-        insertValues(p1).run(p1.scored, p1.userID);
-        insertValues(p2).run(p2.scored, p2.userID)
+        const p1Changes = insertValues(p1).run(p1.scored, p1.userID);
+        const p2Changes = insertValues(p2).run(p2.scored, p2.userID);
+        if (p1Changes.changes === 0 || p2Changes.changes === 0)
+            throw createError.NotFound("this users not found to change it !");
     });
     runQury();
 }
