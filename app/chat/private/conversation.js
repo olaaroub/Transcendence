@@ -6,9 +6,9 @@ export function getOrCreateConversation(userA, userB)
     (`
         SELECT id FROM conversation
         WHERE 
-          (sender_id = ? AND receiver_id = ?)
+          (senderId = ? AND receiverId = ?)
         OR
-          (sender_id = ? AND receiver_id = ?)
+          (senderId = ? AND receiverId = ?)
     `).get(userA, userB, userB, userA);
 
     if (convo)
@@ -16,7 +16,7 @@ export function getOrCreateConversation(userA, userB)
 
     const result = db.prepare
     (`
-        INSERT INTO conversation (sender_id, receiver_id)
+        INSERT INTO conversation (senderId, receiverId)
         VALUES (?, ?)
     `).run(userA, userB);
 
@@ -27,7 +27,7 @@ export function sendMessage(conversationId, senderId, content)
 {
     return db.prepare
     (`
-        INSERT INTO message (conversation_id, sender_id, content)
+        INSERT INTO message (conversationId, senderId, content)
         VALUES (?, ?, ?)
     `).run(conversationId, senderId, content);
 }
@@ -35,10 +35,13 @@ export function sendMessage(conversationId, senderId, content)
 export function getMessages(conversationId, limit = 20, offset = 0)
 {
     return db.prepare(`
-        SELECT * FROM message
-        WHERE conversation_id = ?
-        ORDER BY created_at ASC
-        LIMIT ? OFFSET ?
+        SELECT * FROM
+        (
+            SELECT * FROM message
+            WHERE conversationId = ?
+            ORDER BY createdAt DESC
+            LIMIT ? OFFSET ? 
+        ) ORDER BY createdAt ASC
     `).all(conversationId, limit, offset);
 }
 

@@ -69,87 +69,197 @@ button {
 </div>
 
 <script>
-let socket;
-let conversationId = null;
-
-function log(msg) {
-  const el = document.getElementById("log");
-  el.innerHTML += `<div>${msg}</div>`;
-  el.scrollTop = el.scrollHeight;
-}
-
-function chat(msg) {
-  const el = document.getElementById("chat");
-  el.innerHTML += `<div>${msg}</div>`;
-  el.scrollTop = el.scrollHeight;
-}
-
-function connect() {
-  socket = io("http://localhost:8405");
-
-  socket.on("connect", () => {
-    log(`✅ Connected (socket.id = ${socket.id})`);
-  });
-
-  socket.on("disconnect", () => {
-    log("❌ Disconnected");
-  });
-
-  socket.on("new_notification", (data) => {
-    log(`🔔 Notification: ${JSON.stringify(data)}`);
-  });
-
-  socket.on("chat_initialized", (data) => {
-    conversationId = data.conversationId;
-    chat(`🟢 Chat opened (conversationId = ${conversationId})`);
-    data.messages.forEach(m => {
-      chat(`[${m.senderId}] ${m.content}`);
-    });
-  });
-
-  socket.on("receive_message", (data) => {
-    chat(`[${data.senderId}] ${data.content}`);
-  });
-
-  socket.on("message_sent", () => {
-    log("📨 Message sent");
-  });
-}
-
-function joinPrivate() {
-  const userId = document.getElementById("userId").value;
-  socket.emit("join_private", userId);
-  log(`📥 Joined private room: user_${userId}`);
-}
-
-function openChat() {
-  const senderId = document.getElementById("userId").value;
-  const receiverId = document.getElementById("receiverId").value;
-
-  socket.emit("open_chat", { senderId, receiverId });
-  log(`💬 Opening chat with user ${receiverId}`);
-}
-
-function sendMessage() {
-  const senderId = document.getElementById("userId").value;
-  const receiverId = document.getElementById("receiverId").value;
-  const content = document.getElementById("message").value;
-
-  if (!conversationId) {
-    alert("Open chat first");
-    return;
+  let socket;
+  let conversationId = null;
+  
+  function log(msg) {
+    const el = document.getElementById("log");
+    el.innerHTML += `<div>${msg}</div>`;
+    el.scrollTop = el.scrollHeight;
   }
-
-  socket.emit("send_message", {
-    conversationId,
-    senderId,
-    receiverId,
-    content
-  });
-
-  document.getElementById("message").value = "";
-}
-</script>
+  
+  function chat(msg) {
+    const el = document.getElementById("chat");
+    el.innerHTML += `<div>${msg}</div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+  
+  // إضافة وظيفة لمسح الشات عند فتح محادثة جديدة
+  function clearChat() {
+    document.getElementById("chat").innerHTML = "";
+  }
+  
+  function connect() {
+    socket = io("http://localhost:8405");
+  
+    socket.on("connect", () => {
+      log(`✅ Connected (socket.id = ${socket.id})`);
+    });
+  
+    socket.on("chat_initialized", (data) => {
+      conversationId = data.conversationId;
+      clearChat(); // مسح الشات القديم قبل عرض الجديد
+      chat(`🟢 Chat opened (ID: ${conversationId})`);
+      
+      // الآن m.senderId ستعمل بشكل صحيح لأن السيرفر يرسلها بهذا الاسم
+      data.messages.forEach(m => {
+        chat(`[${m.senderId}] ${m.content}`);
+      });
+    });
+  
+    socket.on("receive_message", (data) => {
+      // التأكد من أن الرسالة تخص المحادثة المفتوحة حالياً
+      if (data.conversationId === conversationId) {
+        chat(`[${data.senderId}] ${data.content}`);
+      }
+    });
+  
+    socket.on("new_notification", (data) => {
+      log(`🔔 Notification from ${data.from}: ${data.text}`);
+    });
+  
+    socket.on("message_sent", () => {
+      log("📨 Message stored in DB");
+    });
+  }
+  
+  function joinPrivate() {
+    const userId = document.getElementById("userId").value;
+    // انتبه: السيرفر يتوقع حدث اسمه "userId" لربط الغرفة الخاصة
+    socket.emit("userId", userId);
+    log(`📥 Listening for notifications on: user_${userId}`);
+  }
+  
+  function openChat() {
+    const senderId = document.getElementById("userId").value;
+    const receiverId = document.getElementById("receiverId").value;
+  
+    if(!senderId || !receiverId) {
+      alert("Please enter both IDs");
+      return;
+    }
+  
+    socket.emit("open_chat", { senderId, receiverId });
+    log(`💬 Requesting chat with user ${receiverId}...`);
+  }
+  
+  function sendMessage() {
+    const senderId = document.getElementById("userId").value;
+    const receiverId = document.getElementById("receiverId").value;
+    const content = document.getElementById("message").value;
+  
+    if (!conversationId) {
+      alert("Open chat first");
+      return;
+    }
+  
+    socket.emit("send_message", {
+      conversationId,
+      senderId,
+      receiverId,
+      content
+    });
+  
+    document.getElementById("message").value = "";
+  }
+  </script>
 
 </body>
 </html>
+
+
+<!-- <script>
+  let socket;
+  let conversationId = null;
+  
+  function log(msg) {
+    const el = document.getElementById("log");
+    el.innerHTML += `<div>${msg}</div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+  
+  function chat(msg) {
+    const el = document.getElementById("chat");
+    el.innerHTML += `<div>${msg}</div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+  
+  // إضافة وظيفة لمسح الشات عند فتح محادثة جديدة
+  function clearChat() {
+    document.getElementById("chat").innerHTML = "";
+  }
+  
+  function connect() {
+    socket = io("http://localhost:8405");
+  
+    socket.on("connect", () => {
+      log(`✅ Connected (socket.id = ${socket.id})`);
+    });
+  
+    socket.on("chat_initialized", (data) => {
+      conversationId = data.conversationId;
+      clearChat(); // مسح الشات القديم قبل عرض الجديد
+      chat(`🟢 Chat opened (ID: ${conversationId})`);
+      
+      // الآن m.senderId ستعمل بشكل صحيح لأن السيرفر يرسلها بهذا الاسم
+      data.messages.forEach(m => {
+        chat(`[${m.senderId}] ${m.content}`);
+      });
+    });
+  
+    socket.on("receive_message", (data) => {
+      // التأكد من أن الرسالة تخص المحادثة المفتوحة حالياً
+      if (data.conversationId === conversationId) {
+        chat(`[${data.senderId}] ${data.content}`);
+      }
+    });
+  
+    socket.on("new_notification", (data) => {
+      log(`🔔 Notification from ${data.from}: ${data.text}`);
+    });
+  
+    socket.on("message_sent", () => {
+      log("📨 Message stored in DB");
+    });
+  }
+  
+  function joinPrivate() {
+    const userId = document.getElementById("userId").value;
+    // انتبه: السيرفر يتوقع حدث اسمه "userId" لربط الغرفة الخاصة
+    socket.emit("userId", userId);
+    log(`📥 Listening for notifications on: user_${userId}`);
+  }
+  
+  function openChat() {
+    const senderId = document.getElementById("userId").value;
+    const receiverId = document.getElementById("receiverId").value;
+  
+    if(!senderId || !receiverId) {
+      alert("Please enter both IDs");
+      return;
+    }
+  
+    socket.emit("open_chat", { senderId, receiverId });
+    log(`💬 Requesting chat with user ${receiverId}...`);
+  }
+  
+  function sendMessage() {
+    const senderId = document.getElementById("userId").value;
+    const receiverId = document.getElementById("receiverId").value;
+    const content = document.getElementById("message").value;
+  
+    if (!conversationId) {
+      alert("Open chat first");
+      return;
+    }
+  
+    socket.emit("send_message", {
+      conversationId,
+      senderId,
+      receiverId,
+      content
+    });
+  
+    document.getElementById("message").value = "";
+  }
+  </script> -->
