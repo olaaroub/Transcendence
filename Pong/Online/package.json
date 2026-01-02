@@ -1,0 +1,27 @@
+{
+  "name": "pong-online",
+  "version": "1.0.0",
+  "description": "Online version of 42-Pong",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:server": "npx tsx --watch server/server.ts",
+    "build": "tsc && vite build",
+    "start:server": "node dist/server/server.js"
+  },
+  "dependencies": {
+    "pong-shared": "file:../Shared",
+    "fastify": "^5.6.2",
+    "fastify-metrics": "^12.1.0",
+	"@fastify/jwt": "^10.0.0",
+    "node-vault": "^0.10.9",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "tsx": "^4.21.0",
+    "@types/node": "^25.0.3",
+    "vite": "^7.3.0"
+  }
+}

@@ -3,9 +3,10 @@ import * as GUI from "@babylonjs/gui";
 import "@babylonjs/core/Meshes/meshBuilder";
 import { GridMaterial } from "@babylonjs/materials";
 import { Instance } from "../types";
+import { PongEngine } from "../game-engine";
 
-const colIcon = ['/game/ball.svg', '/game/p1.svg', '/game/p2.svg'];
-const camIcon = ['/game/cam1.svg', '/game/cam2.svg', '/game/cam3.svg', '/game/cam4.svg'];
+const colIcon = ['../Assets/ball.svg', '../Assets/p1.svg', '../Assets/p2.svg'];
+const camIcon = ['../Assets/cam1.svg', '../Assets/cam2.svg', '../Assets/cam3.svg', '../Assets/cam4.svg'];
 const clicked = [false, false, false];
 
 let ui:GUI.AdvancedDynamicTexture;
@@ -101,7 +102,7 @@ function colorButtons(mesh: BABYLON.Material[]): void
 
 export function optionsButton(scene: BABYLON.Scene, cameras : { [key: string]: BABYLON.Camera }, mesh: BABYLON.Material[]): void
 {
-	const button = GUI.Button.CreateImageOnlyButton('Options', '/game/options.svg');
+	const button = GUI.Button.CreateImageOnlyButton('Options', '../Assets/options.svg');
 	button.thickness = 0;
 	button.width = '50px';
 	button.height = '50px';
@@ -133,9 +134,40 @@ export function optionsButton(scene: BABYLON.Scene, cameras : { [key: string]: B
 	});
 }
 
+export function startButton(engine: PongEngine): void
+{
+	const button = GUI.Button.CreateSimpleButton('Start', 'Ready ?');
+	button.width = '200px';
+	button.height = '80px';
+	button.color = '#00FFFF';
+	button.background = '#ED6F30';
+	button.fontSize = 32;
+	button.fontStyle = 'bold';
+	button.cornerRadius = 10;
+	button.thickness = 3;
+	button.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+	button.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+	ui.addControl(button);
+
+	button.onPointerClickObservable.add(async () =>
+	{
+		ui.removeControl(button);
+		button.dispose();
+
+		engine.setState('Countdown');
+		for (let count = 3; count >= 0; count--)
+		{
+			console.log(count === 0 ? 'GO!' : count);
+			if (count > 0)
+				await new Promise(resolve => setTimeout(resolve, 1000));
+		}
+		engine.setState('Playing');
+	});
+}
+
 function createHUD(player: number, alias: string): GUI.Image
 {
-	const hudSVG = player === 1 ? '/game/player1.svg' : '/game/player2.svg'
+	const hudSVG = player === 1 ? '../Assets/player1.svg' : '../Assets/player2.svg'
 	const horAllign = player === 1 ? GUI.Control.HORIZONTAL_ALIGNMENT_LEFT : GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
 	const hud = new GUI.Image(alias + 'HUD', hudSVG);
 	hud.horizontalAlignment = horAllign;
@@ -198,11 +230,11 @@ export function addHUDs(session: Instance): void
 	ui.addControl(p2Name);
 	ui.addControl(p2Frame);
 }
-
+ 
 export function scoreGoal(player: number, goals: number)
 {
 	const horAllign = player === 1 ? GUI.Control.HORIZONTAL_ALIGNMENT_LEFT : GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-	const goal = new GUI.Image('GOAL', '/game/goal.svg');
+	const goal = new GUI.Image('GOAL', '../Assets/goal.svg');
 	goal.horizontalAlignment = horAllign;
 	goal.verticalAlignment = GUI.Image.VERTICAL_ALIGNMENT_TOP;
 	goal.height = '26px';

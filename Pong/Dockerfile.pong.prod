@@ -8,8 +8,15 @@ WORKDIR /app/Shared
 RUN npm install && npm run build
 
 WORKDIR /app/Offline
-RUN npm install
-RUN npm run build -- --base=/game/
+RUN npm install && npm run build
 
-# Copy dist to shared volume on startup, then keep container alive (for your Node server later)
-CMD ["sh", "-c", "cp -r /app/Offline/dist/* /pong-dist/ && echo 'Pong dist copied to volume' && tail -f /dev/null"]
+WORKDIR /app/Online
+RUN npm install && npm run build
+
+ENTRYPOINT ["bash", "init.sh"]
+# cp -r /app/Offline/dist/* /pong-dist/Offline
+# cp -r /app/Online/dist/* /pong-dist/Online
+# cp -r /app/Assets /pong-dist/Assets
+
+CMD ["tail -f /dev/null"]
+# node run the server
