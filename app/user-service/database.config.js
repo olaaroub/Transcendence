@@ -29,12 +29,12 @@ const creatTable = async () => {
     );`);
 
     db.exec(`CREATE INDEX IF NOT EXISTS user_scor_indx
-             ON userInfo(points DESC)
+             ON userInfo(Rating DESC)
     ;`)
 
 
     db.exec(`CREATE VIEW IF NOT EXISTS leaderBordItem AS
-            SELECT id, username, avatar_url, points, gamesPlayed, wins, losses
+            SELECT id, username, avatar_url, Rating, gamesPlayed, wins, losses
             FROM userInfo
     ;`);
     db.exec(`CREATE TABLE IF NOT EXISTS friendships (
