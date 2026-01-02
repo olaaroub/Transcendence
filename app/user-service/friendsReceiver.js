@@ -9,7 +9,7 @@ async function getPendingRequestes(req, reply) {
                             friendships AS f ON u.id = f.userRequester
                         WHERE
                             f.userReceiver = ? AND f.status = 'PENDING'
-                        
+
         `,).all([id]);
 
     const { is_read } = this.db.prepare('SELECT is_read FROM userInfo WHERE id = ?').get(id);
@@ -28,7 +28,7 @@ async function handleFriendRequest(req, reply) {
     const receiver_id = req.params.id;
 
     if (!body.id) {
-        throw createError.BadRequest("Sender ID is required in body");
+        throw createError.BadRequest("Sender id is empty");
     }
 
     if (body.accept) {

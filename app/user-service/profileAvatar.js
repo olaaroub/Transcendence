@@ -24,7 +24,7 @@ async function UploadToServer(req) {
 
   const allowedTypes = ["jpg", "png", "gif"];
   if (!type || !allowedTypes.includes(type.ext)) {
-    throw createError.BadRequest("Unsupported file type. Use jpg, png, or gif.");
+    throw createError.BadRequest("Unsupported file type use jpg, png, or gif.");
   }
 
   const file_name = uuidv4() + `.${type.ext}`;

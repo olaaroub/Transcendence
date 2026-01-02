@@ -27,7 +27,7 @@ async function matchDataController(req, reply)
     const p2 = req.body.p2;
 
     // const updateStreak = (streak) =>
-    
+
     this.db.function('MaxValue', (num1, num2) => num1 > num2 ? num1 : num2)
     this.db.function('calculateWinRate', (totalWins, gamesPlayed) =>  (totalWins / gamesPlayed) * 100);
 
@@ -61,7 +61,7 @@ async function matchDataController(req, reply)
         const p1Changes = insertValues(p1).run(p1.scored, p1.userID);
         const p2Changes = insertValues(p2).run(p2.scored, p2.userID);
         if (p1Changes.changes === 0 || p2Changes.changes === 0)
-            throw createError.NotFound("this users not found to change it !");
+            throw createError.NotFound("this users not found to change it!");
     });
     runQury();
 }
