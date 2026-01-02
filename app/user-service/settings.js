@@ -11,11 +11,18 @@ async function change_username(req, reply) {
 
 	if (!username) throw createError.BadRequest("Username is required");
 
+	try {
+		this.db.prepare("UPDATE userInfo SET username = ? WHERE id = ?").run([username, id]);
+	} catch(err)
+	{
+		if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+			throw createError.Conflict("User with this username already exists");
+		}
+		throw err;
+	}
+
 	await changeItemInOtherService(`${AUTH_SERVICE_URL}/api/auth/changeUsername/${id}`, { username });
 	await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/chat/global/username/${id}`, { username });
-
-	this.db.prepare("UPDATE userInfo SET username = ? WHERE id = ?").run([username, id]);
-	// khansni ndir lih update hta fe database tanya
 
 	req.log.info({ userId: id, newUsername: username }, "Username updated successfully");
 
