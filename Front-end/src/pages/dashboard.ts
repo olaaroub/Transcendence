@@ -165,7 +165,7 @@ function renderStatistics(): string {
 function renderAnalyticsSection(): string {
 	return `
 		<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
-			${dashboardLearderboard()}
+			<div id="dashboard-leaderboard"></div>
 			${renderStatistics()}
 		</div>
 	`;
@@ -223,6 +223,13 @@ export async function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
+
+	if (isDashboard) {
+		const leaderboardContainer = $('dashboard-leaderboard');
+		if (leaderboardContainer) {
+			leaderboardContainer.innerHTML = await dashboardLearderboard();
+		}
+	}
 
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	notifications();
