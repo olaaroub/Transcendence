@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: './',
+  base: '/game/online/',
   build: {
-	outDir: 'dist',
+	outDir: '../dist/client',
+	emptyOutDir: true,
 	chunkSizeWarningLimit: 10000,
 	rollupOptions: {
 	  output: {
-		entryFileNames: 'main.js',
+		entryFileNames: 'client.js',
 		chunkFileNames: '[name].js',
 		assetFileNames: '[name].[ext]',
 	  },

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: './',
+  base: '/game/offline/',
   build: {
     outDir: 'dist',
 	chunkSizeWarningLimit: 10000,
