@@ -12,14 +12,12 @@ function initNotificationSocket(): void {
 
 	const wsUrl = `wss://${window.location.host}/api/user/notification/${credentials.id}`;
 	socket = new WebSocket(wsUrl);
-
 	socket.onopen = () => {
 		console.log('WebSocket connection established for notifications');
 	};
 	socket.onmessage = (event) => {
 		try {
 			const parsed = JSON.parse(event.data);
-
 			if (parsed.type ==  'NOTIFICATION_READED')
 				$("notification-icon")?.querySelector('span')?.classList.add('hidden')
 			else if (parsed.type == 'SEND_NOTIFICATION')
