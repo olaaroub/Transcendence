@@ -1,8 +1,8 @@
 import { navigate } from '../../router';
 import * as data from '../dashboard';
 import { shortString } from '../utils';
-import { getImageUrl } from '../store';
-import { getFriends } from '../components/rightPanel';
+import { credentials, getImageUrl, IUserData } from '../store';
+import { apiFetch } from '../components/errorsHandler';
 
 export function chatEventHandler() {
 	const messageIcon = document.getElementById('message-icon');
@@ -41,8 +41,8 @@ function renderMessages() : string {
 }
 
 async function listFriends() : Promise<string> {
-	const friends = await getFriends();
-	if (friends.length === 0) {
+	const { data: friends } = await apiFetch<IUserData[]>(`/api/user/${credentials.id}/friends`);
+	if (!friends || friends.length === 0) {
 		return /* html */`
 		<p class="pt-24 text-txtColor text-center">No friends to display.</p>
 		`;
@@ -51,7 +51,7 @@ async function listFriends() : Promise<string> {
 		<div class="flex flex-col gap-2">
 			<p class="text-txtColor text-lg font-bold mb-2">Friends</p>
 			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-200px)]">
-				${friends.map(friend => /* html */`
+				${friends.map((friend: IUserData) => /* html */`
 					<div class="flex bg-[#273445] p-3 rounded-2xl">
 						<div class="flex w-full gap-4">
 							<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(friend.avatar_url)}" alt="">
