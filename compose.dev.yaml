@@ -13,7 +13,7 @@ services:
       - ./certs:/app/certs:ro
       - /app/node_modules
       - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
-      - pong-offline-dist:/app/assets/game:ro
+      - pong-dist:/app/assets/game:ro
     environment:
       - CHOKIDAR_USEPOLLING=true
       - SERVICE_EXT=-dev
@@ -21,20 +21,6 @@ services:
       - transcendence-dev-net
     depends_on:
       - modSecurity-dev
-      - pong-offline-dev
-
-  pong-offline-dev:
-    build:
-      context: ./Pong
-      dockerfile: Dockerfile.pong.prod
-    image: pong-offline:1337
-    container_name: pong-offline
-    environment:
-      - HOST=0.0.0.0
-    volumes:
-      - pong-offline-dist:/pong-dist
-    networks:
-      - transcendence-dev-net
 
   auth-service-dev:
     build:
@@ -127,6 +113,67 @@ services:
       vault-init-dev:
         condition: service_completed_successfully
 
+  private-chat-dev:
+    build:
+      context: ./app/chat/private
+      dockerfile: ../../Dockerfile.microservices.dev
+      args:
+        - PORT=8405
+    image: private-chat-dev:1337
+    container_name: private-chat-dev
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_SECRET_PATH=${PRIVATE_CHAT_SECRET_PATH}
+      - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/private.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-dev
+      - LOG_LEVEL=debug
+    ports:
+      - "8405:8405"
+    volumes:
+      - ./app/chat/private:/app
+      - ./app/static:/app/static
+      - ./db/chat:/data
+      - /app/node_modules
+    networks:
+      - transcendence-dev-net
+    depends_on:
+      vault-init-dev:
+        condition: service_completed_successfully
+
+
+  pong-game-dev:
+    build:
+      context: ./Pong
+      dockerfile: Dockerfile.pong.prod
+      args:
+        - PORT=3005
+    image: pong-game-dev:1337
+    container_name: pong-game-dev
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_SECRET_PATH=${PONG_SECRET_PATH}
+      - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
+      # - DATABASE_PATH=/data/ma3rftch_wach_3ndk_database.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-dev
+      - LOG_LEVEL=debug
+    ports:
+      - "3005:3005"
+    volumes:
+      - pong-dist:/pong-dist
+    networks:
+      - transcendence-dev-net
+    depends_on:
+      vault-init-dev:
+          condition: service_completed_successfully
+
+
+
+
+
+
   vault-dev:
     image: hashicorp/vault:1.21.1
     container_name: vault-dev
@@ -161,6 +208,8 @@ services:
       - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
       - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
       - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
+      - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
+      - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
     entrypoint: /init.sh
     depends_on:
       - vault-dev
@@ -188,6 +237,8 @@ services:
       - auth-service-dev
       - user-service-dev
       - global-chat-dev
+      - private-chat-dev
+      - pong-game-dev
 
 
   prometheus-dev:
@@ -204,6 +255,8 @@ services:
       - auth-service-dev
       - user-service-dev
       - global-chat-dev
+      - private-chat-dev
+      - pong-game-dev
 
   grafana-dev:
     image: grafana/grafana:12.3.0
@@ -234,5 +287,5 @@ volumes:
     driver: local
   grafana-data:
     driver: local
-  pong-offline-dist:
+  pong-dist:
     driver: local
