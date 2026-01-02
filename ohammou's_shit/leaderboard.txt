@@ -58,7 +58,9 @@ response:
 get request to this url -> /user/statistic/:id
 
 response:
-        TotalWins: stats.TotalWins || 69,
-        WinRate: stats.WinRate || 69.69,
-        CurrentStreak: stats.CurrentStreak || 69,
-        Rating: stats.Rating || 69,
+    {
+    "TotalWins": 0,
+    "WinRate": 0,
+    "CurrentStreak": 0,
+    "Rating": 1000
+}

@@ -4,6 +4,7 @@ import createError from 'http-errors';
 import notificationLiveStream from './notificationLiveStream.js'
 import gameEndPoints from './game.match.js'
 import leaderBord from './leaderboard.js'
+import statisticRoutes from './user.statistic.js';
 
 async function createNewUser(req, reply) {
   const newUserData = req.body;
@@ -126,6 +127,7 @@ export async function publicRoutes(fastify) {
 
   fastify.get('/user/chat/profile/:id', chatProfileHandler);
   fastify.register(leaderBord);
+  fastify.register(statisticRoutes);
   fastify.get("/user/all-users", async (req, reply) => {
     const data = fastify.db.prepare("SELECT * FROM userInfo").all();
     return data;
