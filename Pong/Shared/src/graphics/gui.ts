@@ -2,8 +2,8 @@ import * as BABYLON from "@babylonjs/core";
 import * as GUI from "@babylonjs/gui";
 import "@babylonjs/core/Meshes/meshBuilder";
 import { GridMaterial } from "@babylonjs/materials";
-import { Instance } from "../types";
-import { PongEngine } from "../game-engine";
+import { Instance } from "../types.js";
+import { PongEngine } from "../game-engine.js";
 
 const colIcon = ['../Assets/ball.svg', '../Assets/p1.svg', '../Assets/p2.svg'];
 const camIcon = ['../Assets/cam1.svg', '../Assets/cam2.svg', '../Assets/cam3.svg', '../Assets/cam4.svg'];
