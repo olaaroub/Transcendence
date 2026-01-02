@@ -17,7 +17,7 @@ async function change_password(req, reply) {
 		return ({ message: "Password updated successfully", success: true });
 	}
 	else
-		throw createError.Unauthorized("The current password is incorrect");
+		throw createError.Unauthorized("Invalid ");
 }
 
 
