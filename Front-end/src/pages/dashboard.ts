@@ -4,7 +4,7 @@ import { renderGlobalChat } from "./chat/globalChat";
 import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
 import { dashboardLearderboard } from "./components/leaderboard";
-import { showErrorMessage } from "./components/errorsHandler";
+import { apiFetch, showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
 import { chatEventHandler } from "./chat/chat";
 import { showDifficultyModal } from "./components/difficultyModal";
@@ -19,31 +19,17 @@ export async function fetchProfile(userId: string | number | null) : Promise<IUs
 		console.warn('User ID is null or undefined');
 		return null;
 	}
-	let tmpUserData: IUserData | null = null;
-	try {
-		const response = await fetch(`/api/user/${userId}/profile`, {
-			headers: { "Authorization": `Bearer ${credentials.token}` },
-		});
-		if (response.status === 401 || response.status === 403) {
-			localStorage.clear();
-			navigate('/login');
-			return null;
-		}
-		try {
-			tmpUserData = await response.json();
-			if (tmpUserData && userId == credentials.id)
-				setUserData(tmpUserData);
-		} catch (parseErr) {
-			console.error('Invalid JSON from API:', parseErr);
-			showErrorMessage('Unexpected server response.', 502); // to test later
-			return null;
-		}
+	const { data, error } = await apiFetch<IUserData>(`/api/user/${userId}/profile`, {
+		showErrorToast: false
+	});
+	if (error) {
+		if (error.isNetworkError)
+			showErrorMessage('Server unreachable. Try again later.', 503);
+		return null;
 	}
-	catch (err) {
-		console.error('Network error:', err);
-		showErrorMessage('Server unreachable. Try again later.', 503);
-	}
-	return tmpUserData;
+	if (data && userId == credentials.id)
+		setUserData(data);
+	return data;
 }
 
 export async function initDashboard(isDashboard: boolean = true) {

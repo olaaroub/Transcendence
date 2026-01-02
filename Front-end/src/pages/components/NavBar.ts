@@ -1,37 +1,50 @@
 import { credentials, getImageUrl, IUserData } from "../store";
 import { shortString } from "../utils";
 import { costumeButton } from "./buttons";
+import { apiFetch } from "./errorsHandler";
 
 const $ = (id: string) => document.getElementById(id as string)
 let pendingUsers: IUserData[] | null = null;
+let socket: WebSocket | null = null;
 
-// const wsUrl = `ws://localhost:3002/api/user/notification/${credentials.id}`;
-const wsUrl = `wss://${window.location.host}/api/user/notification/${credentials.id}`;
-const socket = new WebSocket(wsUrl);
+function initNotificationSocket(): void {
+	if (!credentials.id || socket) return;
 
-socket.onopen = () => {
-	console.log('WebSocket connection established for notifications');
-};
-socket.onmessage = (event) => {
-	try {
-		const parsed = JSON.parse(event.data);
+	const wsUrl = `wss://${window.location.host}/api/user/notification/${credentials.id}`;
+	socket = new WebSocket(wsUrl);
 
-		if (parsed.type ==  'NOTIFICATION_READED')
-			$("notification-icon")?.querySelector('span')?.classList.add('hidden')
-		else if (parsed.type == 'SEND_NOTIFICATION')
-		{
-			const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
-			pendingUsers = (pendingUsers ?? []).concat(newUsers);
-			$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
-		}
-	} catch (err) {console.error(err)}
-};
-socket.onerror = (error) => {
-	console.error('WebSocket error:', error);
-};
-socket.onclose = (event) => {
-	console.log('WebSocket connection closed:', event.code, event.reason);
-};
+	socket.onopen = () => {
+		console.log('WebSocket connection established for notifications');
+	};
+	socket.onmessage = (event) => {
+		try {
+			const parsed = JSON.parse(event.data);
+
+			if (parsed.type ==  'NOTIFICATION_READED')
+				$("notification-icon")?.querySelector('span')?.classList.add('hidden')
+			else if (parsed.type == 'SEND_NOTIFICATION')
+			{
+				const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
+				pendingUsers = (pendingUsers ?? []).concat(newUsers);
+				$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
+			}
+		} catch (err) {console.error(err)}
+	};
+	socket.onerror = (error) => {
+		console.error('WebSocket error:', error);
+	};
+	socket.onclose = (event) => {
+		console.log('WebSocket connection closed:', event.code, event.reason);
+		socket = null;
+	};
+}
+
+export function closeNotificationSocket(): void {
+	if (socket) {
+		socket.close();
+		socket = null;
+	}
+}
 
 export function renderNavBar (isLoged: boolean)
 {
@@ -77,57 +90,39 @@ function searchBar() : string
 
 async function getPendingUsers() : Promise<{users: IUserData[], is_read: boolean} | null>
 {
-	try
-	{
-		const response = await fetch(`api/user/${credentials.id}/getPendingRequestes`, {
-			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
-		});
-		if (!response.ok)
-		{
-			console.error('Failed to fetch pending users:', response.statusText);
-			return null;
-		}
-		const data: any = await response.json();
-		// console.log(data);
-		const users: IUserData[] = data.userFriends;
-		const is_read = data.is_read !== undefined ? data.is_read : true;
-		console.log(users, " is_read ", data.is_read)
-		return { users, is_read };
-	} catch(err){
-		console.error('Error fetching pending users:', err);
+	const { data, error } = await apiFetch<{userFriends: IUserData[], is_read: boolean}>(`api/user/${credentials.id}/getPendingRequestes`, {
+		showErrorToast: false
+		
+	});
+	if (error || !data) {
+		console.error('Failed to fetch pending users:', error?.message);
 		return null;
 	}
+	const users: IUserData[] = data.userFriends;
+	const is_read = data.is_read !== undefined ? data.is_read : true;
+	return { users, is_read };
 }
 
 async function handleFriendRequest(requesterId: string, accept: boolean, userElement: HTMLElement, user: IUserData) {
-	try {
-		const response = await fetch(`/api/user/${credentials.id}/friend-request`, {
-			method: 'POST',
-			headers: {
-				"Authorization": `Bearer ${credentials.token}`,
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({
-				id: requesterId,
-				accept: accept
-			})
-		});
-		if (response.ok) {
-			userElement.remove();
-			const index = pendingUsers?.indexOf(user);
-			if (index !== undefined && index !== -1)
-				pendingUsers?.splice(index, 1);
-			console.log("in handler : ", pendingUsers)
-		} else {
-			console.error('Failed to handle friend request');
-		}
-	} catch (err) {
-		console.error('Error handling friend request:', err);
+	const { error } = await apiFetch(`/api/user/${credentials.id}/friend-request`, {
+		method: 'POST',
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ id: requesterId, accept: accept }),
+		showErrorToast: true
+	});
+	
+	if (!error) {
+		userElement.remove();
+		const index = pendingUsers?.indexOf(user);
+		if (index !== undefined && index !== -1)
+			pendingUsers?.splice(index, 1);
 	}
 }
 
 export async function notifications()
 {
+	initNotificationSocket();
+	
 	const notificationIcon = $('notification-icon');
 	const pendingData = await getPendingUsers();
 
@@ -143,7 +138,7 @@ export async function notifications()
 	if (!notificationIcon) return;
 	notificationIcon.addEventListener('click',async  () => {
 		const existingResult = $('notifications-result');
-		if (!existingResult)
+		if (!existingResult && socket)
 		{
 			socket.send(JSON.stringify({
 				type: 'MAKE_AS_READ'

@@ -1,6 +1,10 @@
 import * as data from "./dashboard"
 import { navigate, navigateBack } from "../router";
 import { credentials,IUserData, userData, getImageUrl} from "./store"
+import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/toast";
+import { closeNotificationSocket } from "./components/NavBar";
+import { cleanupGlobalChat } from "./chat/globalChat";
+import { apiFetch } from "./components/errorsHandler";
 
 const $ = (id : String) => document.getElementById(id as string);
 
@@ -20,28 +24,23 @@ async function checkPasswordChange() : Promise<boolean>
 		return true;
 	}
 	if (!currentPassword) {
-		alert('Current password is required to change the password.');
+		toastWarning('Current password is required to change the password.');
 		return false;
 	}
 	if (!confirmPassword || value !== confirmPassword) {
-		alert('Invalid password confirmation.');
+		toastWarning('Invalid password confirmation.');
 		return false;
 	}
-	try {
-		const response = await fetch(`api/auth/${userData?.id}/settings-password`, {
-			method: 'PUT',
-			body: JSON.stringify({ currentPassword, newPassword: value }),
-			headers: {
-				"Content-Type": "application/json",
-				"Authorization": `Bearer ${localStorage.getItem('token')}`
-			}
-		});
-		if (!response.ok) {
-			alert('Current password is incorrect.');
-			return false;
-		}
-	} catch (error) {
-		console.error('Error changing password:', error);
+	
+	const { error } = await apiFetch(`api/auth/${userData?.id}/settings-password`, {
+		method: 'PUT',
+		body: JSON.stringify({ currentPassword, newPassword: value }),
+		headers: { "Content-Type": "application/json" },
+		showErrorToast: false
+	});
+	
+	if (error) {
+		toastError('Current password is incorrect.');
 		return false;
 	}
 	return true;
@@ -55,49 +54,47 @@ function SaveChanges()
 	if (!saveBtn) return;
 		saveBtn.addEventListener('click', async () => {
 			if (Object.keys(newUserData).length === 0) {
-				alert('No changes to save.');
+				toastInfo('No changes to save.');
 				return;
 			}
 			if (!await checkPasswordChange()) return;
 			if (!await confirmPopUp('Do you want to apply these changes?')) return;
-			try {
-				for (const key of Object.keys(newUserData)) {
-					const value = newUserData[key as keyof IUserData];
-					if (value === undefined || value === null) {
-						delete newUserData[key as keyof IUserData];
-						continue;
-					}
-					if (key === 'current-password' || key === 'new-password' || key === 'confirm-password') {
-						delete newUserData[key as keyof IUserData];
-						continue;
-					}
-					else if (key === 'avatar' && avatar) {
-						for (const [key, value] of avatar.entries()) {
-							console.log(key, value);
-						}
-						body = avatar;
-						delete headers["Content-Type"];
-					}
-					else {
-						body = JSON.stringify({ [key]: value });
-						headers["Content-Type"] = "application/json";
-					}
-					const response = await fetch(`api/user/${userData?.id}/settings-${key}`, {
-						method : 'PUT',
-						body,
-						headers,
-					})
-					if (!response.ok) {
-						alert(`Failed to update ${key}.`);
-					} else {
-						delete newUserData[key as keyof IUserData];
-					}
+			
+			for (const key of Object.keys(newUserData)) {
+				const value = newUserData[key as keyof IUserData];
+				if (value === undefined || value === null) {
+					delete newUserData[key as keyof IUserData];
+					continue;
 				}
-				navigateBack();
-		}catch (err) {
-			console.error("Error saving changes", err);
-			return;
-		}
+				if (key === 'current-password' || key === 'new-password' || key === 'confirm-password') {
+					delete newUserData[key as keyof IUserData];
+					continue;
+				}
+				
+				let requestBody: BodyInit;
+				let contentType: Record<string, string> = {};
+				
+				if (key === 'avatar' && avatar) {
+					requestBody = avatar;
+				} else {
+					requestBody = JSON.stringify({ [key]: value });
+					contentType = { "Content-Type": "application/json" };
+				}
+				
+				const { error } = await apiFetch(`api/user/${userData?.id}/settings-${key}`, {
+					method: 'PUT',
+					body: requestBody,
+					headers: contentType,
+					showErrorToast: false
+				});
+				
+				if (error) {
+					toastError(`Failed to update ${key}.`);
+				} else {
+					delete newUserData[key as keyof IUserData];
+				}
+			}
+			navigateBack();
 	});
 }
 
@@ -132,7 +129,7 @@ function addInputListeners()
 	SaveChanges();
 }
 
-function confirmPopUp(message: string) : Promise<boolean>
+export function confirmPopUp(message: string) : Promise<boolean>
 {
 	return new Promise((resolve) => {
 		const deletePopUp = document.createElement('div');
@@ -195,18 +192,15 @@ async function deleteAvatar()
 	$('delete-avatar')?.addEventListener('click', async ()=> {
 		const confirmed = await confirmPopUp('Are you sure you want to delete your avatar?');
 		if (!confirmed) return;
-		try
-		{
-			const response = await fetch(`api/user/${userData?.id}/image`, {
-				method: 'DELETE',
-				headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
-			});
-			if (response.ok) {
-				console.log('Avatar deleted successfully');
-				renderSettings();
-			} else {console.error('Error deleting avatar');}
+		const { error } = await apiFetch<{message: string}>(`api/user/${userData?.id}/image`, {
+			method: 'DELETE',
+		});
+		if (!error) {
+			toastSuccess('Avatar deleted successfully');
+			renderSettings();
+		} else {
+			toastError('Error deleting avatar');
 		}
-		catch(err) {console.log("Delete Error", err);}
 	});
 }
 
@@ -222,20 +216,20 @@ function sendAvatar() : FormData | null
 	const fileName = file.name.toLowerCase();
 	const fileExtension = fileName.split('.').pop();
 	if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
-		alert(`Invalid file type. Allowed formats: ${allowedExtensions.join(', ').toUpperCase()}`);
+		toastWarning(`Invalid file type. Allowed formats: ${allowedExtensions.join(', ').toUpperCase()}`);
 		uploadAvatar.value = '';
 		return null;
 	}
 	
 	const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 	if (!allowedMimeTypes.includes(file.type)) {
-		alert(`Invalid file type. Please upload a valid image file.`);
+		toastWarning(`Invalid file type. Please upload a valid image file.`);
 		uploadAvatar.value = '';
 		return null;
 	}
 	
 	if (file.size > 2097152) {
-		alert("Image is too large. Max size 2MB.");
+		toastWarning("Image is too large. Max size 2MB.");
 		uploadAvatar.value = '';
 		return null;
 	}
@@ -377,8 +371,10 @@ function cancelChanges()
 	const cancelButton = $('cancel-changes');
 	if (cancelButton) {
 		cancelButton.addEventListener('click', () => {
-			if (Object.keys(newUserData).length === 0)
+			if (Object.keys(newUserData).length === 0) {
+				toastInfo('No changes to cancel.');
 				return;
+			}
 			newUserData = {};
 			renderSettings();
 		});
@@ -390,22 +386,17 @@ async function deleteAccount() : Promise<void>
 	const confirmed = await confirmPopUp('Are you sure you want to delete your account? This action cannot be undone.');
 	if (!confirmed) return;
 
-	try {
-		const response =  await fetch(`api/user/deleteAccount/${userData.id}`, {
-			method: 'DELETE',
-			headers: { "Authorization": `Bearer ${credentials.token}`},
-		});
-		if (response.ok) {
-			localStorage.clear();
-			navigate('/sign-up');
-			alert('account deleted succ...');
-		} else {
-			console.error('failed to delete account');
-			alert('failed to delete account');
-		}
-	} catch(error) {
-		alert('failed in fetch to delete account');
-		console.error(error);
+	const { error } = await apiFetch<{message: string}>(`api/user/deleteAccount/${userData.id}`, {
+		method: 'DELETE',
+	});
+	if (!error) {
+		closeNotificationSocket();
+		cleanupGlobalChat();
+		localStorage.clear();
+		navigate('/sign-up');
+		toastSuccess('Account deleted successfully.');
+	} else {
+		toastError('Failed to delete account.');
 	}
 }
 

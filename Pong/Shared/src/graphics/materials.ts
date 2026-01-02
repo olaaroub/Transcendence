@@ -32,7 +32,7 @@ export function createSkyMaterial(scene: BABYLON.Scene): BABYLON.StandardMateria
 	mat.disableLighting = true;
 	mat.disableDepthWrite = true;
 
-	const spaceUrl = "/game/space.png";
+	const spaceUrl = "../Assets/space.png";
 	const tex = new BABYLON.Texture(spaceUrl, scene, false, false, BABYLON.Texture.TRILINEAR_SAMPLINGMODE);
 	mat.emissiveTexture = tex;
 

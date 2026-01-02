@@ -40,6 +40,9 @@ vault kv put secret/user-service \
 vault kv put secret/global-chat \
     jwt_secret="$JWT_SECRET_VALUE" \
 
+vault kv put secret/private-chat \
+    jwt_secret="$JWT_SECRET_VALUE" \
+
 
 
 echo "[Init] Writing Access Policies..."
@@ -70,6 +73,23 @@ vault policy write global-chat-policy /tmp/policy-global-chat.hcl
 
 
 
+echo '
+path "secret/data/private-chat" {
+  capabilities = ["read"]
+}
+' > /tmp/policy-private-chat.hcl
+vault policy write private-chat-policy /tmp/policy-private-chat.hcl
+
+
+echo '
+path "secret/data/pong-game" {
+  capabilities = ["read"]
+}
+' > /tmp/policy-pong-game.hcl
+vault policy write pong-game-policy /tmp/policy-pong-game.hcl
+
+
+
 echo "[Init] Issuing Service Tokens..."
 
 vault token revoke "$AUTH_SERVICE_TOKEN" 2>/dev/null || true
@@ -92,6 +112,22 @@ vault token revoke "$GLOBAL_CHAT_SERVICE_TOKEN" 2>/dev/null || true
 vault token create \
     -id="$GLOBAL_CHAT_SERVICE_TOKEN" \
     -policy="global-chat-policy" \
+    -ttl="720h" \
+    -no-default-policy > /dev/null
+
+
+vault token revoke "$PRIVATE_CHAT_SERVICE_TOKEN" 2>/dev/null || true
+vault token create \
+    -id="$PRIVATE_CHAT_SERVICE_TOKEN" \
+    -policy="private-chat-policy" \
+    -ttl="720h" \
+    -no-default-policy > /dev/null
+
+
+vault token revoke "$PONG_SERVICE_TOKEN" 2>/dev/null || true
+vault token create \
+    -id="$PONG_SERVICE_TOKEN" \
+    -policy="pong-game-policy" \
     -ttl="720h" \
     -no-default-policy > /dev/null
 

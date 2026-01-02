@@ -1,6 +1,6 @@
-export type Input = -1 | 0 | 1;
-export type State = "Error" | "Open" | "Playing" | "Over";
-export type Diff = "None" | "Easy" | "Normal" | "Hard";
+export type Input	= -1 | 0 | 1;
+export type State	= "Waiting" | "Countdown" | "Playing" | "Over";
+export type Diff	= "None" | "Easy" | "Normal" | "Hard";
 
 export interface Instance
 {
@@ -38,4 +38,12 @@ export interface Match
 	state:		GameState;
 	currState:	State;
 	session:	Instance;
+}
+
+export interface RoomData
+{
+	roomId:			string;
+	PlayerID:		string;
+	playerName: 	string;
+	playerAvatar:	string;
 }

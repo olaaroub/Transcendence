@@ -4,8 +4,8 @@ import {
 	createScene,
 	createGUI,
 	optionsButton,
+	startButton,
 	addHUDs,
-	scoreGoal,
 	createArena,
 	createSky,
 	createPaddles,
@@ -41,6 +41,7 @@ const gameEngine = new PongEngine();
 
 addHUDs(gameEngine.getSession());
 optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
+startButton(gameEngine);
 
 window.addEventListener('keydown', (e) =>
 {
@@ -57,7 +58,7 @@ window.addEventListener('keydown', (e) =>
 
 window.addEventListener('keyup', (e) =>
 {
-	const press = keyMap[e.key];
+	const press = keyMap[e.key.toLowerCase()];
 	if (press)
 		gameEngine.setInput(press.player === 'p1Input' ? 1 : 2, 0);
 });

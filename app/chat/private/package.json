@@ -8,12 +8,19 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ."
+    "start": "node server.js",
+    "dev": "nodemon --delay 2s server.js"
   },
   "dependencies": {
+    "@fastify/jwt": "^10.0.0",
     "better-sqlite3": "^12.5.0",
     "fastify": "^4.29.1",
+    "fastify-metrics": "^11.0.0",
     "fastify-socket.io": "^5.1.0",
+    "node-vault": "^0.10.9",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }
