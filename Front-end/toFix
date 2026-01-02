@@ -1,12 +1,10 @@
 
-make Your Statistic responsive
-
-
-fix global chat time
 fix notification style
+
 fetch leaderboard
 check invalid password in settings (handle 401 error code)
 add online/ofline friends
+fix global chat time
 
 tailwind :
     truncate
