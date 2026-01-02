@@ -2,6 +2,8 @@ import { navigate } from "../../router";
 import { sendAuthData } from "../../pages/sendData";
 import { renderHome } from "../home";
 
+const $ = (id : string) => document.getElementById(id as string);
+
 function inputField(label: string, type: string, placeholder: string) {
 	label = label == "Username" ? "Alias/Email" : `${label}`
 	return /* html */ `
@@ -106,6 +108,7 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 		</div>
 	`;
 	document.body.appendChild(container);
+	$('Alias/Email')?.focus();
 }
 
 document.body.addEventListener("click", (e) => {

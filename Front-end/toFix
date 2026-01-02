@@ -1,7 +1,8 @@
 
 fix global chat time
 make Your Statistic responsive
-
+fix notification style
+fetch leaderboard
 
 tailwind :
     truncate
