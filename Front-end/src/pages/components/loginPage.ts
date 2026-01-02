@@ -1,5 +1,6 @@
 import { navigate } from "../../router";
 import { sendAuthData } from "../../pages/sendData";
+import { renderHome } from "../home";
 
 function inputField(label: string, type: string, placeholder: string) {
 	label = label == "Username" ? "Alias/Email" : `${label}`
@@ -69,6 +70,7 @@ function footer(isSignup: boolean) {
 }
 
 export function renderAuthPage(isSignup = false, errorMSG = "") {
+	renderHome();
 	document.querySelector(".login")?.remove();
 	const isValid = errorMSG === "";
 	const container = document.createElement("div");
