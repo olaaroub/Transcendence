@@ -13,15 +13,8 @@ async function statisticHandler(req, reply) {
         throw createError.NotFound("User not found");
     }
 
-    const response = {
-        TotalWins: stats.TotalWins || 69,
-        WinRate: stats.WinRate || 69.69,
-        CurrentStreak: stats.CurrentStreak || 69,
-        Rating: stats.Rating || 69,
-    };
-
     req.log.info({ userId: id }, "User statistics fetched");
-    return response;
+    return stats;
 }
 
 async function statisticRoutes(fastify) {
