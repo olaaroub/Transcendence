@@ -26,7 +26,7 @@ async function matchDataController(req, reply)
     // const updateStreak = (streak) =>
     
     this.db.function('MaxValue', (num1, num2) => num1 > num2 ? num1 : num2)
-    this.db.function('calculateWinRate', () => {});
+    this.db.function('calculateWinRate', (totalWins, gamesPlayed) =>  (totalWins / gamesPlayed) * 100);
 
     const insertValues = (player) => {
         let stmt;
@@ -37,7 +37,8 @@ async function matchDataController(req, reply)
                                                     TotalWins = TotalWins + 1,
                                                     GoalsScored = GoalsScored + ?,
                                                     CurrentStreak = CurrentStreak + 1,
-                                                    MaxStreak = MaxValue(MaxStreak, CurrentStreak)
+                                                    MaxStreak = MaxValue(MaxStreak, CurrentStreak),
+                                                    Rating = calculateWinRate(TotalWins, GamesPlayed)
                                                 WHERE id = ?`);
         }
         else
@@ -46,7 +47,8 @@ async function matchDataController(req, reply)
                                                     GamesPlayed = GamesPlayed + 1,
                                                     TotalLosses = TotalLosses + 1,
                                                     GoalsTaken = GoalsTaken + ?,
-                                                    CurrentStreak = 0
+                                                    CurrentStreak = 0,
+                                                    Rating = calculateWinRate(TotalWins, GamesPlayed)
                                                 WHERE id = ?`);
         }
         return stmt
@@ -80,5 +82,5 @@ export default function gameEndPoints(fastify)
             }
         }
     }
-    fastify.put("/api/user/match/result", {schema: matchSchema}, matchDataController);
+    fastify.put("/user/match/result", {schema: matchSchema}, matchDataController);
 }
