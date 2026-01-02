@@ -2,6 +2,8 @@ import * as data from "./dashboard"
 import { navigate, navigateBack } from "../router";
 import { credentials,IUserData, userData, getImageUrl} from "./store"
 import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/toast";
+import { closeNotificationSocket } from "./components/NavBar";
+import { cleanupGlobalChat } from "./chat/globalChat";
 
 const $ = (id : String) => document.getElementById(id as string);
 
@@ -378,8 +380,10 @@ function cancelChanges()
 	const cancelButton = $('cancel-changes');
 	if (cancelButton) {
 		cancelButton.addEventListener('click', () => {
-			if (Object.keys(newUserData).length === 0)
+			if (Object.keys(newUserData).length === 0) {
+				toastInfo('No changes to cancel.');
 				return;
+			}
 			newUserData = {};
 			renderSettings();
 		});
@@ -397,6 +401,8 @@ async function deleteAccount() : Promise<void>
 			headers: { "Authorization": `Bearer ${credentials.token}`},
 		});
 		if (response.ok) {
+			closeNotificationSocket();
+			cleanupGlobalChat();
 			localStorage.clear();
 			navigate('/sign-up');
 			toastSuccess('Account deleted successfully.');
