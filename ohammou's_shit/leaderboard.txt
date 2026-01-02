@@ -1,5 +1,5 @@
 
-api:    /api/user/leaderboard?start='fin biti tbda'&offset='chehal men user bghiti'
+api: get request   /api/user/leaderboard?start='fin biti tbda'&offset='chehal men user bghiti'
 -> *sift liya token
 
 response: array dyal json
@@ -51,3 +51,14 @@ response:
         "WinRate": 0
     }
 ]
+
+
+// statistics
+
+get request to this url -> /user/statistic/:id
+
+response:
+        TotalWins: stats.TotalWins || 69,
+        WinRate: stats.WinRate || 69.69,
+        CurrentStreak: stats.CurrentStreak || 69,
+        Rating: stats.Rating || 69,
