@@ -3,6 +3,7 @@ import { navigate } from "../../router";
 import { sendFriendRequest, unfriend, blockFriend } from "../profile";
 import { confirmPopUp } from "../settings";
 import { toastError } from "./toast";
+import { apiFetch } from "./errorsHandler";
 
 interface UserData {
     id: string;
@@ -120,11 +121,10 @@ export async function searchbar() {
 		div.id = 'search-results';
 		div.className = `absolute z-10 top-[44px] left-0 w-full max-h-[300px]
 		overflow-y-auto bg-color4 border py-3 border-[#87878766] rounded-xl scrollbar-custom`;
-		const response = await fetch(`api/user/search/${userData.id}?username=${value}`, { // i must catch error for this fetch
-			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
+		const { data: users } = await apiFetch<UserData[]>(`api/user/search/${userData.id}?username=${value}`, {
+			showErrorToast: false
 		});
-		const users: UserData[] = await response.json();
-		if (users.length === 0) {
+		if (!users || users.length === 0) {
 			const p = document.createElement('p');
 			p.className = "text-gray-400 p-4";
 			p.textContent = "No users found";

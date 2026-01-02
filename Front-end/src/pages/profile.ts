@@ -2,7 +2,8 @@ import * as data from "./dashboard"
 import { userData, IUserData, getImageUrl } from "./store";
 import { navigate } from "../router";
 import { confirmPopUp } from "./settings";
-import { toastSuccess, toastError, toastWarning } from "./components/toast";
+import { toastSuccess, toastError } from "./components/toast";
+import { apiFetch } from "./components/errorsHandler";
 
 const stats = [
 	{ label: "XP", value: "2500" },
@@ -55,13 +56,12 @@ export async function sendFriendRequest (receiverId: string | number | null) : P
 		toastError('Invalid user ID');
 		return;
 	}
-	const response = await fetch(`/api/user/${userData.id}/add-friend?receiver_id=${receiverId}`, { 
-		headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
+	const { error } = await apiFetch(`/api/user/${userData.id}/add-friend?receiver_id=${receiverId}`, { 
 		method: 'PUT',
-	})
-	if (!response.ok) {
-		const errorData = await response.json();
-		throw new Error(errorData.message || 'Failed to send friend request');
+		showErrorToast: true
+	});
+	if (error) {
+		throw new Error(error.message || 'Failed to send friend request');
 	}
 	toastSuccess('Friend request sent successfully!');
 }
@@ -71,17 +71,14 @@ export async function unfriend(friendId: string | number | null): Promise<void> 
 		toastError('Invalid user ID');
 		return;
 	}
-	const response = await fetch(`/api/user/${userData.id}/delete-friend`, {
-		headers: {
-			"Authorization": `Bearer ${localStorage.getItem('token')}`,
-			"Content-Type": "application/json"
-		},
+	const { error } = await apiFetch(`/api/user/${userData.id}/delete-friend`, {
+		headers: { "Content-Type": "application/json" },
 		method: 'DELETE',
-		body: JSON.stringify({ friend_id: friendId })
+		body: JSON.stringify({ friend_id: friendId }),
+		showErrorToast: true
 	});
-	if (!response.ok) {
-		const errorData = await response.json();
-		throw new Error(errorData.message || 'Failed to unfriend');
+	if (error) {
+		throw new Error(error.message || 'Failed to unfriend');
 	}
 	toastSuccess('Friend removed successfully!');
 }
@@ -91,19 +88,16 @@ export async function blockFriend(friendId: string | number | null): Promise<voi
 		toastError('Invalid user ID');
 		return;
 	}
-	const response = await fetch(`/api/user/blockAndunblock-friend/${userData.id}`, {
-		headers: {
-			"Content-Type": "application/json"
-		},
+	const { error } = await apiFetch(`/api/user/blockAndunblock-friend/${userData.id}`, {
+		headers: { "Content-Type": "application/json" },
 		method: 'PUT',
-		body: JSON.stringify({ friend_id: friendId, block: true })
+		body: JSON.stringify({ friend_id: friendId, block: true }),
+		showErrorToast: true
 	});
-	if (!response.ok) {
-		const errorData = await response.json();
-		throw new Error(errorData.message || 'Failed to block friend');
+	if (error) {
+		throw new Error(error.message || 'Failed to block friend');
 	}
 	setTimeout(() => {toastSuccess('Friend blocked successfully!');}, 100);
-
 }
 
 export async function unblockFriend(friendId: string | number | null): Promise<void> {
@@ -111,16 +105,14 @@ export async function unblockFriend(friendId: string | number | null): Promise<v
 		toastError('Invalid user ID');
 		return;
 	}
-	const response = await fetch(`/api/user/blockAndunblock-friend/${userData.id}`, {
-		headers: {
-			"Content-Type": "application/json"
-		},
+	const { error } = await apiFetch(`/api/user/blockAndunblock-friend/${userData.id}`, {
+		headers: { "Content-Type": "application/json" },
 		method: 'PUT',
-		body: JSON.stringify({ friend_id: friendId, block: false })
+		body: JSON.stringify({ friend_id: friendId, block: false }),
+		showErrorToast: true
 	});
-	if (!response.ok) {
-		const errorData = await response.json();
-		throw new Error(errorData.message || 'Failed to unblock friend');
+	if (error) {
+		throw new Error(error.message || 'Failed to unblock friend');
 	}
 	toastSuccess('Friend unblocked successfully!');
 }

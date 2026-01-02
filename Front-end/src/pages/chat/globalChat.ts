@@ -1,4 +1,5 @@
 import { credentials, getImageUrl, userData } from "../store";
+import { apiFetch } from "../components/errorsHandler";
 
 interface ChatMessage {
 	sender_id: string | number;
@@ -12,19 +13,11 @@ let globalChatMessages: ChatMessage[] = [];
 let golobalChatSocket: WebSocket | null = null;
 
 async function fetchPreviousMessages() {
-	try {
-		const response = await fetch(`/api/chat/global/messages`, {
-			headers: {"Authorization": `Bearer ${credentials.token}`},
-		});
-		if (!response.ok) {
-			console.error('Failed to fetch prev messages in global chat', response.statusText);
-			return;
-		}
-		globalChatMessages = await response.json();
+	const { data } = await apiFetch<ChatMessage[]>(`/api/chat/global/messages`);
+	if (data) {
+		globalChatMessages = data;
 		globalChatMessages.reverse();
 		updateChatUI();
-	} catch(err) {
-		console.error('Error fetching prev messages in global chat:', err);
 	}
 }
 
