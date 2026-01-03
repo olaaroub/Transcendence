@@ -17,7 +17,6 @@ export async function renderGame() {
         p2Alias: mode === 'local-vs-ai' ? 'AI' : 'Player 2',
         p2Avatar: '/game/default.png'
     };
-
     sessionStorage.setItem('gameSession', JSON.stringify(gameSession));
 
     document.body.innerHTML = /* html */`
@@ -32,9 +31,8 @@ export async function renderGame() {
         </div>
     `;
 
-    // Load the game script AFTER the canvas is in the DOM
     const script = document.createElement('script');
-    script.src = '/game/offline/main.js';
+    script.src = `/game/offline/main.js?t=${Date.now()}`;
     script.type = 'module';
     document.body.appendChild(script);
 
