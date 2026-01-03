@@ -135,27 +135,27 @@ function renderWelcome() : string
 function renderStatistics(): string {
 	return /* html */ `
 		<div class="statistics mb-6">
-			<h2 class="text-txtColor font-bold text-2xl mb-4 transition-all duration">Your Statistic</h2>
-			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-3xl
-			text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
-					<p class="text-sm">Total Wins</p>
-					<p class="text-4xl font-bold text-txtColor">127</p>
+			<h2 class="text-txtColor font-bold text-xl sm:text-2xl mb-3 sm:mb-4 transition-all duration">Your Statistic</h2>
+			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-2xl sm:rounded-3xl
+			text-txtColor grid grid-cols-2 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6">
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
+					<p class="text-xs sm:text-sm text-gray-400">Total Wins</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">127</p>
 				</div>
-				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
-					<p class="text-sm">Win Rate</p>
-					<p class="text-4xl font-bold text-txtColor">74.7%</p>
-					<p class="text-sm text-blue-600">Above average</p>
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
+					<p class="text-xs sm:text-sm text-gray-400">Win Rate</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">74.7%</p>
+					<p class="text-xs sm:text-sm text-blue-600 mt-1">Above average</p>
 				</div>
-				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
-					<p class="text-sm">Current Streak</p>
-					<p class="text-4xl font-bold text-txtColor">8</p>
-					<p class="text-sm text-orange-400">Personal best!</p>
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
+					<p class="text-xs sm:text-sm text-gray-400">Current Streak</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">8</p>
+					<p class="text-xs sm:text-sm text-orange-400 mt-1">Personal best!</p>
 				</div>
-				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
-					<p class="text-sm">Rating</p>
-					<p class="text-4xl font-bold text-txtColor">2847</p>
-					<p class="text-sm text-[#8261BE]">Diamond III</p>
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
+					<p class="text-xs sm:text-sm text-gray-400">Rating</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">2847</p>
+					<p class="text-xs sm:text-sm text-[#8261BE] mt-1">Diamond III</p>
 				</div>
 			</div>
 		</div>
@@ -165,7 +165,7 @@ function renderStatistics(): string {
 function renderAnalyticsSection(): string {
 	return `
 		<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
-			${dashboardLearderboard()}
+			<div id="dashboard-leaderboard"></div>
 			${renderStatistics()}
 		</div>
 	`;
@@ -223,6 +223,13 @@ export async function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
+
+	if (isDashboard) {
+		const leaderboardContainer = $('dashboard-leaderboard');
+		if (leaderboardContainer) {
+			leaderboardContainer.innerHTML = await dashboardLearderboard();
+		}
+	}
 
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	notifications();

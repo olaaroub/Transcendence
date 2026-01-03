@@ -4,6 +4,52 @@ import { shortString } from '../utils';
 import { credentials, getImageUrl, IUserData } from '../store';
 import { apiFetch } from '../components/errorsHandler';
 
+import { io, Socket } from "socket.io-client";
+
+
+let socket: Socket | null = null;
+
+function getSocket(): Socket {
+	if (!socket) {
+		socket = io(`wss://${window.location.host}`, {
+			path: '/api/chat/private/socket.io',
+			transports: ['websocket', 'polling'],
+		});
+	}
+	return socket;
+}
+
+function initializeSocket() {
+	const sock = getSocket();
+	
+	sock.on("connect", () => {
+		console.log("Connected to private chat");
+		sock.emit("userId", credentials.id);
+	});
+
+	sock.on("connect_error", (error) => {
+		console.error("Socket connection error:", error.message);
+	});
+
+	sock.on("disconnect", (reason) => {
+		console.log("Disconnected from private chat:", reason);
+	});
+
+	sock.on("chat_initialized", (data) => {
+		console.log("Chat initialized:", data);
+	});
+
+	sock.on("receive_message", (data) => {
+		console.log("New message received:", data);
+	});
+
+	sock.on("new_notification", (data) => {
+		console.log("New notification:", data);
+	});
+
+	return sock;
+}
+
 export function chatEventHandler() {
 	const messageIcon = document.getElementById('message-icon');
 	if (!messageIcon) return;
@@ -72,6 +118,8 @@ async function listFriends() : Promise<string> {
 
 export async function renderChat() {
 	await data.initDashboard(false);
+	
+	// initializeSocket();
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = /* html */`

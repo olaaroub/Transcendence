@@ -68,6 +68,17 @@ function updateChatUI() {
 	chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
+function formatMessageTime(dateString: string): string { // must check it again
+	let date = new Date(dateString);
+	if (dateString && !dateString.includes('Z') && !dateString.includes('+') && !/\d{2}:\d{2}:\d{2}-\d{2}/.test(dateString)) {
+		date = new Date(dateString + 'Z');
+	}
+	return date.toLocaleTimeString(navigator.language || 'en-US', {
+		hour: '2-digit',
+		minute: '2-digit'
+	});
+}
+
 function renderChatMessages(): string {
 	return globalChatMessages.map(msg => /* html */`
 		<div class="group hover:bg-white/5 rounded-xl p-2 -mx-2 transition-colors duration-200">
@@ -78,7 +89,7 @@ function renderChatMessages(): string {
 					<div class="flex items-center gap-2 mb-1">
 						<span class="text-txtColor font-semibold text-sm hover:text-color1
 							cursor-pointer transition-colors">${msg.username}</span>
-						<span class="text-color3 text-xs">${new Date(msg.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+						<span class="text-color3 text-xs">${formatMessageTime(msg.created_at)}</span>
 					</div>
 					<p class="text-txtColor/80 text-sm leading-relaxed break-words">${msg.msg}</p>
 				</div>
