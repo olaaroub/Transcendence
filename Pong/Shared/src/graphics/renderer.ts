@@ -1,5 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
-import "@babylonjs/core/Meshes/meshBuilder";
+import "@babylonjs/core/Meshes/meshBuilder.js";
 import { GameState } from '../types.js';
 import { WIDTH, HEIGHT, PWIDTH, PHEIGHT } from '../constants.js';
 

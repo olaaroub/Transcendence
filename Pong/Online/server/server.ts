@@ -36,7 +36,7 @@ interface GameRoom
 }
 
 const HOST = 'localhost';
-const PORT = 3010;
+const PORT = 3005;
 
 const ext = process.env.SERVICE_EXT || '-dev';
 const USER_SERVICE_URL = `http://user-service${ext}:3002`;
@@ -89,13 +89,13 @@ const fastify = Fastify(
 // 	defaultMetrics: { enabled: true }
 // });
 
-const matchCounter = new fastify.metrics.client.Counter(
-	{
-		name: 'matches_total',
-		help: 'Total number of Matches Started'
-	});
+// const matchCounter = new fastify.metrics.client.Counter(
+// 	{
+// 		name: 'matches_total',
+// 		help: 'Total number of Matches Started'
+// 	});
 
-fastify.decorate('customMetrics', { matchCounter });
+// fastify.decorate('customMetrics', { matchCounter });
 
 const io = new SocketIOServer(fastify.server, {cors: { origin: '*' }});
 

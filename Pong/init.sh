@@ -12,7 +12,7 @@ cp -r /app/Offline/dist/* /pong-dist/offline/
 echo "Copying Online Version to Volume..."
 
 rm -rf /pong-dist/online/*
-cp -r /app/Online/client/dist/* /pong-dist/online/
+cp -r /app/Online/dist/client/* /pong-dist/online/
 
 echo "Copying Assets to Volume..."
 
@@ -20,3 +20,5 @@ rm -rf /pong-dist/Assets/*
 cp -r /app/Assets/* /pong-dist/Assets/
 
 echo "Copying DONE. Starting Pong Server..."
+
+exec node /app/Online/dist/server/server.js
