@@ -1,9 +1,10 @@
+merge the private chat
 
-fix global chat time
-make Your Statistic responsive
-fix notification style
-fetch leaderboard
+
+
+
 check invalid password in settings (handle 401 error code)
+add online/ofline friends
 
 tailwind :
     truncate
