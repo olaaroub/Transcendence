@@ -1,6 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import * as GUI from "@babylonjs/gui";
-import "@babylonjs/core/Meshes/meshBuilder";
+import "@babylonjs/core/Meshes/meshBuilder.js";
 import { GridMaterial } from "@babylonjs/materials";
 import { Instance } from "../types.js";
 import { PongEngine } from "../game-engine.js";
