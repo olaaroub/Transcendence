@@ -58,9 +58,9 @@ async function blockAndunblockFriend(req, reply) {
     req.log.info({ userId: id, targetId: friend_id }, "User trying to block a friend who already blocked them");
     reply.code(200).send({ success: true });
   }
-  
+
   if (!friendshipsData || (friendshipsData.status === 'BLOCKED' && String(friendshipsData.blocker_id) !== String(id) && !block))
-    throw createError.BadRequest("you trying to unblock a friend who blocked you");
+    throw createError.BadRequest("You trying to unblock a friend who blocked you");
 
   if (!friendshipsData || (friendshipsData.status === 'BLOCKED' && block) || friendshipsData.status === 'PENDING')
     throw createError.NotFound("Friendship not found or not in a valid state for this operation");

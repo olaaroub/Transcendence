@@ -16,7 +16,7 @@ async function JwtHandler(request, reply) {
     request.userId = payload.id;
     request.username = payload.username;
 
-    request.log.debug({ userId: payload.id, username: payload.username }, "JWT Verified");
+    request.log.debug({ userId: payload.id, username: payload.username }, "JWT Token is valid!");
   }
   catch (err) {
     request.log.warn("Unauthorized access attempt (Invalid or missing token)");
