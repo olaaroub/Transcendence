@@ -89,13 +89,13 @@ const fastify = Fastify(
 // 	defaultMetrics: { enabled: true }
 // });
 
-const matchCounter = new fastify.metrics.client.Counter(
-	{
-		name: 'matches_total',
-		help: 'Total number of Matches Started'
-	});
+// const matchCounter = new fastify.metrics.client.Counter(
+// 	{
+// 		name: 'matches_total',
+// 		help: 'Total number of Matches Started'
+// 	});
 
-fastify.decorate('customMetrics', { matchCounter });
+// fastify.decorate('customMetrics', { matchCounter });
 
 const io = new SocketIOServer(fastify.server, {cors: { origin: '*' }});
 
