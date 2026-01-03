@@ -1,8 +1,8 @@
+fix global chat time
 
-fetch leaderboard
 check invalid password in settings (handle 401 error code)
 add online/ofline friends
-fix global chat time
+merge the private chat
 
 tailwind :
     truncate
