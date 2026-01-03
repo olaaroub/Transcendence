@@ -28,7 +28,7 @@ export async function isUserAuthenticated(): Promise<boolean> {
 		const response = await fetch(`api/user/${id}`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
-		if (response.status === 401 || response.status === 403) {
+		if (response.status === 401) {
 			handleSessionExpired();
 			return false;
 		}
@@ -87,7 +87,7 @@ export async function apiFetch<T = unknown>(
 		headers.delete('Content-Type');
 	try {
 		const response = await fetch(url, { ...fetchOptions, headers });
-		if (response.status === 401 || response.status === 403) {
+		if (response.status === 401) {
 			handleSessionExpired();
 			return {
 				data: null,

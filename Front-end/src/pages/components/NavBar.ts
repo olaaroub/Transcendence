@@ -12,14 +12,12 @@ function initNotificationSocket(): void {
 
 	const wsUrl = `wss://${window.location.host}/api/user/notification/${credentials.id}`;
 	socket = new WebSocket(wsUrl);
-
 	socket.onopen = () => {
 		console.log('WebSocket connection established for notifications');
 	};
 	socket.onmessage = (event) => {
 		try {
 			const parsed = JSON.parse(event.data);
-
 			if (parsed.type ==  'NOTIFICATION_READED')
 				$("notification-icon")?.querySelector('span')?.classList.add('hidden')
 			else if (parsed.type == 'SEND_NOTIFICATION')
@@ -149,40 +147,45 @@ export async function notifications()
 			return;
 		}
 		const result = document.createElement('div');
-		result.className = `absolute top-12 right-0 w-64 bg-color4 flex flex-col gap-2 overflow-y-auto
-		border border-borderColor rounded-2xl shadow-lg py-3 pl-3 pr-1 z-50 max-h-[300px] items-center
+		result.className = `absolute top-12 right-0 w-72 bg-black/90 backdrop-blur-md flex flex-col
+		border border-borderColor rounded-2xl shadow-lg py-2 z-50 max-h-[350px] overflow-y-auto
 		scrollbar-custom`;
 		result.id = "notifications-result";
 		result.innerHTML = /* html */ `
-			<p class="text-txtColor w-full text-lg font-bold text-center
-			border-b border-color3 pb-2">Notifications</p>
+			<p class="text-txtColor text-sm font-medium px-4 py-2 border-b border-borderColor/50">Notifications</p>
 		`;
 		notificationIcon.append(result);
 		if (!pendingUsers || pendingUsers.length === 0)
 		{
-			const noNotifications = document.createElement('p');
-			noNotifications.className = "text-gray-400 text-sm mt-4";
-			noNotifications.textContent = "No new notifications";
+			const noNotifications = document.createElement('div');
+			noNotifications.className = "flex items-center justify-center py-8 px-4";
+			noNotifications.innerHTML = `
+				<p class="text-gray-500 text-sm">No new notifications</p>
+			`;
 			result.append(noNotifications);
 			return;
 		}
 		for(const user of pendingUsers)
 		{
 			const pandingUser = document.createElement('div');
-			pandingUser.className = `flex w-full justify-between bg-color4 items-center`;
+			pandingUser.className = `flex justify-between items-center mx-2 px-3 py-3 rounded-xl
+				hover:bg-color1/20 transition-colors duration-200 cursor-pointer`;
 			pandingUser.innerHTML = /* html */ `
 				<div class="flex gap-3 items-center">
-					<img class="w-[45px] h-[45px] rounded-full" src="${getImageUrl(user.avatar_url)}" alt="">
-					<span class="text-txtColor">${user.username}</span>
+					<img class="w-10 h-10 rounded-full object-cover border border-borderColor/30" src="${getImageUrl(user.avatar_url)}" alt="">
+					<div class="flex flex-col">
+						<span class="text-txtColor text-sm font-medium">${shortString(user.username, 12)}</span>
+						<span class="text-gray-500 text-xs">Wants to be friends</span>
+					</div>
 				</div>
-				<div class="flex gap-2 items-center">
-					<button class="refuse-btn hover:scale-110 transition-transform" data-user-id="${user.id}">
-						<svg class="w-[24px] h-[24px]" fill="#ef4444" viewBox="0 0 24 24">
+				<div class="flex gap-1 items-center">
+					<button class="refuse-btn p-1.5 rounded-lg hover:bg-red-500/20 transition-colors duration-200" data-user-id="${user.id}">
+						<svg class="w-5 h-5" fill="#ef4444" viewBox="0 0 24 24">
 							<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
 						</svg>
 					</button>
-					<button class="accept-btn hover:scale-110 transition-transform" data-user-id="${user.id}">
-						<svg class="w-[28px] h-[28px]" fill="#22c55e" viewBox="0 0 24 24">
+					<button class="accept-btn p-1.5 rounded-lg hover:bg-green-500/20 transition-colors duration-200" data-user-id="${user.id}">
+						<svg class="w-5 h-5" fill="#22c55e" viewBox="0 0 24 24">
 							<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
 						</svg>
 					</button>

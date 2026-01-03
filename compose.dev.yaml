@@ -220,7 +220,7 @@ services:
     networks:
       - transcendence-dev-net
     environment:
-      - MODSEC_RULE_ENGINE=DetectionOnly
+      - MODSEC_RULE_ENGINE=on
       - BLOCKING_PARANOIA=2
     volumes:
       - ./waf/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro

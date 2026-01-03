@@ -31,14 +31,12 @@ async function checkPasswordChange() : Promise<boolean>
 		toastWarning('Invalid password confirmation.');
 		return false;
 	}
-	
 	const { error } = await apiFetch(`api/auth/${userData?.id}/settings-password`, {
 		method: 'PUT',
 		body: JSON.stringify({ currentPassword, newPassword: value }),
 		headers: { "Content-Type": "application/json" },
 		showErrorToast: false
 	});
-	
 	if (error) {
 		toastError('Current password is incorrect.');
 		return false;
@@ -70,7 +68,6 @@ function SaveChanges()
 					delete newUserData[key as keyof IUserData];
 					continue;
 				}
-				
 				let requestBody: BodyInit;
 				let contentType: Record<string, string> = {};
 				
@@ -80,14 +77,12 @@ function SaveChanges()
 					requestBody = JSON.stringify({ [key]: value });
 					contentType = { "Content-Type": "application/json" };
 				}
-				
 				const { error } = await apiFetch(`api/user/${userData?.id}/settings-${key}`, {
 					method: 'PUT',
 					body: requestBody,
 					headers: contentType,
 					showErrorToast: false
 				});
-				
 				if (error) {
 					toastError(`Failed to update ${key}.`);
 				} else {

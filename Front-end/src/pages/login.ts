@@ -35,5 +35,4 @@ export function renderLogin (isLoged: boolean)
 	$('about-us')!.addEventListener('click',_ => {navigate("/about")})
 	$('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
 	renderAuthPage(isLoged);
-	$('Alias/Email')?.focus();
 }

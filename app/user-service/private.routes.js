@@ -4,7 +4,7 @@ import search_bar from './search_bar.js'
 import friendsReceiver from './friendsReceiver.js'
 import friendsRequester from './friendsRequester.js'
 import deleteAccount from './deleteAccount.js'
-import userStatistic from './user.statistic.js'
+// import userStatistic from './user.statistic.js'
 
 import createError from 'http-errors';
 
@@ -34,7 +34,7 @@ async function privateRoutes(fastify) {
   fastify.register(friendsReceiver);
   fastify.register(friendsRequester);
   fastify.register(deleteAccount);
-  fastify.register(userStatistic);
+  // fastify.register(userStatistic);
 }
 
 export default privateRoutes;

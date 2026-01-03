@@ -58,7 +58,8 @@
 - [x] **change username and avatar_url error ...**
 - [x] **bugs in notification sockets**
 - [simo_part] **global chat time bug**
-- [ ] **error when blocken friend and unblocken them and resend the add friend request**
+- [x] **error when blocken friend and unblocken them and resend the add friend request**
+- [ ] **invalid response status when trying to change password using invalid credanstion"  
 <!-- union intersect distinct  -->
 - [cancled] **learn gRPC:** to build micro sirveces
 

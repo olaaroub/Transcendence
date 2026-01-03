@@ -1,12 +1,10 @@
+merge the private chat
 
 
 
 
-ohammou- : 
-    make as read
-    close sockets
-
-hamza :
+check invalid password in settings (handle 401 error code)
+add online/ofline friends
 
 tailwind :
     truncate

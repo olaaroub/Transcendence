@@ -262,10 +262,8 @@ export async function renderProfile(userId: string | null = null)
 				${recentMatches()}
 			</div>
 		`;
-
 		const profileCard = document.querySelector('.profile-card');
-		if (profileCard) {
+		if (profileCard)
 			attachActionButtonListeners(profileCard, currentStatus, userId, tmpUserData);
-		}
 	}
 }
