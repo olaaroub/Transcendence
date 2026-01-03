@@ -5,8 +5,8 @@ import { GridMaterial } from "@babylonjs/materials";
 import { Instance } from "../types.js";
 import { PongEngine } from "../game-engine.js";
 
-const colIcon = ['../Assets/ball.svg', '../Assets/p1.svg', '../Assets/p2.svg'];
-const camIcon = ['../Assets/cam1.svg', '../Assets/cam2.svg', '../Assets/cam3.svg', '../Assets/cam4.svg'];
+const colIcon = ['/game/Assets/ball.svg', '/game/Assets/p1.svg', '/game/Assets/p2.svg'];
+const camIcon = ['/game/Assets/cam1.svg', '/game/Assets/cam2.svg', '/game/Assets/cam3.svg', '/game/Assets/cam4.svg'];
 const clicked = [false, false, false];
 
 let ui:GUI.AdvancedDynamicTexture;
@@ -102,7 +102,7 @@ function colorButtons(mesh: BABYLON.Material[]): void
 
 export function optionsButton(scene: BABYLON.Scene, cameras : { [key: string]: BABYLON.Camera }, mesh: BABYLON.Material[]): void
 {
-	const button = GUI.Button.CreateImageOnlyButton('Options', '../Assets/options.svg');
+	const button = GUI.Button.CreateImageOnlyButton('Options', '/game/Assets/options.svg');
 	button.thickness = 0;
 	button.width = '50px';
 	button.height = '50px';
@@ -167,7 +167,7 @@ export function startButton(engine: PongEngine): void
 
 function createHUD(player: number, alias: string): GUI.Image
 {
-	const hudSVG = player === 1 ? '../Assets/player1.svg' : '../Assets/player2.svg'
+	const hudSVG = player === 1 ? '/game/Assets/player1.svg' : '/game/Assets/player2.svg'
 	const horAllign = player === 1 ? GUI.Control.HORIZONTAL_ALIGNMENT_LEFT : GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
 	const hud = new GUI.Image(alias + 'HUD', hudSVG);
 	hud.horizontalAlignment = horAllign;
@@ -234,7 +234,7 @@ export function addHUDs(session: Instance): void
 export function scoreGoal(player: number, goals: number)
 {
 	const horAllign = player === 1 ? GUI.Control.HORIZONTAL_ALIGNMENT_LEFT : GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-	const goal = new GUI.Image('GOAL', '../Assets/goal.svg');
+	const goal = new GUI.Image('GOAL', '/game/Assets/goal.svg');
 	goal.horizontalAlignment = horAllign;
 	goal.verticalAlignment = GUI.Image.VERTICAL_ALIGNMENT_TOP;
 	goal.height = '26px';
