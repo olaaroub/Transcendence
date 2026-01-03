@@ -1,5 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
-import "@babylonjs/core/Meshes/meshBuilder";
+import "@babylonjs/core/Meshes/meshBuilder.js";
 import { GridMaterial } from "@babylonjs/materials";
 
 export function createArenaMaterial(scene: BABYLON.Scene): BABYLON.PBRMaterial
