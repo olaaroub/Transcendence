@@ -36,7 +36,7 @@ interface GameRoom
 }
 
 const HOST = 'localhost';
-const PORT = 3010;
+const PORT = 3005;
 
 const ext = process.env.SERVICE_EXT || '-dev';
 const USER_SERVICE_URL = `http://user-service${ext}:3002`;

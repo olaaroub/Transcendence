@@ -19,6 +19,4 @@ ARG PORT=3000
 ENV PORT=${PORT}
 EXPOSE ${PORT}
 
-ENTRYPOINT ["/app/init.sh"]
-
-CMD ["node", "/app/Online/server.js"]
+CMD ["/app/init.sh"]
