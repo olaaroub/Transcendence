@@ -101,7 +101,7 @@ function exitGame(): void
 	div?.click();
 }
 
-const socket = io(`http://localhost:3010/`);
+const socket = io(`http://localhost:3005/`);
 
 socket.on("state", (state: GameState) => {modifyState(state);});
 
