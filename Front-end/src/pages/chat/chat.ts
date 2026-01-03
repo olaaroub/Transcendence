@@ -119,7 +119,7 @@ async function listFriends() : Promise<string> {
 export async function renderChat() {
 	await data.initDashboard(false);
 	
-	initializeSocket();
+	// initializeSocket();
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = /* html */`
