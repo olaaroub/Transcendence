@@ -1,8 +1,10 @@
-fix global chat time
+merge the private chat
+
+
+
 
 check invalid password in settings (handle 401 error code)
 add online/ofline friends
-merge the private chat
 
 tailwind :
     truncate
