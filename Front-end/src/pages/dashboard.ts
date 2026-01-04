@@ -289,9 +289,26 @@ export async function renderDashboard(isDashboard: boolean = true)
 		showDifficultyModal();
 	});
 
+	interface RoomData
+	{
+		roomId:			string;
+		PlayerID:		string;
+		playerName: 	string | null;
+		playerAvatar:	string | null;
+	}
+
 	const btnOnlineMatchmaking = $('btn-online-matchmaking');
-	btnOnlineMatchmaking?.addEventListener('click', () => { // Before navigating, you must await the roomID from /api/matchmaking
-		navigate('/game?mode=online-matchmaking');
+	btnOnlineMatchmaking?.addEventListener('click', async () => { // Before navigating, you must await the roomID from /api/matchmaking
+		const { data, error } = await apiFetch<string>("/api/matchmaking");
+		if (error || !data) return;
+		const roomData : RoomData = {
+			roomId : data,
+			PlayerID: String(userData.id),
+			playerName: userData.username,
+			playerAvatar: getImageUrl(userData.avatar_url)
+		};
+		sessionStorage.setItem("gameSession", JSON.stringify(roomData));
+		navigate(`/game?mode=online-matchmaking`);
 	});
 
 	const btnOnlineRoom = $('btn-online-room');
@@ -299,13 +316,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 		navigate('/game?mode=online-room');
 	});
 
-// interface RoomData
-// {
-// 	roomId:			string;
-// 	PlayerID:		string;
-// 	playerName: 	string;
-// 	playerAvatar:	string;
-// }
+
 
 
 	const avatar = $('avatar');
