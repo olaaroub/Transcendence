@@ -62,8 +62,14 @@ async function matchDataController(req, reply)
         const p2Changes = insertValues(p2).run(p2.scored, p2.userID);
         if (p1Changes.changes === 0 || p2Changes.changes === 0)
             throw createError.NotFound("this users not found to change it!");
+        const insertMatch = this.db.prepare(`INSERT INTO matchHistory (player1_id, player2_id, player1_score, player2_score)
+                                            VALUES (?, ?, ?, ?)`);
+        insertMatch.run(p1.userID, p2.userID, p1.scored, p2.scored);
     });
     runQury();
+
+    req.log.info({p1ID: p1.userID, p2ID: p2.userID}, "Match result recorded successfully");
+    return { success: true, message: "Match result recorded successfully" };
 }
 
 export default function gameEndPoints(fastify)
