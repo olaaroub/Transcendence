@@ -1,6 +1,5 @@
 import { GameState, Input, Instance, AI, State, Diff } from './types.js';
 import { WIDTH, HEIGHT, PWIDTH, PHEIGHT, PSPEED, BSPEED, BRADIUS, ULGAP, DRGAP, TICKDT, diffMap } from './constants.js';
-import { scoreGoal } from './graphics/gui.js';
 
 export class PongEngine
 {
@@ -202,13 +201,11 @@ export class PongEngine
 		{
 			this.state.p1++;
 			this.lastGoal = 1;
-			scoreGoal(1, this.state.p1);
 		}
 		else if (this.state.ballX > WIDTH + BRADIUS)
 		{
 			this.state.p2++;
 			this.lastGoal = -1;
-			scoreGoal(2, this.state.p2);
 		}
 		if (this.state.p1 === 5 || this.state.p2 === 5)
 		{

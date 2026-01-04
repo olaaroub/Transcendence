@@ -65,7 +65,8 @@
 
 ## Game (HES-SAFI)
 
-- [ ] **Prod .JS Filename:** Need to change the randomly generated name with 'pong.js'. VITE Bundler knowledge.
+- [X] **Prod .JS Filename:** Need to change the randomly generated name with 'pong.js'. VITE Bundler knowledge.
+- [ ] **Over-LAN Socket Failure:** Need to Fix Sockets not connecting from another post in the same Cluster.
 
 ## Known Bugs
 

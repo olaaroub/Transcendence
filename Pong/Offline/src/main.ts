@@ -6,6 +6,7 @@ import {
 	optionsButton,
 	startButton,
 	addHUDs,
+	updateGoals,
 	createArena,
 	createSky,
 	createPaddles,
@@ -82,7 +83,7 @@ const gameLoop = (currentTime: number) =>
 	const gameState = gameEngine.getState();
 	renderer.updateGameState(gameState);
 	renderer.render();
-
+	updateGoals(gameEngine.getState().p1, gameEngine.getState().p2);
 	requestAnimationFrame(gameLoop);
 };
 

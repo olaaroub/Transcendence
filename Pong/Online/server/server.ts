@@ -121,9 +121,9 @@ function createGameRoom(roomId: string): GameRoom
 		oppAI: false,
 		diff: 'None',
 		p1Alias: 'Player 1',
-		p1Avatar: 'default.png',
+		p1Avatar: '/game/Assets/default.png',
 		p2Alias: 'Player 2',
-		p2Avatar: 'default.png',
+		p2Avatar: '/game/Assets/default.png',
 	};
 	const p1: Player =
 	{
@@ -319,7 +319,7 @@ fastify.get('/api/game/matchmaking', async (_request, reply) =>
 fastify.get<{ Params: { roomid: string } }>('/api/game/room/:roomid', async (request, reply) =>
 {
 	const { roomid } = request.params;
-	const exists = rooms.has(roomid);
+	const exists = rooms.has(roomid.toUpperCase());
 	return reply.send({ exists });
 });
 
@@ -336,7 +336,7 @@ io.on('connection', (socket: Socket) =>
 
 	socket.on('match', (data: RoomData, callback: (response: Match | null) => void) =>
 	{
-		const roomId = data.roomId;
+		const roomId = data.roomId.toUpperCase();
 		const room = rooms.get(roomId);
 
 		if (!room)
@@ -367,6 +367,7 @@ io.on('connection', (socket: Socket) =>
 
 			if (getPlayerCount(room) === 2 && room.engine.getCurrentState() === 'Waiting')
 			{
+				socket.emit('session', room.session);
 				const queueIndex = matchmakingQueue.indexOf(roomId);
 				if (queueIndex !== -1)
 					matchmakingQueue.splice(queueIndex, 1);

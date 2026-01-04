@@ -7,6 +7,7 @@ import {
 	createGUI,
 	optionsButton,
 	addHUDs,
+	updateGoals,
 	createArena,
 	createSky,
 	createPaddles,
@@ -52,6 +53,9 @@ let match: Match =
 
 let gameOver: {winner: string, reason: string;} = {winner: "N/A", reason: "N/A"};
 let role = 0;
+
+const HOST = `10.14.10.1`;
+const PORT = 3005;
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 
@@ -105,9 +109,12 @@ function exitGame(): void
 	div?.click();
 }
 
+// const socket = io(`https://${HOST}:${PORT}`);
 const socket = io(`http://localhost:3005/`);
 
 socket.on("state", (state: GameState) => {modifyState(state);});
+
+socket.on("session", (session: Match['session']) => {match.session = session;});
 
 socket.on("gamestate", (state: State) => {match.currState = state;});
 
@@ -115,13 +122,13 @@ socket.on("gameOver", (data: {winner: string, reason: string;}) => {gameOver = d
 
 socket.on("countdown", (count: number) =>
 {
+	addHUDs(match.session);
 	console.log(`Game starting in ${count}...`);
 	// TODO: Visual countdown with Babylon.js
 });
 
 socket.on("redirect", () => {exitGame();});
 
-addHUDs(match.session);
 optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
 
 window.addEventListener('keydown', (e) =>
@@ -152,7 +159,7 @@ if (!roomString)
 	console.error("No Room Data Found! Redirecting to dashboard...");
 	exitGame();
 }
-
+sessionStorage.removeItem('room');
 let roomData: RoomData | null = null;
 try { roomData = JSON.parse(roomString || 'null'); } catch {}
 if (!roomData)
@@ -197,7 +204,9 @@ const gameLoop = () =>
 	const gameState = match.state;
 	renderer.updateGameState(gameState);
 	renderer.render();
-
+	updateGoals(gameState.p1, gameState.p2);
+	if (!canvas)
+		console.log("Canvas was Destroyed!");
 	requestAnimationFrame(gameLoop);
 };
 

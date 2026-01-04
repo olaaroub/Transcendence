@@ -18,7 +18,7 @@ export async function renderGame() {
             p1Alias: userData.username,
             p1Avatar: getImageUrl(userData.avatar_url),
             p2Alias: mode === 'local-vs-ai' ? 'AI' : 'Player 2',
-            p2Avatar: '/game/Assets/default.png'
+            p2Avatar: mode ==='local-vs-ai' ? '/game/Assets/ai.png' : '/game/Assets/default.png'
         };
         sessionStorage.setItem('gameSession', JSON.stringify(gameSession));
     }
