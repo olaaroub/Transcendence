@@ -15,7 +15,7 @@ export async function renderGame() {
         p1Alias: userData.username,
         p1Avatar: getImageUrl(userData.avatar_url),
         p2Alias: mode === 'local-vs-ai' ? 'AI' : 'Player 2',
-        p2Avatar: '/game/default.png'
+        p2Avatar: '/game/Assets/default.png'
     };
 
     sessionStorage.setItem('gameSession', JSON.stringify(gameSession));
@@ -38,7 +38,7 @@ export async function renderGame() {
     `;
 
     const script = document.createElement('script');
-    script.src = `/game/offline/main.js?t=${Date.now()}`;
+    script.src = `/game/offline/main.js?t=${Date.now()}`; // For Online: /game/online/client.js
     script.type = 'module';
     document.body.appendChild(script);
 
