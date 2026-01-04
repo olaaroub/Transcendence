@@ -63,6 +63,20 @@ const creatTable = async () => {
         UNIQUE (userRequester, userReceiver),
         UNIQUE (pair_relation)
     );`);
+
+    db.exec(`CREATE TABLE IF NOT EXISTS matchHistory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player1_id INTEGER NOT NULL,
+        player2_id INTEGER NOT NULL,
+
+        player1_score INTEGER NOT NULL,
+        player2_score INTEGER NOT NULL,
+
+        match_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+        FOREIGN KEY(player1_id) REFERENCES userInfo(id) ON DELETE CASCADE,
+        FOREIGN KEY(player2_id) REFERENCES userInfo(id) ON DELETE CASCADE
+    );`);
     return db;
 }
 
