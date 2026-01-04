@@ -67,9 +67,9 @@ export class PongEngine
 			oppAI: false,
 			diff: 'None',
 			p1Alias: 'Player 1',
-			p1Avatar: '../Assets/default.png',
+			p1Avatar: '/game/Assets/default.png',
 			p2Alias: 'Player 2',
-			p2Avatar: '../Assets/default.png'
+			p2Avatar: '/game/Assets/default.png'
 		};
 	}
 
