@@ -316,10 +316,10 @@ fastify.get('/api/matchmaking', async (_request, reply) =>
 	return reply.send(roomId);
 });
 
-fastify.get<{ Params: { id: string } }>('/api/room/:id', async (request, reply) =>
+fastify.get<{ Params: { roomid: string } }>('/api/room/:roomid', async (request, reply) =>
 {
-	const { id } = request.params;
-	const exists = rooms.has(id.toUpperCase());
+	const { roomid } = request.params;
+	const exists = rooms.has(roomid.toUpperCase());
 	return reply.send({ exists });
 });
 
