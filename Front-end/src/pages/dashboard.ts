@@ -291,7 +291,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 
 	interface RoomData
 	{
-		roomId:			string;
+		roomId:			string | null;
 		PlayerID:		string;
 		playerName: 	string | null;
 		playerAvatar:	string | null;
@@ -299,15 +299,18 @@ export async function renderDashboard(isDashboard: boolean = true)
 
 	const btnOnlineMatchmaking = $('btn-online-matchmaking');
 	btnOnlineMatchmaking?.addEventListener('click', async () => { // Before navigating, you must await the roomID from /api/matchmaking
-		const { data, error } = await apiFetch<string>("/api/game/matchmaking");
-		if (error || !data) return;
+		interface RoomID {
+			roomId : string
+		}
+		const { data, error} = await apiFetch<RoomID>("/api/game/matchmaking");
+		if (error || !data) return;	
 		const roomData : RoomData = {
-			roomId : data,
+			roomId : data.roomId,
 			PlayerID: String(userData.id),
 			playerName: userData.username,
 			playerAvatar: getImageUrl(userData.avatar_url)
 		};
-		sessionStorage.setItem("gameSession", JSON.stringify(roomData));
+		sessionStorage.setItem("room", JSON.stringify(roomData));
 		navigate(`/game?mode=online-matchmaking`);
 	});
 	const btnOnlineRoom = $('btn-online-room');

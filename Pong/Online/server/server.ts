@@ -35,7 +35,7 @@ interface GameRoom
 	session:	Instance;
 }
 
-const HOST = 'localhost';
+const HOST = process.env.HOST as string;
 const PORT = 3005;
 
 const ext = process.env.SERVICE_EXT || '-dev';
@@ -296,7 +296,7 @@ function cleanupRoom(roomId: string): void
 // REST API ROUTES
 // =============================================================================
 
-fastify.get('/api/matchmaking', async (_request, reply) =>
+fastify.get('/api/game/matchmaking', async (_request, reply) =>
 {
 	let roomId: string;
 
@@ -313,13 +313,13 @@ fastify.get('/api/matchmaking', async (_request, reply) =>
 		matchmakingQueue.push(roomId);
 		fastify.log.info(`Matchmaking: Created new room ${roomId}`);
 	}
-	return reply.send(roomId);
+	return reply.send({ roomId });
 });
 
-fastify.get<{ Params: { roomid: string } }>('/api/room/:roomid', async (request, reply) =>
+fastify.get<{ Params: { roomid: string } }>('/api/game/room/:roomid', async (request, reply) =>
 {
 	const { roomid } = request.params;
-	const exists = rooms.has(roomid.toUpperCase());
+	const exists = rooms.has(roomid);
 	return reply.send({ exists });
 });
 
@@ -336,7 +336,7 @@ io.on('connection', (socket: Socket) =>
 
 	socket.on('match', (data: RoomData, callback: (response: Match | null) => void) =>
 	{
-		const roomId = data.roomId.toUpperCase();
+		const roomId = data.roomId;
 		const room = rooms.get(roomId);
 
 		if (!room)
