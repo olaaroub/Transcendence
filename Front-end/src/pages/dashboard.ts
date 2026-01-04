@@ -280,10 +280,10 @@ export async function renderDashboard(isDashboard: boolean = true)
 	$('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
 	
 	const btnLocalVsPlayer = $('btn-local-vs-player');
-	btnLocalVsPlayer?.addEventListener('click', () => {
+	btnLocalVsPlayer?.addEventListener('click',async () => {
+
 		navigate('/game?mode=local-vs-player');
 	});
-
 	const btnLocalVsAi = $('btn-local-vs-ai');
 	btnLocalVsAi?.addEventListener('click', () => {
 		showDifficultyModal();
@@ -299,7 +299,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 
 	const btnOnlineMatchmaking = $('btn-online-matchmaking');
 	btnOnlineMatchmaking?.addEventListener('click', async () => { // Before navigating, you must await the roomID from /api/matchmaking
-		const { data, error } = await apiFetch<string>("/api/matchmaking");
+		const { data, error } = await apiFetch<string>("/api/game/matchmaking");
 		if (error || !data) return;
 		const roomData : RoomData = {
 			roomId : data,
@@ -310,14 +310,10 @@ export async function renderDashboard(isDashboard: boolean = true)
 		sessionStorage.setItem("gameSession", JSON.stringify(roomData));
 		navigate(`/game?mode=online-matchmaking`);
 	});
-
 	const btnOnlineRoom = $('btn-online-room');
 	btnOnlineRoom?.addEventListener('click', () => { // Before navigating, you must await boolean from /api/room/:roomid
 		navigate('/game?mode=online-room');
 	});
-
-
-
 
 	const avatar = $('avatar');
 	if (avatar) {

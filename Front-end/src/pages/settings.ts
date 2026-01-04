@@ -166,15 +166,12 @@ export function confirmPopUp(message: string) : Promise<boolean>
 				resolve(false);
 			}
 		});
-		
 		const confirmBtn = deletePopUp.querySelector("#confirm-btn") as HTMLButtonElement;
 		const cancelBtn = deletePopUp.querySelector("#cancel-btn") as HTMLButtonElement;
-
 		confirmBtn.addEventListener("click", () => {
 			deletePopUp.remove();
 			resolve(true);
 		});
-
 		cancelBtn.addEventListener("click", () => {
 			deletePopUp.remove();
 			resolve(false);
@@ -222,7 +219,6 @@ function sendAvatar() : FormData | null
 		uploadAvatar.value = '';
 		return null;
 	}
-	
 	if (file.size > 2097152) {
 		toastWarning("Image is too large. Max size 2MB.");
 		uploadAvatar.value = '';
@@ -380,7 +376,6 @@ async function deleteAccount() : Promise<void>
 {
 	const confirmed = await confirmPopUp('Are you sure you want to delete your account? This action cannot be undone.');
 	if (!confirmed) return;
-
 	const { error } = await apiFetch<{message: string}>(`api/user/deleteAccount/${userData.id}`, {
 		method: 'DELETE',
 	});
@@ -390,9 +385,8 @@ async function deleteAccount() : Promise<void>
 		localStorage.clear();
 		navigate('/sign-up');
 		toastSuccess('Account deleted successfully.');
-	} else {
+	} else
 		toastError('Failed to delete account.');
-	}
 }
 
 export async function renderSettings()
