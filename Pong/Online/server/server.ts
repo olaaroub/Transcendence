@@ -316,10 +316,10 @@ fastify.get('/api/matchmaking', async (_request, reply) =>
 	return reply.send(roomId);
 });
 
-fastify.get<{ Params: { id: string } }>('/api/room/:id', async (request, reply) =>
+fastify.get<{ Params: { roomid: string } }>('/api/room/:roomid', async (request, reply) =>
 {
-	const { id } = request.params;
-	const exists = rooms.has(id.toUpperCase());
+	const { roomid } = request.params;
+	const exists = rooms.has(roomid.toUpperCase());
 	return reply.send({ exists });
 });
 
@@ -356,12 +356,12 @@ io.on('connection', (socket: Socket) =>
 			if (playerSide === 1)
 			{
 				room.session.p1Alias = data.playerName || 'Player 1';
-				room.session.p1Avatar = data.playerAvatar || '../Assets/default.png';
+				room.session.p1Avatar = data.playerAvatar || '/game/Assets/default.png';
 			}
 			else
 			{
 				room.session.p2Alias = data.playerName || 'Player 2';
-				room.session.p2Avatar = data.playerAvatar || '../Assets/default.png';
+				room.session.p2Avatar = data.playerAvatar || '/game/Assets/default.png';
 			}
 			fastify.log.info(`Player ${data.playerName} joined room ${roomId} as P${playerSide}`);
 
