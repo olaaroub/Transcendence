@@ -9,7 +9,7 @@ interface LeaderboardPlayer {
 	username: string;
 	avatar_url: string;
 	Rating: number;
-	gamesPlayed: number;
+	GamesPlayed: number;
 	TotalWins: number;
 	TotalLosses: number;
 	WinRate: number;
@@ -106,7 +106,7 @@ function renderPlayerRow(player: LeaderboardPlayer, rank: number): string {
 					class="w-12 h-12 rounded-full object-cover border-2 ${rank === 1 ? 'border-color1' : 'border-color3'}">
 				<span class="text-txtColor font-bold text-base">${player.username}</span>
 			</div>
-			<div class="text-center text-txtColor font-semibold">${player.gamesPlayed}</div>
+			<div class="text-center text-txtColor font-semibold">${player.GamesPlayed}</div>
 			<div class="text-center">
 				<div class="inline-flex items-center gap-2">
 					<div class="w-16 bg-gray-700 rounded-full h-2 overflow-hidden">
@@ -133,7 +133,6 @@ export async function renderLeaderboard() {
 	await initDashboard(false);
 	
 	leaderboardData = await fetchLeaderboard(0, 20);
-	
 	const dashContent = $('dashboard-content');
 	if (!dashContent) return;
 	
