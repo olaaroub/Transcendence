@@ -46,7 +46,8 @@ re: clean up
 # ==========================================
 dev: certs
 	docker compose -f compose.dev.yaml up -d --build
-	docker compose -f compose.dev.yaml logs -f auth-service-dev user-service-dev frontend-dev global-chat-dev private-chat-dev
+	docker compose -f compose.dev.yaml logs -f frontend-dev auth-service-dev user-service-dev global-chat-dev \
+												private-chat-dev pong-game-dev
 
 down-dev:
 	docker compose -f compose.dev.yaml down
@@ -83,7 +84,7 @@ re-elk: clean-elk elk
 # ==========================================
 
 # Clean Database Data
-clean-data:
+clean-data: clean-deps clean-images
 	@echo "Cleaning database data..."
 	@rm -rf $(DB_DIR)/auth/*
 	@rm -rf $(DB_DIR)/users/*
