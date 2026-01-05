@@ -12,12 +12,13 @@ export async function renderGame() {
     if (isOffline)
     {
         const difficulty = urlParams.get('difficulty');
+        const player2Alias = sessionStorage.getItem('player2') || 'Player 2';
         const gameSession = {
             oppAI: mode === 'local-vs-ai',
             diff: mode === 'local-vs-ai' ? difficulty : 'None',
             p1Alias: userData.username,
             p1Avatar: getImageUrl(userData.avatar_url),
-            p2Alias: mode === 'local-vs-ai' ? 'AI' : 'Player 2',
+            p2Alias: mode === 'local-vs-ai' ? 'AI' : player2Alias,
             p2Avatar: mode ==='local-vs-ai' ? '/game/Assets/ai.png' : '/game/Assets/default.png'
         };
         sessionStorage.setItem('gameSession', JSON.stringify(gameSession));
