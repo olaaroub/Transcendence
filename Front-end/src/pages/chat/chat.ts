@@ -3,11 +3,13 @@ import * as data from '../dashboard';
 import { shortString } from '../utils';
 import { credentials, getImageUrl, IUserData } from '../store';
 import { apiFetch } from '../components/errorsHandler';
+import { toastInfo } from '../components/toast';
 
 import { io, Socket } from "socket.io-client";
 
 
 let socket: Socket | null = null;
+let notificationSocketInitialized = false;
 
 interface ChatMessage {
 	id?: number;
@@ -72,8 +74,12 @@ function initializeSocket() {
 	sock.on("message_sent", (data) => {
 		console.log("Message sent confirmation:", data);
 	});
-	sock.on("new_notification", (data) => {
+	sock.on("new_notification", (data: { type: string; from: number; conversationId: number; text: string }) => {
 		console.log("New notification:", data);
+		// Show toast if not on chat page
+		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat')) {
+			toastInfo(`New message received!`, { duration: 4000 });
+		}
 	});
 	sock.on("error", (data) => {
 		console.error("Chat error:", data.message);
@@ -84,13 +90,12 @@ function initializeSocket() {
 function openChat(friend: IUserData) {
 	chatState.currentFriend = friend;
 	chatState.messages = [];
-	
+
 	const sock = getSocket();
 	sock.emit("open_chat", {
 		senderId: credentials.id,
 		receiverId: friend.id
 	});
-
 	updateChatHeaderUI();
 }
 
@@ -105,7 +110,6 @@ function sendMessage(content: string) {
 		receiverId: Number(chatState.currentFriend.id),
 		content: content.trim()
 	});
-
 	const optimisticMessage: ChatMessage = {
 		senderId: Number(credentials.id),
 		content: content.trim(),
@@ -118,9 +122,8 @@ function sendMessage(content: string) {
 
 function formatMessageTime(dateString: string): string {
 	let date = new Date(dateString);
-	if (dateString && !dateString.includes('Z') && !dateString.includes('+')) {
+	if (dateString && !dateString.includes('Z') && !dateString.includes('+'))
 		date = new Date(dateString + 'Z');
-	}
 	return date.toLocaleTimeString(navigator.language || 'en-US', {
 		hour: '2-digit',
 		minute: '2-digit'
@@ -236,6 +239,18 @@ export function cleanupPrivateChat() {
 	chatState.currentFriend = null;
 	chatState.messages = [];
 	chatState.friends = [];
+	notificationSocketInitialized = false;
+}
+
+// Initialize global notification listener (call this after login/dashboard init)
+export function initGlobalChatNotifications() {
+	if (notificationSocketInitialized) return;
+	
+	const sock = getSocket();
+	sock.emit("userId", credentials.id);
+	notificationSocketInitialized = true;
+	
+	console.log("Global chat notifications initialized");
 }
 
 export function chatEventHandler() {
