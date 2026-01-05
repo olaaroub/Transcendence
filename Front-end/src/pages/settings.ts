@@ -184,7 +184,7 @@ async function deleteAvatar()
 	$('delete-avatar')?.addEventListener('click', async ()=> {
 		const confirmed = await confirmPopUp('Are you sure you want to delete your avatar?');
 		if (!confirmed) return;
-		const { error } = await apiFetch<{message: string}>(`api/user/${userData?.id}/image`, {
+		const { error } = await apiFetch<{message: string}>(`api/user/${userData?.id}/settings-avatar`, {
 			method: 'DELETE',
 		});
 		if (!error) {

@@ -11,7 +11,7 @@ let socket: Socket | null = null;
 
 function getSocket(): Socket {
 	if (!socket) {
-		socket = io(`wss://${window.location.host}`, {
+		socket = io({
 			path: '/api/chat/private/socket.io',
 			transports: ['websocket', 'polling'],
 		});
