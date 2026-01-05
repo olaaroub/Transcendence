@@ -1,7 +1,7 @@
 merge the private chat
 
 
-
+activate cleanupPrivateChat
 
 add online/offline friends
 
@@ -12,3 +12,7 @@ tailwind :
     show backdrop-blur-lg effect
 
 
+js : 
+    call stack
+    microtask queue
+    task queue
