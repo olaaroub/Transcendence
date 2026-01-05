@@ -46,7 +46,8 @@ re: clean up
 # ==========================================
 dev: certs
 	docker compose -f compose.dev.yaml up -d --build
-	docker compose -f compose.dev.yaml logs -f auth-service-dev user-service-dev frontend-dev global-chat-dev private-chat-dev
+	docker compose -f compose.dev.yaml logs -f frontend-dev auth-service-dev user-service-dev global-chat-dev \
+												private-chat-dev pong-game-dev
 
 down-dev:
 	docker compose -f compose.dev.yaml down
@@ -82,8 +83,8 @@ re-elk: clean-elk elk
 #              CLEANUP TOOLS
 # ==========================================
 
-# Clean Database Data
-clean-data:
+# Clean databases and node modules
+clean-data: clean-deps clean-images
 	@echo "Cleaning database data..."
 	@rm -rf $(DB_DIR)/auth/*
 	@rm -rf $(DB_DIR)/users/*
@@ -115,12 +116,17 @@ clean-images:
 		echo "No dangling images found."; \
 	fi
 
+clean-cache: clean-deps clean-images
+	@echo "Cleaning Docker build cache..."
+	@docker builder prune -f
+	@echo "Docker build cache cleaned."
+
 # System Prune
 prune:
 	docker system prune -a --volumes
 
 # HARD RESET
-hard-reset: fclean fcleandev fclean-elk clean-images clean-deps clean-data
+hard-reset: fclean fcleandev fclean-elk clean-images clean-deps clean-cache clean-data
 	@echo "------------------------------------------------------------------"
 	@echo "-------------------HARD RESET COMPLETE----------------------------"
 	@echo "------------------------------------------------------------------"

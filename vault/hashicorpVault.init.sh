@@ -43,6 +43,10 @@ vault kv put secret/global-chat \
 vault kv put secret/private-chat \
     jwt_secret="$JWT_SECRET_VALUE" \
 
+vault kv put secret/pong-game \
+    jwt_secret="$JWT_SECRET_VALUE" \
+
+
 
 
 echo "[Init] Writing Access Policies..."

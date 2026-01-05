@@ -1,6 +1,6 @@
-import Fastify from 'fastify';
-// import FastifyJwt from '@fastify/jwt';
-// import Vault from 'node-vault';
+import Fastify, { FastifyBaseLogger } from 'fastify';
+import FastifyJwt from '@fastify/jwt';
+import Vault from 'node-vault';
 import fastifyMetrics from 'fastify-metrics';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import {
@@ -36,7 +36,7 @@ interface GameRoom
 }
 
 const HOST = process.env.HOST as string;
-const PORT = 3005;
+const PORT = 3005; // process.env.PORT || 3005
 
 const ext = process.env.SERVICE_EXT || '-dev';
 const USER_SERVICE_URL = `http://user-service${ext}:3002`;
@@ -44,30 +44,38 @@ const USER_SERVICE_URL = `http://user-service${ext}:3002`;
 const rooms = new Map<string, GameRoom>();
 const matchmakingQueue: string[] = [];
 
-// async function getSecrets(logger)
-// {
-// 	try
-// 	{
-// 		const vaultPath = process.env.VAULT_SECRET_PATH || "/secrets"
-// 		const options =
-// 		{
-// 			apiVersion: 'v1',
-// 			endpoint: process.env.VAULT_ADDR,
-// 			token: process.env.PONG_SERVICE_TOKEN
-// 		};
+declare module 'fastify'{
+	interface FastifyInstance {
+	  customMetrics: {
+		matchCounter: any;
+	  }
+	}
+}
 
-// 		const vaultClient = Vault(options);
-// 		logger.info(`reading secrets from: ${vaultPath}`);
-// 		const { data } = await vaultClient.read(vaultPath);
+async function getSecrets(logger: FastifyBaseLogger)
+{
+	try
+	{
+		const vaultPath = process.env.VAULT_SECRET_PATH as string;
+		const options =
+		{
+			apiVersion: 'v1',
+			endpoint: process.env.VAULT_ADDR,
+			token: process.env.PONG_SERVICE_TOKEN
+		};
 
-// 		return { jwtSecret: data.data.jwt_secret };
-// 	}
-// 	catch (err)
-// 	{
-// 		logger.error({ msg: "CRITICAL: Error fetching secret from Vault", err: err });
-// 		process.exit(1);
-// 	}
-// }
+		const vaultClient = Vault(options);
+		logger.info(`reading secrets from: ${vaultPath}`);
+		const { data } = await vaultClient.read(vaultPath);
+
+		return { jwtSecret: data.data.jwt_secret };
+	}
+	catch (err)
+	{
+		logger.error({ msg: "CRITICAL: Error fetching secret from Vault", err: err });
+		process.exit(1);
+	}
+}
 
 const fastify = Fastify(
 {
@@ -83,19 +91,20 @@ const fastify = Fastify(
 	}
 });
 
-// await fastify.register(fastifyMetrics,
-// {
-// 	endpoint: '/metrics',
-// 	defaultMetrics: { enabled: true }
-// });
+await fastify.register(fastifyMetrics as any,
+{
+	endpoint: '/metrics',
+	defaultMetrics: { enabled: true }
+});
 
-// const matchCounter = new fastify.metrics.client.Counter(
-// 	{
-// 		name: 'matches_total',
-// 		help: 'Total number of Matches Started'
-// 	});
+const matchCounter = new fastify.metrics.client.Counter(
+{
+	name: 'matches_total',
+	help: 'Total number of Matches Started'
+});
 
-// fastify.decorate('customMetrics', { matchCounter });
+
+fastify.decorate('customMetrics', { matchCounter });
 
 const io = new SocketIOServer(fastify.server, {cors: { origin: '*' }});
 
@@ -371,7 +380,7 @@ io.on('connection', (socket: Socket) =>
 				const queueIndex = matchmakingQueue.indexOf(roomId);
 				if (queueIndex !== -1)
 					matchmakingQueue.splice(queueIndex, 1);
-				// fastify.customMetrics.matchCounter.inc(); CHECK THIS
+				fastify.customMetrics.matchCounter.inc();
 				startCountdown(room);
 			}
 		}
@@ -420,7 +429,10 @@ const start = async () =>
 {
 	try
 	{
-		// const secrets = await getSecrets(fastify.log);
+		fastify.log.info(`Starting pong game sserver...`);
+		const secrets = await getSecrets(fastify.log) as { jwtSecret: string };
+		fastify.log.debug(`Secrets fetched successfully: ${secrets.jwtSecret}`);
+
 		await fastify.listen({ host: HOST, port: PORT });
 		fastify.log.info(`Pong Server Running On: http://${HOST}:${PORT}`);
 	}

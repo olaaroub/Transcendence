@@ -53,13 +53,13 @@ async function handleMessageEvent(socket, fastify, userId, message) {
 
         fastify.log.info({ userId, message: messageJson.msg }, "User sent a message");
 
-    const response = {
-        sender_id: messageBody.sender_id,
-        msg: messageBody.msg,
-        created_at: messageBody.created_at,
-        username: userData.username,
-        avatar_url: userData.avatar_url
-    }
+        const response = {
+            sender_id: messageBody.sender_id,
+            msg: messageBody.msg,
+            created_at: messageBody.created_at,
+            username: userData.username,
+            avatar_url: userData.avatar_url
+        }
 
         const sockets = fastify.sockets;
         sockets.forEach((userSockets, user_id) => {
@@ -69,7 +69,7 @@ async function handleMessageEvent(socket, fastify, userId, message) {
             })
         });
 
-        // fastify.customMetrics.chatMessagesCounter.inc({ chat_type: 'global' });
+        this.customMetrics.chatMessagesCounter.inc({ chat_type: 'global' });
 
     } catch (err) {
         fastify.log.error({ err, userId }, "Error handling message event");
