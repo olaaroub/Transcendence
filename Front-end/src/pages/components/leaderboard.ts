@@ -56,6 +56,7 @@ export async function dashboardLearderboard(): Promise<string> {
 						${index === 0 ? '<img class="absolute -top-5 -left-7 -rotate-[50deg]" src="images/king.svg">' : ''}
 						<img class="rounded-full w-[70px] h-[70px] object-cover" src="${getImageUrl(player.avatar_url)}">
 						<span class="font-bold text-lg text-txtColor">${player.username}</span>
+						<span class="ml-auto mr-4 bg-color1/20 px-3 py-1 rounded-full border border-color1/40 text-color1 font-bold">${player.Rating}</span>
 					</div>
 				`).join('')}
 			</div>
