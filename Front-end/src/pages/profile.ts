@@ -1,9 +1,22 @@
 import * as data from "./dashboard"
-import { userData, IUserData, getImageUrl } from "./store";
+import { userData, IUserData, getImageUrl, credentials } from "./store";
 import { navigate } from "../router";
 import { confirmPopUp } from "./settings";
 import { toastSuccess, toastError } from "./components/toast";
 import { apiFetch } from "./components/errorsHandler";
+
+interface IMatchHistory {
+	match_id: number;
+	player1_id: number;
+	player2_id: number;
+	player1_score: number;
+	player2_score: number;
+	match_date: string;
+	player1_username: string;
+	player2_username: string;
+	player1_avatar: string;
+	player2_avatar: string;
+}
 
 const stats = [
 	{ label: "XP", value: "2500" },
@@ -30,13 +43,60 @@ function UserStats() : string
 	`;
 }
 
-function recentMatches() : string
+function recentMatches(matches: IMatchHistory[], odderuserId: string | null) : string
 {
+	if (!matches || matches.length === 0) {
+		return /* html */ `
+			<div class="w-full sm:px-4 p-6 bg-color4 glow-effect rounded-3xl">
+				<h2 class="text-txtColor text-2xl font-bold mb-4">Recent Matches</h2>
+				<p class="text-gray-400 text-center py-8">No matches played yet</p>
+			</div>
+		`;
+	}
+
 	return /* html */ `
 		<div class="w-full sm:px-4 p-6 bg-color4 glow-effect rounded-3xl">
-			<h2 class="text-txtColor text-2xl font-bold">Recent Matches</h2>
+			<h2 class="text-txtColor text-2xl font-bold mb-4">Recent Matches</h2>
+			<div class="flex flex-col gap-3 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent pr-2">
+				${matches.map(match => {
+					const odderUserId = odderuserId ? Number(odderuserId) : Number(credentials.id);
+					const isPlayer1 = match.player1_id === odderUserId;
+					const userScore = isPlayer1 ? match.player1_score : match.player2_score;
+					const opponentScore = isPlayer1 ? match.player2_score : match.player1_score;
+					const opponentName = isPlayer1 ? match.player2_username : match.player1_username;
+					const opponentAvatar = isPlayer1 ? match.player2_avatar : match.player1_avatar;
+					const isWin = userScore > opponentScore;
+					const matchDate = new Date(match.match_date).toLocaleDateString();
+
+					return /* html */`
+						<div class="flex items-center justify-between bg-black/40 rounded-xl p-4 hover:bg-black/60 transition-all">
+							<div class="flex items-center gap-3">
+								<img src="${getImageUrl(opponentAvatar) || '/images/default-avatar.png'}" 
+									alt="${opponentName}" 
+									class="w-10 h-10 rounded-full border border-borderColor">
+								<div>
+									<p class="text-txtColor font-medium">${opponentName}</p>
+									<p class="text-gray-400 text-xs">${matchDate}</p>
+								</div>
+							</div>
+							<div class="flex items-center gap-4">
+								<span class="text-txtColor font-bold text-lg">${userScore} - ${opponentScore}</span>
+								<span class="px-3 py-1 rounded-full text-sm font-medium ${isWin ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
+									${isWin ? 'WIN' : 'LOSS'}
+								</span>
+							</div>
+						</div>
+					`;
+				}).join('')}
+			</div>
 		</div>
-	`
+	`;
+}
+
+async function fetchMatchHistory(userId: string | null): Promise<IMatchHistory[]> {
+	if (!userId) return [];
+	const { data: matches } = await apiFetch<IMatchHistory[]>(`/api/user/${userId}/match-history?limit=10`);
+	return matches || [];
 }
 
 async function getUserDataById(userId: string | null) : Promise<IUserData | null>
@@ -240,6 +300,9 @@ export async function renderProfile(userId: string | null = null)
 	
 	if (!tmpUserData) return;
 
+	const profileUserId = userId || String(userData.id);
+	const matchHistory = await fetchMatchHistory(profileUserId);
+
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
 		const imageUrl = getImageUrl(tmpUserData.avatar_url);
@@ -259,7 +322,7 @@ export async function renderProfile(userId: string | null = null)
 					</div>
 				</div>
 				${UserStats()}
-				${recentMatches()}
+				${recentMatches(matchHistory, userId)}
 			</div>
 		`;
 		const profileCard = document.querySelector('.profile-card');
