@@ -8,6 +8,7 @@ import { apiFetch, showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
 import { chatEventHandler } from "./chat/chat";
 import { showDifficultyModal } from "./components/difficultyModal";
+import { AliasPopUp } from "./home";
 
 // (window as any).navigate = navigate;
 const $ = (id : string) => document.getElementById(id as string);
@@ -281,7 +282,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 	
 	const btnLocalVsPlayer = $('btn-local-vs-player');
 	btnLocalVsPlayer?.addEventListener('click', () => {
-		navigate('/game?mode=local-vs-player');
+		AliasPopUp(false, "player2");
 	});
 
 	const btnLocalVsAi = $('btn-local-vs-ai');
