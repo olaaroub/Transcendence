@@ -1,5 +1,5 @@
 import Fastify, { FastifyBaseLogger } from 'fastify';
-import FastifyJwt from '@fastify/jwt';
+// import FastifyJwt from '@fastify/jwt';
 import Vault from 'node-vault';
 import fastifyMetrics from 'fastify-metrics';
 import { Server as SocketIOServer, Socket } from 'socket.io';
@@ -44,11 +44,11 @@ const USER_SERVICE_URL = `http://user-service${ext}:3002`;
 const rooms = new Map<string, GameRoom>();
 const matchmakingQueue: string[] = [];
 
-declare module 'fastify'{
-	interface FastifyInstance {
-	  customMetrics: {
-		matchCounter: any;
-	  }
+declare module 'fastify'
+{
+	interface FastifyInstance
+	{
+	  customMetrics: { matchCounter: any; }
 	}
 }
 
@@ -106,7 +106,7 @@ const matchCounter = new fastify.metrics.client.Counter(
 
 fastify.decorate('customMetrics', { matchCounter });
 
-const io = new SocketIOServer(fastify.server, {cors: { origin: '*' }});
+let io: SocketIOServer;
 
 // =============================================================================
 // ROOM MANAGEMENT
@@ -272,14 +272,14 @@ async function sendGameResults(room: GameRoom): Promise<Response>
 		win: p1.win ? false : true,
 		scored: room.engine.getState().p2
 	}
-	console.log(`Room ${room.id} Results Prepared. Sending to Database...`);
+	fastify.log.info(`Room ${room.id} Results Prepared. Sending to Database...`);
 	const resp = await fetch(`${USER_SERVICE_URL}/api/user/match/result`,
 		{
 			method: "PUT",
 			headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify({p1, p2}),
 		})
-	console.log(`Room ${room.id} Results Acknowledged by Database...`);
+	fastify.log.info(`Room ${room.id} Results Acknowledged by Database...`);
 	return resp;
 }
 
@@ -336,90 +336,93 @@ fastify.get<{ Params: { roomid: string } }>('/api/game/room/:roomid', async (req
 // SOCKET.IO EVENT HANDLERS
 // =============================================================================
 
-io.on('connection', (socket: Socket) =>
+function initSocketHandlers(): void
 {
-	fastify.log.info(`Socket connected: ${socket.id}`);
-
-	let currentRoomId: string | null = null;
-	let playerSide: 1 | 2 | 3 = 3;
-
-	socket.on('match', (data: RoomData, callback: (response: Match | null) => void) =>
+	io.on('connection', (socket: Socket) =>
 	{
-		const roomId = data.roomId.toUpperCase();
-		const room = rooms.get(roomId);
+		fastify.log.info(`Socket connected: ${socket.id}`);
 
-		if (!room)
+		let currentRoomId: string | null = null;
+		let playerSide: 1 | 2 | 3 = 3;
+
+		socket.on('match', (data: RoomData, callback: (response: Match | null) => void) =>
 		{
-			fastify.log.warn(`Room ${roomId} Not Found!`);
-			callback(null);
-			return;
-		}
+			const roomId = data.roomId.toUpperCase();
+			const room = rooms.get(roomId);
 
-		currentRoomId = roomId;
-		socket.join(roomId);
-		playerSide = getAvailableSide(room);
-		room.members.set(socket.id, { socket, userID: data.PlayerID, side: playerSide });
-
-		if (playerSide !== 3)
-		{
-			if (playerSide === 1)
+			if (!room)
 			{
-				room.session.p1Alias = data.playerName || 'Player 1';
-				room.session.p1Avatar = data.playerAvatar || '/game/Assets/default.png';
+				fastify.log.warn(`Room ${roomId} Not Found!`);
+				callback(null);
+				return;
+			}
+
+			currentRoomId = roomId;
+			socket.join(roomId);
+			playerSide = getAvailableSide(room);
+			room.members.set(socket.id, { socket, userID: data.PlayerID, side: playerSide });
+
+			if (playerSide !== 3)
+			{
+				if (playerSide === 1)
+				{
+					room.session.p1Alias = data.playerName || 'Player 1';
+					room.session.p1Avatar = data.playerAvatar || '/game/Assets/default.png';
+				}
+				else
+				{
+					room.session.p2Alias = data.playerName || 'Player 2';
+					room.session.p2Avatar = data.playerAvatar || '/game/Assets/default.png';
+				}
+				fastify.log.info(`Player ${data.playerName} joined room ${roomId} as P${playerSide}`);
+
+				if (getPlayerCount(room) === 2 && room.engine.getCurrentState() === 'Waiting')
+				{
+					socket.emit('session', room.session);
+					const queueIndex = matchmakingQueue.indexOf(roomId);
+					if (queueIndex !== -1)
+						matchmakingQueue.splice(queueIndex, 1);
+					fastify.customMetrics.matchCounter.inc();
+					startCountdown(room);
+				}
 			}
 			else
-			{
-				room.session.p2Alias = data.playerName || 'Player 2';
-				room.session.p2Avatar = data.playerAvatar || '/game/Assets/default.png';
-			}
-			fastify.log.info(`Player ${data.playerName} joined room ${roomId} as P${playerSide}`);
+				fastify.log.info(`Spectator ${socket.id} joined room ${roomId}`);
+			socket.emit('side', playerSide);
+			callback(getMatchData(room));
+		});
 
-			if (getPlayerCount(room) === 2 && room.engine.getCurrentState() === 'Waiting')
-			{
-				socket.emit('session', room.session);
-				const queueIndex = matchmakingQueue.indexOf(roomId);
-				if (queueIndex !== -1)
-					matchmakingQueue.splice(queueIndex, 1);
-				fastify.customMetrics.matchCounter.inc();
-				startCountdown(room);
-			}
-		}
-		else
-			fastify.log.info(`Spectator ${socket.id} joined room ${roomId}`);
-		socket.emit('side', playerSide);
-		callback(getMatchData(room));
-	});
-
-	socket.on('input', (input: Input) =>
-	{
-		if (!currentRoomId || playerSide === 3)
-			return;
-		const room = rooms.get(currentRoomId);
-		if (!room || room.engine.getCurrentState() !== 'Playing')
-			return;
-		room.engine.setInput(playerSide, input);
-	});
-
-	socket.on('disconnect', () =>
-	{
-		fastify.log.info(`Socket disconnected: ${socket.id}`);
-		if (!currentRoomId)
-			return;
-		const room = rooms.get(currentRoomId);
-		if (!room)
-			return;
-
-		const member = room.members.get(socket.id);
-		room.members.delete(socket.id);
-
-		if (member && member.side !== 3)
+		socket.on('input', (input: Input) =>
 		{
-			if (room.engine.getCurrentState() === 'Playing' || room.engine.getCurrentState() === 'Countdown')
-				handleGameOver(room, member.side);
-		}
-		cleanupRoom(currentRoomId);
+			if (!currentRoomId || playerSide === 3)
+				return;
+			const room = rooms.get(currentRoomId);
+			if (!room || room.engine.getCurrentState() !== 'Playing')
+				return;
+			room.engine.setInput(playerSide, input);
+		});
+
+		socket.on('disconnect', () =>
+		{
+			fastify.log.info(`Socket disconnected: ${socket.id}`);
+			if (!currentRoomId)
+				return;
+			const room = rooms.get(currentRoomId);
+			if (!room)
+				return;
+
+			const member = room.members.get(socket.id);
+			room.members.delete(socket.id);
+
+			if (member && member.side !== 3)
+			{
+				if (room.engine.getCurrentState() === 'Playing' || room.engine.getCurrentState() === 'Countdown')
+					handleGameOver(room, member.side);
+			}
+			cleanupRoom(currentRoomId);
+		});
 	});
-});
+}
 
 // =============================================================================
 // START SERVER
@@ -429,11 +432,21 @@ const start = async () =>
 {
 	try
 	{
-		fastify.log.info(`Starting pong game sserver...`);
+		fastify.log.info(`Starting Pong Game Server...`);
 		const secrets = await getSecrets(fastify.log) as { jwtSecret: string };
 		fastify.log.debug(`Secrets fetched successfully: ${secrets.jwtSecret}`);
 
 		await fastify.listen({ host: HOST, port: PORT });
+		io = new SocketIOServer(fastify.server,
+		{
+			path: '/api/game/socket.io/',
+			cors:
+			{
+				origin: '*',
+				methods: ['GET', 'POST']
+			}
+		});
+		initSocketHandlers();
 		fastify.log.info(`Pong Server Running On: http://${HOST}:${PORT}`);
 	}
 	catch (err)

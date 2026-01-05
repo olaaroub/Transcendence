@@ -1,7 +1,7 @@
 9bl matbda tkodi dir -> make cleandev
                         make clean-data
 
-method: get, url: '/user/:id/matchs-history'
+method: get, url: '/user/:id/match-history'
 
 and the response is in this format:
     array of json obj
@@ -20,3 +20,6 @@ and the response is in this format:
         }
 
 optional: you can set the offset and limit in the query string (if you not set them to start = 0, limit = 20);
+
+// hahoma doke lvaribels
+Rating: 0, TotalWins: 0, TotalLosses: 0, GamesPlayed: 0

@@ -54,9 +54,6 @@ let match: Match =
 let gameOver: {winner: string, reason: string;} = {winner: "N/A", reason: "N/A"};
 let role = 0;
 
-const HOST = `10.14.10.1`;
-const PORT = 3005;
-
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 
 const { engine, scene, cameras } = createScene(canvas);
@@ -109,8 +106,7 @@ function exitGame(): void
 	div?.click();
 }
 
-// const socket = io(`https://${HOST}:${PORT}`);
-const socket = io(`http://localhost:3005/`);
+const socket = io(window.location.origin, { path: '/api/game/socket.io/' });
 
 socket.on("state", (state: GameState) => {modifyState(state);});
 

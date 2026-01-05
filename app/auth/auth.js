@@ -4,7 +4,7 @@ import fastifyCors from '@fastify/cors';
 import vault from 'node-vault';
 import createError from 'http-errors';
 import fastifyMetrics from 'fastify-metrics';
-
+import microServicesRoutes from './micro.services.routes.js'
 import routes from './routes.js';
 import dbconfig from './database.config.js'
 
@@ -137,6 +137,11 @@ async function main() {
       prefix: '/api',
       secrets: secrets
     });
+
+    fastify.register(microServicesRoutes, {
+      prefix: '/api',
+      secrets: process.env.API_KEY || "wa l3robi zid lina api key fe env hhhhhhhh"
+    })
 
     await fastify.listen({
       port: process.env.PORT,

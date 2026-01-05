@@ -1,5 +1,5 @@
 
-async function matchsHistoryHandler(req, reply) {
+async function matchHistoryHandler(req, reply) {
     const userId = req.userId || req.params.id;
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 20;
@@ -19,5 +19,5 @@ async function matchsHistoryHandler(req, reply) {
 }
 
 export default async function routes(fastify) {
-    fastify.get('/user/:id/matchs-history', matchsHistoryHandler);
+    fastify.get('/user/:id/match-history', matchHistoryHandler);
 }
