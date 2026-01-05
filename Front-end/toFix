@@ -1,6 +1,9 @@
 merge the private chat
+
+
+activate cleanupPrivateChat
+
 add online/offline friends
-add the input field to 1 vs 1 button
 
 
 tailwind :
@@ -9,3 +12,7 @@ tailwind :
     show backdrop-blur-lg effect
 
 
+js : 
+    call stack
+    microtask queue
+    task queue
