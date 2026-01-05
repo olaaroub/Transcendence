@@ -35,7 +35,7 @@ interface GameRoom
 	session:	Instance;
 }
 
-const HOST = 'localhost';
+const HOST = process.env.HOST as string;
 const PORT = 3005; // process.env.PORT || 3005
 
 const ext = process.env.SERVICE_EXT || '-dev';
@@ -130,9 +130,9 @@ function createGameRoom(roomId: string): GameRoom
 		oppAI: false,
 		diff: 'None',
 		p1Alias: 'Player 1',
-		p1Avatar: 'default.png',
+		p1Avatar: '/game/Assets/default.png',
 		p2Alias: 'Player 2',
-		p2Avatar: 'default.png',
+		p2Avatar: '/game/Assets/default.png',
 	};
 	const p1: Player =
 	{
@@ -305,7 +305,7 @@ function cleanupRoom(roomId: string): void
 // REST API ROUTES
 // =============================================================================
 
-fastify.get('/api/matchmaking', async (_request, reply) =>
+fastify.get('/api/game/matchmaking', async (_request, reply) =>
 {
 	let roomId: string;
 
@@ -322,10 +322,10 @@ fastify.get('/api/matchmaking', async (_request, reply) =>
 		matchmakingQueue.push(roomId);
 		fastify.log.info(`Matchmaking: Created new room ${roomId}`);
 	}
-	return reply.send(roomId);
+	return reply.send({ roomId });
 });
 
-fastify.get<{ Params: { roomid: string } }>('/api/room/:roomid', async (request, reply) =>
+fastify.get<{ Params: { roomid: string } }>('/api/game/room/:roomid', async (request, reply) =>
 {
 	const { roomid } = request.params;
 	const exists = rooms.has(roomid.toUpperCase());
@@ -376,6 +376,7 @@ io.on('connection', (socket: Socket) =>
 
 			if (getPlayerCount(room) === 2 && room.engine.getCurrentState() === 'Waiting')
 			{
+				socket.emit('session', room.session);
 				const queueIndex = matchmakingQueue.indexOf(roomId);
 				if (queueIndex !== -1)
 					matchmakingQueue.splice(queueIndex, 1);

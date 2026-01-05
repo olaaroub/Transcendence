@@ -14,6 +14,8 @@ let options: boolean = false;
 let camButtons: GUI.Button[] = [];
 let colButtons: GUI.Button[] = [];
 let picker: GUI.ColorPicker | null = null;
+let p1Goals = 0;
+let p2Goals = 0;
 
 export function createGUI(): void {ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");}
 
@@ -230,8 +232,8 @@ export function addHUDs(session: Instance): void
 	ui.addControl(p2Name);
 	ui.addControl(p2Frame);
 }
- 
-export function scoreGoal(player: number, goals: number)
+
+function newGoal(player: number): GUI.Image
 {
 	const horAllign = player === 1 ? GUI.Control.HORIZONTAL_ALIGNMENT_LEFT : GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
 	const goal = new GUI.Image('GOAL', '/game/Assets/goal.svg');
@@ -244,10 +246,25 @@ export function scoreGoal(player: number, goals: number)
 	goal.paddingLeft = 0;
 	goal.paddingRight = 0;
 	goal.paddingTop = 0;
-	let pos = 115 + (26 - 4.5) * goals + 4.5;
-	if (player === 2)
-		pos = -pos;
-	goal.left = `${pos}px`;
-	console.log(goal.left);
-	ui.addControl(goal);
+	return goal;
+}
+
+export function updateGoals(player1: number, player2: number)
+{
+	if (player1 > p1Goals)
+	{
+		p1Goals++;
+		const goal = newGoal(1);
+		let pos = 115 + (26 - 4.5) * p1Goals + 4.5;
+		goal.left = `${pos}px`;
+		ui.addControl(goal);
+	}
+	if (player2 > p2Goals)
+	{
+		p2Goals++;
+		const goal = newGoal(2);
+		let pos = - (115 + (26 - 4.5) * p2Goals + 4.5);
+		goal.left = `${pos}px`;
+		ui.addControl(goal);
+	}
 }
