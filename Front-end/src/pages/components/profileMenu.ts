@@ -1,11 +1,13 @@
 import { navigate } from "../../router";
 import { closeNotificationSocket } from "./NavBar";
 import { cleanupGlobalChat } from "../chat/globalChat";
+import { cleanupPrivateChat } from "../chat/chat";
 
 export function logout()
 {
     closeNotificationSocket();
     cleanupGlobalChat();
+    cleanupPrivateChat();
     localStorage.removeItem('token');
     localStorage.removeItem('id');
 	navigate('/login');

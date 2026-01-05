@@ -286,7 +286,6 @@ export async function renderDashboard(isDashboard: boolean = true)
 	btnLocalVsPlayer?.addEventListener('click', () => {
 		AliasPopUp(false, "player2");
 	});
-
 	const btnLocalVsAi = $('btn-local-vs-ai');
 	btnLocalVsAi?.addEventListener('click', () => {
 		showDifficultyModal();
