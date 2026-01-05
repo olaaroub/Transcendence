@@ -18,15 +18,15 @@ interface IMatchHistory {
 	player2_avatar: string;
 }
 
-const stats = [
-	{ label: "XP", value: "2500" },
-	{ label: "WINS", value: 150 },
-	{ label: "LOSSES", value: 43 },
-	{ label: "MATCHES", value: 193 },
-];
-
-function UserStats() : string
+function UserStats(user: IUserData) : string
 {
+	const stats = [
+		{ label: "XP", value: user.Rating ?? 0 },
+		{ label: "WINS", value: user.TotalWins ?? 0 },
+		{ label: "LOSSES", value: user.TotalLosses ?? 0 },
+		{ label: "MATCHES", value: user.GamesPlayed ?? 0 },
+	];
+
 	return /* html */`
 		<div class="flex gap-6 md:gap-8 2xl:gap-11 w-full">
 			${stats.map(
@@ -321,7 +321,7 @@ export async function renderProfile(userId: string | null = null)
 						</div>
 					</div>
 				</div>
-				${UserStats()}
+				${UserStats(tmpUserData)}
 				${recentMatches(matchHistory, userId)}
 			</div>
 		`;

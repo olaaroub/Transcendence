@@ -9,6 +9,10 @@ export interface IUserData {
 	auth_provider: string | null;
 	avatar_url: string | null;
 	is_read: string | null;
+	Rating: number;
+	TotalWins: number;
+	TotalLosses: number;
+	GamesPlayed: number;
 }
 
 
@@ -38,7 +42,11 @@ export const userData : IUserData = {
 	status: null,
 	auth_provider: null,
 	avatar_url: null,
-	is_read: null
+	is_read: null,
+	Rating: 0,
+	TotalWins: 0,
+	TotalLosses: 0,
+	GamesPlayed: 0
 };
 
 export function setUserData(newData: IUserData)
