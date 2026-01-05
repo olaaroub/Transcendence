@@ -34,7 +34,7 @@ const creatTable = async () => {
 
 
     db.exec(`CREATE VIEW IF NOT EXISTS leaderboardItem AS
-            SELECT id, username, avatar_url, Rating, gamesPlayed, TotalWins, TotalLosses, WinRate
+            SELECT id, username, avatar_url, Rating, GamesPlayed, TotalWins, TotalLosses, WinRate
             FROM userInfo
     ;`);
     db.exec(`CREATE TABLE IF NOT EXISTS friendships (

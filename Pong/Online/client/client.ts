@@ -7,6 +7,7 @@ import {
 	createGUI,
 	optionsButton,
 	addHUDs,
+	updateGoals,
 	createArena,
 	createSky,
 	createPaddles,
@@ -16,6 +17,10 @@ import {
 	State,
 	RoomData,
 	WIDTH,
+	PWIDTH,
+	HEIGHT,
+	PHEIGHT,
+	BSPEED
 } from 'pong-shared';
 
 let match: Match =
@@ -26,13 +31,13 @@ let match: Match =
 		p2: 0,
 		p1Input: 0,
 		p2Input: 0,
-		p1X: 0,
-		p1Y: 0,
-		p2X: 0,
-		p2Y: 0,
-		ballX: 0,
-		ballY: 0,
-		ballS: 0,
+		p1X: WIDTH - 5 - PWIDTH,
+		p1Y: (HEIGHT - PHEIGHT) / 2,
+		p2X: 5,
+		p2Y: (HEIGHT - PHEIGHT) / 2,
+		ballX: WIDTH / 2,
+		ballY: HEIGHT / 2,
+		ballS: BSPEED,
 	},
 	currState: "Waiting",
 	session:
@@ -40,9 +45,9 @@ let match: Match =
 		oppAI: false,
 		diff: "None",
 		p1Alias: "Player 1",
-		p1Avatar: "default.png",
+		p1Avatar: "/game/Assets/default.png",
 		p2Alias: "Player 2",
-		p2Avatar: "default.png",
+		p2Avatar: "/game/Assets/default.png",
 	},
 };
 
@@ -101,9 +106,11 @@ function exitGame(): void
 	div?.click();
 }
 
-const socket = io(`http://localhost:3005/`);
+const socket = io(window.location.origin, { path: '/api/game/socket.io/' });
 
 socket.on("state", (state: GameState) => {modifyState(state);});
+
+socket.on("session", (session: Match['session']) => {match.session = session;});
 
 socket.on("gamestate", (state: State) => {match.currState = state;});
 
@@ -111,13 +118,13 @@ socket.on("gameOver", (data: {winner: string, reason: string;}) => {gameOver = d
 
 socket.on("countdown", (count: number) =>
 {
+	addHUDs(match.session);
 	console.log(`Game starting in ${count}...`);
 	// TODO: Visual countdown with Babylon.js
 });
 
 socket.on("redirect", () => {exitGame();});
 
-addHUDs(match.session);
 optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
 
 window.addEventListener('keydown', (e) =>
@@ -142,12 +149,18 @@ window.addEventListener('keyup', (e) =>
 
 window.addEventListener('resize', () => {engine.resize();});
 
+let roomString: string | null = sessionStorage.getItem('room');
+if (!roomString)
+{
+	console.error("No Room Data Found! Redirecting to dashboard...");
+	exitGame();
+}
+sessionStorage.removeItem('room');
 let roomData: RoomData | null = null;
-try { roomData = JSON.parse(sessionStorage.getItem('room') || 'null'); } catch {}
-
+try { roomData = JSON.parse(roomString || 'null'); } catch {}
 if (!roomData)
 {
-	console.error("No room data found. Redirecting to dashboard...");
+	console.error("Invalid Room Data! Redirecting to dashboard...");
 	exitGame();
 }
 else
@@ -187,7 +200,9 @@ const gameLoop = () =>
 	const gameState = match.state;
 	renderer.updateGameState(gameState);
 	renderer.render();
-
+	updateGoals(gameState.p1, gameState.p2);
+	if (!canvas)
+		console.log("Canvas was Destroyed!");
 	requestAnimationFrame(gameLoop);
 };
 

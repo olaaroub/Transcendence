@@ -6,19 +6,23 @@ export async function renderGame() {
     await initDashboard(false);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const mode = urlParams.get('mode') || 'local-vs-player';
-    const difficulty = urlParams.get('difficulty') || 'Normal';
-
-    const gameSession = {
-        oppAI: mode === 'local-vs-ai',
-        diff: mode === 'local-vs-ai' ? difficulty : 'None',
-        p1Alias: userData.username,
-        p1Avatar: getImageUrl(userData.avatar_url),
-        p2Alias: mode === 'local-vs-ai' ? 'AI' : 'Player 2',
-        p2Avatar: '/game/default.png'
-    };
-
-    sessionStorage.setItem('gameSession', JSON.stringify(gameSession));
+    const mode = urlParams.get('mode');
+    const isOffline = mode == "local-vs-player" || mode == "local-vs-ai";
+    
+    if (isOffline)
+    {
+        const difficulty = urlParams.get('difficulty');
+        const player2Alias = sessionStorage.getItem('player2') || 'Player 2';
+        const gameSession = {
+            oppAI: mode === 'local-vs-ai',
+            diff: mode === 'local-vs-ai' ? difficulty : 'None',
+            p1Alias: userData.username,
+            p1Avatar: getImageUrl(userData.avatar_url),
+            p2Alias: mode === 'local-vs-ai' ? 'AI' : player2Alias,
+            p2Avatar: mode ==='local-vs-ai' ? '/game/Assets/ai.png' : '/game/Assets/default.png'
+        };
+        sessionStorage.setItem('gameSession', JSON.stringify(gameSession));
+    }
 
     document.body.className = 'm-0 p-0';
     document.body.innerHTML = /* html */`
@@ -38,7 +42,13 @@ export async function renderGame() {
     `;
 
     const script = document.createElement('script');
-    script.src = `/game/offline/main.js?t=${Date.now()}`;
+    if (isOffline)
+        script.src = `/game/offline/main.js?t=${Date.now()}`; // For Online: /game/online/client.js
+    else
+    {
+        console.log("online exec");
+        script.src = `/game/online/client.js?t=${Date.now()}`;
+    }
     script.type = 'module';
     document.body.appendChild(script);
 

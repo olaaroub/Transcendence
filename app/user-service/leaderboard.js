@@ -15,7 +15,7 @@ async function leaderboardHandler(req, reply) {
     if (start === 0) {
         req.log.info("Leaderboard top 10 accessed");
     }
-
+    console.log("users : ", users);
     return users
 }
 

@@ -8,11 +8,35 @@ import { apiFetch, showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
 import { chatEventHandler } from "./chat/chat";
 import { showDifficultyModal } from "./components/difficultyModal";
+import { AliasPopUp } from "./home";
 
 // (window as any).navigate = navigate;
 const $ = (id : string) => document.getElementById(id as string);
 
+interface IUserStatistics {
+	TotalWins: number;
+	WinRate: number;
+	CurrentStreak: number;
+	Rating: number;
+}
+
 export let response: Response  | null = null;
+
+export async function fetchUserStatistics(userId: string | number | null): Promise<IUserStatistics | null> {
+	if (!userId) {
+		console.warn('User ID is null or undefined');
+		return null;
+	}
+	const { data, error } = await apiFetch<IUserStatistics>(`/api/user/statistic/${userId}`, {
+		showErrorToast: false
+	});
+	if (error) {
+		if (error.isNetworkError)
+			showErrorMessage('Server unreachable. Try again later.', 503);
+		return null;
+	}
+	return data;
+}
 
 export async function fetchProfile(userId: string | number | null) : Promise<IUserData | null> {
 	if (!userId) {
@@ -132,7 +156,28 @@ function renderWelcome() : string
 	`
 }
 
-function renderStatistics(): string {
+function renderStatistics(stats: IUserStatistics | null): string {
+	const totalWins = stats?.TotalWins ?? 0;
+	const winRate = stats?.WinRate ?? 0;
+	const currentStreak = stats?.CurrentStreak ?? 0;
+	const rating = stats?.Rating ?? 0;
+	const winRateStatus = winRate >= 50 ? 'Above average' : 'Below average';
+	const winRateColor = winRate >= 50 ? 'text-blue-600' : 'text-red-400';
+	const streakStatus = currentStreak >= 5 ? 'Personal best!' : currentStreak >= 3 ? 'On fire!' : '';
+	const streakColor = currentStreak >= 5 ? 'text-orange-400' : 'text-yellow-400';
+	const getRank = (rating: number): { name: string; color: string } => {
+		if (rating >= 3000) return { name: 'Grandmaster', color: 'text-red-500' };
+		if (rating >= 2800) return { name: 'Master', color: 'text-purple-500' };
+		if (rating >= 2500) return { name: 'Diamond III', color: 'text-[#8261BE]' };
+		if (rating >= 2200) return { name: 'Diamond II', color: 'text-[#8261BE]' };
+		if (rating >= 2000) return { name: 'Diamond I', color: 'text-[#8261BE]' };
+		if (rating >= 1800) return { name: 'Platinum', color: 'text-cyan-400' };
+		if (rating >= 1600) return { name: 'Gold', color: 'text-yellow-500' };
+		if (rating >= 1400) return { name: 'Silver', color: 'text-gray-400' };
+		return { name: 'Bronze', color: 'text-orange-700' };
+	};
+	const rank = getRank(rating);
+
 	return /* html */ `
 		<div class="statistics mb-6">
 			<h2 class="text-txtColor font-bold text-xl sm:text-2xl mb-3 sm:mb-4 transition-all duration">Your Statistic</h2>
@@ -140,41 +185,41 @@ function renderStatistics(): string {
 			text-txtColor grid grid-cols-2 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6">
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
 					<p class="text-xs sm:text-sm text-gray-400">Total Wins</p>
-					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">127</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${totalWins}</p>
 				</div>
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
 					<p class="text-xs sm:text-sm text-gray-400">Win Rate</p>
-					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">74.7%</p>
-					<p class="text-xs sm:text-sm text-blue-600 mt-1">Above average</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${winRate.toFixed(1)}%</p>
+					<p class="text-xs sm:text-sm ${winRateColor} mt-1">${winRateStatus}</p>
 				</div>
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
 					<p class="text-xs sm:text-sm text-gray-400">Current Streak</p>
-					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">8</p>
-					<p class="text-xs sm:text-sm text-orange-400 mt-1">Personal best!</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${currentStreak}</p>
+					${streakStatus ? `<p class="text-xs sm:text-sm ${streakColor} mt-1">${streakStatus}</p>` : ''}
 				</div>
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
 					<p class="text-xs sm:text-sm text-gray-400">Rating</p>
-					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">2847</p>
-					<p class="text-xs sm:text-sm text-[#8261BE] mt-1">Diamond III</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${rating}</p>
+					<p class="text-xs sm:text-sm ${rank.color} mt-1">${rank.name}</p>
 				</div>
 			</div>
 		</div>
 	`;
 }
 
-function renderAnalyticsSection(): string {
+function renderAnalyticsSection(stats: IUserStatistics | null): string {
 	return `
 		<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
 			<div id="dashboard-leaderboard"></div>
-			${renderStatistics()}
+			${renderStatistics(stats)}
 		</div>
 	`;
 }
 
-function renderDashboardContent(): string {
+function renderDashboardContent(stats: IUserStatistics | null): string {
 	return `
 		<div class="flex flex-col md:flex-row gap-6 mt-6 w-full" >
-			${renderAnalyticsSection()}
+			${renderAnalyticsSection(stats)}
 			${renderGlobalChat()}
 		</div>
 	`;
@@ -182,12 +227,13 @@ function renderDashboardContent(): string {
 
 async function renderMain() : Promise<string>
 {
+	const stats = await fetchUserStatistics(credentials.id);
 	return /* html */`
 		<div class="w-full">
 			<h2 class="font-bold mb-[20px] text-[#414658] text-3xl">Welcome back,
 			<span class="text-txtColor text-3xl"> ${userData?.username}</span></h2>
 			<div class="flex-1">${renderWelcome()}</div>
-			${renderDashboardContent()}
+			${renderDashboardContent(stats)}
 		</div>
 	`
 }
@@ -223,14 +269,12 @@ export async function renderDashboard(isDashboard: boolean = true)
 			</main>
 		</div>
 	`;
-
 	if (isDashboard) {
 		const leaderboardContainer = $('dashboard-leaderboard');
 		if (leaderboardContainer) {
 			leaderboardContainer.innerHTML = await dashboardLearderboard();
 		}
 	}
-
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	notifications();
 	chatEventHandler();
@@ -238,7 +282,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 	
 	const btnLocalVsPlayer = $('btn-local-vs-player');
 	btnLocalVsPlayer?.addEventListener('click', () => {
-		navigate('/game?mode=local-vs-player');
+		AliasPopUp(false, "player2");
 	});
 
 	const btnLocalVsAi = $('btn-local-vs-ai');
@@ -246,13 +290,33 @@ export async function renderDashboard(isDashboard: boolean = true)
 		showDifficultyModal();
 	});
 
+	interface RoomData
+	{
+		roomId:			string;
+		PlayerID:		string;
+		playerName: 	string | null;
+		playerAvatar:	string | null;
+	}
+
 	const btnOnlineMatchmaking = $('btn-online-matchmaking');
-	btnOnlineMatchmaking?.addEventListener('click', () => {
-		navigate('/game?mode=online-matchmaking');
+	btnOnlineMatchmaking?.addEventListener('click', async () => {
+		interface RoomID {
+			roomId : string
+		}
+		const { data, error} = await apiFetch<RoomID>("/api/game/matchmaking");
+		if (error || !data) return;
+		const roomData : RoomData = {
+			roomId : data.roomId,
+			PlayerID: String(userData.id),
+			playerName: userData.username,
+			playerAvatar: getImageUrl(userData.avatar_url)
+		};
+		sessionStorage.setItem("room", JSON.stringify(roomData));
+		navigate(`/game?mode=online-matchmaking`);
 	});
 
 	const btnOnlineRoom = $('btn-online-room');
-	btnOnlineRoom?.addEventListener('click', () => {
+	btnOnlineRoom?.addEventListener('click', () => { // Before navigating, you must await boolean from /api/room/:roomid
 		navigate('/game?mode=online-room');
 	});
 

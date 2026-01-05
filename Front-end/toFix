@@ -1,10 +1,7 @@
 merge the private chat
+add online/offline friends
+add the input field to 1 vs 1 button
 
-
-
-
-check invalid password in settings (handle 401 error code)
-add online/ofline friends
 
 tailwind :
     truncate

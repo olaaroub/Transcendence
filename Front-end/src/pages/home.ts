@@ -4,7 +4,7 @@ import { renderFooter } from "./components/footer"
 
 const $ = (id: string) => document.getElementById(id as string)
 
-function renderHomeText (isLoged: boolean)
+export function renderHomeText (isLoged: boolean)
 {
     return /* html */ `
 		<div class="data flex flex-col sm:flex-row items-center justify-between min-h-[calc(100vh-200px)]
@@ -117,6 +117,8 @@ export function AliasPopUp(isGuest : boolean, item: string)
 				$("go-as-guest")!.textContent = sessionStorage.getItem(item);
 				navigate("/guest");
 			}
+			else if (item === "player2")
+				navigate('/game?mode=local-vs-player');
 		}
 	})
 }

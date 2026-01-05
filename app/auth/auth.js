@@ -123,7 +123,6 @@ async function main() {
       origin: '*',
       methods: ['GET', 'POST', 'PUT', 'DELETE']
     });
-
     await fastify.register(fastifyJwt, {
       secret: secrets.jwtSecret
     });

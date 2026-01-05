@@ -8,7 +8,7 @@ import "./create_tables.js";
 async function getSecrets(logger) {
   try {
 
-    const vaultPath = process.env.VAULT_SECRET_PATH
+    const vaultPath = process.env.VAULT_SECRET_PATH;
 
     const options = {
       apiVersion: 'v1',
@@ -57,6 +57,7 @@ fastify.decorate('customMetrics', {
   chatMessageCounter,
 });
 
+fastify.cust
 
 fastify.get("/", async () => {
   return { status: "ok" };
