@@ -68,13 +68,14 @@ function getDefaultErrorMessage(statusCode: number): string {
 
 interface FetchOptions extends RequestInit {
 	showErrorToast?: boolean;
+	skipAuthRedirect?: boolean;
 }
 
 export async function apiFetch<T = unknown>(
 	url: string,
 	options: FetchOptions = {}
 ): Promise<{ data: T | null; error: ApiError | null; response: Response | null }> {
-	const { showErrorToast = true, ...fetchOptions } = options;
+	const { showErrorToast = true, skipAuthRedirect = false, ...fetchOptions } = options;
 	const headers = new Headers(fetchOptions.headers);
 
 	if (!headers.has('Authorization')) {
@@ -87,7 +88,7 @@ export async function apiFetch<T = unknown>(
 		headers.delete('Content-Type');
 	try {
 		const response = await fetch(url, { ...fetchOptions, headers });
-		if (response.status === 401) {
+		if (response.status === 401 && !skipAuthRedirect) {
 			handleSessionExpired();
 			return {
 				data: null,

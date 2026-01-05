@@ -1,6 +1,6 @@
 import * as data from "./dashboard"
 import { navigate, navigateBack } from "../router";
-import { credentials,IUserData, userData, getImageUrl} from "./store"
+import { IUserData, userData, getImageUrl} from "./store"
 import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/toast";
 import { closeNotificationSocket } from "./components/NavBar";
 import { cleanupGlobalChat } from "./chat/globalChat";
@@ -20,9 +20,8 @@ async function checkPasswordChange() : Promise<boolean>
 	const value = newUserData["new-password" as keyof IUserData];
 	const currentPassword = newUserData["current-password" as keyof IUserData];
 	const confirmPassword = newUserData["confirm-password" as keyof IUserData];
-	if (!value && !currentPassword && !confirmPassword) {
+	if (!value && !currentPassword && !confirmPassword)
 		return true;
-	}
 	if (!currentPassword) {
 		toastWarning('Current password is required to change the password.');
 		return false;
@@ -35,7 +34,8 @@ async function checkPasswordChange() : Promise<boolean>
 		method: 'PUT',
 		body: JSON.stringify({ currentPassword, newPassword: value }),
 		headers: { "Content-Type": "application/json" },
-		showErrorToast: false
+		showErrorToast: false,
+		skipAuthRedirect: true
 	});
 	if (error) {
 		toastError('Current password is incorrect.');
