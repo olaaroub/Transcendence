@@ -59,7 +59,7 @@ export function AliasPopUp(isGuest : boolean, item: string)
 			</p>
 			<div class="relative">
 				<input id="alias-input" type="text" placeholder="Your alias..."
-					class="w-full bg-black/60 text-txtColor px-5 py-4 rounded-2xl
+					class="w-full bg-black/60 text-txtColor px-5 py-3 rounded-2xl
 					outline-none border-2 border-color3/30 focus:border-color1 
 					transition-all duration-300 text-lg placeholder:text-color3/50
 					focus:shadow-lg focus:shadow-color1/10">
@@ -71,7 +71,7 @@ export function AliasPopUp(isGuest : boolean, item: string)
 			</div>
 			<div class="flex flex-col gap-3 mt-2">
 				<button id="confirm-alias" class="relative overflow-hidden bg-gradient-to-r from-color1 to-color2 
-					rounded-2xl py-4 px-6 font-bold text-lg text-bgColor
+					rounded-2xl py-3 px-6 font-bold text-lg text-bgColor
 					transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-color1/30
 					active:scale-[0.98] group">
 					<span class="relative z-10 flex items-center justify-center gap-2">
@@ -82,12 +82,6 @@ export function AliasPopUp(isGuest : boolean, item: string)
 					</span>
 					<div class="absolute inset-0 bg-gradient-to-r from-color2 to-color1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 				</button>
-				
-				<button id="Cancel-alias-btn" class="bg-transparent border-2 border-color3/30 text-txtColor/70
-					rounded-2xl py-3 px-6 font-semibold
-					transition-all duration-300 hover:border-red-500/50 hover:text-red-400 hover:bg-red-500/10">
-					Cancel
-				</button>
 			</div>
 		</div>
 	`;
@@ -97,12 +91,7 @@ export function AliasPopUp(isGuest : boolean, item: string)
 		if (e.target === aliasPopUp) aliasPopUp.remove();
 	});
 	
-	$("Cancel-alias")?.addEventListener('click', _=> {
-		aliasPopUp?.remove();
-	})
-	$("Cancel-alias-btn")?.addEventListener('click', _=> {
-		aliasPopUp?.remove();
-	})
+	$("Cancel-alias")?.addEventListener('click', _=> {aliasPopUp?.remove();})
 	$("confirm-alias")?.addEventListener('click', _=> {
 		const AliasInput = $("alias-input") as HTMLInputElement ;
 		const value = AliasInput.value.trim();
