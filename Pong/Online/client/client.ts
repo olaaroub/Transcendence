@@ -110,11 +110,23 @@ const socket = io(window.location.origin, { path: '/api/game/socket.io/' });
 
 socket.on("state", (state: GameState) => {modifyState(state);});
 
-socket.on("session", (session: Match['session']) => {match.session = session;});
-
 socket.on("gamestate", (state: State) => {match.currState = state;});
 
 socket.on("gameOver", (data: {winner: string, reason: string;}) => {gameOver = data;});
+
+socket.on("session", (session: Match['session']) =>
+{
+	match.session = session;
+	if (role === 2)
+	{
+		const tempAlias = match.session.p1Alias;
+		const tempAvatar = match.session.p1Avatar;
+		match.session.p1Alias = match.session.p2Alias;
+		match.session.p1Avatar = match.session.p2Avatar;
+		match.session.p2Alias = tempAlias;
+		match.session.p2Avatar = tempAvatar;
+	}
+});
 
 socket.on("countdown", (count: number) =>
 {
