@@ -83,8 +83,8 @@ re-elk: clean-elk elk
 #              CLEANUP TOOLS
 # ==========================================
 
-# Clean Database Data
-clean-data: clean-deps clean-images clean-cache
+# Clean databases and node modules
+clean-data: clean-deps clean-images
 	@echo "Cleaning database data..."
 	@rm -rf $(DB_DIR)/auth/*
 	@rm -rf $(DB_DIR)/users/*
