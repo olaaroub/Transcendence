@@ -74,10 +74,7 @@ export function initGlobalChatNotifications() {
 }
 
 function setupChatListeners() {
-	if (!socket) {
-		console.error("Socket not initialized. Call initGlobalChatNotifications first.");
-		return;
-	}
+	if (!socket) return;
 
 	socket.off("chat_initialized");
 	socket.off("receive_message");
@@ -89,7 +86,6 @@ function setupChatListeners() {
 		chatState.messages = data.messages || [];
 		updateMessagesUI();
 	});
-
 	socket.on("receive_message", (data: ChatMessage) => {
 		console.log("New message received:", data);
 		if (data.conversationId === chatState.currentConversationId) {
@@ -180,14 +176,14 @@ function updateMessagesUI() {
 function updateChatHeaderUI() {
 	const chatHeader = document.getElementById('private-chat-header');
 	if (!chatHeader || !chatState.currentFriend) return;
-
+	console.log("chat state : ", chatState);
 	chatHeader.innerHTML = /* html */`
 		<div class="flex gap-3 font-bold items-center">
 			<img class="h-12 w-12 border border-color1 rounded-full object-cover" 
 				src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
 			<div class="flex flex-col">
 				<span class="text-txtColor text-lg">${chatState.currentFriend.username}</span>
-				<span class="${chatState.currentFriend.status === 'online' ? 'text-green-500' : 'text-gray-400'} text-sm">
+				<span class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
 					${chatState.currentFriend.status || 'offline'}
 				</span>
 			</div>
@@ -280,7 +276,7 @@ function renderMessages() : string {
 				outline-none border border-color3 focus:border-color1 transition-colors
 				disabled:opacity-50 disabled:cursor-not-allowed"
 				${!chatState.currentConversationId ? 'disabled' : ''}>
-				<button id="private-chat-send" 
+				<button id="private-chat-send"
 					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
 					transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
 					${!chatState.currentConversationId ? 'disabled' : ''}>
@@ -297,9 +293,7 @@ async function listFriends() : Promise<string> {
 	const { data: friends } = await apiFetch<IUserData[]>(`/api/user/${credentials.id}/friends`);
 	if (!friends || friends.length === 0) {
 		chatState.friends = [];
-		return /* html */`
-		<p class="pt-24 text-txtColor text-center">No friends to display.</p>
-		`;
+		return /* html */`<p class="pt-24 text-txtColor text-center">No friends to display.</p>`;
 	}
 	chatState.friends = friends;
 	return /* html */`
@@ -316,9 +310,9 @@ async function listFriends() : Promise<string> {
 							<div class="w-full">
 								<div class="flex justify-between w-full">
 									<span class="text-txtColor font-bold text-lg">${shortString(friend.username, 15)}</span>
-									<span class="w-2 h-2 mt-2 rounded-full ${friend.status === 'online' ? 'bg-green-500' : 'bg-gray-400'}"></span>
+									<span class="w-2 h-2 mt-2 rounded-full ${friend.status === 'ONLINE' ? 'bg-green-500' : 'bg-gray-400'}"></span>
 								</div>
-								<p class="text-gray-400 text-sm">${friend.status || 'offline'}</p>
+								<p class="text-gray-400 text-sm">${friend.status?.toLocaleLowerCase() || 'offline'}</p>
 							</div>
 						</div>
 					</div>
