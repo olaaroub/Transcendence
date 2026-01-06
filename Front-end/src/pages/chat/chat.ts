@@ -163,7 +163,7 @@ function updateMessagesUI() {
 			const isMine = msg.senderId === Number(credentials.id);
 			return /* html */`
 				<div class="flex ${isMine ? 'justify-end' : 'justify-start'} mb-3">
-					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#273445] text-txtColor'} 
+					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'} 
 						px-4 py-2 rounded-2xl ${isMine ? 'rounded-br-sm' : 'rounded-bl-sm'}">
 						<p class="text-sm break-words">${msg.content}</p>
 						<span class="text-xs ${isMine ? 'text-bgColor/70' : 'text-gray-400'} mt-1 block text-right">
@@ -252,9 +252,7 @@ export function cleanupPrivateChat() {
 export function chatEventHandler() {
 	const messageIcon = document.getElementById('message-icon');
 	if (!messageIcon) return;
-	messageIcon.addEventListener('click', async () => {
-		navigate('/chat');
-	});
+	messageIcon.addEventListener('click', async () => {navigate('/chat');});
 }
 
 function renderMessages() : string {
@@ -306,12 +304,11 @@ async function listFriends() : Promise<string> {
 	chatState.friends = friends;
 	return /* html */`
 		<div class="flex flex-col gap-2">
-			<p class="text-txtColor text-lg font-bold mb-2">Friends</p>
 			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-200px)]
 				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
 				${friends.map((friend: IUserData) => /* html */`
 					<div data-friend-id="${friend.id}" 
-						class="flex bg-[#273445] p-3 rounded-2xl cursor-pointer hover:bg-[#3a4a5c] 
+						class="flex bg-[#0f0f1a] hover:bg-[#1a1a2e] p-3 rounded-2xl cursor-pointer
 						transition-all duration-200 hover:border-l-2 hover:border-color1">
 						<div class="flex w-full gap-4">
 							<img class="w-[45px] h-[45px] rounded-full object-cover" 
