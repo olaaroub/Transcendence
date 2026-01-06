@@ -1,5 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/core/Meshes/meshBuilder.js";
+import { PongLoading } from "./renderer.js";
 
 export interface GameScene
 {
@@ -11,8 +12,9 @@ export interface GameScene
 export function createScene(canvas: HTMLCanvasElement): GameScene
 {
 	const engine = new BABYLON.Engine(canvas, true);
-	engine.displayLoadingUI();
 	const scene = new BABYLON.Scene(engine);
+	engine.loadingScreen = new PongLoading(scene);
+	engine.displayLoadingUI();
 
 	const light = new BABYLON.DirectionalLight("Sun", new BABYLON.Vector3(5, -10, 5), scene);
 	light.diffuse = BABYLON.Color3.FromHexString("#ED6F30");
