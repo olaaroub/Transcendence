@@ -2,6 +2,7 @@
 add online/offline friends
 routing logic
 add renderprofile when a user clicks on a user name in the chat and the leaderboard and global chat
+FIX FONTS FOR GAME AND DASHBOARD
 
 
 tailwind :
@@ -10,7 +11,7 @@ tailwind :
     show backdrop-blur-lg effect
 
 
-js : 
+js :
     call stack
     microtask queue
     task queue

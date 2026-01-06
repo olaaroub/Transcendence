@@ -268,3 +268,9 @@ export function updateGoals(player1: number, player2: number)
 		ui.addControl(goal);
 	}
 }
+
+export function catchUpGoals(player1: number, player2: number): void
+{
+	while (p1Goals < player1 || p2Goals < player2)
+		updateGoals(player1, player2);
+}

@@ -1,5 +1,5 @@
 import Fastify, { FastifyBaseLogger } from 'fastify';
-// import FastifyJwt from '@fastify/jwt';
+import FastifyJwt from '@fastify/jwt';
 import Vault from 'node-vault';
 import fastifyMetrics from 'fastify-metrics';
 import { Server as SocketIOServer, Socket } from 'socket.io';
@@ -36,21 +36,16 @@ interface GameRoom
 }
 
 const HOST = process.env.HOST as string;
-const PORT = 3005; // process.env.PORT || 3005
+const PORT = Number(process.env.PORT) ||3005;
 
 const ext = process.env.SERVICE_EXT || '-dev';
 const USER_SERVICE_URL = `http://user-service${ext}:3002`;
 
 const rooms = new Map<string, GameRoom>();
 const matchmakingQueue: string[] = [];
+const connectedUsers = new Map<string, Socket>();
 
-declare module 'fastify'
-{
-	interface FastifyInstance
-	{
-	  customMetrics: { matchCounter: any; }
-	}
-}
+declare module 'fastify' { interface FastifyInstance { customMetrics: { matchCounter: any; } } }
 
 async function getSecrets(logger: FastifyBaseLogger)
 {
@@ -305,7 +300,18 @@ function cleanupRoom(roomId: string): void
 // REST API ROUTES
 // =============================================================================
 
-fastify.get('/api/game/matchmaking', async (_request, reply) =>
+async function jwtChecker(request: any, reply: any)
+{
+	try
+	{
+		const payload = await request.jwtVerify();
+		if (connectedUsers.has(String(payload.id)))
+			throw new Error('User Already Connected!');
+	}
+	catch (err) {reply.status(401).send({ message: 'Unauthorized' });}
+}
+
+fastify.get('/api/game/matchmaking', {preHandler: [jwtChecker]} ,async (request, reply) =>
 {
 	let roomId: string;
 
@@ -344,6 +350,7 @@ function initSocketHandlers(): void
 
 		let currentRoomId: string | null = null;
 		let playerSide: 1 | 2 | 3 = 3;
+		let userID: string = '';
 
 		socket.on('match', (data: RoomData, callback: (response: Match | null) => void) =>
 		{
@@ -361,6 +368,8 @@ function initSocketHandlers(): void
 			socket.join(roomId);
 			playerSide = getAvailableSide(room);
 			room.members.set(socket.id, { socket, userID: data.PlayerID, side: playerSide });
+			userID = data.PlayerID;
+			connectedUsers.set(data.PlayerID, socket);
 
 			if (playerSide !== 3)
 			{
@@ -410,7 +419,8 @@ function initSocketHandlers(): void
 			const room = rooms.get(currentRoomId);
 			if (!room)
 				return;
-
+			if (connectedUsers.get(userID) === socket)
+            	connectedUsers.delete(userID);
 			const member = room.members.get(socket.id);
 			room.members.delete(socket.id);
 
@@ -435,7 +445,7 @@ const start = async () =>
 		fastify.log.info(`Starting Pong Game Server...`);
 		const secrets = await getSecrets(fastify.log) as { jwtSecret: string };
 		fastify.log.debug(`Secrets fetched successfully: ${secrets.jwtSecret}`);
-
+		await fastify.register(FastifyJwt, { secret: secrets.jwtSecret });
 		await fastify.listen({ host: HOST, port: PORT });
 		io = new SocketIOServer(fastify.server,
 		{

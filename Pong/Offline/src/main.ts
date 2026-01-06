@@ -44,6 +44,13 @@ addHUDs(gameEngine.getSession());
 optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
 startButton(gameEngine);
 
+function exitGame(): void
+{
+	const div = document.getElementById("exit-game-btn");
+	div?.click();
+	renderer.dispose();
+}
+
 window.addEventListener('keydown', (e) =>
 {
 	const cam = cameras[e.key];
@@ -79,6 +86,12 @@ const gameLoop = (currentTime: number) =>
 	{
 		gameEngine.tick();
 		accumulator -= TICKDT;
+	}
+	const tmp = document.getElementById('game') as HTMLCanvasElement;
+	if (!tmp)
+	{
+		exitGame();
+		return ;
 	}
 	const gameState = gameEngine.getState();
 	renderer.updateGameState(gameState);

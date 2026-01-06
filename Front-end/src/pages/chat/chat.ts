@@ -35,12 +35,12 @@ const chatState: ChatState = {
 
 export function initGlobalChatNotifications() {
 	if (notificationSocketInitialized || socket) return;
-	
+
 	socket = io({
 		path: '/api/chat/private/socket.io',
 		transports: ['websocket', 'polling'],
 	});
-	
+
 	socket.on("connect", () => {
 		console.log("Connected to private chat");
 		socket?.emit("userId", credentials.id);
@@ -68,7 +68,7 @@ export function initGlobalChatNotifications() {
 	if (socket.connected) {
 		socket.emit("userId", credentials.id);
 	}
-	
+
 	notificationSocketInitialized = true;
 	console.log("Global chat notifications initialized");
 }
@@ -106,7 +106,7 @@ function setupChatListeners() {
 
 function openChat(friend: IUserData) {
 	if (!socket) return;
-	
+
 	chatState.currentFriend = friend;
 	chatState.messages = [];
 
@@ -163,7 +163,7 @@ function updateMessagesUI() {
 			const isMine = msg.senderId === Number(credentials.id);
 			return /* html */`
 				<div class="flex ${isMine ? 'justify-end' : 'justify-start'} mb-3">
-					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'} 
+					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'}
 						px-4 py-2 rounded-2xl ${isMine ? 'rounded-br-sm' : 'rounded-bl-sm'}">
 						<p class="text-sm break-words">${msg.content}</p>
 						<span class="text-xs ${isMine ? 'text-bgColor/70' : 'text-gray-400'} mt-1 block text-right">
@@ -183,7 +183,7 @@ function updateChatHeaderUI() {
 
 	chatHeader.innerHTML = /* html */`
 		<div class="flex gap-3 font-bold items-center">
-			<img class="h-12 w-12 border border-color1 rounded-full object-cover" 
+			<img class="h-12 w-12 border border-color1 rounded-full object-cover"
 				src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
 			<div class="flex flex-col">
 				<span class="text-txtColor text-lg">${chatState.currentFriend.username}</span>
@@ -280,7 +280,7 @@ function renderMessages() : string {
 				outline-none border border-color3 focus:border-color1 transition-colors
 				disabled:opacity-50 disabled:cursor-not-allowed"
 				${!chatState.currentConversationId ? 'disabled' : ''}>
-				<button id="private-chat-send" 
+				<button id="private-chat-send"
 					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
 					transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
 					${!chatState.currentConversationId ? 'disabled' : ''}>
@@ -307,11 +307,11 @@ async function listFriends() : Promise<string> {
 			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-200px)]
 				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
 				${friends.map((friend: IUserData) => /* html */`
-					<div data-friend-id="${friend.id}" 
+					<div data-friend-id="${friend.id}"
 						class="flex bg-[#0f0f1a] hover:bg-[#1a1a2e] p-3 rounded-2xl cursor-pointer
 						transition-all duration-200 hover:border-l-2 hover:border-color1">
 						<div class="flex w-full gap-4">
-							<img class="w-[45px] h-[45px] rounded-full object-cover" 
+							<img class="w-[45px] h-[45px] rounded-full object-cover"
 								src="${getImageUrl(friend.avatar_url) || '/images/default-avatar.png'}" alt="">
 							<div class="w-full">
 								<div class="flex justify-between w-full">
@@ -330,7 +330,7 @@ async function listFriends() : Promise<string> {
 
 export async function renderChat() {
 	await data.initDashboard(false);
-	
+
 	chatState.currentConversationId = null;
 	chatState.currentFriend = null;
 	chatState.messages = [];

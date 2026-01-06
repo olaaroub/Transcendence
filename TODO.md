@@ -59,14 +59,15 @@
 - [x] **bugs in notification sockets**
 - [simo_part] **global chat time bug**
 - [x] **error when blocken friend and unblocken them and resend the add friend request**
-- [ ] **invalid response status when trying to change password using invalid credanstion"  
+- [ ] **invalid response status when trying to change password using invalid credanstion"
 <!-- union intersect distinct  -->
 - [cancled] **learn gRPC:** to build micro sirveces
 
 ## Game (HES-SAFI)
 
 - [X] **Prod .JS Filename:** Need to change the randomly generated name with 'pong.js'. VITE Bundler knowledge.
-- [ ] **Over-LAN Socket Failure:** Need to Fix Sockets not connecting from another post in the same Cluster.
+- [X] **Over-LAN Socket Failure:** Need to Fix Sockets not connecting from another post in the same Cluster.
+- [ ] **Clean Event Listeners:** Need to Destroy event listeners in both offline and online versions.
 
 ## Known Bugs
 
