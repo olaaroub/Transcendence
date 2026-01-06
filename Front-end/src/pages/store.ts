@@ -4,6 +4,7 @@ export interface IUserData {
 	username: string | null;
 	bio: string | null;
 	status: string | null;
+	onlineStatus?: string | null;
 	auth_provider: string | null;
 	avatar_url: string | null;
 	is_read: string | null;

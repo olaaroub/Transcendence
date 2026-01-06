@@ -7,6 +7,18 @@ const $ = (id: string) => document.getElementById(id as string)
 let pendingUsers: IUserData[] | null = null;
 let socket: WebSocket | null = null;
 
+type FriendStatusCallback = (friendId: string, status: 'ONLINE' | 'OFFLINE') => void;
+const friendStatusSubscribers: Set<FriendStatusCallback> = new Set();
+
+export function subscribeFriendStatus(callback: FriendStatusCallback): () => void {
+	friendStatusSubscribers.add(callback);
+	return () => friendStatusSubscribers.delete(callback);
+}
+
+function notifyFriendStatusChange(friendId: string, status: 'ONLINE' | 'OFFLINE'): void {
+	friendStatusSubscribers.forEach(callback => callback(friendId, status));
+}
+
 function initNotificationSocket(): void {
 	if (!credentials.id || socket) return;
 
@@ -25,6 +37,12 @@ function initNotificationSocket(): void {
 				const newUsers: IUserData[] = Array.isArray(parsed) ? parsed : [parsed];
 				pendingUsers = (pendingUsers ?? []).concat(newUsers);
 				$("notification-icon")?.querySelector('span')?.classList.remove('hidden');
+			}
+			else if (parsed.type === 'FRIEND_ONLINE') {
+				notifyFriendStatusChange(String(parsed.friend_id), 'ONLINE');
+			}
+			else if (parsed.type === 'FRIEND_OFFLINE') {
+				notifyFriendStatusChange(String(parsed.friend_id), 'OFFLINE');
 			}
 		} catch (err) {console.error(err)}
 	};
