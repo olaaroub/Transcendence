@@ -110,9 +110,6 @@ function openChat(friend: IUserData) {
 	chatState.currentFriend = friend;
 	chatState.messages = [];
 
-	const sock = getSocket();
-	sock.emit("open_chat", {
-
 	socket.emit("open_chat", {
 		senderId: credentials.id,
 		receiverId: friend.id
