@@ -5,7 +5,7 @@ import websocket from '@fastify/websocket';
 import vault from 'node-vault';
 import createError from 'http-errors';
 import fastifyMetrics from 'fastify-metrics';
-
+import microServicesRoutes from './micro.services.routes.js';
 import dbconfig from './database.config.js';
 import privateRoutes from './private.routes.js';
 import { publicRoutes } from './public.routes.js';
@@ -163,6 +163,7 @@ async function main() {
 
     fastify.register(privateRoutes, { prefix: '/api' });
     fastify.register(publicRoutes, { prefix: '/api' });
+    fastify.register(microServicesRoutes, { prefix: '/api' })
 
     await fastify.listen({
       port: process.env.PORT,
