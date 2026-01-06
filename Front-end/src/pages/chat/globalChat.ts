@@ -1,6 +1,7 @@
 import { credentials, getImageUrl, userData } from "../store";
 import { apiFetch } from "../components/errorsHandler";
 import { formatMessageTime } from "../utils";
+import { navigate } from "../../router";
 
 interface ChatMessage {
 	sender_id: string | number;
@@ -67,25 +68,37 @@ function updateChatUI() {
 	if (chatCount)
 		chatCount.textContent = `${globalChatMessages.length} messages`;
 	chatContainer.scrollTop = chatContainer.scrollHeight;
+
+	chatContainer.querySelectorAll('.username-link').forEach(el => {
+		el.addEventListener('click', () => {
+			const userId = el.getAttribute('data-user-id');
+			if (userId) navigate(`/profile/${userId}`);
+		});
+	});
 }
 
 function renderChatMessages(): string {
-	return globalChatMessages.map(msg => /* html */`
+	return globalChatMessages.map(msg => {
+		const isSystemUser = msg.username?.toLowerCase() === 'system' || !msg.sender_id;
+		return /* html */`
 		<div class="group hover:bg-white/5 rounded-xl p-2 -mx-2 transition-colors duration-200">
 			<div class="flex items-start gap-3">
 				<img src="${getImageUrl(msg.avatar_url)}" class="w-9 h-9 rounded-full border border-borderColor
 					group-hover:border-color1 transition-colors duration-200" alt="${msg.username}">
 				<div class="flex-1 min-w-0">
 					<div class="flex items-center gap-2 mb-1">
-						<span class="text-txtColor font-semibold text-sm hover:text-color1
-							cursor-pointer transition-colors">${msg.username}</span>
+						${isSystemUser 
+							? `<span class="text-txtColor font-semibold text-sm">${msg.username}</span>`
+							: `<span data-user-id="${msg.sender_id}" class="username-link text-txtColor font-semibold text-sm hover:text-color1
+								cursor-pointer transition-colors">${msg.username}</span>`
+						}
 						<span class="text-color3 text-xs">${formatMessageTime(msg.created_at)}</span>
 					</div>
 					<p class="text-txtColor/80 text-sm leading-relaxed break-words">${msg.msg}</p>
 				</div>
 			</div>
 		</div>
-	`).join('');
+	`}).join('');
 }
 
 function sendMessage(content: string) {
