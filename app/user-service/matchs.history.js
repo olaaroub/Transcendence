@@ -15,6 +15,31 @@ async function matchHistoryHandler(req, reply) {
                                     LIMIT ? OFFSET ?
     `).all(userId, userId, limit, offset);
     req.log.info({ userId: userId, count: matchs.length }, "Fetched match history");
+
+    matchs.push(  {
+        "match_id": 1,
+        "player1_id": 1,
+        "player2_id": 2,
+        "player1_score": 4,
+        "player2_score": 2,
+        "match_date": "2026-01-03 20:28:04",
+        "player1_username": "oussama",
+        "player2_username": "oussamaHammou",
+        "player1_avatar": "/public/Default_pfp.jpg",
+        "player2_avatar": "/public/Default_pfp.jpg"
+    })
+    matchs.push(  {
+        "match_id": 1,
+        "player1_id": 1,
+        "player2_id": 2,
+        "player1_score": 4,
+        "player2_score": 2,
+        "match_date": "2026-01-03 20:28:04",
+        "player1_username": "oussama",
+        "player2_username": "oussamaHammou",
+        "player1_avatar": "/public/Default_pfp.jpg",
+        "player2_avatar": "/public/Default_pfp.jpg"
+    })
     return matchs;
 }
 
