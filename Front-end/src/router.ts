@@ -1,8 +1,26 @@
-import { showErrorMessage } from "./pages/components/errorsHandler";
+import { showErrorMessage, isUserAuthenticated } from "./pages/components/errorsHandler";
 
 const app = document.getElementById("app");
 
 let previousPath: string = "/dashboard";
+
+const protectedRoutes = ["/dashboard", "/settings", "/game", "/chat", "/profile", "/leaderboard"];
+const authRoutes = ["/login", "/sign-up"];
+const publicRoutes = ["/", "/about", "/guest"];
+
+function isProtectedRoute(path: string): boolean {
+	return protectedRoutes.some(route => path === route || path.startsWith(route + "/"));
+}
+
+function isAuthRoute(path: string): boolean {
+	return authRoutes.includes(path);
+}
+
+function hasCredentials(): boolean {
+	const id = localStorage.getItem('id');
+	const token = localStorage.getItem('token');
+	return !!(id && token);
+}
 
 interface Route {
 	path: string;
@@ -92,6 +110,23 @@ const routes: Route[] = [
 export function navigate(path: string) {
 	const current = window.location.pathname;
 	if (current === path) return;
+	
+	const authenticated = hasCredentials();
+	
+	if (!authenticated && isProtectedRoute(path)) {
+		previousPath = current;
+		window.history.pushState({}, "", "/login");
+		router();
+		return;
+	}
+	
+	if (authenticated && (isAuthRoute(path) || path === "/")) {
+		previousPath = current;
+		window.history.pushState({}, "", "/dashboard");
+		router();
+		return;
+	}
+	
 	previousPath = current;
 	window.history.pushState({}, "", path);
 	router();
@@ -120,6 +155,25 @@ export async function router() {
 	const path = window.location.pathname;
 	let params: Record<string, string> = {};
 	let matchedRoute: Route | undefined;
+	const authenticated = hasCredentials();
+
+	if (!authenticated && isProtectedRoute(path)) {
+		window.history.replaceState({}, "", "/login");
+		const { renderLogin } = await import("./pages/login");
+		renderLogin(false);
+		return;
+	}
+
+	if (authenticated && (isAuthRoute(path) || path === "/")) {
+		const isValid = await isUserAuthenticated();
+		if (isValid) {
+			window.history.replaceState({}, "", "/dashboard");
+			const { initDashboard } = await import("./pages/dashboard");
+			initDashboard();
+			return;
+		}
+		return;
+	}
 
 	for (const route of routes) {
 		const { matched, params: routeParams } = matchRoute(path, route.path);

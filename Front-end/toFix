@@ -1,9 +1,7 @@
-merge the private chat
-
-
-activate cleanupPrivateChat
 
 add online/offline friends
+routing logic
+add renderprofile when a user clicks on a user name in the chat and the leaderboard and global chat
 
 
 tailwind :
