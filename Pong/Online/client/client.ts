@@ -8,6 +8,7 @@ import {
 	optionsButton,
 	addHUDs,
 	updateGoals,
+	catchUpGoals,
 	createArena,
 	createSky,
 	createPaddles,
@@ -204,6 +205,11 @@ else
 	{
 		role = side;
 		console.log(`Assigned as ${side === 3 ? 'Spectator' : `Player ${side}`}`);
+		if (role === 3)
+		{
+			addHUDs(match.session);
+			catchUpGoals(match.state.p1, match.state.p2);
+		}
 	});
 }
 

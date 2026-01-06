@@ -22,6 +22,7 @@ export class Renderer
 		this.engine = engine;
 		this.scene = scene;
 		this.meshes = meshes;
+		engine.hideLoadingUI();
 	}
 
 	render(): void {this.scene.render();}
