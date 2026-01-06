@@ -6,7 +6,7 @@ import { searchbar } from "./components/searchbar";
 import { dashboardLearderboard } from "./components/leaderboard";
 import { apiFetch, showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
-import { chatEventHandler } from "./chat/chat";
+import { chatEventHandler, initGlobalChatNotifications } from "./chat/chat";
 import { showDifficultyModal } from "./components/difficultyModal";
 import { AliasPopUp } from "./home";
 
@@ -59,8 +59,10 @@ export async function fetchProfile(userId: string | number | null) : Promise<IUs
 export async function initDashboard(isDashboard: boolean = true) {
 	setCredentials();
 	const profileResponse = await fetchProfile(credentials.id);
-	if (profileResponse)
+	if (profileResponse) {
+		initGlobalChatNotifications();
 		renderDashboard(isDashboard);
+	}
 }
 
 function renderGameModeButton(id: string, colorClass: string, icon: string, title: string, description: string): string {
@@ -284,7 +286,6 @@ export async function renderDashboard(isDashboard: boolean = true)
 	btnLocalVsPlayer?.addEventListener('click', () => {
 		AliasPopUp(false, "player2");
 	});
-
 	const btnLocalVsAi = $('btn-local-vs-ai');
 	btnLocalVsAi?.addEventListener('click', () => {
 		showDifficultyModal();

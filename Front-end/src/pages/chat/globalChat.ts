@@ -1,5 +1,6 @@
 import { credentials, getImageUrl, userData } from "../store";
 import { apiFetch } from "../components/errorsHandler";
+import { formatMessageTime } from "../utils";
 
 interface ChatMessage {
 	sender_id: string | number;
@@ -22,8 +23,8 @@ async function fetchPreviousMessages() {
 }
 
 function initializeWebSocket() {
-	// const wsUrl = `ws://localhost:3003/api/chat/global/${credentials.id}`;
-	const wsUrl = `wss://${window.location.host}/api/chat/global/${credentials.id}`;
+	const token = localStorage.getItem('token');
+	const wsUrl = `wss://${window.location.host}/api/chat/global/${credentials.id}?token=${token}`;
 	golobalChatSocket = new WebSocket(wsUrl);
 
 	golobalChatSocket.onopen = () => {
@@ -66,17 +67,6 @@ function updateChatUI() {
 	if (chatCount)
 		chatCount.textContent = `${globalChatMessages.length} messages`;
 	chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-function formatMessageTime(dateString: string): string { // must check it again
-	let date = new Date(dateString);
-	if (dateString && !dateString.includes('Z') && !dateString.includes('+') && !/\d{2}:\d{2}:\d{2}-\d{2}/.test(dateString)) {
-		date = new Date(dateString + 'Z');
-	}
-	return date.toLocaleTimeString(navigator.language || 'en-US', {
-		hour: '2-digit',
-		minute: '2-digit'
-	});
 }
 
 function renderChatMessages(): string {

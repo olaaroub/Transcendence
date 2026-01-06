@@ -1,13 +1,14 @@
 import { navigate } from '../../router';
 import * as data from '../dashboard';
-import { shortString } from '../utils';
+import { shortString, formatMessageTime } from '../utils';
 import { credentials, getImageUrl, IUserData } from '../store';
 import { apiFetch } from '../components/errorsHandler';
-
+import { toastInfo } from '../components/toast';
 import { io, Socket } from "socket.io-client";
 
 
 let socket: Socket | null = null;
+let notificationSocketInitialized = false;
 
 interface ChatMessage {
 	id?: number;
@@ -32,36 +33,64 @@ const chatState: ChatState = {
 	friends: []
 };
 
-function getSocket(): Socket {
-	if (!socket) {
-		socket = io({
-			path: '/api/chat/private/socket.io',
-			transports: ['websocket', 'polling'],
-		});
-	}
-	return socket;
-}
+export function initGlobalChatNotifications() {
+	if (notificationSocketInitialized || socket) return;
 
-function initializeSocket() {
-	const sock = getSocket();
-
-	sock.on("connect", () => {
-		console.log("Connected to private chat");
-		sock.emit("userId", credentials.id);
+	socket = io({
+		path: '/api/chat/private/socket.io',
+		transports: ['websocket', 'polling'],
 	});
-	sock.on("connect_error", (error) => {
+
+	socket.on("connect", () => {
+		console.log("Connected to private chat");
+		socket?.emit("userId", credentials.id);
+	});
+
+	socket.on("connect_error", (error) => {
 		console.error("Socket connection error:", error.message);
 	});
-	sock.on("disconnect", (reason) => {
+
+	socket.on("disconnect", (reason) => {
 		console.log("Disconnected from private chat:", reason);
 	});
-	sock.on("chat_initialized", (data: { conversationId: number; messages: ChatMessage[] }) => {
+
+	socket.on("new_notification", (data: { type: string; from: number; conversationId: number; text: string }) => {
+		console.log("New notification:", data);
+		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat')) {
+			toastInfo(`New message received!`, { duration: 4000 });
+		}
+	});
+
+	socket.on("error", (data) => {
+		console.error("Chat error:", data.message);
+	});
+
+	if (socket.connected) {
+		socket.emit("userId", credentials.id);
+	}
+
+	notificationSocketInitialized = true;
+	console.log("Global chat notifications initialized");
+}
+
+function setupChatListeners() {
+	if (!socket) {
+		console.error("Socket not initialized. Call initGlobalChatNotifications first.");
+		return;
+	}
+
+	socket.off("chat_initialized");
+	socket.off("receive_message");
+	socket.off("message_sent");
+
+	socket.on("chat_initialized", (data: { conversationId: number; messages: ChatMessage[] }) => {
 		console.log("Chat initialized:", data);
 		chatState.currentConversationId = data.conversationId;
 		chatState.messages = data.messages || [];
 		updateMessagesUI();
 	});
-	sock.on("receive_message", (data: ChatMessage) => {
+
+	socket.on("receive_message", (data: ChatMessage) => {
 		console.log("New message received:", data);
 		if (data.conversationId === chatState.currentConversationId) {
 			if (data.senderId === Number(credentials.id)) return;
@@ -69,43 +98,38 @@ function initializeSocket() {
 			updateMessagesUI();
 		}
 	});
-	sock.on("message_sent", (data) => {
+
+	socket.on("message_sent", (data) => {
 		console.log("Message sent confirmation:", data);
 	});
-	sock.on("new_notification", (data) => {
-		console.log("New notification:", data);
-	});
-	sock.on("error", (data) => {
-		console.error("Chat error:", data.message);
-	});
-	return sock;
 }
 
 function openChat(friend: IUserData) {
+	if (!socket) return;
+
 	chatState.currentFriend = friend;
 	chatState.messages = [];
 
 	const sock = getSocket();
 	sock.emit("open_chat", {
+
+	socket.emit("open_chat", {
 		senderId: credentials.id,
 		receiverId: friend.id
 	});
-
 	updateChatHeaderUI();
 }
 
 function sendMessage(content: string) {
-	if (!content.trim() || !chatState.currentConversationId || !chatState.currentFriend)
+	if (!socket || !content.trim() || !chatState.currentConversationId || !chatState.currentFriend)
 		return;
 
-	const sock = getSocket();
-	sock.emit("send_message", {
+	socket.emit("send_message", {
 		conversationId: chatState.currentConversationId,
 		senderId: Number(credentials.id),
 		receiverId: Number(chatState.currentFriend.id),
 		content: content.trim()
 	});
-
 	const optimisticMessage: ChatMessage = {
 		senderId: Number(credentials.id),
 		content: content.trim(),
@@ -114,17 +138,6 @@ function sendMessage(content: string) {
 	};
 	chatState.messages.push(optimisticMessage);
 	updateMessagesUI();
-}
-
-function formatMessageTime(dateString: string): string {
-	let date = new Date(dateString);
-	if (dateString && !dateString.includes('Z') && !dateString.includes('+')) {
-		date = new Date(dateString + 'Z');
-	}
-	return date.toLocaleTimeString(navigator.language || 'en-US', {
-		hour: '2-digit',
-		minute: '2-digit'
-	});
 }
 
 function updateMessagesUI() {
@@ -153,7 +166,7 @@ function updateMessagesUI() {
 			const isMine = msg.senderId === Number(credentials.id);
 			return /* html */`
 				<div class="flex ${isMine ? 'justify-end' : 'justify-start'} mb-3">
-					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#273445] text-txtColor'}
+					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'}
 						px-4 py-2 rounded-2xl ${isMine ? 'rounded-br-sm' : 'rounded-bl-sm'}">
 						<p class="text-sm break-words">${msg.content}</p>
 						<span class="text-xs ${isMine ? 'text-bgColor/70' : 'text-gray-400'} mt-1 block text-right">
@@ -236,14 +249,13 @@ export function cleanupPrivateChat() {
 	chatState.currentFriend = null;
 	chatState.messages = [];
 	chatState.friends = [];
+	notificationSocketInitialized = false;
 }
 
 export function chatEventHandler() {
 	const messageIcon = document.getElementById('message-icon');
 	if (!messageIcon) return;
-	messageIcon.addEventListener('click', async () => {
-		navigate('/chat');
-	});
+	messageIcon.addEventListener('click', async () => {navigate('/chat');});
 }
 
 function renderMessages() : string {
@@ -271,7 +283,7 @@ function renderMessages() : string {
 				outline-none border border-color3 focus:border-color1 transition-colors
 				disabled:opacity-50 disabled:cursor-not-allowed"
 				${!chatState.currentConversationId ? 'disabled' : ''}>
-				<button id="private-chat-send"     
+				<button id="private-chat-send"
 					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
 					transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
 					${!chatState.currentConversationId ? 'disabled' : ''}>
@@ -295,12 +307,11 @@ async function listFriends() : Promise<string> {
 	chatState.friends = friends;
 	return /* html */`
 		<div class="flex flex-col gap-2">
-			<p class="text-txtColor text-lg font-bold mb-2">Friends</p>
 			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-200px)]
 				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
 				${friends.map((friend: IUserData) => /* html */`
 					<div data-friend-id="${friend.id}"
-						class="flex bg-[#273445] p-3 rounded-2xl cursor-pointer hover:bg-[#3a4a5c]
+						class="flex bg-[#0f0f1a] hover:bg-[#1a1a2e] p-3 rounded-2xl cursor-pointer
 						transition-all duration-200 hover:border-l-2 hover:border-color1">
 						<div class="flex w-full gap-4">
 							<img class="w-[45px] h-[45px] rounded-full object-cover"
@@ -326,7 +337,7 @@ export async function renderChat() {
 	chatState.currentConversationId = null;
 	chatState.currentFriend = null;
 	chatState.messages = [];
-	initializeSocket();
+	setupChatListeners();
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = /* html */`
