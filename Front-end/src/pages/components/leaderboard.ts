@@ -1,6 +1,7 @@
 import { initDashboard } from "../dashboard";
 import { getImageUrl } from "../store";
 import { apiFetch } from "./errorsHandler";
+import { navigate } from "../../router";
 
 const $ = (id: string) => document.getElementById(id as string)
 
@@ -76,7 +77,7 @@ function renderPodiumPlayer(player: LeaderboardPlayer, rank: number): string {
 	const cfg = configs[rank];
 	
 	return /* html */ `
-		<div id="podium-${rank}" class="group flex flex-col items-center ${cfg.mt} cursor-pointer transition-all duration-500 hover:-translate-y-2">
+		<div id="podium-${rank}" data-player-id="${player.id}" class="group flex flex-col items-center ${cfg.mt} cursor-pointer transition-all duration-500 hover:-translate-y-2">
 			<div class="relative mb-3">
 				<img src="${getImageUrl(player.avatar_url)}" 
 					class="${cfg.size} rounded-full border-4 ${cfg.border} object-cover shadow-lg">
@@ -98,7 +99,7 @@ function renderPodiumPlayer(player: LeaderboardPlayer, rank: number): string {
 
 function renderPlayerRow(player: LeaderboardPlayer, rank: number): string {
 	return /* html */ `
-		<div class="grid grid-cols-6 gap-4 items-center p-4 rounded-xl bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer
+		<div data-player-id="${player.id}" class="grid grid-cols-6 gap-4 items-center p-4 rounded-xl bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer
 			${rank <= 3 ? 'border-l-4' : 'border-l-2'} 
 			${rank === 1 ? 'border-color1 bg-color1/5' : rank === 2 ? 'border-gray-400' : rank === 3 ? 'border-amber-600' : 'border-color3'}">
 			<div class="col-span-2 flex items-center gap-3">
@@ -170,4 +171,11 @@ export async function renderLeaderboard() {
 			</div>
 		</div>
 	`;
+
+	dashContent.querySelectorAll('[data-player-id]').forEach(el => {
+		el.addEventListener('click', () => {
+			const playerId = el.getAttribute('data-player-id');
+			if (playerId) navigate(`/profile/${playerId}`);
+		});
+	});
 }
