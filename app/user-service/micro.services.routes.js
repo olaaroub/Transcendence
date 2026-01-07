@@ -21,7 +21,7 @@ async function createNewUser(req, reply) {
   }
 
   const bio = newUserData.bio || 'Hello there i am using Pong game!';
-  const avatar_url = newUserData.avatar_url || '/public/Default_pfp.jpg';
+  const avatar_url = newUserData.avatar_url || '/public/default_pfp.png';
 
 
   try {

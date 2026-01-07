@@ -41,6 +41,7 @@ services:
     user: root
     volumes:
       - ./db/auth:/data
+      - ./app/static:/app/static
     networks:
       - transcendence-prod-net
     depends_on:
@@ -70,6 +71,7 @@ services:
     user: root
     volumes:
       - ./db/users:/data
+      - ./app/static:/app/static
     networks:
       - transcendence-prod-net
     depends_on:
@@ -135,8 +137,8 @@ services:
   pong-game-prod:
     build:
       context: ./Pong
-      # dockerfile: Dockerfile.pong.prod.multistage
-      dockerfile: Dockerfile.pong.prod
+      dockerfile: Dockerfile.pong.prod.multistage
+      # dockerfile: Dockerfile.pong.prod
 
       args:
         - PORT=3005

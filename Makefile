@@ -73,7 +73,7 @@ deps:
 # ==========================================
 up: certs
 	docker compose up --build -d
-	docker compose logs -f frontend-prod auth-service-prod user-service-prod global-chat-prod \
+	docker compose logs -f auth-service-prod user-service-prod global-chat-prod \
 												private-chat-prod pong-game-prod
 
 down:
@@ -94,7 +94,6 @@ re: clean up
 # ==========================================
 dev: certs
 	docker compose -f compose.dev.yaml up -d --build
-	@echo "$(BLUE)Tailing logs... (Ctrl+C to exit logs, containers keep running)$(RESET)"
 	docker compose -f compose.dev.yaml logs -f frontend-dev auth-service-dev user-service-dev global-chat-dev \
 												private-chat-dev pong-game-dev
 

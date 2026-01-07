@@ -7,6 +7,7 @@ import {
 	startButton,
 	addHUDs,
 	updateGoals,
+	createSign,
 	createArena,
 	createSky,
 	createPaddles,
@@ -45,6 +46,7 @@ optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.
 startButton(gameEngine);
 
 let gameInterval: number | null = null;
+let gameOver: boolean = false;
 
 const handleKeyDown = (e: KeyboardEvent) =>
 {
@@ -97,6 +99,12 @@ const renderLoop = () =>
 	}
 	const gameState = gameEngine.getState();
 	renderer.updateGameState(gameState);
+	if (gameEngine.getCurrentState() === 'Over' && !gameOver)
+	{
+		gameOver = true;
+		setTimeout(() => {createSign(`GAME OVER\n${gameEngine.getWinner().toUpperCase()} WINS`);}, 50);
+		setTimeout(() => {exitGame();}, 3000);
+	}
 	renderer.render();
 	updateGoals(gameEngine.getState().p1, gameEngine.getState().p2);
 	requestAnimationFrame(renderLoop);

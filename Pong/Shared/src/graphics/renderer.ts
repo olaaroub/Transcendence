@@ -22,7 +22,6 @@ export class Renderer
 		this.engine = engine;
 		this.scene = scene;
 		this.meshes = meshes;
-		// engine.hideLoadingUI();
 	}
 
 	render(): void {this.scene.render();}
@@ -62,25 +61,55 @@ export class Renderer
 
 export class PongLoading implements BABYLON.ILoadingScreen
 {
-	constructor(scene: BABYLON.Scene) {};
-	public loadingUIText: string = "LOADING";
-	public loadingUIBackgroundColor: string = "#00FF00";
-	public displayLoadingUI()
+	private loadingDiv: HTMLDivElement | null = null;
+	public loadingUIBackgroundColor: string = "#000000";
+	public loadingUIText: string = "";
+
+	constructor() {}
+
+	public displayLoadingUI(): void
 	{
-		const elem = document.getElementById("pongLoading");
-		if (elem)
-		{
-			console.log("Element Found! Displaying...");
-			elem.style.display = "block";
-		}
+		if (this.loadingDiv)
+			return;
+
+		this.loadingDiv = document.createElement("div");
+		this.loadingDiv.id = "pongLoading";
+		this.loadingDiv.style.cssText = `
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: ${this.loadingUIBackgroundColor};
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 9999;
+			opacity: 1;
+			transition: opacity 0.5s ease;
+		`;
+
+		const gif = document.createElement("img");
+		gif.src = "/game/Assets/loading.gif";
+		gif.alt = "LOADING...";
+
+		this.loadingDiv.appendChild(gif);
+		document.body.appendChild(this.loadingDiv);
 	}
-	public hideLoadingUI()
+
+	public hideLoadingUI(): void
 	{
-		const elem = document.getElementById("pongLoading");
-		if (elem)
+		if (this.loadingDiv)
 		{
-			console.log("Element Found! Hiding...");
-			elem.style.display = "none";
+			this.loadingDiv.style.opacity = "0";
+			this.loadingDiv.addEventListener("transitionend", () =>
+			{
+				if (this.loadingDiv)
+				{
+					this.loadingDiv.remove();
+					this.loadingDiv = null;
+				}
+			}, { once: true });
 		}
 	}
 }
