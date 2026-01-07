@@ -25,8 +25,8 @@ async function matchHistoryHandler(req, reply) {
         "match_date": "2026-01-03 20:28:04",
         "player1_username": "oussama",
         "player2_username": "oussamaHammou",
-        "player1_avatar": "/public/Default_pfp.jpg",
-        "player2_avatar": "/public/Default_pfp.jpg"
+        "player1_avatar": "/public/default_pfp.png",
+        "player2_avatar": "/public/default_pfp.png"
     })
     matchs.push(  {
         "match_id": 1,
@@ -37,8 +37,8 @@ async function matchHistoryHandler(req, reply) {
         "match_date": "2026-01-03 20:28:04",
         "player1_username": "oussama",
         "player2_username": "oussamaHammou",
-        "player1_avatar": "/public/Default_pfp.jpg",
-        "player2_avatar": "/public/Default_pfp.jpg"
+        "player1_avatar": "/public/default_pfp.png",
+        "player2_avatar": "/public/default_pfp.png"
     })
     return matchs;
 }

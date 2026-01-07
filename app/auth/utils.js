@@ -23,8 +23,8 @@ async function DownoladImageFromUrl(url, provider, logger) {
     if (!mimType[contentType]) {
         logger.warn({ contentType }, "Unsupported image type from provider, using default");
         return {
-            file_name: 'Default_pfp.jpg',
-            avatar_path: '/public/Default_pfp.jpg'
+            file_name: 'default_pfp.png',
+            avatar_path: '/public/default_pfp.png'
         };
     }
 

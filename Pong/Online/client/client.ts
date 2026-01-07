@@ -155,11 +155,11 @@ socket.on("session", (session: Match['session']) =>
 		match.session.p2Alias = tempAlias;
 		match.session.p2Avatar = tempAvatar;
 	}
+	addHUDs(match.session);
 });
 
 socket.on("countdown", (count: number) =>
 {
-	addHUDs(match.session);
 	console.log(`Game starting in ${count}...`);
 	// TODO: Visual countdown with Babylon.js
 });

@@ -68,6 +68,7 @@
 - [X] **Prod .JS Filename:** Need to change the randomly generated name with 'pong.js'. VITE Bundler knowledge.
 - [X] **Over-LAN Socket Failure:** Need to Fix Sockets not connecting from another post in the same Cluster.
 - [X] **Clean Event Listeners:** Need to Destroy event listeners in both offline and online versions.
+- [X] **Flipped HUD Info:** Need to display each player's HUD info (Name and Avatar) correctly.
 
 ## Known Bugs
 
