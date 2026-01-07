@@ -101,10 +101,36 @@ function modifyState(state: GameState): void
 	}
 }
 
+const handleKeyDown = (e: KeyboardEvent) =>
+{
+	const cam = cameras[e.key];
+	if (cam)
+	{
+		scene.activeCamera = cam;
+		return;
+	}
+	const press = keyMap[e.key.toLowerCase()];
+	if (press && role < 3 && match.currState === "Playing")
+		socket.emit("input", press.value);
+};
+
+const handleKeyUp = (e: KeyboardEvent) =>
+{
+	const press = keyMap[e.key.toLowerCase()];
+	if (press && role < 3 && match.currState === "Playing")
+		socket.emit("input", 0);
+};
+
+const handleResize = () => { engine.resize(); };
+
 function exitGame(): void
 {
-	const div = document.getElementById("exit-game-btn");
-	div?.click();
+	document.getElementById("exit-game-btn")?.click();
+	window.removeEventListener('keydown', handleKeyDown);
+	window.removeEventListener('keyup', handleKeyUp);
+	window.removeEventListener('resize', handleResize);
+	socket.disconnect();
+	renderer.dispose();
 }
 
 const socket = io(window.location.origin, { path: '/api/game/socket.io/' });
@@ -114,6 +140,8 @@ socket.on("state", (state: GameState) => {modifyState(state);});
 socket.on("gamestate", (state: State) => {match.currState = state;});
 
 socket.on("gameOver", (data: {winner: string, reason: string;}) => {gameOver = data;});
+
+socket.on("redirect", () => {exitGame();});
 
 socket.on("session", (session: Match['session']) =>
 {
@@ -136,31 +164,11 @@ socket.on("countdown", (count: number) =>
 	// TODO: Visual countdown with Babylon.js
 });
 
-socket.on("redirect", () => {exitGame();});
-
 optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
 
-window.addEventListener('keydown', (e) =>
-{
-	const cam = cameras[e.key];
-	if (cam)
-	{
-		scene.activeCamera = cam;
-		return;
-	}
-	const press = keyMap[e.key.toLowerCase()];
-	if (press && role < 3 && match.currState === "Playing")
-		socket.emit("input", press.value);
-});
-
-window.addEventListener('keyup', (e) =>
-{
-	const press = keyMap[e.key.toLowerCase()];
-	if (press && role < 3 && match.currState === "Playing")
-		socket.emit("input", 0);
-});
-
-window.addEventListener('resize', () => {engine.resize();});
+window.addEventListener('keydown', handleKeyDown);
+window.addEventListener('keyup', handleKeyUp);
+window.addEventListener('resize', handleResize);
 
 let roomString: string | null = sessionStorage.getItem('room');
 if (!roomString)
@@ -219,8 +227,11 @@ const gameLoop = () =>
 	renderer.updateGameState(gameState);
 	renderer.render();
 	updateGoals(gameState.p1, gameState.p2);
-	if (!canvas)
-		console.log("Canvas was Destroyed!");
+	if (!(document.getElementById('game') as HTMLCanvasElement))
+	{
+		exitGame();
+		return;
+	}
 	requestAnimationFrame(gameLoop);
 };
 

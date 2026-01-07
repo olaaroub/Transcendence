@@ -22,7 +22,7 @@ export class Renderer
 		this.engine = engine;
 		this.scene = scene;
 		this.meshes = meshes;
-		engine.hideLoadingUI();
+		// engine.hideLoadingUI();
 	}
 
 	render(): void {this.scene.render();}
@@ -57,5 +57,30 @@ export class Renderer
 	{
 		this.scene.dispose();
 		this.engine.dispose();
+	}
+}
+
+export class PongLoading implements BABYLON.ILoadingScreen
+{
+	constructor(scene: BABYLON.Scene) {};
+	public loadingUIText: string = "LOADING";
+	public loadingUIBackgroundColor: string = "#00FF00";
+	public displayLoadingUI()
+	{
+		const elem = document.getElementById("pongLoading");
+		if (elem)
+		{
+			console.log("Element Found! Displaying...");
+			elem.style.display = "block";
+		}
+	}
+	public hideLoadingUI()
+	{
+		const elem = document.getElementById("pongLoading");
+		if (elem)
+		{
+			console.log("Element Found! Hiding...");
+			elem.style.display = "none";
+		}
 	}
 }
