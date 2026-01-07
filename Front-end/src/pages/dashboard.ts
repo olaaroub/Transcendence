@@ -6,7 +6,7 @@ import { searchbar } from "./components/searchbar";
 import { dashboardLearderboard } from "./components/leaderboard";
 import { apiFetch, showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
-import { chatEventHandler, initGlobalChatNotifications } from "./chat/chat";
+import { chatEventHandler, initGlobalChatNotifications, initUnreadFromStorage } from "./chat/chat";
 import { showDifficultyModal } from "./components/difficultyModal";
 import { AliasPopUp } from "./home";
 
@@ -280,8 +280,9 @@ export async function renderDashboard(isDashboard: boolean = true)
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	notifications();
 	chatEventHandler();
-	$('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
-	
+	initUnreadFromStorage(); // Show red dot from persisted unread counts
+	$('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');});
+
 	const btnLocalVsPlayer = $('btn-local-vs-player');
 	btnLocalVsPlayer?.addEventListener('click', () => {
 		AliasPopUp(false, "player2");

@@ -12,6 +12,76 @@ let socket: Socket | null = null;
 let friendStatusUnsubscribe: (() => void) | null = null;
 let notificationSocketInitialized = false;
 
+// LocalStorage key for persisting unread counts (by friendId)
+const UNREAD_STORAGE_KEY = 'chat_unread_counts';
+
+// Save unread counts to localStorage (keyed by friendId)
+function saveUnreadToStorage() {
+	const data: Record<number, number> = {};
+	chatState.unreadCounts.forEach((count, friendId) => {
+		data[friendId] = count;
+	});
+	localStorage.setItem(UNREAD_STORAGE_KEY, JSON.stringify(data));
+}
+
+// Load unread counts from localStorage
+function loadUnreadFromStorage() {
+	try {
+		const stored = localStorage.getItem(UNREAD_STORAGE_KEY);
+		if (stored) {
+			const data = JSON.parse(stored);
+			Object.entries(data).forEach(([friendId, count]) => {
+				chatState.unreadCounts.set(Number(friendId), count as number);
+			});
+		}
+	} catch (e) {
+		console.error('Error loading unread counts from storage:', e);
+	}
+}
+
+// Update the message icon in navbar with red dot
+export function updateMessageIconBadge() {
+	const messageIcon = document.getElementById('message-icon');
+	if (!messageIcon) return;
+
+	// Calculate total unread
+	let totalUnread = 0;
+	chatState.unreadCounts.forEach(count => {
+		totalUnread += count;
+	});
+
+	// Find or create the red dot
+	let redDot = messageIcon.querySelector('.message-unread-dot');
+	
+	if (totalUnread > 0) {
+		if (!redDot) {
+			redDot = document.createElement('span');
+			redDot.className = 'message-unread-dot absolute -top-1 -right-1 w-3 h-3 bg-red-500 border-2 border-[#0f2a3a] rounded-full';
+			messageIcon.classList.add('relative');
+			messageIcon.appendChild(redDot);
+		}
+	} else {
+		if (redDot) {
+			redDot.remove();
+		}
+	}
+}
+
+// Get total unread count (for external use)
+export function getTotalUnreadCount(): number {
+	let total = 0;
+	chatState.unreadCounts.forEach(count => {
+		total += count;
+	});
+	return total;
+}
+
+// Initialize unread from storage on app load
+export function initUnreadFromStorage() {
+	loadUnreadFromStorage();
+	updateMessageIconBadge();
+}
+
 interface ChatMessage {
 	id?: number;
 	messageId?: number;
@@ -19,6 +89,7 @@ interface ChatMessage {
 	content: string;
 	conversationId: number;
 	createdAt: string;
+	seen?: boolean;
 }
 
 interface ChatState {
@@ -26,17 +97,29 @@ interface ChatState {
 	currentFriend: IUserData | null;
 	messages: ChatMessage[];
 	friends: IUserData[];
+	isTyping: boolean;
+	typingUserId: number | null;
+	unreadCounts: Map<number, number>;
 }
 
 const chatState: ChatState = {
 	currentConversationId: null,
 	currentFriend: null,
 	messages: [],
-	friends: []
+	friends: [],
+	isTyping: false,
+	typingUserId: null,
+	unreadCounts: new Map()
 };
+
+let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
 export function initGlobalChatNotifications() {
 	if (notificationSocketInitialized || socket) return;
+
+	// Load persisted unread counts first
+	loadUnreadFromStorage();
+	updateMessageIconBadge();
 
 	socket = io({
 		path: '/api/chat/private/socket.io',
@@ -63,6 +146,33 @@ export function initGlobalChatNotifications() {
 		}
 	});
 
+	// Listen for unread message updates (red dot) - keyed by friendId
+	socket.on("unread_messages", (data: { conversationId: number; friendId: number; unreadCount: number; hasUnread: boolean }) => {
+		console.log("Unread messages update:", data);
+		if (data.hasUnread && data.friendId) {
+			chatState.unreadCounts.set(data.friendId, data.unreadCount);
+		} else if (data.friendId) {
+			chatState.unreadCounts.delete(data.friendId);
+		}
+		saveUnreadToStorage();
+		updateMessageIconBadge();
+		updateUnreadIndicatorsUI();
+	});
+
+	// Get all unread counts on connect - keyed by friendId
+	socket.on("all_unread_counts", (data: { unreadCounts: { conversationId: number; friendId: number; unreadCount: number }[] }) => {
+		console.log("All unread counts:", data);
+		chatState.unreadCounts.clear();
+		data.unreadCounts.forEach(item => {
+			if (item.friendId) {
+				chatState.unreadCounts.set(item.friendId, item.unreadCount);
+			}
+		});
+		saveUnreadToStorage();
+		updateMessageIconBadge();
+		updateUnreadIndicatorsUI();
+	});
+
 	socket.on("error", (data) => {
 		console.error("Chat error:", data.message);
 	});
@@ -81,24 +191,60 @@ function setupChatListeners() {
 	socket.off("chat_initialized");
 	socket.off("receive_message");
 	socket.off("message_sent");
+	socket.off("messages_seen");
+	socket.off("user_typing");
 
 	socket.on("chat_initialized", (data: { conversationId: number; messages: ChatMessage[] }) => {
 		console.log("Chat initialized:", data);
 		chatState.currentConversationId = data.conversationId;
 		chatState.messages = data.messages || [];
+		// Clear unread for this friend since we're viewing their chat
+		if (chatState.currentFriend) {
+			chatState.unreadCounts.delete(chatState.currentFriend.id);
+		}
+		saveUnreadToStorage();
+		updateMessageIconBadge();
+		updateUnreadIndicatorsUI();
 		updateMessagesUI();
 	});
+
 	socket.on("receive_message", (data: ChatMessage) => {
 		console.log("New message received:", data);
 		if (data.conversationId === chatState.currentConversationId) {
 			if (data.senderId === Number(credentials.id)) return;
 			chatState.messages.push(data);
 			updateMessagesUI();
+			// Mark as seen since user is viewing this chat
+			markMessagesAsSeen();
 		}
 	});
 
 	socket.on("message_sent", (data) => {
 		console.log("Message sent confirmation:", data);
+	});
+
+	// Listen for seen confirmation (other user saw our messages)
+	socket.on("messages_seen", (data: { conversationId: number; seenBy: number }) => {
+		console.log("Messages seen by:", data);
+		if (data.conversationId === chatState.currentConversationId) {
+			// Mark all our messages as seen
+			chatState.messages.forEach(msg => {
+				if (msg.senderId === Number(credentials.id)) {
+					msg.seen = true;
+				}
+			});
+			updateMessagesUI();
+		}
+	});
+
+	// Listen for typing indicator
+	socket.on("user_typing", (data: { conversationId: number; userId: number; isTyping: boolean }) => {
+		console.log("User typing:", data);
+		if (data.conversationId === chatState.currentConversationId && data.userId !== Number(credentials.id)) {
+			chatState.isTyping = data.isTyping;
+			chatState.typingUserId = data.isTyping ? data.userId : null;
+			updateTypingIndicatorUI();
+		}
 	});
 }
 
@@ -107,12 +253,44 @@ function openChat(friend: IUserData) {
 
 	chatState.currentFriend = friend;
 	chatState.messages = [];
+	chatState.isTyping = false;
+	chatState.typingUserId = null;
 
 	socket.emit("open_chat", {
 		senderId: credentials.id,
 		receiverId: friend.id
 	});
 	updateChatHeaderUI();
+}
+
+function markMessagesAsSeen() {
+	if (!socket || !chatState.currentConversationId || !chatState.currentFriend) return;
+
+	socket.emit("mark_seen", {
+		conversationId: chatState.currentConversationId,
+		userId: Number(credentials.id),
+		otherUserId: Number(chatState.currentFriend.id)
+	});
+}
+
+function emitTypingStart() {
+	if (!socket || !chatState.currentConversationId || !chatState.currentFriend) return;
+
+	socket.emit("typing_start", {
+		conversationId: chatState.currentConversationId,
+		userId: Number(credentials.id),
+		receiverId: Number(chatState.currentFriend.id)
+	});
+}
+
+function emitTypingStop() {
+	if (!socket || !chatState.currentConversationId || !chatState.currentFriend) return;
+
+	socket.emit("typing_stop", {
+		conversationId: chatState.currentConversationId,
+		userId: Number(credentials.id),
+		receiverId: Number(chatState.currentFriend.id)
+	});
 }
 
 function sendMessage(content: string) {
@@ -159,19 +337,32 @@ function updateMessagesUI() {
 	} else {
 		messagesContainer.innerHTML = chatState.messages.map(msg => {
 			const isMine = msg.senderId === Number(credentials.id);
+			const seenIcon = isMine ? `
+				<span class="ml-1 inline-flex items-center">
+					${msg.seen ? 
+						`<svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+							<path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/>
+						</svg>` : 
+						`<svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+							<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+						</svg>`
+					}
+				</span>` : '';
 			return /* html */`
 				<div class="flex ${isMine ? 'justify-end' : 'justify-start'} mb-3">
 					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'}
 						px-4 py-2 rounded-2xl ${isMine ? 'rounded-br-sm' : 'rounded-bl-sm'}">
 						<p class="text-sm break-words">${msg.content}</p>
-						<span class="text-xs ${isMine ? 'text-bgColor/70' : 'text-gray-400'} mt-1 block text-right">
-							${formatMessageTime(msg.createdAt)}
+						<span class="text-xs ${isMine ? 'text-bgColor/70' : 'text-gray-400'} mt-1 flex items-center justify-end">
+							${formatMessageTime(msg.createdAt)}${seenIcon}
 						</span>
 					</div>
 				</div>
 			`;
 		}).join('');
 	}
+	// Add typing indicator at the bottom
+	updateTypingIndicatorUI();
 	messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
@@ -185,12 +376,78 @@ function updateChatHeaderUI() {
 				src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
 			<div class="flex flex-col">
 				<span class="text-txtColor text-lg">${chatState.currentFriend.username}</span>
-				<span class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
-					${chatState.currentFriend.status || 'offline'}
+				<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
+					${chatState.isTyping ? 'typing...' : (chatState.currentFriend.status || 'offline')}
 				</span>
 			</div>
 		</div>
 	`;
+}
+
+function updateTypingIndicatorUI() {
+	const statusText = document.getElementById('chat-status-text');
+	const messagesContainer = document.getElementById('private-chat-messages');
+	
+	// Update header status
+	if (statusText && chatState.currentFriend) {
+		if (chatState.isTyping) {
+			statusText.textContent = 'typing...';
+			statusText.className = 'text-color1 text-sm animate-pulse';
+		} else {
+			statusText.textContent = chatState.currentFriend.status || 'offline';
+			statusText.className = `${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm`;
+		}
+	}
+
+	// Show typing bubble in messages
+	if (messagesContainer) {
+		const existingTypingBubble = document.getElementById('typing-bubble');
+		if (chatState.isTyping && !existingTypingBubble) {
+			const typingBubble = document.createElement('div');
+			typingBubble.id = 'typing-bubble';
+			typingBubble.className = 'flex justify-start mb-3';
+			typingBubble.innerHTML = /* html */`
+				<div class="bg-[#1a1a2e] text-txtColor px-4 py-3 rounded-2xl rounded-bl-sm">
+					<div class="flex gap-1">
+						<span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+						<span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+						<span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+					</div>
+				</div>
+			`;
+			messagesContainer.appendChild(typingBubble);
+			messagesContainer.scrollTop = messagesContainer.scrollHeight;
+		} else if (!chatState.isTyping && existingTypingBubble) {
+			existingTypingBubble.remove();
+		}
+	}
+}
+
+function updateUnreadIndicatorsUI() {
+	const friendsList = document.getElementById('friends-list');
+	if (!friendsList) return;
+
+	// Update red dots for each friend with unread messages (keyed by friendId)
+	friendsList.querySelectorAll('[data-friend-id]').forEach(el => {
+		const friendId = el.getAttribute('data-friend-id');
+		const existingDot = el.querySelector('.unread-dot');
+		
+		// Check if this specific friend has unread messages
+		const unreadCount = chatState.unreadCounts.get(Number(friendId)) || 0;
+		const hasUnread = unreadCount > 0;
+
+		if (existingDot) {
+			existingDot.remove();
+		}
+
+		// Add red dot if this friend has unread messages
+		if (hasUnread) {
+			const dot = document.createElement('div');
+			dot.className = 'unread-dot absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full';
+			el.classList.add('relative');
+			el.appendChild(dot);
+		}
+	});
 }
 
 function setupChatEventListeners() {
@@ -202,6 +459,12 @@ function setupChatEventListeners() {
 			if (input && input.value.trim()) {
 				sendMessage(input.value);
 				input.value = '';
+				// Stop typing when message is sent
+				emitTypingStop();
+				if (typingTimeout) {
+					clearTimeout(typingTimeout);
+					typingTimeout = null;
+				}
 			}
 		});
 	}
@@ -210,6 +473,35 @@ function setupChatEventListeners() {
 			if (e.key === 'Enter' && input.value.trim()) {
 				sendMessage(input.value);
 				input.value = '';
+				// Stop typing when message is sent
+				emitTypingStop();
+				if (typingTimeout) {
+					clearTimeout(typingTimeout);
+					typingTimeout = null;
+				}
+			}
+		});
+
+		// Typing detection
+		input.addEventListener('input', () => {
+			if (input.value.trim()) {
+				emitTypingStart();
+				
+				// Clear existing timeout
+				if (typingTimeout) {
+					clearTimeout(typingTimeout);
+				}
+				
+				// Stop typing after 2 seconds of no input
+				typingTimeout = setTimeout(() => {
+					emitTypingStop();
+				}, 2000);
+			} else {
+				emitTypingStop();
+				if (typingTimeout) {
+					clearTimeout(typingTimeout);
+					typingTimeout = null;
+				}
 			}
 		});
 	}
@@ -280,10 +572,17 @@ export function cleanupPrivateChat() {
 		friendStatusUnsubscribe();
 		friendStatusUnsubscribe = null;
 	}
+	if (typingTimeout) {
+		clearTimeout(typingTimeout);
+		typingTimeout = null;
+	}
 	chatState.currentConversationId = null;
 	chatState.currentFriend = null;
 	chatState.messages = [];
 	chatState.friends = [];
+	chatState.isTyping = false;
+	chatState.typingUserId = null;
+	// Don't clear unreadCounts - keep them persistent
 	notificationSocketInitialized = false;
 }
 
@@ -372,6 +671,11 @@ export async function renderChat() {
 	chatState.currentFriend = null;
 	chatState.messages = [];
 	setupChatListeners();
+	
+	// Update navbar icon (load from storage)
+	loadUnreadFromStorage();
+	updateMessageIconBadge();
+	
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = /* html */`
@@ -387,6 +691,8 @@ export async function renderChat() {
 	setTimeout(() => {
 		setupChatEventListeners();
 		setupFriendsClickListeners();
+		// Show red dots on friends with unread messages
+		updateUnreadIndicatorsUI();
 	}, 0);
 
 	if (friendStatusUnsubscribe)
