@@ -6,7 +6,7 @@
 #    By: hes-safi <hes-safi@student.1337.ma>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/18 20:20:43 by hes-safi          #+#    #+#              #
-#    Updated: 2026/01/02 21:23:19 by hes-safi         ###   ########.fr        #
+#    Updated: 2026/01/06 18:27:28 by hes-safi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ shared:
 	cd Shared && npm install && npm run build
 
 offline: shared
-	cd Offline && npm install && npm run build
+	cd Offline && npm install && npm run dev
 
 online: shared
 	cd Online && npm install && npm run build
