@@ -331,11 +331,26 @@ fastify.get('/api/game/matchmaking', {preHandler: [jwtChecker]} ,async (request,
 	return reply.send({ roomId });
 });
 
-fastify.get<{ Params: { roomid: string } }>('/api/game/room/:roomid', async (request, reply) =>
+fastify.get('/api/game/friendly-match', {preHandler: [jwtChecker]} ,async (request, reply) =>
 {
-	const { roomid } = request.params;
-	const exists = rooms.has(roomid.toUpperCase());
-	return reply.send({ exists });
+	let roomId: string = generateRoomId();
+	const room = createGameRoom(roomId);
+	rooms.set(roomId, room);
+	fastify.log.info(`Friendly Match: Created new room ${roomId}`);
+	return reply.send({ roomId });
+});
+
+fastify.get('/api/game/spectate', {preHandler: [jwtChecker]} ,async (request, reply) =>
+{
+	if (rooms.size > 0)
+	{
+		const roomIDs = Array.from(rooms.keys());
+		let roomId = roomIDs[Math.floor(Math.random() * roomIDs.length)];
+		fastify.log.info(`Spectate: Returning room ${roomId}`);
+		return reply.send({ roomId });
+	}
+	fastify.log.info(`Spectate: No rooms found`);
+	return reply.send({ roomId: null });
 });
 
 // =============================================================================
