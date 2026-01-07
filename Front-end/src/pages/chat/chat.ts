@@ -102,36 +102,26 @@ export function initGlobalChatNotifications() {
 		console.log("Connected to private chat");
 		socket?.emit("userId", credentials.id);
 	});
-	socket.on("connect_error", (error) => {
-		console.error("Socket connection error:", error.message);
-	});
-	socket.on("disconnect", (reason) => {
-		console.log("Disconnected from private chat:", reason);
-	});
+	socket.on("connect_error", (error) => {console.error("Socket connection error:", error.message);});
+	socket.on("disconnect", (reason) => {console.log("Disconnected from private chat:", reason);});
 	socket.on("new_notification", (data: { type: string; from: number; conversationId: number; text: string }) => {
-		console.log("New notification:", data);
-		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat')) {
+		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat'))
 			toastInfo(`New message received!`, { duration: 4000 });
-		}
 	});
 	socket.on("unread_messages", (data: { conversationId: number; friendId: number; unreadCount: number; hasUnread: boolean }) => {
-		console.log("Unread messages update:", data);
-		if (data.hasUnread && data.friendId) {
+		if (data.hasUnread && data.friendId)
 			chatState.unreadCounts.set(data.friendId, data.unreadCount);
-		} else if (data.friendId) {
+		else if (data.friendId)
 			chatState.unreadCounts.delete(data.friendId);
-		}
 		saveUnreadToStorage();
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
 	});
 	socket.on("all_unread_counts", (data: { unreadCounts: { conversationId: number; friendId: number; unreadCount: number }[] }) => {
-		console.log("All unread counts:", data);
 		chatState.unreadCounts.clear();
 		data.unreadCounts.forEach(item => {
-			if (item.friendId) {
+			if (item.friendId)
 				chatState.unreadCounts.set(item.friendId, item.unreadCount);
-			}
 		});
 		saveUnreadToStorage();
 		updateMessageIconBadge();
@@ -156,9 +146,8 @@ function setupChatListeners() {
 		console.log("Chat initialized:", data);
 		chatState.currentConversationId = data.conversationId;
 		chatState.messages = data.messages || [];
-		if (chatState.currentFriend) {
+		if (chatState.currentFriend)
 			chatState.unreadCounts.delete(Number(chatState.currentFriend.id));
-		}
 		saveUnreadToStorage();
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
@@ -422,14 +411,8 @@ function setupChatEventListeners() {
 		input.addEventListener('input', () => {
 			if (input.value.trim()) {
 				emitTypingStart();
-
-				if (typingTimeout) {
-					clearTimeout(typingTimeout);
-				}
-
-				typingTimeout = setTimeout(() => {
-					emitTypingStop();
-				}, 2000);
+				if (typingTimeout) clearTimeout(typingTimeout);
+				typingTimeout = setTimeout(() => {emitTypingStop();}, 2000);
 			} else {
 				emitTypingStop();
 				if (typingTimeout) {
@@ -448,8 +431,8 @@ function setupFriendsClickListeners() {
 	friendsList.querySelectorAll('[data-friend-id]').forEach(el => {
 		const friendId = el.getAttribute('data-friend-id');
 		const friend = chatState.friends.find(f => String(f.id) === friendId);
-
 		const usernameLink = el.querySelector('.username-link');
+
 		if (usernameLink && friendId) {
 			usernameLink.addEventListener('click', (e) => {
 				e.stopPropagation();
@@ -489,7 +472,6 @@ function updateFriendStatusUI(friendId: string, status: 'ONLINE' | 'OFFLINE'): v
 			statusText.textContent = status.toLowerCase();
 		}
 	}
-
 	if (chatState.currentFriend && String(chatState.currentFriend.id) === friendId) {
 		chatState.currentFriend.status = status;
 		updateChatHeaderUI();
@@ -601,7 +583,7 @@ export async function renderChat() {
 	chatState.currentConversationId = null;
 	chatState.currentFriend = null;
 	chatState.messages = [];
-	
+
 	setupChatListeners();
 	loadUnreadFromStorage();
 	updateMessageIconBadge();
@@ -622,7 +604,6 @@ export async function renderChat() {
 		setupFriendsClickListeners();
 		updateUnreadIndicatorsUI();
 	}, 0);
-
 	if (friendStatusUnsubscribe)
 		friendStatusUnsubscribe();
 	friendStatusUnsubscribe = subscribeFriendStatus(updateFriendStatusUI);
