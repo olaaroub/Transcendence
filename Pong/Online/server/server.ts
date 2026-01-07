@@ -198,9 +198,11 @@ async function startCountdown(room: GameRoom): Promise<void>
 {
 	room.engine.setState('Countdown');
 	broadcastToRoom(room.id, 'gamestate', 'Countdown');
+	broadcastToRoom(room.id, 'countdown', 'GET READY!');
+	await new Promise((resolve) => setTimeout(resolve, 2000));
 	for (let count = 3; count >= 0; count--)
 	{
-		broadcastToRoom(room.id, 'countdown', count);
+		broadcastToRoom(room.id, 'countdown', `${count}`);
 		if (count > 0)
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 	}
@@ -234,19 +236,12 @@ function handleGameOver(room: GameRoom, disconnectedSide?: 1 | 2): void
 		room.tick = null;
 	}
 	let winner: string;
-	let reason: string;
 	if (disconnectedSide)
-	{
 		winner = disconnectedSide === 1 ? room.session.p2Alias : room.session.p1Alias;
-		reason = 'DISCONNECTED';
-	}
 	else
-	{
 		winner = room.engine.getWinner();
-		reason = 'WINS';
-	}
 	broadcastToRoom(room.id, 'gamestate', 'Over');
-	broadcastToRoom(room.id, 'gameOver', { winner, reason });
+	broadcastToRoom(room.id, 'gameOver', winner);
 	sendGameResults(room);
 	setTimeout(() => {broadcastToRoom(room.id, 'redirect');}, 5000);
 }
