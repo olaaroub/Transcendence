@@ -4,6 +4,10 @@ import search_bar from './search_bar.js'
 import friendsReceiver from './friendsReceiver.js'
 import friendsRequester from './friendsRequester.js'
 import deleteAccount from './deleteAccount.js'
+import block_unblockFriend from './user-block.js'
+import leaderBord from './leaderboard.js'
+import statisticRoutes from './user.statistic.js';
+import matchHistory from './matchs.history.js';
 // import userStatistic from './user.statistic.js'
 
 import createError from 'http-errors';
@@ -34,6 +38,10 @@ async function privateRoutes(fastify) {
   fastify.register(friendsReceiver);
   fastify.register(friendsRequester);
   fastify.register(deleteAccount);
+  fastify.register(block_unblockFriend);
+  fastify.register(leaderBord);
+  fastify.register(statisticRoutes);
+  fastify.register(matchHistory);
   // fastify.register(userStatistic);
 }
 

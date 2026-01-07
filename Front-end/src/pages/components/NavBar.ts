@@ -108,7 +108,7 @@ async function getPendingUsers() : Promise<{users: IUserData[], is_read: boolean
 {
 	const { data, error } = await apiFetch<{userFriends: IUserData[], is_read: boolean}>(`api/user/${credentials.id}/getPendingRequestes`, {
 		showErrorToast: false
-		
+
 	});
 	if (error || !data) {
 		console.error('Failed to fetch pending users:', error?.message);
@@ -126,7 +126,7 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 		body: JSON.stringify({ id: requesterId, accept: accept }),
 		showErrorToast: true
 	});
-	
+
 	if (!error) {
 		userElement.remove();
 		const index = pendingUsers?.indexOf(user);
@@ -138,7 +138,7 @@ async function handleFriendRequest(requesterId: string, accept: boolean, userEle
 export async function notifications()
 {
 	initNotificationSocket();
-	
+
 	const notificationIcon = $('notification-icon');
 	const pendingData = await getPendingUsers();
 

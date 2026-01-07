@@ -4,6 +4,7 @@ database.db
 .env
 app/static/*
 !app/static/Default_pfp.jpg
+!app/static/fb1bcb0c-8ce9-417e-b219-e2c0c9398300.jpg
 .tap/
 logs/
 *.log
