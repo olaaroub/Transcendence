@@ -138,7 +138,7 @@ test('Settings Routes', async (t) => {
             id: 1,
             email: 'test@example.com',
             username: 'testuser',
-            profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg',
+            profileImage: 'http://127.0.0.1:3000/public/default_pfp.png',
             bio: 'Test bio'
         };
 

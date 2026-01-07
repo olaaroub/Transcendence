@@ -33,7 +33,7 @@ response:
     {
         "id": 2,
         "username": "laaroubi",
-        "avatar_url": "/public/Default_pfp.jpg",
+        "avatar_url": "/public/default_pfp.png",
         "Rating": 1000,
         "GamesPlayed": 0,
         "TotalWins": 0,
@@ -43,7 +43,7 @@ response:
     {
         "id": 3,
         "username": "messi",
-        "avatar_url": "/public/Default_pfp.jpg",
+        "avatar_url": "/public/default_pfp.png",
         "Rating": 1000,
         "GamesPlayed": 0,
         "TotalWins": 0,

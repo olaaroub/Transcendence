@@ -13,7 +13,7 @@ export function createScene(canvas: HTMLCanvasElement): GameScene
 {
 	const engine = new BABYLON.Engine(canvas, true);
 	const scene = new BABYLON.Scene(engine);
-	engine.loadingScreen = new PongLoading(scene);
+	engine.loadingScreen = new PongLoading();
 	engine.displayLoadingUI();
 
 	const light = new BABYLON.DirectionalLight("Sun", new BABYLON.Vector3(5, -10, 5), scene);

@@ -385,6 +385,7 @@ function initSocketHandlers(): void
 			room.members.set(socket.id, { socket, userID: data.PlayerID, side: playerSide });
 			userID = data.PlayerID;
 			connectedUsers.set(data.PlayerID, socket);
+			socket.emit('side', playerSide);
 
 			if (playerSide !== 3)
 			{
@@ -402,7 +403,7 @@ function initSocketHandlers(): void
 
 				if (getPlayerCount(room) === 2 && room.engine.getCurrentState() === 'Waiting')
 				{
-					socket.emit('session', room.session);
+					broadcastToRoom(roomId, 'session', room.session);
 					const queueIndex = matchmakingQueue.indexOf(roomId);
 					if (queueIndex !== -1)
 						matchmakingQueue.splice(queueIndex, 1);
@@ -412,7 +413,6 @@ function initSocketHandlers(): void
 			}
 			else
 				fastify.log.info(`Spectator ${socket.id} joined room ${roomId}`);
-			socket.emit('side', playerSide);
 			callback(getMatchData(room));
 		});
 
