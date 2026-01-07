@@ -14,6 +14,8 @@ let options: boolean = false;
 let camButtons: GUI.Button[] = [];
 let colButtons: GUI.Button[] = [];
 let picker: GUI.ColorPicker | null = null;
+let sign: GUI.Image | null = null;
+let signText: GUI.TextBlock | null = null;
 let p1Goals = 0;
 let p2Goals = 0;
 
@@ -136,37 +138,6 @@ export function optionsButton(scene: BABYLON.Scene, cameras : { [key: string]: B
 	});
 }
 
-export function startButton(engine: PongEngine): void
-{
-	const button = GUI.Button.CreateSimpleButton('Start', 'Ready ?');
-	button.width = '200px';
-	button.height = '80px';
-	button.color = '#00FFFF';
-	button.background = '#ED6F30';
-	button.fontSize = 32;
-	button.fontStyle = 'bold';
-	button.cornerRadius = 10;
-	button.thickness = 3;
-	button.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-	button.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-	ui.addControl(button);
-
-	button.onPointerClickObservable.add(async () =>
-	{
-		ui.removeControl(button);
-		button.dispose();
-
-		engine.setState('Countdown');
-		for (let count = 3; count >= 0; count--)
-		{
-			console.log(count === 0 ? 'GO!' : count);
-			if (count > 0)
-				await new Promise(resolve => setTimeout(resolve, 1000));
-		}
-		engine.setState('Playing');
-	});
-}
-
 function createHUD(player: number, alias: string): GUI.Image
 {
 	const hudSVG = player === 1 ? '/game/Assets/player1.svg' : '/game/Assets/player2.svg'
@@ -273,4 +244,90 @@ export function catchUpGoals(player1: number, player2: number): void
 {
 	while (p1Goals < player1 || p2Goals < player2)
 		updateGoals(player1, player2);
+}
+
+function createSignText(text: string): void
+{
+	if (signText)
+	{
+		ui.removeControl(signText);
+		signText.dispose();
+		signText = null;
+	}
+	signText = new GUI.TextBlock('SignText', text);
+	signText.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+	signText.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+	signText.fontSize = text.length === 1 ? 70 : 48;
+	signText.fontStyle = 'bold';
+	signText.color = '#ED6F30';
+	signText.outlineColor = '#000000';
+	signText.outlineWidth = 4;
+	ui.addControl(signText);
+}
+
+export function startButton(engine: PongEngine): void
+{
+	const button = GUI.Button.CreateImageButton('Start', 'READY ?', '/game/Assets/button.svg');
+	button.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+	button.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+	button.width = '100%';
+	button.height = '100%';
+	button.thickness = 0;
+	button.fontSize = 48;
+	button.fontStyle = 'bold';
+	button.color = '#ED6F30';
+	// button.outlineColor = '#000000';
+	ui.addControl(button);
+
+	button.onPointerClickObservable.add(async () =>
+	{
+		ui.removeControl(button);
+		button.dispose();
+		createSign('GET READY');
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		engine.setState('Countdown');
+		for (let count = 3; count >= 0; count--)
+		{
+			if (count > 0)
+			{
+				createSignText(`${count}`);
+				await new Promise(resolve => setTimeout(resolve, 1000));
+			}
+		}
+		createSign();
+		engine.setState('Playing');
+	});
+}
+
+export function createSign(text?: string): void
+{
+	if (signText)
+	{
+		ui.removeControl(signText);
+		signText.dispose();
+		signText = null;
+	}
+	if (!text)
+	{
+		if (sign)
+		{
+			ui.removeControl(sign);
+			sign.dispose();
+			sign = null;
+		}
+		return ;
+	}
+	if (sign)
+	{
+		createSignText(text);
+		return ;
+	}
+	sign = new GUI.Image('Sign', '/game/Assets/sign.svg');
+	sign.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+	sign.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+	sign.width = '300px';
+	sign.height = '150px';
+	// sign.adaptWidthToChildren = true;
+	ui.addControl(sign);
+	createSignText(text);
 }
