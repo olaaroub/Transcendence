@@ -12,10 +12,8 @@ let socket: Socket | null = null;
 let friendStatusUnsubscribe: (() => void) | null = null;
 let notificationSocketInitialized = false;
 
-// LocalStorage key for persisting unread counts (by friendId)
 const UNREAD_STORAGE_KEY = 'chat_unread_counts';
 
-// Save unread counts to localStorage (keyed by friendId)
 function saveUnreadToStorage() {
 	const data: Record<number, number> = {};
 	chatState.unreadCounts.forEach((count, friendId) => {
@@ -24,13 +22,12 @@ function saveUnreadToStorage() {
 	localStorage.setItem(UNREAD_STORAGE_KEY, JSON.stringify(data));
 }
 
-// Load unread counts from localStorage
 function loadUnreadFromStorage() {
 	try {
 		const stored = localStorage.getItem(UNREAD_STORAGE_KEY);
 		if (stored) {
 			const data = JSON.parse(stored);
-			Object.entries(data).forEach(([friendId, count]) => {
+				Object.entries(data).forEach(([friendId, count]) => {
 				chatState.unreadCounts.set(Number(friendId), count as number);
 			});
 		}
@@ -39,18 +36,15 @@ function loadUnreadFromStorage() {
 	}
 }
 
-// Update the message icon in navbar with red dot
 export function updateMessageIconBadge() {
 	const messageIcon = document.getElementById('message-icon');
 	if (!messageIcon) return;
 
-	// Calculate total unread
 	let totalUnread = 0;
 	chatState.unreadCounts.forEach(count => {
 		totalUnread += count;
 	});
 
-	// Find or create the red dot
 	let redDot = messageIcon.querySelector('.message-unread-dot');
 
 	if (totalUnread > 0) {
@@ -67,7 +61,6 @@ export function updateMessageIconBadge() {
 	}
 }
 
-// Get total unread count (for external use)
 export function getTotalUnreadCount(): number {
 	let total = 0;
 	chatState.unreadCounts.forEach(count => {
@@ -76,7 +69,6 @@ export function getTotalUnreadCount(): number {
 	return total;
 }
 
-// Initialize unread from storage on app load
 export function initUnreadFromStorage() {
 	loadUnreadFromStorage();
 	updateMessageIconBadge();
@@ -117,7 +109,6 @@ let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 export function initGlobalChatNotifications() {
 	if (notificationSocketInitialized || socket) return;
 
-	// Load persisted unread counts first
 	loadUnreadFromStorage();
 	updateMessageIconBadge();
 
@@ -146,7 +137,6 @@ export function initGlobalChatNotifications() {
 		}
 	});
 
-	// Listen for unread message updates (red dot) - keyed by friendId
 	socket.on("unread_messages", (data: { conversationId: number; friendId: number; unreadCount: number; hasUnread: boolean }) => {
 		console.log("Unread messages update:", data);
 		if (data.hasUnread && data.friendId) {
@@ -159,7 +149,6 @@ export function initGlobalChatNotifications() {
 		updateUnreadIndicatorsUI();
 	});
 
-	// Get all unread counts on connect - keyed by friendId
 	socket.on("all_unread_counts", (data: { unreadCounts: { conversationId: number; friendId: number; unreadCount: number }[] }) => {
 		console.log("All unread counts:", data);
 		chatState.unreadCounts.clear();
@@ -198,7 +187,6 @@ function setupChatListeners() {
 		console.log("Chat initialized:", data);
 		chatState.currentConversationId = data.conversationId;
 		chatState.messages = data.messages || [];
-		// Clear unread for this friend since we're viewing their chat
 		if (chatState.currentFriend) {
 			chatState.unreadCounts.delete(Number(chatState.currentFriend.id));
 		}
@@ -214,7 +202,6 @@ function setupChatListeners() {
 			if (data.senderId === Number(credentials.id ?? 0)) return;
 			chatState.messages.push(data);
 			updateMessagesUI();
-			// Mark as seen since user is viewing this chat
 			markMessagesAsSeen();
 		}
 	});
@@ -223,11 +210,9 @@ function setupChatListeners() {
 		console.log("Message sent confirmation:", data);
 	});
 
-	// Listen for seen confirmation (other user saw our messages)
 	socket.on("messages_seen", (data: { conversationId: number; seenBy: number }) => {
 		console.log("Messages seen by:", data);
 		if (data.conversationId === chatState.currentConversationId) {
-			// Mark all our messages as seen
 			chatState.messages.forEach(msg => {
 				if (msg.senderId === Number(credentials.id)) {
 					msg.seen = true;
@@ -237,7 +222,6 @@ function setupChatListeners() {
 		}
 	});
 
-	// Listen for typing indicator
 	socket.on("user_typing", (data: { conversationId: number; userId: number; isTyping: boolean }) => {
 		console.log("User typing:", data);
 		if (data.conversationId === chatState.currentConversationId && data.userId !== Number(credentials.id)) {
@@ -361,7 +345,6 @@ function updateMessagesUI() {
 			`;
 		}).join('');
 	}
-	// Add typing indicator at the bottom
 	updateTypingIndicatorUI();
 	messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
@@ -388,7 +371,6 @@ function updateTypingIndicatorUI() {
 	const statusText = document.getElementById('chat-status-text');
 	const messagesContainer = document.getElementById('private-chat-messages');
 
-	// Update header status
 	if (statusText && chatState.currentFriend) {
 		if (chatState.isTyping) {
 			statusText.textContent = 'typing...';
@@ -399,7 +381,6 @@ function updateTypingIndicatorUI() {
 		}
 	}
 
-	// Show typing bubble in messages
 	if (messagesContainer) {
 		const existingTypingBubble = document.getElementById('typing-bubble');
 		if (chatState.isTyping && !existingTypingBubble) {
@@ -427,12 +408,10 @@ function updateUnreadIndicatorsUI() {
 	const friendsList = document.getElementById('friends-list');
 	if (!friendsList) return;
 
-	// Update red dots for each friend with unread messages (keyed by friendId)
 	friendsList.querySelectorAll('[data-friend-id]').forEach(el => {
 		const friendId = el.getAttribute('data-friend-id');
 		const existingDot = el.querySelector('.unread-dot');
 
-		// Check if this specific friend has unread messages
 		const unreadCount = chatState.unreadCounts.get(Number(friendId)) || 0;
 		const hasUnread = unreadCount > 0;
 
@@ -440,7 +419,6 @@ function updateUnreadIndicatorsUI() {
 			existingDot.remove();
 		}
 
-		// Add red dot if this friend has unread messages
 		if (hasUnread) {
 			const dot = document.createElement('div');
 			dot.className = 'unread-dot absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full';
@@ -459,7 +437,6 @@ function setupChatEventListeners() {
 			if (input && input.value.trim()) {
 				sendMessage(input.value);
 				input.value = '';
-				// Stop typing when message is sent
 				emitTypingStop();
 				if (typingTimeout) {
 					clearTimeout(typingTimeout);
@@ -473,7 +450,6 @@ function setupChatEventListeners() {
 			if (e.key === 'Enter' && input.value.trim()) {
 				sendMessage(input.value);
 				input.value = '';
-				// Stop typing when message is sent
 				emitTypingStop();
 				if (typingTimeout) {
 					clearTimeout(typingTimeout);
@@ -482,17 +458,14 @@ function setupChatEventListeners() {
 			}
 		});
 
-		// Typing detection
 		input.addEventListener('input', () => {
 			if (input.value.trim()) {
 				emitTypingStart();
 
-				// Clear existing timeout
 				if (typingTimeout) {
 					clearTimeout(typingTimeout);
 				}
 
-				// Stop typing after 2 seconds of no input
 				typingTimeout = setTimeout(() => {
 					emitTypingStop();
 				}, 2000);
@@ -582,7 +555,6 @@ export function cleanupPrivateChat() {
 	chatState.friends = [];
 	chatState.isTyping = false;
 	chatState.typingUserId = null;
-	// Don't clear unreadCounts - keep them persistent
 	notificationSocketInitialized = false;
 }
 
@@ -672,7 +644,6 @@ export async function renderChat() {
 	chatState.messages = [];
 	setupChatListeners();
 
-	// Update navbar icon (load from storage)
 	loadUnreadFromStorage();
 	updateMessageIconBadge();
 
@@ -691,7 +662,6 @@ export async function renderChat() {
 	setTimeout(() => {
 		setupChatEventListeners();
 		setupFriendsClickListeners();
-		// Show red dots on friends with unread messages
 		updateUnreadIndicatorsUI();
 	}, 0);
 
