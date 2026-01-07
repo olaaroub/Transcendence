@@ -18,5 +18,12 @@
     "socket.io-client": "^4.8.3",
     "typescript": "^5.9.3",
     "vite": "^7.3.0"
+  },
+  "overrides": {
+    "node-vault": {
+      "postman-request": {
+        "qs": "^6.14.1"
+      }
+    }
   }
 }

@@ -52,7 +52,7 @@ export function updateMessageIconBadge() {
 
 	// Find or create the red dot
 	let redDot = messageIcon.querySelector('.message-unread-dot');
-	
+
 	if (totalUnread > 0) {
 		if (!redDot) {
 			redDot = document.createElement('span');
@@ -339,10 +339,10 @@ function updateMessagesUI() {
 			const isMine = msg.senderId === Number(credentials.id);
 			const seenIcon = isMine ? `
 				<span class="ml-1 inline-flex items-center">
-					${msg.seen ? 
+					${msg.seen ?
 						`<svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
 							<path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/>
-						</svg>` : 
+						</svg>` :
 						`<svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
 							<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
 						</svg>`
@@ -387,7 +387,7 @@ function updateChatHeaderUI() {
 function updateTypingIndicatorUI() {
 	const statusText = document.getElementById('chat-status-text');
 	const messagesContainer = document.getElementById('private-chat-messages');
-	
+
 	// Update header status
 	if (statusText && chatState.currentFriend) {
 		if (chatState.isTyping) {
@@ -431,7 +431,7 @@ function updateUnreadIndicatorsUI() {
 	friendsList.querySelectorAll('[data-friend-id]').forEach(el => {
 		const friendId = el.getAttribute('data-friend-id');
 		const existingDot = el.querySelector('.unread-dot');
-		
+
 		// Check if this specific friend has unread messages
 		const unreadCount = chatState.unreadCounts.get(Number(friendId)) || 0;
 		const hasUnread = unreadCount > 0;
@@ -486,12 +486,12 @@ function setupChatEventListeners() {
 		input.addEventListener('input', () => {
 			if (input.value.trim()) {
 				emitTypingStart();
-				
+
 				// Clear existing timeout
 				if (typingTimeout) {
 					clearTimeout(typingTimeout);
 				}
-				
+
 				// Stop typing after 2 seconds of no input
 				typingTimeout = setTimeout(() => {
 					emitTypingStop();
@@ -514,7 +514,7 @@ function setupFriendsClickListeners() {
 	friendsList.querySelectorAll('[data-friend-id]').forEach(el => {
 		const friendId = el.getAttribute('data-friend-id');
 		const friend = chatState.friends.find(f => String(f.id) === friendId);
-		
+
 		const usernameLink = el.querySelector('.username-link');
 		if (usernameLink && friendId) {
 			usernameLink.addEventListener('click', (e) => {
@@ -544,7 +544,7 @@ function updateFriendStatusUI(friendId: string, status: 'ONLINE' | 'OFFLINE'): v
 	if (friendElement) {
 		const statusDot = friendElement.querySelector('.status-dot');
 		const statusText = friendElement.querySelector('.status-text');
-		
+
 		if (statusDot) {
 			statusDot.classList.remove('bg-green-500', 'bg-gray-400');
 			statusDot.classList.add(status === 'ONLINE' ? 'bg-green-500' : 'bg-gray-400');
@@ -671,11 +671,11 @@ export async function renderChat() {
 	chatState.currentFriend = null;
 	chatState.messages = [];
 	setupChatListeners();
-	
+
 	// Update navbar icon (load from storage)
 	loadUnreadFromStorage();
 	updateMessageIconBadge();
-	
+
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = /* html */`
