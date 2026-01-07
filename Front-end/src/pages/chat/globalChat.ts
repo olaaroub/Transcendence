@@ -41,6 +41,9 @@ function initializeWebSocket() {
 				return;
 			}
 			const message: ChatMessage = data;
+			if (String(message.sender_id) === String(credentials.id)) {
+				return;
+			}
 			if (message.msg && message.msg.trim()) {
 				globalChatMessages.push(message);
 				updateChatUI();

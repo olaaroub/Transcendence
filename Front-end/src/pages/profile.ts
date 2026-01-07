@@ -4,6 +4,9 @@ import { navigate } from "../router";
 import { confirmPopUp } from "./settings";
 import { toastSuccess, toastError } from "./components/toast";
 import { apiFetch } from "./components/errorsHandler";
+import { subscribeFriendStatus } from "./components/NavBar";
+
+let profileStatusUnsubscribe: (() => void) | null = null;
 
 interface IMatchHistory {
 	match_id: number;
@@ -290,6 +293,11 @@ function getStatusFromString(status: string | null | undefined, isMyProfile: boo
 
 export async function renderProfile(userId: string | null = null)
 {
+	if (profileStatusUnsubscribe) {
+		profileStatusUnsubscribe();
+		profileStatusUnsubscribe = null;
+	}
+
 	await data.initDashboard(false);
 	let tmpUserData : IUserData | null = null;
 	const isMyProfile = userId == userData.id;
@@ -303,18 +311,42 @@ export async function renderProfile(userId: string | null = null)
 	const profileUserId = userId || String(userData.id);
 	const matchHistory = await fetchMatchHistory(profileUserId);
 
+	let onlineStatusData: { status: 'ONLINE' | 'OFFLINE' } | null = null;
+	if (!isMyProfile && userId) {
+		const { data: friendData } = await apiFetch<IUserData[]>(`/api/user/${credentials.id}/friends`);
+		const friend = friendData?.find(f => String(f.id) === userId);
+		if (friend && friend.status) {
+			onlineStatusData = { status: friend.status === 'ONLINE' ? 'ONLINE' : 'OFFLINE' };
+		}
+	}
+
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent) {
 		const imageUrl = getImageUrl(tmpUserData.avatar_url);
 		const currentStatus = getStatusFromString(tmpUserData.status, isMyProfile);
+		const isOnline = onlineStatusData?.status === 'ONLINE';
+		const isFriend = currentStatus === 'ACCEPTED';
 
 		dashContent.innerHTML = /* html */`
-			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8">
+			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8" data-profile-user-id="${profileUserId}">
 				<div class="bg-color4 glow-effect mx-auto w-full rounded-3xl p-6 2xl:pl-12 flex gap-5 items-center
 				border-t-4 border-color1">
-					<img src="${imageUrl}" alt="avatar" class="w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
+					<div class="relative">
+						<img src="${imageUrl}" alt="avatar" class="w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
+						${!isMyProfile && isFriend ? `
+							<span id="online-status-indicator" class="absolute bottom-2 right-2 w-5 h-5 rounded-full border-2 border-color4 
+								${isOnline ? 'bg-green-500' : 'bg-gray-400'}"></span>
+						` : ''}
+					</div>
 					<div class="flex flex-col gap-2">
-						<h2 class="font-bold text-txtColor text-3xl">${tmpUserData.username}</h2>
+						<div class="flex items-center gap-3">
+							<h2 class="font-bold text-txtColor text-3xl">${tmpUserData.username}</h2>
+							${!isMyProfile && isFriend ? `
+								<span id="online-status-text" class="text-sm ${isOnline ? 'text-green-500' : 'text-gray-400'}">
+									${isOnline ? 'Online' : 'Offline'}
+								</span>
+							` : ''}
+						</div>
 						<p class="text-color3 mb-4 w-[70%]">${tmpUserData.bio}</p>
 						<div id="action-buttons-container">
 							${getActionButtonsHTML(currentStatus)}
@@ -328,5 +360,28 @@ export async function renderProfile(userId: string | null = null)
 		const profileCard = document.querySelector('.profile-card');
 		if (profileCard)
 			attachActionButtonListeners(profileCard, currentStatus, userId, tmpUserData);
+
+		if (!isMyProfile && userId && isFriend) {
+			profileStatusUnsubscribe = subscribeFriendStatus((friendId, status) => {
+				if (friendId === userId) {
+					updateProfileOnlineStatus(status);
+				}
+			});
+		}
+	}
+}
+
+function updateProfileOnlineStatus(status: 'ONLINE' | 'OFFLINE'): void {
+	const indicator = document.getElementById('online-status-indicator');
+	const text = document.getElementById('online-status-text');
+
+	if (indicator) {
+		indicator.classList.remove('bg-green-500', 'bg-gray-400');
+		indicator.classList.add(status === 'ONLINE' ? 'bg-green-500' : 'bg-gray-400');
+	}
+	if (text) {
+		text.classList.remove('text-green-500', 'text-gray-400');
+		text.classList.add(status === 'ONLINE' ? 'text-green-500' : 'text-gray-400');
+		text.textContent = status === 'ONLINE' ? 'Online' : 'Offline';
 	}
 }

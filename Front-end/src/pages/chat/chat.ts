@@ -5,9 +5,11 @@ import { credentials, getImageUrl, IUserData } from '../store';
 import { apiFetch } from '../components/errorsHandler';
 import { toastInfo } from '../components/toast';
 import { io, Socket } from "socket.io-client";
+import { subscribeFriendStatus } from '../components/NavBar';
 
 
 let socket: Socket | null = null;
+let friendStatusUnsubscribe: (() => void) | null = null;
 let notificationSocketInitialized = false;
 
 interface ChatMessage {
@@ -240,11 +242,43 @@ function setupFriendsClickListeners() {
 	});
 }
 
+function updateFriendStatusUI(friendId: string, status: 'ONLINE' | 'OFFLINE'): void {
+	const friend = chatState.friends.find(f => String(f.id) === friendId);
+	if (friend) {
+		friend.status = status;
+	}
+
+	const friendElement = document.querySelector(`[data-friend-id="${friendId}"]`);
+	if (friendElement) {
+		const statusDot = friendElement.querySelector('.status-dot');
+		const statusText = friendElement.querySelector('.status-text');
+		
+		if (statusDot) {
+			statusDot.classList.remove('bg-green-500', 'bg-gray-400');
+			statusDot.classList.add(status === 'ONLINE' ? 'bg-green-500' : 'bg-gray-400');
+		}
+		if (statusText) {
+			statusText.classList.remove('text-green-500', 'text-gray-400');
+			statusText.classList.add(status === 'ONLINE' ? 'text-green-500' : 'text-gray-400');
+			statusText.textContent = status.toLowerCase();
+		}
+	}
+
+	if (chatState.currentFriend && String(chatState.currentFriend.id) === friendId) {
+		chatState.currentFriend.status = status;
+		updateChatHeaderUI();
+	}
+}
+
 export function cleanupPrivateChat() {
 	if (socket) {
 		socket.removeAllListeners();
 		socket.disconnect();
 		socket = null;
+	}
+	if (friendStatusUnsubscribe) {
+		friendStatusUnsubscribe();
+		friendStatusUnsubscribe = null;
 	}
 	chatState.currentConversationId = null;
 	chatState.currentFriend = null;
@@ -285,6 +319,7 @@ function renderMessages() : string {
 				disabled:opacity-50 disabled:cursor-not-allowed"
 				${!chatState.currentConversationId ? 'disabled' : ''}>
 				<button id="private-chat-send"
+				<button id="private-chat-send"
 					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
 					transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
 					${!chatState.currentConversationId ? 'disabled' : ''}>
@@ -318,9 +353,9 @@ async function listFriends() : Promise<string> {
 							<div class="w-full">
 								<div class="flex justify-between w-full">
 									<span class="username-link text-txtColor font-bold text-lg hover:text-color1 transition-colors">${shortString(friend.username, 15)}</span>
-									<span class="w-2 h-2 mt-2 rounded-full ${friend.status === 'ONLINE' ? 'bg-green-500' : 'bg-gray-400'}"></span>
+									<span class="status-dot w-2 h-2 mt-2 rounded-full ${friend.status === 'ONLINE' ? 'bg-green-500' : 'bg-gray-400'}"></span>
 								</div>
-								<p class="text-gray-400 text-sm">${friend.status?.toLocaleLowerCase() || 'offline'}</p>
+								<p class="status-text text-sm ${friend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'}">${friend.status?.toLocaleLowerCase() || 'offline'}</p>
 							</div>
 						</div>
 					</div>
@@ -353,4 +388,8 @@ export async function renderChat() {
 		setupChatEventListeners();
 		setupFriendsClickListeners();
 	}, 0);
+
+	if (friendStatusUnsubscribe)
+		friendStatusUnsubscribe();
+	friendStatusUnsubscribe = subscribeFriendStatus(updateFriendStatusUI);
 }

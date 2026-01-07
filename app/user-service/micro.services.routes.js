@@ -1,6 +1,6 @@
 
 import createError from 'http-errors';
-
+import gameEndPoints from './game.match.js';
 async function chatProfileHandler(req, reply)
 {
     const id = req.params.id;
@@ -55,4 +55,5 @@ export default async function microServicesRoutes(fastify)
 {
     fastify.get('/user/chat/profile/:id', chatProfileHandler);
     fastify.post('/user/createNewUser', createNewUser);
+    fastify.register(gameEndPoints);
 }
