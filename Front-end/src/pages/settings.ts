@@ -57,7 +57,7 @@ function SaveChanges()
 			}
 			if (!await checkPasswordChange()) return;
 			if (!await confirmPopUp('Do you want to apply these changes?')) return;
-			
+
 			for (const key of Object.keys(newUserData)) {
 				const value = newUserData[key as keyof IUserData];
 				if (value === undefined || value === null) {
@@ -70,7 +70,7 @@ function SaveChanges()
 				}
 				let requestBody: BodyInit;
 				let contentType: Record<string, string> = {};
-				
+
 				if (key === 'avatar' && avatar) {
 					requestBody = avatar;
 				} else {
@@ -116,7 +116,7 @@ function addInputListeners()
 					userAvatar.src = URL.createObjectURL(upload_avatar.files[0]); // to learn about it
 			}
 			if (value !== userData[name as keyof IUserData])
-				newUserData[name as keyof IUserData] = value;
+				newUserData[name as keyof IUserData] = value as any; //this is the change i made LAAROUBI
 			else
 				delete newUserData[name as keyof IUserData];
 		});
@@ -146,12 +146,12 @@ export function confirmPopUp(message: string) : Promise<boolean>
 					<p class="text-txtColor/70">${message}</p>
 				</div>
 				<div class="flex flex-col gap-3">
-					<button id="confirm-btn" class="bg-gradient-to-r from-color1 to-color2 
+					<button id="confirm-btn" class="bg-gradient-to-r from-color1 to-color2
 						rounded-xl py-3 px-6 font-bold text-bgColor
 						transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-color1/30">
 						Yes, Confirm
 					</button>
-					<button id="cancel-btn" class="bg-transparent border border-color3/50 
+					<button id="cancel-btn" class="bg-transparent border border-color3/50
 						rounded-xl py-3 px-6 font-semibold text-txtColor/70
 						transition-all duration-300 hover:border-txtColor hover:text-txtColor hover:bg-white/5">
 						Cancel
@@ -203,7 +203,7 @@ function sendAvatar() : FormData | null
 			return null;
 	if (!uploadAvatar.files || uploadAvatar.files.length === 0) return null;
 	const file = uploadAvatar.files[0];
-	
+
 	const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 	const fileName = file.name.toLowerCase();
 	const fileExtension = fileName.split('.').pop();
@@ -212,7 +212,7 @@ function sendAvatar() : FormData | null
 		uploadAvatar.value = '';
 		return null;
 	}
-	
+
 	const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 	if (!allowedMimeTypes.includes(file.type)) {
 		toastWarning(`Invalid file type. Please upload a valid image file.`);
