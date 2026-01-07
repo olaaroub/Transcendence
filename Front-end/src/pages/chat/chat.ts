@@ -200,7 +200,7 @@ function setupChatListeners() {
 		chatState.messages = data.messages || [];
 		// Clear unread for this friend since we're viewing their chat
 		if (chatState.currentFriend) {
-			chatState.unreadCounts.delete(chatState.currentFriend.id);
+			chatState.unreadCounts.delete(Number(chatState.currentFriend.id));
 		}
 		saveUnreadToStorage();
 		updateMessageIconBadge();
@@ -211,7 +211,7 @@ function setupChatListeners() {
 	socket.on("receive_message", (data: ChatMessage) => {
 		console.log("New message received:", data);
 		if (data.conversationId === chatState.currentConversationId) {
-			if (data.senderId === Number(credentials.id)) return;
+			if (data.senderId === Number(credentials.id ?? 0)) return;
 			chatState.messages.push(data);
 			updateMessagesUI();
 			// Mark as seen since user is viewing this chat
