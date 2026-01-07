@@ -11,14 +11,11 @@ import { subscribeFriendStatus } from '../components/NavBar';
 let socket: Socket | null = null;
 let friendStatusUnsubscribe: (() => void) | null = null;
 let notificationSocketInitialized = false;
-
 const UNREAD_STORAGE_KEY = 'chat_unread_counts';
 
 function saveUnreadToStorage() {
 	const data: Record<number, number> = {};
-	chatState.unreadCounts.forEach((count, friendId) => {
-		data[friendId] = count;
-	});
+	chatState.unreadCounts.forEach((count, friendId) => {data[friendId] = count;});
 	localStorage.setItem(UNREAD_STORAGE_KEY, JSON.stringify(data));
 }
 
@@ -31,22 +28,21 @@ function loadUnreadFromStorage() {
 				chatState.unreadCounts.set(Number(friendId), count as number);
 			});
 		}
-	} catch (e) {
-		console.error('Error loading unread counts from storage:', e);
-	}
+	} catch (e) {console.error('Error loading unread counts from storage:', e);}
+}
+
+export function getTotalUnreadCount(): number {
+	let total = 0;
+	chatState.unreadCounts.forEach(count => {total += count;});
+	return total;
 }
 
 export function updateMessageIconBadge() {
 	const messageIcon = document.getElementById('message-icon');
 	if (!messageIcon) return;
 
-	let totalUnread = 0;
-	chatState.unreadCounts.forEach(count => {
-		totalUnread += count;
-	});
-
+	let totalUnread = getTotalUnreadCount();
 	let redDot = messageIcon.querySelector('.message-unread-dot');
-
 	if (totalUnread > 0) {
 		if (!redDot) {
 			redDot = document.createElement('span');
@@ -54,19 +50,7 @@ export function updateMessageIconBadge() {
 			messageIcon.classList.add('relative');
 			messageIcon.appendChild(redDot);
 		}
-	} else {
-		if (redDot) {
-			redDot.remove();
-		}
-	}
-}
-
-export function getTotalUnreadCount(): number {
-	let total = 0;
-	chatState.unreadCounts.forEach(count => {
-		total += count;
-	});
-	return total;
+	} else {if (redDot) redDot.remove();}
 }
 
 export function initUnreadFromStorage() {
@@ -94,7 +78,7 @@ interface ChatState {
 	unreadCounts: Map<number, number>;
 }
 
-const chatState: ChatState = {
+const chatState: ChatState = { // why
 	currentConversationId: null,
 	currentFriend: null,
 	messages: [],
@@ -109,34 +93,27 @@ let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 export function initGlobalChatNotifications() {
 	if (notificationSocketInitialized || socket) return;
 
-	loadUnreadFromStorage();
-	updateMessageIconBadge();
-
+	initUnreadFromStorage();
 	socket = io({
 		path: '/api/chat/private/socket.io',
-		transports: ['websocket', 'polling'],
+		transports: ['websocket', 'polling'], // why
 	});
-
 	socket.on("connect", () => {
 		console.log("Connected to private chat");
 		socket?.emit("userId", credentials.id);
 	});
-
 	socket.on("connect_error", (error) => {
 		console.error("Socket connection error:", error.message);
 	});
-
 	socket.on("disconnect", (reason) => {
 		console.log("Disconnected from private chat:", reason);
 	});
-
 	socket.on("new_notification", (data: { type: string; from: number; conversationId: number; text: string }) => {
 		console.log("New notification:", data);
 		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat')) {
 			toastInfo(`New message received!`, { duration: 4000 });
 		}
 	});
-
 	socket.on("unread_messages", (data: { conversationId: number; friendId: number; unreadCount: number; hasUnread: boolean }) => {
 		console.log("Unread messages update:", data);
 		if (data.hasUnread && data.friendId) {
@@ -148,7 +125,6 @@ export function initGlobalChatNotifications() {
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
 	});
-
 	socket.on("all_unread_counts", (data: { unreadCounts: { conversationId: number; friendId: number; unreadCount: number }[] }) => {
 		console.log("All unread counts:", data);
 		chatState.unreadCounts.clear();
@@ -161,17 +137,10 @@ export function initGlobalChatNotifications() {
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
 	});
-
-	socket.on("error", (data) => {
-		console.error("Chat error:", data.message);
-	});
-
-	if (socket.connected) {
+	socket.on("error", (data) => {console.error("Chat error:", data.message);});
+	if (socket.connected)
 		socket.emit("userId", credentials.id);
-	}
-
 	notificationSocketInitialized = true;
-	console.log("Global chat notifications initialized");
 }
 
 function setupChatListeners() {
@@ -206,22 +175,14 @@ function setupChatListeners() {
 		}
 	});
 
-	socket.on("message_sent", (data) => {
-		console.log("Message sent confirmation:", data);
-	});
-
+	socket.on("message_sent", (data) => {console.log("Message sent confirmation:", data);});
 	socket.on("messages_seen", (data: { conversationId: number; seenBy: number }) => {
-		console.log("Messages seen by:", data);
 		if (data.conversationId === chatState.currentConversationId) {
 			chatState.messages.forEach(msg => {
-				if (msg.senderId === Number(credentials.id)) {
-					msg.seen = true;
-				}
-			});
+				if (msg.senderId === Number(credentials.id)) msg.seen = true;});
 			updateMessagesUI();
 		}
 	});
-
 	socket.on("user_typing", (data: { conversationId: number; userId: number; isTyping: boolean }) => {
 		console.log("User typing:", data);
 		if (data.conversationId === chatState.currentConversationId && data.userId !== Number(credentials.id)) {
@@ -590,7 +551,6 @@ function renderMessages() : string {
 				disabled:opacity-50 disabled:cursor-not-allowed"
 				${!chatState.currentConversationId ? 'disabled' : ''}>
 				<button id="private-chat-send"
-				<button id="private-chat-send"
 					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
 					transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
 					${!chatState.currentConversationId ? 'disabled' : ''}>
@@ -638,15 +598,13 @@ async function listFriends() : Promise<string> {
 
 export async function renderChat() {
 	await data.initDashboard(false);
-
 	chatState.currentConversationId = null;
 	chatState.currentFriend = null;
 	chatState.messages = [];
+	
 	setupChatListeners();
-
 	loadUnreadFromStorage();
 	updateMessageIconBadge();
-
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = /* html */`

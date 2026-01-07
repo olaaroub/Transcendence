@@ -280,7 +280,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	notifications();
 	chatEventHandler();
-	initUnreadFromStorage(); // Show red dot from persisted unread counts
+	initUnreadFromStorage();
 	$('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');});
 
 	const btnLocalVsPlayer = $('btn-local-vs-player');
