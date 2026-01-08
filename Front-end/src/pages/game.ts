@@ -8,7 +8,7 @@ export async function renderGame() {
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
     const isOffline = mode == "local-vs-player" || mode == "local-vs-ai";
-    
+
     if (isOffline)
     {
         const difficulty = urlParams.get('difficulty');

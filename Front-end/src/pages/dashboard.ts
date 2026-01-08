@@ -68,11 +68,11 @@ export async function initDashboard(isDashboard: boolean = true) {
 
 function renderGameModeButton(id: string, colorClass: string, icon: string, title: string, description: string): string {
 	return /* html */ `
-		<button id="${id}" class="group relative bg-[#0f0f1a] hover:bg-[#1a1a2e] 
-			rounded-xl p-5 border border-white/5 hover:border-${colorClass}/50 
+		<button id="${id}" class="group relative bg-[#0f0f1a] hover:bg-[#1a1a2e]
+			rounded-xl p-5 border border-white/5 hover:border-${colorClass}/50
 			transition-all duration-200 cursor-pointer text-left">
 			<div class="flex items-center gap-3 mb-3">
-				<div class="w-10 h-10 rounded-lg bg-${colorClass}/10 group-hover:bg-${colorClass}/20 
+				<div class="w-10 h-10 rounded-lg bg-${colorClass}/10 group-hover:bg-${colorClass}/20
 					flex items-center justify-center transition-colors duration-200">
 					<svg class="w-5 h-5 text-${colorClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						${icon}
@@ -315,12 +315,12 @@ export async function renderDashboard(isDashboard: boolean = true)
 			playerAvatar: getImageUrl(userData.avatar_url)
 		};
 		sessionStorage.setItem("room", JSON.stringify(roomData));
-		navigate(`/game?mode=online-matchmaking`);
+		navigate(`/pong-game?mode=online-matchmaking`);
 	});
 
 	const btnOnlineRoom = $('btn-online-room');
 	btnOnlineRoom?.addEventListener('click', () => { // Before navigating, you must await boolean from /api/room/:roomid
-		navigate('/game?mode=online-room');
+		navigate('/pong-game?mode=online-room');
 	});
 
 	const avatar = $('avatar');

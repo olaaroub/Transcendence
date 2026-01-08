@@ -20,7 +20,7 @@ WORKDIR /app/Online
 RUN npm ci && \
     npm run build && \
     npm prune --production && \
-    rm -rf src tsconfig.json
+    rm -rf client server
 
 FROM node:20-alpine
 

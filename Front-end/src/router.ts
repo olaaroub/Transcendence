@@ -69,7 +69,7 @@ const routes: Route[] = [
 		}
 	},
 	{
-		path: "/game",
+		path: "/pong-game",
 		render: async () => {
 			const { renderGame }  = await import("./pages/game");
 			renderGame();
