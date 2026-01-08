@@ -49,8 +49,7 @@ services:
       - transcendence-elk-net
     depends_on:
       vault-init-elk:
-          condition: service_completed_successfully
-
+        condition: service_completed_successfully
 
   user-service-elk:
     build:
@@ -81,8 +80,6 @@ services:
       vault-init-elk:
         condition: service_completed_successfully
 
-
-
   global-chat-elk:
     build:
       context: ./app/chat/global
@@ -111,7 +108,6 @@ services:
     depends_on:
       vault-init-elk:
         condition: service_completed_successfully
-
 
   private-chat-elk:
     build:
@@ -142,7 +138,6 @@ services:
       vault-init-elk:
         condition: service_completed_successfully
 
-
   pong-game-elk:
     build:
       context: ./Pong
@@ -167,9 +162,7 @@ services:
       - transcendence-elk-net
     depends_on:
       vault-init-elk:
-          condition: service_completed_successfully
-
-
+        condition: service_completed_successfully
 
   vault-elk:
     image: hashicorp/vault:1.21.1
@@ -211,7 +204,6 @@ services:
     depends_on:
       - vault-elk
 
-
   modSecurity-elk:
     image: owasp/modsecurity-crs:4.21.0-nginx-alpine-202512071012
     container_name: modSecurity-elk
@@ -238,7 +230,6 @@ services:
       - private-chat-elk
       - pong-game-elk
 
-
   prometheus-elk:
     image: prom/prometheus:v3.8.1
     container_name: prometheus-elk
@@ -256,7 +247,6 @@ services:
       - private-chat-elk
       - pong-game-elk
 
-
   grafana-elk:
     image: grafana/grafana:12.3.0
     container_name: grafana-elk
@@ -273,7 +263,6 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
     depends_on:
       - prometheus-elk
-
 
   setup-elk:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
@@ -330,6 +319,8 @@ services:
       - "50000:50000"
     environment:
       - XPACK_MONITORING_ENABLED=false
+      - ELASTIC_USER=logstash_internal #future sec
+      - ELASTIC_PASSWORD=${LOGSTASH_INTERNAL_PASSWORD:-changeme}
     networks:
       - transcendence-elk-net
     depends_on:
@@ -347,7 +338,7 @@ services:
     user: root
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      # - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./elk/fluent-bit/config:/fluent-bit/etc:ro
     networks:
       - transcendence-elk-net

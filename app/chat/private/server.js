@@ -33,7 +33,7 @@ const fastify = Fastify({
   logger: {
     level: process.env.LOG_LEVEL || 'info',
     base: {
-      service: 'private-chat-service',
+      service_name: 'private-chat-service',
       env: process.env.NODE_ENV || 'development'
     },
 
@@ -86,7 +86,7 @@ async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DAR
     // fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
 
 
-    await fastify.register(socketio, { 
+    await fastify.register(socketio, {
       cors: { origin: "*", methods: ["GET", "POST"] },
       path: '/api/chat/private/socket.io' // by simo
     });
