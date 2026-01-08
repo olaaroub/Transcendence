@@ -91,13 +91,25 @@ const chatState: ChatState = { // why
 let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
 export function initGlobalChatNotifications() {
-	if (notificationSocketInitialized || socket) return;
+	if (notificationSocketInitialized && socket?.connected) return;
 
 	initUnreadFromStorage();
-	socket = io({
-		path: '/api/chat/private/socket.io',
-		transports: ['websocket', 'polling'], // why
-	});
+	
+	if (!socket) {
+		socket = io({
+			path: '/api/chat/private/socket.io',
+			transports: ['websocket', 'polling'],
+		});
+	}
+	
+	socket.off("connect");
+	socket.off("connect_error");
+	socket.off("disconnect");
+	socket.off("new_notification");
+	socket.off("unread_messages");
+	socket.off("all_unread_counts");
+	socket.off("error");
+	
 	socket.on("connect", () => {
 		console.log("Connected to private chat");
 		socket?.emit("userId", credentials.id);
@@ -146,12 +158,8 @@ function setupChatListeners() {
 		console.log("Chat initialized:", data);
 		chatState.currentConversationId = data.conversationId;
 		chatState.messages = data.messages || [];
-		if (chatState.currentFriend)
-			chatState.unreadCounts.delete(Number(chatState.currentFriend.id));
-		saveUnreadToStorage();
-		updateMessageIconBadge();
-		updateUnreadIndicatorsUI();
 		updateMessagesUI();
+		markMessagesAsSeen();
 	});
 
 	socket.on("receive_message", (data: ChatMessage) => {
@@ -189,6 +197,11 @@ function openChat(friend: IUserData) {
 	chatState.messages = [];
 	chatState.isTyping = false;
 	chatState.typingUserId = null;
+
+	chatState.unreadCounts.delete(Number(friend.id));
+	saveUnreadToStorage();
+	updateMessageIconBadge();
+	updateUnreadIndicatorsUI();
 
 	socket.emit("open_chat", {
 		senderId: credentials.id,
@@ -480,9 +493,11 @@ function updateFriendStatusUI(friendId: string, status: 'ONLINE' | 'OFFLINE'): v
 
 export function cleanupPrivateChat() {
 	if (socket) {
-		socket.removeAllListeners();
-		socket.disconnect();
-		socket = null;
+		socket.off("chat_initialized");
+		socket.off("receive_message");
+		socket.off("message_sent");
+		socket.off("messages_seen");
+		socket.off("user_typing");
 	}
 	if (friendStatusUnsubscribe) {
 		friendStatusUnsubscribe();
@@ -498,7 +513,16 @@ export function cleanupPrivateChat() {
 	chatState.friends = [];
 	chatState.isTyping = false;
 	chatState.typingUserId = null;
+}
+
+export function disconnectChatSocket() {
+	if (socket) {
+		socket.removeAllListeners();
+		socket.disconnect();
+		socket = null;
+	}
 	notificationSocketInitialized = false;
+	chatState.unreadCounts.clear();
 }
 
 export function chatEventHandler() {
