@@ -1,5 +1,4 @@
 services:
-
   frontend-dev:
     build:
       context: ./Front-end
@@ -50,9 +49,7 @@ services:
       - transcendence-dev-net
     depends_on:
       vault-init-dev:
-          condition: service_completed_successfully
-
-
+        condition: service_completed_successfully
 
   user-service-dev:
     build:
@@ -82,7 +79,6 @@ services:
     depends_on:
       vault-init-dev:
         condition: service_completed_successfully
-
 
   global-chat-dev:
     build:
@@ -142,7 +138,6 @@ services:
       vault-init-dev:
         condition: service_completed_successfully
 
-
   pong-game-dev:
     build:
       context: ./Pong
@@ -167,12 +162,7 @@ services:
       - transcendence-dev-net
     depends_on:
       vault-init-dev:
-          condition: service_completed_successfully
-
-
-
-
-
+        condition: service_completed_successfully
 
   vault-dev:
     image: hashicorp/vault:1.21.1
@@ -240,7 +230,6 @@ services:
       - private-chat-dev
       - pong-game-dev
 
-
   prometheus-dev:
     image: prom/prometheus:v3.8.1
     container_name: prometheus-dev
@@ -274,7 +263,6 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
     depends_on:
       - prometheus-dev
-
 
 networks:
   transcendence-dev-net:

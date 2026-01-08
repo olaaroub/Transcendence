@@ -39,7 +39,7 @@ async function main() {
     logger: {
       level: process.env.LOG_LEVEL || 'info',
       base: {
-        service: 'user-service',
+        service_name: 'user-service',
         env: process.env.NODE_ENV || 'development'
       },
       redact: ['req.headers.authorization', 'req.headers.cookie']
