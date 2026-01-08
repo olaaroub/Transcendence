@@ -48,7 +48,7 @@ async function main() {
     logger: {
       level: process.env.LOG_LEVEL || 'info',
       base: {
-        service: 'auth-service',
+        service_name: 'auth-service',
         env: process.env.NODE_ENV || 'development'
       },
 
