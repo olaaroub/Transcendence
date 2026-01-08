@@ -1,7 +1,9 @@
+check the input values
+limit chat chars1
+
+
 
 FIX FONTS FOR GAME AND DASHBOARD
-test the global chat
-check the input values
 
 tailwind :
     truncate
@@ -25,7 +27,11 @@ NEW GAME FEATURES:
 		Where : Chatroom, When user clicks new button "Challenge"
 		Behavior : Create a sessionStorage similar to Matchmaking, then redirect to online Client.
 				   Also send to friend a clickable message. When clicked :
-				   Create a sessionStorage similar to Matchmaking, then redirect to online Client.
+				   Query /api/game/available/:id for a Boolean
+				       if true:
+				   			Create a sessionStorage similar to Matchmaking, then redirect to online Client.
+					   else
+					   		Show ToastInfo : "Room is no Longer Available."
 
 	SPECTATE
 		Endpoint : /api/game/spectate
