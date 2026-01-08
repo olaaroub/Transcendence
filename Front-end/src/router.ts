@@ -180,5 +180,4 @@ export async function router() {
 	else
 		showErrorMessage("Page not found", 404);
 }
-
 window.addEventListener("popstate", router);
