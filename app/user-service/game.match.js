@@ -30,7 +30,7 @@ interface Player
 */
 function calculateRating(p1CurrentRating, p2CurrentRating, p1win)
 {
-    const p1ExpectedScore = 1 + Math.pow(10, (p1CurrentRating - p2CurrentRating) / 400);
+    const p1ExpectedScore = 1 / (1 + Math.pow(10, (p1CurrentRating - p2CurrentRating) / 400));
     const p2ExpectedScore = 1 - p1ExpectedScore;
 
     const p2win = 1 - p1win;
@@ -38,7 +38,7 @@ function calculateRating(p1CurrentRating, p2CurrentRating, p1win)
 
     const p1Rating = Math.round(p1CurrentRating + kFactor * (p1win - p1ExpectedScore));
     const p2Rating = Math.round(p2CurrentRating + kFactor * (p2win - p2ExpectedScore));
-
+    // console.log(p1Rating, " ", p2Rating)
     const res = {
         p1Rating: (p1Rating <= 0) ? 0 : p1Rating,
         p2Rating: (p2Rating <= 0) ? 0 : p2Rating
@@ -88,11 +88,13 @@ async function matchDataController(req, reply)
     const runQury = this.db.transaction(() => {
         const p1Rating = insertValues(p1).get(p1.scored, p1.userID);
         const p2Rating = insertValues(p2).get(p2.scored, p2.userID);
+        // console.log(`player1: ${p1.userID} Rating ${p1Rating.Rating} scored: ${p1.scored}, player2: ${p2.userID} Rating ${p2Rating.Rating} scored: ${p2.scored}`)
+
         if (!p1Rating || !p2Rating)
             throw createError.NotFound("this users not found to change it!");
 
         const Rating = calculateRating(p1Rating.Rating , p2Rating.Rating, p1.win)
-        console.log(Rating);
+        // console.log(Rating, " ", p1.win);
         const stmt = this.db.prepare(`UPDATE userInfo SET Rating = ? WHERE id = ?`);
     
         const p1Changes = stmt.run(Rating.p1Rating, p1.userID);
