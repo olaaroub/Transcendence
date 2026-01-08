@@ -32,8 +32,7 @@ async function fetchLeaderboard(start: number = 0, offset: number = 10): Promise
 
 export async function dashboardLearderboard(): Promise<string> {
 	const topPlayers = await fetchLeaderboard(0, 3);
-	topPlayers[0]!.username = "lfront-end lmheyeb";
-	topPlayers[0]!.avatar_url = "images/mmondad.jpeg";
+
 	if (!topPlayers || topPlayers.length === 0) {
 		return /* html */ `
 			<div class="w-full">
@@ -134,7 +133,6 @@ function renderPlayerRow(player: LeaderboardPlayer, rank: number): string {
 
 export async function renderLeaderboard() {
 	await initDashboard(false);
-	
 	leaderboardData = await fetchLeaderboard(0, 20);
 	const dashContent = $('dashboard-content');
 	if (!dashContent) return;
@@ -149,8 +147,6 @@ export async function renderLeaderboard() {
 	}
 
 	const top3 = leaderboardData.slice(0, 3);
-	top3[0]!.username = "lfront-end lmheyeb";
-	top3[0]!.avatar_url = "images/mmondad.jpeg";
 	
 	dashContent.innerHTML = /* html */ `
 		<div class="w-full h-full flex flex-col gap-6 p-6">
