@@ -1,5 +1,8 @@
 FROM node:20-alpine
 
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_FUND=false
+
 WORKDIR /app
 
 ENV NODE_ENV=production
