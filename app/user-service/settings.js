@@ -53,7 +53,7 @@ async function getProfileData(req, reply) {
 	let responseData;
 
 	if (profile_id == user_id) {
-		responseData = this.db.prepare(`SELECT id, username, avatar_url, bio
+		responseData = this.db.prepare(`SELECT id, username, avatar_url, bio, Rating, TotalWins, TotalLosses, GamesPlayed
 										FROM userInfo
 										WHERE id = ?`).get([user_id]);
 
@@ -71,7 +71,7 @@ async function getProfileData(req, reply) {
 		}
 	}
 	else {
-		responseData = this.db.prepare(`SELECT u.id, u.username, u.avatar_url, u.bio, f.status, f.blocker_id
+		responseData = this.db.prepare(`SELECT u.id, u.username, u.avatar_url, u.bio, u.Rating, u.TotalWins, u.TotalLosses, u.GamesPlayed, f.status, f.blocker_id
 										FROM userInfo AS u
 										LEFT JOIN friendships AS f ON
 											(f.userRequester = ? AND f.userReceiver = ?) OR
@@ -81,10 +81,15 @@ async function getProfileData(req, reply) {
 		if (responseData) {
 			if (responseData.status === 'BLOCKED') {
 				if (responseData.blocker_id == profile_id) {
-					responseData.username = 'Pong User';
-					responseData.avatar_url = '/public/Default_pfp.jpg';
-					responseData.bio = '--';
-					responseData.status = null;
+					const updatedProfile = {
+							id: responseData.id,
+							username: 'Pong User',
+							avatar_url: '/public/default_pfp.png',
+							bio: '--',
+							status: null,
+							Rating: 0, TotalWins: 0, TotalLosses: 0, GamesPlayed: 0
+						}
+					responseData = updatedProfile;
 				} else {
 					responseData.bio = '--';
 				}

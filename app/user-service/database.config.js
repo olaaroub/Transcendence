@@ -14,7 +14,7 @@ const creatTable = async () => {
         id INTEGER UNIQUE NOT NULL,
         username TEXT UNIQUE NOT NULL,
         bio TEXT DEFAULT 'Hello there i am using Pong game!',
-        avatar_url TEXT DEFAULT '/public/Default_pfp.jpg',
+        avatar_url TEXT DEFAULT '/public/default_pfp.png',
         is_read BOOLEAN DEFAULT FALSE,
 
         GamesPlayed INTEGER DEFAULT 0,
@@ -33,8 +33,8 @@ const creatTable = async () => {
     ;`)
 
 
-    db.exec(`CREATE VIEW IF NOT EXISTS leaderBordItem AS
-            SELECT id, username, avatar_url, Rating, gamesPlayed, wins, losses
+    db.exec(`CREATE VIEW IF NOT EXISTS leaderboardItem AS
+            SELECT id, username, avatar_url, Rating, GamesPlayed, TotalWins, TotalLosses, WinRate
             FROM userInfo
     ;`);
     db.exec(`CREATE TABLE IF NOT EXISTS friendships (
@@ -62,6 +62,20 @@ const creatTable = async () => {
         CHECK (userRequester <> userReceiver),
         UNIQUE (userRequester, userReceiver),
         UNIQUE (pair_relation)
+    );`);
+
+    db.exec(`CREATE TABLE IF NOT EXISTS matchHistory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player1_id INTEGER NOT NULL,
+        player2_id INTEGER NOT NULL,
+
+        player1_score INTEGER NOT NULL,
+        player2_score INTEGER NOT NULL,
+
+        match_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+        FOREIGN KEY(player1_id) REFERENCES userInfo(id) ON DELETE CASCADE,
+        FOREIGN KEY(player2_id) REFERENCES userInfo(id) ON DELETE CASCADE
     );`);
     return db;
 }

@@ -1,5 +1,6 @@
 import * as BABYLON from "@babylonjs/core";
-import "@babylonjs/core/Meshes/meshBuilder";
+import "@babylonjs/core/Meshes/meshBuilder.js";
+import { PongLoading } from "./renderer.js";
 
 export interface GameScene
 {
@@ -12,7 +13,9 @@ export function createScene(canvas: HTMLCanvasElement): GameScene
 {
 	const engine = new BABYLON.Engine(canvas, true);
 	const scene = new BABYLON.Scene(engine);
-
+	engine.loadingScreen = new PongLoading();
+	engine.displayLoadingUI();
+	scene.executeWhenReady(() => {setTimeout(() => {engine.hideLoadingUI();}, 2000);});
 	const light = new BABYLON.DirectionalLight("Sun", new BABYLON.Vector3(5, -10, 5), scene);
 	light.diffuse = BABYLON.Color3.FromHexString("#ED6F30");
 	light.intensity = 1;
@@ -32,6 +35,10 @@ export function createScene(canvas: HTMLCanvasElement): GameScene
 	const cam4 = new BABYLON.ArcRotateCamera('FreeCam', 0, 0, 45, new BABYLON.Vector3(0, 600, 600), scene);
 	cam4.setTarget(BABYLON.Vector3.Zero());
 	cam4.attachControl(canvas, true);
+	cam4.keysUp = [];
+	cam4.keysDown = [];
+	cam4.keysLeft = [];
+	cam4.keysRight = [];
 	cam4.speed = 20;
 	cam4.upperBetaLimit = Math.PI / 2.4;
 

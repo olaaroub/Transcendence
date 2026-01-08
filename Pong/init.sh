@@ -2,18 +2,20 @@
 
 mkdir -p /pong-dist/offline
 mkdir -p /pong-dist/online
+mkdir -p /pong-dist/Assets
 
-rm -rf /pong-dist/offline/*
+echo "Copying Offline Version to Volume..."
+rm -rf /pong-dist/offline/* || true
 cp -r /app/Offline/dist/* /pong-dist/offline/
 
-# rm -rf /pong-dist/online/*
-# cp -r /app/Online/client/dist/* /pong-dist/online/
+echo "Copying Online Version to Volume..."
+rm -rf /pong-dist/online/* || true
+cp -r /app/Online/dist/client/* /pong-dist/online/
 
-rm -rf /pong-dist/Assets/*
+echo "Copying Assets to Volume..."
+rm -rf /pong-dist/Assets/* || true
 cp -r /app/Assets/* /pong-dist/Assets/
 
+echo "Copying DONE. Starting Pong Server..."
 
-echo "Starting inline game..."
-
-# exec node /app/Online/server/dist/server.js
- exec tail -f /dev/null
+exec node /app/Online/dist/server/server.js

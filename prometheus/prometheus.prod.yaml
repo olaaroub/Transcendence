@@ -1,0 +1,33 @@
+global:
+  scrape_interval: 10s
+
+scrape_configs:
+
+  - job_name: 'prometheus-prod'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'auth-service-prod'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['auth-service-prod:3001']
+
+  - job_name: 'user-service-prod'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['user-service-prod:3002']
+
+  - job_name: 'global-chat-prod'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['global-chat-prod:3003']
+
+  - job_name: 'private-chat-prod'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['private-chat-prod:3004']
+
+  - job_name: 'pong-game-prod'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['pong-game-prod:3005']

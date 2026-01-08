@@ -1,12 +1,12 @@
 import { renderAuthPage } from "./components/loginPage"
 import { navigate } from "../router";
+import { apiFetch } from "./components/errorsHandler";
 
 export async function sendAuthData(data: Record<string, string>, path:string) {
 	const isSignup = (path === 'signUp');
 	try
 	{
-		console.log(data)
-		const response = await fetch("api/auth/" + path, { // zet auth/
+		const response = await fetch("api/auth/" + path, { // use apiFetch method
 			method: "POST",
 			headers: {"Content-Type": "application/json",},
 			body: JSON.stringify({
@@ -15,9 +15,6 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 				email: data["email"] || ""
 			}),
 		});
-
-		// if (!response.ok && response.status != 401){throw new Error("Request failed");}
-
 		const result = await response.json();
 		if (result.success)
 		{

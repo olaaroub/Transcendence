@@ -9,7 +9,7 @@ async function signUpHandler(request, reply) {
 	let data = request.body;
 
 	if (!data.username || !data.password) {
-		throw createError.BadRequest("Username or password is empty");
+		throw createError.BadRequest("Empty fields detected");
 	}
 
 	let newUserData;

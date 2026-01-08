@@ -1,6 +1,6 @@
 import * as data from "./dashboard"
 import { navigate, navigateBack } from "../router";
-import { credentials,IUserData, userData, getImageUrl} from "./store"
+import { IUserData, userData, getImageUrl} from "./store"
 import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/toast";
 import { closeNotificationSocket } from "./components/NavBar";
 import { cleanupGlobalChat } from "./chat/globalChat";
@@ -20,9 +20,8 @@ async function checkPasswordChange() : Promise<boolean>
 	const value = newUserData["new-password" as keyof IUserData];
 	const currentPassword = newUserData["current-password" as keyof IUserData];
 	const confirmPassword = newUserData["confirm-password" as keyof IUserData];
-	if (!value && !currentPassword && !confirmPassword) {
+	if (!value && !currentPassword && !confirmPassword)
 		return true;
-	}
 	if (!currentPassword) {
 		toastWarning('Current password is required to change the password.');
 		return false;
@@ -31,14 +30,13 @@ async function checkPasswordChange() : Promise<boolean>
 		toastWarning('Invalid password confirmation.');
 		return false;
 	}
-	
 	const { error } = await apiFetch(`api/auth/${userData?.id}/settings-password`, {
 		method: 'PUT',
 		body: JSON.stringify({ currentPassword, newPassword: value }),
 		headers: { "Content-Type": "application/json" },
-		showErrorToast: false
+		showErrorToast: false,
+		skipAuthRedirect: true
 	});
-	
 	if (error) {
 		toastError('Current password is incorrect.');
 		return false;
@@ -59,7 +57,7 @@ function SaveChanges()
 			}
 			if (!await checkPasswordChange()) return;
 			if (!await confirmPopUp('Do you want to apply these changes?')) return;
-			
+
 			for (const key of Object.keys(newUserData)) {
 				const value = newUserData[key as keyof IUserData];
 				if (value === undefined || value === null) {
@@ -70,24 +68,21 @@ function SaveChanges()
 					delete newUserData[key as keyof IUserData];
 					continue;
 				}
-				
 				let requestBody: BodyInit;
 				let contentType: Record<string, string> = {};
-				
+
 				if (key === 'avatar' && avatar) {
 					requestBody = avatar;
 				} else {
 					requestBody = JSON.stringify({ [key]: value });
 					contentType = { "Content-Type": "application/json" };
 				}
-				
 				const { error } = await apiFetch(`api/user/${userData?.id}/settings-${key}`, {
 					method: 'PUT',
 					body: requestBody,
 					headers: contentType,
 					showErrorToast: false
 				});
-				
 				if (error) {
 					toastError(`Failed to update ${key}.`);
 				} else {
@@ -121,7 +116,7 @@ function addInputListeners()
 					userAvatar.src = URL.createObjectURL(upload_avatar.files[0]); // to learn about it
 			}
 			if (value !== userData[name as keyof IUserData])
-				newUserData[name as keyof IUserData] = value;
+				newUserData[name as keyof IUserData] = value as any; //this is the change i made LAAROUBI
 			else
 				delete newUserData[name as keyof IUserData];
 		});
@@ -151,12 +146,12 @@ export function confirmPopUp(message: string) : Promise<boolean>
 					<p class="text-txtColor/70">${message}</p>
 				</div>
 				<div class="flex flex-col gap-3">
-					<button id="confirm-btn" class="bg-gradient-to-r from-color1 to-color2 
+					<button id="confirm-btn" class="bg-gradient-to-r from-color1 to-color2
 						rounded-xl py-3 px-6 font-bold text-bgColor
 						transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-color1/30">
 						Yes, Confirm
 					</button>
-					<button id="cancel-btn" class="bg-transparent border border-color3/50 
+					<button id="cancel-btn" class="bg-transparent border border-color3/50
 						rounded-xl py-3 px-6 font-semibold text-txtColor/70
 						transition-all duration-300 hover:border-txtColor hover:text-txtColor hover:bg-white/5">
 						Cancel
@@ -171,15 +166,12 @@ export function confirmPopUp(message: string) : Promise<boolean>
 				resolve(false);
 			}
 		});
-		
 		const confirmBtn = deletePopUp.querySelector("#confirm-btn") as HTMLButtonElement;
 		const cancelBtn = deletePopUp.querySelector("#cancel-btn") as HTMLButtonElement;
-
 		confirmBtn.addEventListener("click", () => {
 			deletePopUp.remove();
 			resolve(true);
 		});
-
 		cancelBtn.addEventListener("click", () => {
 			deletePopUp.remove();
 			resolve(false);
@@ -192,7 +184,7 @@ async function deleteAvatar()
 	$('delete-avatar')?.addEventListener('click', async ()=> {
 		const confirmed = await confirmPopUp('Are you sure you want to delete your avatar?');
 		if (!confirmed) return;
-		const { error } = await apiFetch<{message: string}>(`api/user/${userData?.id}/image`, {
+		const { error } = await apiFetch<{message: string}>(`api/user/${userData?.id}/settings-avatar`, {
 			method: 'DELETE',
 		});
 		if (!error) {
@@ -211,7 +203,7 @@ function sendAvatar() : FormData | null
 			return null;
 	if (!uploadAvatar.files || uploadAvatar.files.length === 0) return null;
 	const file = uploadAvatar.files[0];
-	
+
 	const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 	const fileName = file.name.toLowerCase();
 	const fileExtension = fileName.split('.').pop();
@@ -220,14 +212,13 @@ function sendAvatar() : FormData | null
 		uploadAvatar.value = '';
 		return null;
 	}
-	
+
 	const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 	if (!allowedMimeTypes.includes(file.type)) {
 		toastWarning(`Invalid file type. Please upload a valid image file.`);
 		uploadAvatar.value = '';
 		return null;
 	}
-	
 	if (file.size > 2097152) {
 		toastWarning("Image is too large. Max size 2MB.");
 		uploadAvatar.value = '';
@@ -385,7 +376,6 @@ async function deleteAccount() : Promise<void>
 {
 	const confirmed = await confirmPopUp('Are you sure you want to delete your account? This action cannot be undone.');
 	if (!confirmed) return;
-
 	const { error } = await apiFetch<{message: string}>(`api/user/deleteAccount/${userData.id}`, {
 		method: 'DELETE',
 	});
@@ -395,9 +385,8 @@ async function deleteAccount() : Promise<void>
 		localStorage.clear();
 		navigate('/sign-up');
 		toastSuccess('Account deleted successfully.');
-	} else {
+	} else
 		toastError('Failed to delete account.');
-	}
 }
 
 export async function renderSettings()

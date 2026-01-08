@@ -17,3 +17,14 @@ export function formatDate(date: Date): string {
     };
     return new Intl.DateTimeFormat('en-US', options).format(date);
 }
+
+export function formatMessageTime(dateString: string): string {
+    let date = new Date(dateString);
+    if (dateString && !dateString.includes('Z') && !dateString.includes('+') && !/\d{2}:\d{2}:\d{2}-\d{2}/.test(dateString)) {
+        date = new Date(dateString + 'Z');
+    }
+    return date.toLocaleTimeString(navigator.language || 'en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}

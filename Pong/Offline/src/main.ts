@@ -6,6 +6,8 @@ import {
 	optionsButton,
 	startButton,
 	addHUDs,
+	updateGoals,
+	createSign,
 	createArena,
 	createSky,
 	createPaddles,
@@ -43,7 +45,10 @@ addHUDs(gameEngine.getSession());
 optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
 startButton(gameEngine);
 
-window.addEventListener('keydown', (e) =>
+let gameInterval: number | null = null;
+let gameOver: boolean = false;
+
+const handleKeyDown = (e: KeyboardEvent) =>
 {
 	const cam = cameras[e.key];
 	if (cam)
@@ -54,36 +59,55 @@ window.addEventListener('keydown', (e) =>
 	const press = keyMap[e.key.toLowerCase()];
 	if (press)
 		gameEngine.setInput(press.player === 'p1Input' ? 1 : 2, press.value);
-});
+};
 
-window.addEventListener('keyup', (e) =>
+const handleKeyUp = (e: KeyboardEvent) =>
 {
 	const press = keyMap[e.key.toLowerCase()];
 	if (press)
 		gameEngine.setInput(press.player === 'p1Input' ? 1 : 2, 0);
-});
+};
 
-window.addEventListener('resize', () => {engine.resize();});
+const handleResize = () => { engine.resize(); };
 
-let lastTime = performance.now();
-let accumulator = 0;
-
-const gameLoop = (currentTime: number) =>
+function exitGame(): void
 {
-	const deltaTime = (currentTime - lastTime) / 1000;
-	lastTime = currentTime;
-	const clampedDelta = Math.min(deltaTime, 0.1);
-	accumulator += clampedDelta;
-	while (accumulator >= TICKDT)
+	document.getElementById("exit-game-btn")?.click();
+	if (gameInterval)
 	{
-		gameEngine.tick();
-		accumulator -= TICKDT;
+		clearInterval(gameInterval);
+		gameInterval = null;
+	}
+	window.removeEventListener('keydown', handleKeyDown);
+	window.removeEventListener('keyup', handleKeyUp);
+	window.removeEventListener('resize', handleResize);
+	renderer.dispose();
+}
+
+window.addEventListener('keydown', handleKeyDown);
+window.addEventListener('keyup', handleKeyUp);
+window.addEventListener('resize', handleResize);
+
+gameInterval = setInterval(() => {gameEngine.tick();}, Math.round(TICKDT * 1000));
+
+const renderLoop = () =>
+{
+	if (!(document.getElementById('game') as HTMLCanvasElement))
+	{
+		exitGame();
+		return;
 	}
 	const gameState = gameEngine.getState();
 	renderer.updateGameState(gameState);
+	if (gameEngine.getCurrentState() === 'Over' && !gameOver)
+	{
+		gameOver = true;
+		setTimeout(() => {createSign(`GAME OVER\n${gameEngine.getWinner().toUpperCase()} WINS`);}, 50);
+		setTimeout(() => {exitGame();}, 3000);
+	}
 	renderer.render();
-
-	requestAnimationFrame(gameLoop);
+	updateGoals(gameEngine.getState().p1, gameEngine.getState().p2);
+	requestAnimationFrame(renderLoop);
 };
 
-requestAnimationFrame(gameLoop);
+requestAnimationFrame(renderLoop);

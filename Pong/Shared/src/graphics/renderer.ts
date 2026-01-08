@@ -1,5 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
-import "@babylonjs/core/Meshes/meshBuilder";
+import "@babylonjs/core/Meshes/meshBuilder.js";
 import { GameState } from '../types.js';
 import { WIDTH, HEIGHT, PWIDTH, PHEIGHT } from '../constants.js';
 
@@ -56,5 +56,60 @@ export class Renderer
 	{
 		this.scene.dispose();
 		this.engine.dispose();
+	}
+}
+
+export class PongLoading implements BABYLON.ILoadingScreen
+{
+	private loadingDiv: HTMLDivElement | null = null;
+	public loadingUIBackgroundColor: string = "#000000";
+	public loadingUIText: string = "";
+
+	constructor() {}
+
+	public displayLoadingUI(): void
+	{
+		if (this.loadingDiv)
+			return;
+
+		this.loadingDiv = document.createElement("div");
+		this.loadingDiv.id = "pongLoading";
+		this.loadingDiv.style.cssText = `
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: ${this.loadingUIBackgroundColor};
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 9999;
+			opacity: 1;
+			transition: opacity 0.5s ease;
+		`;
+
+		const gif = document.createElement("img");
+		gif.src = "/game/Assets/loading.gif";
+		gif.alt = "LOADING...";
+
+		this.loadingDiv.appendChild(gif);
+		document.body.appendChild(this.loadingDiv);
+	}
+
+	public hideLoadingUI(): void
+	{
+		if (this.loadingDiv)
+		{
+			this.loadingDiv.style.opacity = "0";
+			this.loadingDiv.addEventListener("transitionend", () =>
+			{
+				if (this.loadingDiv)
+				{
+					this.loadingDiv.remove();
+					this.loadingDiv = null;
+				}
+			}, { once: true });
+		}
 	}
 }

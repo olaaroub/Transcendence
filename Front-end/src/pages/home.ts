@@ -4,7 +4,7 @@ import { renderFooter } from "./components/footer"
 
 const $ = (id: string) => document.getElementById(id as string)
 
-function renderHomeText (isLoged: boolean)
+export function renderHomeText (isLoged: boolean)
 {
     return /* html */ `
 		<div class="data flex flex-col sm:flex-row items-center justify-between min-h-[calc(100vh-200px)]
@@ -41,7 +41,7 @@ export function AliasPopUp(isGuest : boolean, item: string)
 			rounded-3xl p-8 flex flex-col gap-5 w-[420px] border-2 border-color1/30
 			shadow-2xl transform transition-all duration-300 scale-100"
 			style="box-shadow: 0 0 40px rgba(237, 111, 48, 0.15), 0 0 80px rgba(237, 111, 48, 0.05);">
-			
+
 			<button id="Cancel-alias" class="absolute top-4 right-4 text-color3 hover:text-txtColor transition-colors duration-300">
 				<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -59,8 +59,8 @@ export function AliasPopUp(isGuest : boolean, item: string)
 			</p>
 			<div class="relative">
 				<input id="alias-input" type="text" placeholder="Your alias..."
-					class="w-full bg-black/60 text-txtColor px-5 py-4 rounded-2xl
-					outline-none border-2 border-color3/30 focus:border-color1 
+					class="w-full bg-black/60 text-txtColor px-5 py-3 rounded-2xl
+					outline-none border-2 border-color3/30 focus:border-color1
 					transition-all duration-300 text-lg placeholder:text-color3/50
 					focus:shadow-lg focus:shadow-color1/10">
 				<div class="absolute right-4 top-1/2 -translate-y-1/2 text-color3/50">
@@ -70,8 +70,8 @@ export function AliasPopUp(isGuest : boolean, item: string)
 				</div>
 			</div>
 			<div class="flex flex-col gap-3 mt-2">
-				<button id="confirm-alias" class="relative overflow-hidden bg-gradient-to-r from-color1 to-color2 
-					rounded-2xl py-4 px-6 font-bold text-lg text-bgColor
+				<button id="confirm-alias" class="relative overflow-hidden bg-gradient-to-r from-color1 to-color2
+					rounded-2xl py-3 px-6 font-bold text-lg text-bgColor
 					transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-color1/30
 					active:scale-[0.98] group">
 					<span class="relative z-10 flex items-center justify-center gap-2">
@@ -82,27 +82,16 @@ export function AliasPopUp(isGuest : boolean, item: string)
 					</span>
 					<div class="absolute inset-0 bg-gradient-to-r from-color2 to-color1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 				</button>
-				
-				<button id="Cancel-alias-btn" class="bg-transparent border-2 border-color3/30 text-txtColor/70
-					rounded-2xl py-3 px-6 font-semibold
-					transition-all duration-300 hover:border-red-500/50 hover:text-red-400 hover:bg-red-500/10">
-					Cancel
-				</button>
 			</div>
 		</div>
 	`;
 	document.body.appendChild(aliasPopUp);
-	
+
 	aliasPopUp.addEventListener('click', (e) => {
 		if (e.target === aliasPopUp) aliasPopUp.remove();
 	});
-	
-	$("Cancel-alias")?.addEventListener('click', _=> {
-		aliasPopUp?.remove();
-	})
-	$("Cancel-alias-btn")?.addEventListener('click', _=> {
-		aliasPopUp?.remove();
-	})
+
+	$("Cancel-alias")?.addEventListener('click', _=> {aliasPopUp?.remove();})
 	$("confirm-alias")?.addEventListener('click', _=> {
 		const AliasInput = $("alias-input") as HTMLInputElement ;
 		const value = AliasInput.value.trim();
@@ -113,10 +102,12 @@ export function AliasPopUp(isGuest : boolean, item: string)
 			sessionStorage.setItem(item, value);
 			aliasPopUp?.remove();
 			if (isGuest)
-			{		
+			{
 				$("go-as-guest")!.textContent = sessionStorage.getItem(item);
 				navigate("/guest");
 			}
+			else if (item === "player2")
+				navigate('/pong-game?mode=local-vs-player');
 		}
 	})
 }

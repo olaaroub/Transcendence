@@ -4,15 +4,13 @@
     "module": "ES2022",
     "lib": ["ES2023", "DOM"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "moduleResolution": "node",
-    "declaration": false,
-    "sourceMap": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/main.ts"],
   "exclude": ["node_modules"]
 }

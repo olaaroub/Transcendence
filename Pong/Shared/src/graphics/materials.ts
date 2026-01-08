@@ -1,5 +1,5 @@
 import * as BABYLON from "@babylonjs/core";
-import "@babylonjs/core/Meshes/meshBuilder";
+import "@babylonjs/core/Meshes/meshBuilder.js";
 import { GridMaterial } from "@babylonjs/materials";
 
 export function createArenaMaterial(scene: BABYLON.Scene): BABYLON.PBRMaterial
@@ -32,7 +32,7 @@ export function createSkyMaterial(scene: BABYLON.Scene): BABYLON.StandardMateria
 	mat.disableLighting = true;
 	mat.disableDepthWrite = true;
 
-	const spaceUrl = "../Assets/space.png";
+	const spaceUrl = "/game/Assets/space.png";
 	const tex = new BABYLON.Texture(spaceUrl, scene, false, false, BABYLON.Texture.TRILINEAR_SAMPLINGMODE);
 	mat.emissiveTexture = tex;
 

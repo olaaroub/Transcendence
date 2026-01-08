@@ -3,7 +3,10 @@ node_modules/
 database.db
 .env
 app/static/*
-!app/static/Default_pfp.jpg
+!app/static/default_pfp.png
+
+app/user-service/static/*
+!app/user-service/static/default_pfp.png
 .tap/
 logs/
 *.log

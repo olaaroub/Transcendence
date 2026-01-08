@@ -7,7 +7,7 @@ async function setupTowFaHandler(req, reply) {
     const { towFaEnabled } = this.db.prepare("SELECT towFaEnabled FROM users WHERE id = ?").get(id);
 
     if (towFaEnabled)
-        throw createError.Unauthorized("2FA is already enabled");
+        throw createError.Conflict("2FA already enabled!");
 
     const secret = speakeasy.generateSecret({
         name: `42TrancendensUserID_${id}` // I will change the id to username
@@ -33,7 +33,7 @@ async function verifyTowFaHandler(req, reply) {
         .get(id);
 
     if (!towFaEnabled && !towFaSecret)
-        throw createError.BadRequest("2FA setup not initialized");
+        throw createError.BadRequest("2FA setup not enabled");
 
     const verify = speakeasy.totp.verify({
         secret: towFaSecret,

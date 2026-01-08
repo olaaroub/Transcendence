@@ -24,7 +24,7 @@ async function UploadToServer(req) {
 
   const allowedTypes = ["jpg", "png", "gif"];
   if (!type || !allowedTypes.includes(type.ext)) {
-    throw createError.BadRequest("Unsupported file type. Use jpg, png, or gif.");
+    throw createError.BadRequest("Unsupported file type use jpg, png, or gif.");
   }
 
   const file_name = uuidv4() + `.${type.ext}`;
@@ -57,7 +57,7 @@ async function modifyAvatar(req, reply) {
 
     const oldImgPath = path.basename(data.avatar_url);
 
-    if (oldImgPath !== `Default_pfp.jpg`) {
+    if (oldImgPath !== `default_pfp.png`) {
       await fs.promises.unlink(path.join(__dirname, 'static', oldImgPath)).catch(() => {
         req.log.warn({ err, file: oldImgPath }, "Failed to delete old avatar");
       });
@@ -89,7 +89,7 @@ async function deleteAvatar(req, reply) {
 
   const imgpath = path.basename(data.avatar_url);
 
-  if (imgpath === `Default_pfp.jpg`) {
+  if (imgpath === `default_pfp.png`) {
     throw createError.BadRequest("Cannot delete the default avatar");
   }
 
@@ -97,9 +97,9 @@ async function deleteAvatar(req, reply) {
     req.log.warn({ err, file: imgpath }, "Failed to delete avatar file from disk");
   });
 
-  this.db.prepare("UPDATE userInfo SET avatar_url = ? WHERE id = ?").run(["/public/Default_pfp.jpg", id]);
+  this.db.prepare("UPDATE userInfo SET avatar_url = ? WHERE id = ?").run(["/public/default_pfp.png", id]);
 
-  await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/chat/global/avatar_url/${id}`, { newAvatarUrl: "/public/Default_pfp.jpg" });
+  await changeItemInOtherService(`${GLOBAL_CHAT_SERVICE_URL}/api/chat/global/avatar_url/${id}`, { newAvatarUrl: "/public/default_pfp.png" });
 
   req.log.info({ userId: id }, "Avatar reset to default");
   reply.code(200).send({ success: true, message: "Profile image deleted" });

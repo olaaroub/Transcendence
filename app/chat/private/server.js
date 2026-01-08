@@ -8,7 +8,7 @@ import "./create_tables.js";
 async function getSecrets(logger) {
   try {
 
-    const vaultPath = process.env.VAULT_SECRET_PATH
+    const vaultPath = process.env.VAULT_SECRET_PATH;
 
     const options = {
       apiVersion: 'v1',
@@ -57,6 +57,7 @@ fastify.decorate('customMetrics', {
   chatMessageCounter,
 });
 
+fastify.cust
 
 fastify.get("/", async () => {
   return { status: "ok" };
@@ -85,7 +86,10 @@ async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DAR
     // fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
 
 
-    await fastify.register(socketio, { cors: { origin: "*", methods: ["GET", "POST"] } });
+    await fastify.register(socketio, { 
+      cors: { origin: "*", methods: ["GET", "POST"] },
+      path: '/api/chat/private/socket.io' // by simo
+    });
     await fastify.register(chatRoutes); // khsek tzid {prefix: '/api'} hnaya (ta checki m3a ohammou)
 
     fastify.listen({
