@@ -16,16 +16,16 @@ async function leaderboardHandler(req, reply) {
         req.log.info("Leaderboard top 10 accessed");
     }
     // fb1bcb0c-8ce9-417e-b219-e2c0c9398300.jpg
-    users.unshift({
-        id: 99999,
-        username: 'lbackend lmhyb',
-        avatar_url: '/public/fb1bcb0c-8ce9-417e-b219-e2c0c9398300.jpg',
-        Rating: 999999,
-        GamesPlayed: 999999,
-        TotalWins: 999999,
-        TotalLosses: 0,
-        WinRate: 100
-    })
+    // users.unshift({
+    //     id: 99999,
+    //     username: 'lbackend lmhybbbb',
+    //     avatar_url: '/public/fb1bcb0c-8ce9-417e-b219-e2c0c9398300.jpg',
+    //     Rating: 999999,
+    //     GamesPlayed: 999999,
+    //     TotalWins: 999999,
+    //     TotalLosses: 0,
+    //     WinRate: 100
+    // })
     // console.log(users)
     return users
 }
