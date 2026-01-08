@@ -22,7 +22,7 @@ test('Search Routes', async (t) => {
             {
                 id: 1,
                 username: 'john_doe',
-                profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg'
+                profileImage: 'http://127.0.0.1:3000/public/default_pfp.png'
             },
             {
                 id: 2,
@@ -48,9 +48,9 @@ test('Search Routes', async (t) => {
 
     await t.test('GET /users/search - empty search query', async (t) => {
         const allUsers = [
-            { id: 1, username: 'user1', profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg' },
-            { id: 2, username: 'user2', profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg' },
-            { id: 3, username: 'user3', profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg' }
+            { id: 1, username: 'user1', profileImage: 'http://127.0.0.1:3000/public/default_pfp.png' },
+            { id: 2, username: 'user2', profileImage: 'http://127.0.0.1:3000/public/default_pfp.png' },
+            { id: 3, username: 'user3', profileImage: 'http://127.0.0.1:3000/public/default_pfp.png' }
         ];
 
         mockDb.all.resolves(allUsers);
@@ -83,7 +83,7 @@ test('Search Routes', async (t) => {
 
     await t.test('GET /users/search - case insensitive search', async (t) => {
         const searchResults = [
-            { id: 1, username: 'TestUser', profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg' }
+            { id: 1, username: 'TestUser', profileImage: 'http://127.0.0.1:3000/public/default_pfp.png' }
         ];
 
         mockDb.all.resolves(searchResults);
@@ -101,8 +101,8 @@ test('Search Routes', async (t) => {
 
     await t.test('GET /users/search - partial match', async (t) => {
         const searchResults = [
-            { id: 1, username: 'alexander', profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg' },
-            { id: 2, username: 'alex', profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg' }
+            { id: 1, username: 'alexander', profileImage: 'http://127.0.0.1:3000/public/default_pfp.png' },
+            { id: 2, username: 'alex', profileImage: 'http://127.0.0.1:3000/public/default_pfp.png' }
         ];
 
         mockDb.all.resolves(searchResults);
@@ -123,7 +123,7 @@ test('Search Routes', async (t) => {
         const manyUsers = Array.from({ length: 20 }, (_, i) => ({
             id: i + 1,
             username: `user${i + 1}`,
-            profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg'
+            profileImage: 'http://127.0.0.1:3000/public/default_pfp.png'
         }));
 
         // Database should only return 15 due to LIMIT clause
@@ -191,9 +191,9 @@ test('Search Routes', async (t) => {
 
     await t.test('GET /users/search - results ordered alphabetically', async (t) => {
         const searchResults = [
-            { id: 3, username: 'alice', profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg' },
-            { id: 1, username: 'bob', profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg' },
-            { id: 2, username: 'charlie', profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg' }
+            { id: 3, username: 'alice', profileImage: 'http://127.0.0.1:3000/public/default_pfp.png' },
+            { id: 1, username: 'bob', profileImage: 'http://127.0.0.1:3000/public/default_pfp.png' },
+            { id: 2, username: 'charlie', profileImage: 'http://127.0.0.1:3000/public/default_pfp.png' }
         ];
 
         mockDb.all.resolves(searchResults);

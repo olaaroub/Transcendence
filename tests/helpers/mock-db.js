@@ -48,7 +48,7 @@ function createTestUserInfo(overrides = {}) {
     return {
         id: 1,
         user_id: 1,
-        profileImage: 'http://127.0.0.1:3000/public/Default_pfp.jpg',
+        profileImage: 'http://127.0.0.1:3000/public/default_pfp.png',
         bio: 'Test bio',
         TotalWins: 0,
         WinRate: 0,

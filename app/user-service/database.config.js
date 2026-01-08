@@ -14,7 +14,7 @@ const creatTable = async () => {
         id INTEGER UNIQUE NOT NULL,
         username TEXT UNIQUE NOT NULL,
         bio TEXT DEFAULT 'Hello there i am using Pong game!',
-        avatar_url TEXT DEFAULT '/public/Default_pfp.jpg',
+        avatar_url TEXT DEFAULT '/public/default_pfp.png',
         is_read BOOLEAN DEFAULT FALSE,
 
         GamesPlayed INTEGER DEFAULT 0,

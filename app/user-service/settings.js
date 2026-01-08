@@ -84,7 +84,7 @@ async function getProfileData(req, reply) {
 					const updatedProfile = {
 							id: responseData.id,
 							username: 'Pong User',
-							avatar_url: '/public/Default_pfp.jpg',
+							avatar_url: '/public/default_pfp.png',
 							bio: '--',
 							status: null,
 							Rating: 0, TotalWins: 0, TotalLosses: 0, GamesPlayed: 0

@@ -43,7 +43,7 @@ test('Image Routes', async (t) => {
     });
 
     await t.test('GET /users/:id/settings-avatar - default image', async (t) => {
-        const defaultImage = 'http://127.0.0.1:3000/public/Default_pfp.jpg';
+        const defaultImage = 'http://127.0.0.1:3000/public/default_pfp.png';
         mockDb.get.resolves({ profileImage: defaultImage });
 
         const response = await app.inject({
@@ -117,7 +117,7 @@ test('Image Routes', async (t) => {
     });
 
     await t.test('DELETE /users/:id/settings-avatar - cannot delete default image', async (t) => {
-        const defaultImage = 'http://127.0.0.1:3000/public/Default_pfp.jpg';
+        const defaultImage = 'http://127.0.0.1:3000/public/default_pfp.png';
         mockDb.get.resolves({ profileImage: defaultImage });
 
         const response = await app.inject({
@@ -172,7 +172,7 @@ test('Image Routes', async (t) => {
     });
 
     await t.test('PUT /users/:id/settings-avatar - preserves default image during upload', async (t) => {
-        const defaultImage = 'http://127.0.0.1:3000/public/Default_pfp.jpg';
+        const defaultImage = 'http://127.0.0.1:3000/public/default_pfp.png';
         mockDb.get.resolves({ profileImage: defaultImage });
         mockDb.run.resolves();
         // Should NOT delete default image
@@ -203,7 +203,7 @@ test('Image Routes', async (t) => {
         // This test verifies the route is registered
         const response = await app.inject({
             method: 'GET',
-            url: '/public/Default_pfp.jpg'
+            url: '/public/default_pfp.png'
         });
 
         // Will return 404 if file doesn't exist, but route is accessible

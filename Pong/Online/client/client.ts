@@ -9,6 +9,7 @@ import {
 	addHUDs,
 	updateGoals,
 	catchUpGoals,
+	createSign,
 	createArena,
 	createSky,
 	createPaddles,
@@ -52,7 +53,6 @@ let match: Match =
 	},
 };
 
-let gameOver: {winner: string, reason: string;} = {winner: "N/A", reason: "N/A"};
 let role = 0;
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
@@ -139,7 +139,7 @@ socket.on("state", (state: GameState) => {modifyState(state);});
 
 socket.on("gamestate", (state: State) => {match.currState = state;});
 
-socket.on("gameOver", (data: {winner: string, reason: string;}) => {gameOver = data;});
+socket.on("gameOver", (winner: string) => {createSign(`GAME OVER\n${winner.toUpperCase()} WINS`);});
 
 socket.on("redirect", () => {exitGame();});
 
@@ -155,13 +155,15 @@ socket.on("session", (session: Match['session']) =>
 		match.session.p2Alias = tempAlias;
 		match.session.p2Avatar = tempAvatar;
 	}
+	addHUDs(match.session);
 });
 
-socket.on("countdown", (count: number) =>
+socket.on("countdown", (count: string) =>
 {
-	addHUDs(match.session);
-	console.log(`Game starting in ${count}...`);
-	// TODO: Visual countdown with Babylon.js
+	if (count === '0')
+		createSign();
+	else
+		createSign(count);
 });
 
 optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
@@ -201,6 +203,7 @@ else
 			match = response;
 			console.log(`Joined room successfully. Waiting for game to start...`);
 			modifyState(match.state);
+			createSign(`WAITING FOR\nOPPONENT...`);
 		}
 		catch (e)
 		{
