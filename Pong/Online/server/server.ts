@@ -79,7 +79,7 @@ const fastify = Fastify(
 		level: process.env.LOG_LEVEL || 'info',
 		base:
 		{
-			service: 'pong-game',
+			service_name: 'pong-game',
 			env: process.env.NODE_ENV || 'development'
 		},
 		redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password']
