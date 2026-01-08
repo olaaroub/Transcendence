@@ -22,7 +22,6 @@ export class Renderer
 		this.engine = engine;
 		this.scene = scene;
 		this.meshes = meshes;
-		// engine.hideLoadingUI();
 	}
 
 	render(): void {this.scene.render();}
@@ -86,6 +85,8 @@ export class PongLoading implements BABYLON.ILoadingScreen
 			justify-content: center;
 			align-items: center;
 			z-index: 9999;
+			opacity: 1;
+			transition: opacity 0.5s ease;
 		`;
 
 		const gif = document.createElement("img");
@@ -100,8 +101,15 @@ export class PongLoading implements BABYLON.ILoadingScreen
 	{
 		if (this.loadingDiv)
 		{
-			this.loadingDiv.remove();
-			this.loadingDiv = null;
+			this.loadingDiv.style.opacity = "0";
+			this.loadingDiv.addEventListener("transitionend", () =>
+			{
+				if (this.loadingDiv)
+				{
+					this.loadingDiv.remove();
+					this.loadingDiv = null;
+				}
+			}, { once: true });
 		}
 	}
 }

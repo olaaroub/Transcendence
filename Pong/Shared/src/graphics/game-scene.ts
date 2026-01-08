@@ -15,7 +15,7 @@ export function createScene(canvas: HTMLCanvasElement): GameScene
 	const scene = new BABYLON.Scene(engine);
 	engine.loadingScreen = new PongLoading();
 	engine.displayLoadingUI();
-
+	scene.executeWhenReady(() => {setTimeout(() => {engine.hideLoadingUI();}, 2000);});
 	const light = new BABYLON.DirectionalLight("Sun", new BABYLON.Vector3(5, -10, 5), scene);
 	light.diffuse = BABYLON.Color3.FromHexString("#ED6F30");
 	light.intensity = 1;
