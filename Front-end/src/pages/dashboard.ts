@@ -6,7 +6,7 @@ import { searchbar } from "./components/searchbar";
 import { dashboardLearderboard } from "./components/leaderboard";
 import { apiFetch, showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
-import { chatEventHandler, initGlobalChatNotifications, initUnreadFromStorage } from "./chat/chat";
+import { chatEventHandler, cleanupPrivateChat, initGlobalChatNotifications, initUnreadFromStorage } from "./chat/chat";
 import { showDifficultyModal } from "./components/difficultyModal";
 import { AliasPopUp } from "./home";
 
@@ -58,6 +58,7 @@ export async function fetchProfile(userId: string | number | null) : Promise<IUs
 
 export async function initDashboard(isDashboard: boolean = true) {
 	setCredentials();
+	cleanupPrivateChat();
 	const profileResponse = await fetchProfile(credentials.id);
 	if (profileResponse) {
 		initGlobalChatNotifications();
@@ -280,7 +281,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	notifications();
 	chatEventHandler();
-	initUnreadFromStorage(); // Show red dot from persisted unread counts
+	initUnreadFromStorage();
 	$('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');});
 
 	const btnLocalVsPlayer = $('btn-local-vs-player');

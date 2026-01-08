@@ -11,48 +11,38 @@ import { subscribeFriendStatus } from '../components/NavBar';
 let socket: Socket | null = null;
 let friendStatusUnsubscribe: (() => void) | null = null;
 let notificationSocketInitialized = false;
-
-// LocalStorage key for persisting unread counts (by friendId)
 const UNREAD_STORAGE_KEY = 'chat_unread_counts';
 
-// Save unread counts to localStorage (keyed by friendId)
 function saveUnreadToStorage() {
 	const data: Record<number, number> = {};
-	chatState.unreadCounts.forEach((count, friendId) => {
-		data[friendId] = count;
-	});
+	chatState.unreadCounts.forEach((count, friendId) => {data[friendId] = count;});
 	localStorage.setItem(UNREAD_STORAGE_KEY, JSON.stringify(data));
 }
 
-// Load unread counts from localStorage
 function loadUnreadFromStorage() {
 	try {
 		const stored = localStorage.getItem(UNREAD_STORAGE_KEY);
 		if (stored) {
 			const data = JSON.parse(stored);
-			Object.entries(data).forEach(([friendId, count]) => {
+				Object.entries(data).forEach(([friendId, count]) => {
 				chatState.unreadCounts.set(Number(friendId), count as number);
 			});
 		}
-	} catch (e) {
-		console.error('Error loading unread counts from storage:', e);
-	}
+	} catch (e) {console.error('Error loading unread counts from storage:', e);}
 }
 
-// Update the message icon in navbar with red dot
+export function getTotalUnreadCount(): number {
+	let total = 0;
+	chatState.unreadCounts.forEach(count => {total += count;});
+	return total;
+}
+
 export function updateMessageIconBadge() {
 	const messageIcon = document.getElementById('message-icon');
 	if (!messageIcon) return;
 
-	// Calculate total unread
-	let totalUnread = 0;
-	chatState.unreadCounts.forEach(count => {
-		totalUnread += count;
-	});
-
-	// Find or create the red dot
+	let totalUnread = getTotalUnreadCount();
 	let redDot = messageIcon.querySelector('.message-unread-dot');
-
 	if (totalUnread > 0) {
 		if (!redDot) {
 			redDot = document.createElement('span');
@@ -60,23 +50,9 @@ export function updateMessageIconBadge() {
 			messageIcon.classList.add('relative');
 			messageIcon.appendChild(redDot);
 		}
-	} else {
-		if (redDot) {
-			redDot.remove();
-		}
-	}
+	} else {if (redDot) redDot.remove();}
 }
 
-// Get total unread count (for external use)
-export function getTotalUnreadCount(): number {
-	let total = 0;
-	chatState.unreadCounts.forEach(count => {
-		total += count;
-	});
-	return total;
-}
-
-// Initialize unread from storage on app load
 export function initUnreadFromStorage() {
 	loadUnreadFromStorage();
 	updateMessageIconBadge();
@@ -102,7 +78,7 @@ interface ChatState {
 	unreadCounts: Map<number, number>;
 }
 
-const chatState: ChatState = {
+const chatState: ChatState = { // why
 	currentConversationId: null,
 	currentFriend: null,
 	messages: [],
@@ -115,74 +91,58 @@ const chatState: ChatState = {
 let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
 export function initGlobalChatNotifications() {
-	if (notificationSocketInitialized || socket) return;
+	if (notificationSocketInitialized && socket?.connected) return;
 
-	// Load persisted unread counts first
-	loadUnreadFromStorage();
-	updateMessageIconBadge();
-
-	socket = io({
-		path: '/api/chat/private/socket.io',
-		transports: ['websocket', 'polling'],
-	});
-
+	initUnreadFromStorage();
+	
+	if (!socket) {
+		socket = io({
+			path: '/api/chat/private/socket.io',
+			transports: ['websocket', 'polling'],
+		});
+	}
+	
+	socket.off("connect");
+	socket.off("connect_error");
+	socket.off("disconnect");
+	socket.off("new_notification");
+	socket.off("unread_messages");
+	socket.off("all_unread_counts");
+	socket.off("error");
+	
 	socket.on("connect", () => {
 		console.log("Connected to private chat");
 		socket?.emit("userId", credentials.id);
 	});
-
-	socket.on("connect_error", (error) => {
-		console.error("Socket connection error:", error.message);
-	});
-
-	socket.on("disconnect", (reason) => {
-		console.log("Disconnected from private chat:", reason);
-	});
-
+	socket.on("connect_error", (error) => {console.error("Socket connection error:", error.message);});
+	socket.on("disconnect", (reason) => {console.log("Disconnected from private chat:", reason);});
 	socket.on("new_notification", (data: { type: string; from: number; conversationId: number; text: string }) => {
-		console.log("New notification:", data);
-		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat')) {
+		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat'))
 			toastInfo(`New message received!`, { duration: 4000 });
-		}
 	});
-
-	// Listen for unread message updates (red dot) - keyed by friendId
 	socket.on("unread_messages", (data: { conversationId: number; friendId: number; unreadCount: number; hasUnread: boolean }) => {
-		console.log("Unread messages update:", data);
-		if (data.hasUnread && data.friendId) {
+		if (data.hasUnread && data.friendId)
 			chatState.unreadCounts.set(data.friendId, data.unreadCount);
-		} else if (data.friendId) {
+		else if (data.friendId)
 			chatState.unreadCounts.delete(data.friendId);
-		}
 		saveUnreadToStorage();
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
 	});
-
-	// Get all unread counts on connect - keyed by friendId
 	socket.on("all_unread_counts", (data: { unreadCounts: { conversationId: number; friendId: number; unreadCount: number }[] }) => {
-		console.log("All unread counts:", data);
 		chatState.unreadCounts.clear();
 		data.unreadCounts.forEach(item => {
-			if (item.friendId) {
+			if (item.friendId)
 				chatState.unreadCounts.set(item.friendId, item.unreadCount);
-			}
 		});
 		saveUnreadToStorage();
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
 	});
-
-	socket.on("error", (data) => {
-		console.error("Chat error:", data.message);
-	});
-
-	if (socket.connected) {
+	socket.on("error", (data) => {console.error("Chat error:", data.message);});
+	if (socket.connected)
 		socket.emit("userId", credentials.id);
-	}
-
 	notificationSocketInitialized = true;
-	console.log("Global chat notifications initialized");
 }
 
 function setupChatListeners() {
@@ -198,46 +158,28 @@ function setupChatListeners() {
 		console.log("Chat initialized:", data);
 		chatState.currentConversationId = data.conversationId;
 		chatState.messages = data.messages || [];
-		// Clear unread for this friend since we're viewing their chat
-		if (chatState.currentFriend) {
-			chatState.unreadCounts.delete(chatState.currentFriend.id);
-		}
-		saveUnreadToStorage();
-		updateMessageIconBadge();
-		updateUnreadIndicatorsUI();
 		updateMessagesUI();
+		markMessagesAsSeen();
 	});
 
 	socket.on("receive_message", (data: ChatMessage) => {
 		console.log("New message received:", data);
 		if (data.conversationId === chatState.currentConversationId) {
-			if (data.senderId === Number(credentials.id)) return;
+			if (data.senderId === Number(credentials.id ?? 0)) return;
 			chatState.messages.push(data);
 			updateMessagesUI();
-			// Mark as seen since user is viewing this chat
 			markMessagesAsSeen();
 		}
 	});
 
-	socket.on("message_sent", (data) => {
-		console.log("Message sent confirmation:", data);
-	});
-
-	// Listen for seen confirmation (other user saw our messages)
+	socket.on("message_sent", (data) => {console.log("Message sent confirmation:", data);});
 	socket.on("messages_seen", (data: { conversationId: number; seenBy: number }) => {
-		console.log("Messages seen by:", data);
 		if (data.conversationId === chatState.currentConversationId) {
-			// Mark all our messages as seen
 			chatState.messages.forEach(msg => {
-				if (msg.senderId === Number(credentials.id)) {
-					msg.seen = true;
-				}
-			});
+				if (msg.senderId === Number(credentials.id)) msg.seen = true;});
 			updateMessagesUI();
 		}
 	});
-
-	// Listen for typing indicator
 	socket.on("user_typing", (data: { conversationId: number; userId: number; isTyping: boolean }) => {
 		console.log("User typing:", data);
 		if (data.conversationId === chatState.currentConversationId && data.userId !== Number(credentials.id)) {
@@ -255,6 +197,11 @@ function openChat(friend: IUserData) {
 	chatState.messages = [];
 	chatState.isTyping = false;
 	chatState.typingUserId = null;
+
+	chatState.unreadCounts.delete(Number(friend.id));
+	saveUnreadToStorage();
+	updateMessageIconBadge();
+	updateUnreadIndicatorsUI();
 
 	socket.emit("open_chat", {
 		senderId: credentials.id,
@@ -361,7 +308,6 @@ function updateMessagesUI() {
 			`;
 		}).join('');
 	}
-	// Add typing indicator at the bottom
 	updateTypingIndicatorUI();
 	messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
@@ -388,7 +334,6 @@ function updateTypingIndicatorUI() {
 	const statusText = document.getElementById('chat-status-text');
 	const messagesContainer = document.getElementById('private-chat-messages');
 
-	// Update header status
 	if (statusText && chatState.currentFriend) {
 		if (chatState.isTyping) {
 			statusText.textContent = 'typing...';
@@ -399,7 +344,6 @@ function updateTypingIndicatorUI() {
 		}
 	}
 
-	// Show typing bubble in messages
 	if (messagesContainer) {
 		const existingTypingBubble = document.getElementById('typing-bubble');
 		if (chatState.isTyping && !existingTypingBubble) {
@@ -427,12 +371,10 @@ function updateUnreadIndicatorsUI() {
 	const friendsList = document.getElementById('friends-list');
 	if (!friendsList) return;
 
-	// Update red dots for each friend with unread messages (keyed by friendId)
 	friendsList.querySelectorAll('[data-friend-id]').forEach(el => {
 		const friendId = el.getAttribute('data-friend-id');
 		const existingDot = el.querySelector('.unread-dot');
 
-		// Check if this specific friend has unread messages
 		const unreadCount = chatState.unreadCounts.get(Number(friendId)) || 0;
 		const hasUnread = unreadCount > 0;
 
@@ -440,7 +382,6 @@ function updateUnreadIndicatorsUI() {
 			existingDot.remove();
 		}
 
-		// Add red dot if this friend has unread messages
 		if (hasUnread) {
 			const dot = document.createElement('div');
 			dot.className = 'unread-dot absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full';
@@ -459,7 +400,6 @@ function setupChatEventListeners() {
 			if (input && input.value.trim()) {
 				sendMessage(input.value);
 				input.value = '';
-				// Stop typing when message is sent
 				emitTypingStop();
 				if (typingTimeout) {
 					clearTimeout(typingTimeout);
@@ -473,7 +413,6 @@ function setupChatEventListeners() {
 			if (e.key === 'Enter' && input.value.trim()) {
 				sendMessage(input.value);
 				input.value = '';
-				// Stop typing when message is sent
 				emitTypingStop();
 				if (typingTimeout) {
 					clearTimeout(typingTimeout);
@@ -482,20 +421,11 @@ function setupChatEventListeners() {
 			}
 		});
 
-		// Typing detection
 		input.addEventListener('input', () => {
 			if (input.value.trim()) {
 				emitTypingStart();
-
-				// Clear existing timeout
-				if (typingTimeout) {
-					clearTimeout(typingTimeout);
-				}
-
-				// Stop typing after 2 seconds of no input
-				typingTimeout = setTimeout(() => {
-					emitTypingStop();
-				}, 2000);
+				if (typingTimeout) clearTimeout(typingTimeout);
+				typingTimeout = setTimeout(() => {emitTypingStop();}, 2000);
 			} else {
 				emitTypingStop();
 				if (typingTimeout) {
@@ -514,8 +444,8 @@ function setupFriendsClickListeners() {
 	friendsList.querySelectorAll('[data-friend-id]').forEach(el => {
 		const friendId = el.getAttribute('data-friend-id');
 		const friend = chatState.friends.find(f => String(f.id) === friendId);
-
 		const usernameLink = el.querySelector('.username-link');
+
 		if (usernameLink && friendId) {
 			usernameLink.addEventListener('click', (e) => {
 				e.stopPropagation();
@@ -555,7 +485,6 @@ function updateFriendStatusUI(friendId: string, status: 'ONLINE' | 'OFFLINE'): v
 			statusText.textContent = status.toLowerCase();
 		}
 	}
-
 	if (chatState.currentFriend && String(chatState.currentFriend.id) === friendId) {
 		chatState.currentFriend.status = status;
 		updateChatHeaderUI();
@@ -564,9 +493,11 @@ function updateFriendStatusUI(friendId: string, status: 'ONLINE' | 'OFFLINE'): v
 
 export function cleanupPrivateChat() {
 	if (socket) {
-		socket.removeAllListeners();
-		socket.disconnect();
-		socket = null;
+		socket.off("chat_initialized");
+		socket.off("receive_message");
+		socket.off("message_sent");
+		socket.off("messages_seen");
+		socket.off("user_typing");
 	}
 	if (friendStatusUnsubscribe) {
 		friendStatusUnsubscribe();
@@ -582,8 +513,16 @@ export function cleanupPrivateChat() {
 	chatState.friends = [];
 	chatState.isTyping = false;
 	chatState.typingUserId = null;
-	// Don't clear unreadCounts - keep them persistent
+}
+
+export function disconnectChatSocket() {
+	if (socket) {
+		socket.removeAllListeners();
+		socket.disconnect();
+		socket = null;
+	}
 	notificationSocketInitialized = false;
+	chatState.unreadCounts.clear();
 }
 
 export function chatEventHandler() {
@@ -617,7 +556,6 @@ function renderMessages() : string {
 				outline-none border border-color3 focus:border-color1 transition-colors
 				disabled:opacity-50 disabled:cursor-not-allowed"
 				${!chatState.currentConversationId ? 'disabled' : ''}>
-				<button id="private-chat-send"
 				<button id="private-chat-send"
 					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
 					transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -666,16 +604,13 @@ async function listFriends() : Promise<string> {
 
 export async function renderChat() {
 	await data.initDashboard(false);
-
 	chatState.currentConversationId = null;
 	chatState.currentFriend = null;
 	chatState.messages = [];
-	setupChatListeners();
 
-	// Update navbar icon (load from storage)
+	setupChatListeners();
 	loadUnreadFromStorage();
 	updateMessageIconBadge();
-
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = /* html */`
@@ -691,10 +626,8 @@ export async function renderChat() {
 	setTimeout(() => {
 		setupChatEventListeners();
 		setupFriendsClickListeners();
-		// Show red dots on friends with unread messages
 		updateUnreadIndicatorsUI();
 	}, 0);
-
 	if (friendStatusUnsubscribe)
 		friendStatusUnsubscribe();
 	friendStatusUnsubscribe = subscribeFriendStatus(updateFriendStatusUI);
