@@ -203,7 +203,7 @@ async function startCountdown(room: GameRoom): Promise<void>
 	for (let count = 3; count >= 0; count--)
 	{
 		if (count === 0)
-			broadcastToRoom(room.id, 'countdown', 'GO!');
+			broadcastToRoom(room.id, 'countdown', 'GO');
 		else
 			broadcastToRoom(room.id, 'countdown', `${count}`);
 		if (count > 0)
@@ -420,7 +420,10 @@ function initSocketHandlers(): void
 				}
 			}
 			else
+			{
 				fastify.log.info(`Spectator ${socket.id} joined room ${roomId}`);
+				socket.emit('session', room.session);
+			}
 			callback(getMatchData(room));
 		});
 

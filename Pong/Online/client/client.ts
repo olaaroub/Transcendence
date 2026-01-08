@@ -201,8 +201,11 @@ else
 			}
 			match = response;
 			console.log(`Joined room successfully. Waiting for game to start...`);
-			modifyState(match.state);
-			createSign(`WAITING FOR\nOPPONENT...`);
+			if (role !== 3)
+			{
+				modifyState(match.state);
+				createSign(`WAITING FOR\nOPPONENT...`);
+			}
 		}
 		catch (e)
 		{
