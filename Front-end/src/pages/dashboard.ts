@@ -9,6 +9,7 @@ import { setUserData, userData, getImageUrl, credentials, IUserData, setCredenti
 import { chatEventHandler, cleanupPrivateChat, initGlobalChatNotifications, initUnreadFromStorage } from "./chat/chat";
 import { showDifficultyModal } from "./components/difficultyModal";
 import { AliasPopUp } from "./home";
+import { toastInfo } from "./components/toast";
 
 // (window as any).navigate = navigate;
 const $ = (id : string) => document.getElementById(id as string);
@@ -131,11 +132,11 @@ function OnlinePong() : string
 			description: 'Find a ranked opponent'
 		},
 		{
-			id: 'btn-online-room',
+			id: 'btn-online-spectate',
 			colorClass: 'color2',
 			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>',
-			title: 'Join Room',
-			description: 'Join competitive brackets'
+			title: 'Spectate a Game',
+			description: 'Watch a live match'
 		}
 	];
 
@@ -321,9 +322,26 @@ export async function renderDashboard(isDashboard: boolean = true)
 		navigate(`/pong-game?mode=online-matchmaking`);
 	});
 
-	const btnOnlineRoom = $('btn-online-room');
-	btnOnlineRoom?.addEventListener('click', () => { // Before navigating, you must await boolean from /api/room/:roomid
-		navigate('/pong-game?mode=online-room');
+	const btnOnlineSpectate = $('btn-online-spectate');
+	btnOnlineSpectate?.addEventListener('click', async () => {
+		interface RoomID {
+			roomId : string | null
+		}
+		const { data, error} = await apiFetch<RoomID>("/api/game/spectate");
+		if (error || !data) return;
+		if (!data.roomId)
+		{
+			toastInfo("No available games to spectate. Please try again later.");
+			return;
+		}
+		const roomData : RoomData = {
+			roomId : data.roomId,
+			PlayerID: String(userData.id),
+			playerName: userData.username,
+			playerAvatar: getImageUrl(userData.avatar_url)
+		};
+		sessionStorage.setItem("room", JSON.stringify(roomData));
+		navigate('/pong-game');
 	});
 
 	const avatar = $('avatar');
