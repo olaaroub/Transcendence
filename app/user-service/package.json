@@ -1,0 +1,37 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "users.js",
+  "scripts": {
+    "start": "node users.js",
+    "dev": "nodemon --delay 2s users.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@fastify/jwt": "^10.0.0",
+    "@fastify/multipart": "^9.2.1",
+    "@fastify/static": "^8.3.0",
+    "@fastify/websocket": "^11.2.0",
+    "better-sqlite3": "^12.4.1",
+    "fastify": "^5.6.2",
+    "fastify-metrics": "^12.1.0",
+    "file-type": "^16.5.4",
+    "http-errors": "^2.0.1",
+    "node-vault": "^0.10.9",
+    "uuid": "^9.0.1"
+  },
+  "overrides": {
+    "node-vault": {
+      "postman-request": {
+        "qs": "^6.14.1"
+      }
+    }
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

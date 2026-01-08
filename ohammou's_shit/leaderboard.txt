@@ -1,0 +1,66 @@
+
+api: get request   /api/user/leaderboard?start='fin biti tbda'&offset='chehal men user bghiti'
+-> *sift liya token
+
+response: array dyal json
+kola obj fih had lm3lomat:
+        {
+        "id": 1,
+        "username": "oussamam hammou messaoud",
+        "avatar_url": "/public/e322bbf9-e861-4af4-8d2f-a8352c6b4843_google.jpg",
+        "Rating": 1000,
+        "GamesPlayed": 0,
+        "TotalWins": 0,
+        "TotalLosses": 0,
+        "WinRate": 0
+    }
+
+
+example: request: /api/user/leaderboard?&start=0&offset=3
+
+response:
+[
+    {
+        "id": 1,
+        "username": "oussamam hammou messaoud",
+        "avatar_url": "/public/e322bbf9-e861-4af4-8d2f-a8352c6b4843_google.jpg",
+        "Rating": 1000,
+        "GamesPlayed": 0,
+        "TotalWins": 0,
+        "TotalLosses": 0,
+        "WinRate": 0
+    },
+    {
+        "id": 2,
+        "username": "laaroubi",
+        "avatar_url": "/public/default_pfp.png",
+        "Rating": 1000,
+        "GamesPlayed": 0,
+        "TotalWins": 0,
+        "TotalLosses": 0,
+        "WinRate": 0
+    },
+    {
+        "id": 3,
+        "username": "messi",
+        "avatar_url": "/public/default_pfp.png",
+        "Rating": 1000,
+        "GamesPlayed": 0,
+        "TotalWins": 0,
+        "TotalLosses": 0,
+        "WinRate": 0
+    }
+]
+
+
+// statistics
+
+get request to this url -> /user/statistic/:id
+
+response:
+    {
+    "TotalWins": 0,
+    "WinRate": 0,
+    "CurrentStreak": 0,
+    "Rating": 1000
+}

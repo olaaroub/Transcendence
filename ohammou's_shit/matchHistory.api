@@ -1,0 +1,25 @@
+9bl matbda tkodi dir -> make cleandev
+                        make clean-data
+
+method: get, url: '/user/:id/match-history'
+
+and the response is in this format:
+    array of json obj
+        the json obj be like:
+        {
+            "match_id": 1,
+            "player1_id": 1,
+            "player2_id": 2,
+            "player1_score": 4,
+            "player2_score": 2,
+            "match_date": "2026-01-03 20:28:04",
+            "player1_username": "oussama",
+            "player2_username": "oussamaHammou",
+            "player1_avatar": "/public/default_pfp.png",
+            "player2_avatar": "/public/default_pfp.png"
+        }
+
+optional: you can set the offset and limit in the query string (if you not set them to start = 0, limit = 20);
+
+// hahoma doke lvaribels
+Rating: 0, TotalWins: 0, TotalLosses: 0, GamesPlayed: 0

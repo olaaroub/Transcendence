@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY . .
+
+WORKDIR /app/Shared
+RUN npm install && npm run build
+
+WORKDIR /app/Offline
+RUN npm install && npm run build
+
+WORKDIR /app/Online/
+RUN npm install && npm run build
+
+RUN chmod +x /app/init.sh
+
+ARG PORT=3000
+ENV PORT=${PORT}
+EXPOSE ${PORT}
+
+CMD ["/app/init.sh"]

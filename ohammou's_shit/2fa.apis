@@ -1,0 +1,34 @@
+to enable 2fa:
+    send Http request to this api url: '/api/auth/2fa/setup/:id' with method: get
+    body of request:
+    {
+        "password": "the user password"
+    }
+    my response:
+    {
+        secret: "show it to user"
+        qrCode: "its a img (put them in src of img and show it to the user)
+    }
+
+to verify 2fa:
+    send Http request to this api url: '/api/auth/2fa/verify/:id' with method: post
+    body of request:
+    {
+        token: "fih dok lar9am li dkhel lik luser"
+    }
+    my response:
+    {
+        success: "true if is authorized and false if is unauthorized"
+        message: ""
+    }
+
+towFaDisabling
+    body of request:
+    {
+        "password": "the user password"
+    }
+    my response:
+    {
+        success: 
+        message: ""
+    }

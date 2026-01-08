@@ -1,0 +1,343 @@
+# 💬 Real-Time Chat API Documentation
+
+This API uses **Socket.io** for real-time messaging and notifications.
+
+**Socket Path:** `/api/chat/private/socket.io`
+**Connection URL:** `http://localhost:[PORT]/api/chat/private/socket.io`
+
+---
+
+## 1. Initialization (Essential)
+
+As soon as the user logs into the app, they **must** join their private notification room.
+
+* **Event to Emit:** `userId`
+* **Data:** `Number` (The ID of the logged-in user)
+* **Purpose:** Allows the user to receive notifications even if they don't have a chat window open.
+* **Response to Listen for:** `all_unread_counts`
+* **Returns:** Automatically sends unread message counts for all conversations upon connection.
+
+**Example:**
+```javascript
+socket.emit("userId", 1);
+```
+
+---
+
+## 2. Opening a Chat
+
+When a user clicks on a contact to start/view a conversation:
+
+* **Event to Emit:** `open_chat`
+* **Payload:**
+
+```json
+{
+  "senderId": 1,
+  "receiverId": 2
+}
+```
+
+* **Response to Listen for:** `chat_initialized`
+* **Returns:** An object containing `conversationId` and an array of the last 20 `messages`.
+* **Side Effect:** Automatically marks all messages in this conversation as seen and notifies the other user via `messages_seen` event.
+
+**Example Response:**
+```json
+{
+  "conversationId": 10,
+  "messages": [
+    {
+      "messageId": 1,
+      "senderId": 2,
+      "content": "Hi!",
+      "seen": true,
+      "createdAt": "2026-01-07T12:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+## 3. Sending a Message
+
+* **Event to Emit:** `send_message`
+* **Payload:**
+
+```json
+{
+  "conversationId": 10,
+  "senderId": 1,
+  "receiverId": 2,
+  "content": "Hello there!"
+}
+```
+
+* **Confirmation:** Listen for `message_sent` to know the message hit the database.
+* **Side Effects:** 
+  - Broadcasts `receive_message` to all users in the chat room
+  - Sends `new_notification` to the receiver
+  - Sends `unread_messages` indicator to the receiver
+
+---
+
+## 4. Mark Messages as Seen
+
+Manually mark messages as read when viewing a conversation.
+
+* **Event to Emit:** `mark_seen`
+* **Payload:**
+
+```json
+{
+  "conversationId": 10,
+  "userId": 1,
+  "otherUserId": 2
+}
+```
+
+* **Side Effects:**
+  - Notifies the sender via `messages_seen` event
+  - Updates the unread count via `unread_messages` event
+
+---
+
+## 5. Typing Indicators
+
+### **Start Typing**
+* **Event to Emit:** `typing_start`
+* **Payload:**
+
+```json
+{
+  "conversationId": 10,
+  "userId": 1,
+  "receiverId": 2
+}
+```
+
+### **Stop Typing**
+* **Event to Emit:** `typing_stop`
+* **Payload:**
+
+```json
+{
+  "conversationId": 10,
+  "userId": 1,
+  "receiverId": 2
+}
+```
+
+* **Response to Listen for:** `user_typing`
+* **Returns:**
+
+```json
+{
+  "conversationId": 10,
+  "userId": 1,
+  "isTyping": true
+}
+```
+
+---
+
+## 6. Get Unread Counts
+
+Fetch unread message counts for all conversations.
+
+* **Event to Emit:** `get_unread_counts`
+* **Payload:**
+
+```json
+{
+  "userId": 1
+}
+```
+
+* **Response to Listen for:** `all_unread_counts`
+* **Returns:** Array of unread counts per conversation.
+
+---
+
+## 7. Incoming Events (Listeners)
+
+The frontend should always be listening for these events:
+
+### **A. Receiving a Live Message**
+
+* **Event Name:** `receive_message`
+* **Trigger:** When someone sends a message in a chat room you're currently in.
+* **Action:** Append the message to the chat screen.
+* **Data Received:**
+
+```json
+{
+  "messageId": 42,
+  "senderId": 2,
+  "content": "Hello!",
+  "conversationId": 10,
+  "seen": false,
+  "createdAt": "2026-01-07T12:00:00Z"
+}
+```
+
+### **B. Receiving a Notification**
+
+* **Event Name:** `new_notification`
+* **Trigger:** When someone sends you a message, regardless of where you are in the app.
+* **Action:** Show a "New Message" alert or update notification badge.
+* **Data Received:**
+
+```json
+{
+  "type": "NEW_MESSAGE",
+  "from": 2,
+  "conversationId": 10,
+  "text": "You have a new message!"
+}
+```
+
+### **C. Unread Messages Indicator**
+
+* **Event Name:** `unread_messages`
+* **Trigger:** When you receive a new message or mark messages as seen.
+* **Action:** Show/hide red dot indicator on conversation.
+* **Data Received:**
+
+```json
+{
+  "conversationId": 10,
+  "friendId": 2,
+  "unreadCount": 3,
+  "hasUnread": true
+}
+```
+
+### **D. Messages Seen**
+
+* **Event Name:** `messages_seen`
+* **Trigger:** When the other user views your messages.
+* **Action:** Update UI to show messages as "seen" (e.g., blue checkmarks).
+* **Data Received:**
+
+```json
+{
+  "conversationId": 10,
+  "seenBy": 2
+}
+```
+
+### **E. User Typing**
+
+* **Event Name:** `user_typing`
+* **Trigger:** When the other user starts/stops typing.
+* **Action:** Show/hide typing indicator.
+* **Data Received:**
+
+```json
+{
+  "conversationId": 10,
+  "userId": 2,
+  "isTyping": true
+}
+```
+
+### **F. All Unread Counts**
+
+* **Event Name:** `all_unread_counts`
+* **Trigger:** On connection or when requested.
+* **Action:** Update unread badges across all conversations.
+* **Data Received:**
+
+```json
+{
+  "unreadCounts": [
+    {
+      "conversationId": 10,
+      "friendId": 2,
+      "unreadCount": 3
+    },
+    {
+      "conversationId": 11,
+      "friendId": 3,
+      "unreadCount": 0
+    }
+  ]
+}
+```
+
+---
+
+## 8. Complete Events Reference
+
+### **Events to Emit (Client → Server)**
+
+| Event              | Purpose                                  | Required Fields                              |
+| ------------------ | ---------------------------------------- | -------------------------------------------- |
+| `userId`           | Join personal notification room          | `userId` (Number)                            |
+| `open_chat`        | Open/initialize a conversation           | `senderId`, `receiverId` (Numbers)           |
+| `send_message`     | Send a text message                      | `conversationId`, `senderId`, `receiverId`, `content` |
+| `mark_seen`        | Mark messages as read                    | `conversationId`, `userId`, `otherUserId`    |
+| `typing_start`     | Notify other user you're typing          | `conversationId`, `userId`, `receiverId`     |
+| `typing_stop`      | Notify other user you stopped typing     | `conversationId`, `userId`, `receiverId`     |
+| `get_unread_counts`| Fetch all unread message counts          | `userId` (Number)                            |
+
+### **Events to Listen For (Server → Client)**
+
+| Event               | Purpose                                     | When Triggered                          |
+| ------------------- | ------------------------------------------- | --------------------------------------- |
+| `chat_initialized`  | Receive chat history                        | After `open_chat`                       |
+| `message_sent`      | Confirm message delivery                    | After `send_message`                    |
+| `receive_message`   | Receive new message in active chat          | Real-time when in chat room             |
+| `new_notification`  | Receive notification for new message        | Real-time, anywhere in app              |
+| `unread_messages`   | Update unread count for a conversation      | On new message or mark seen             |
+| `messages_seen`     | Notification that your messages were read   | When receiver opens/views chat          |
+| `user_typing`       | Show typing indicator                       | When other user types                   |
+| `all_unread_counts` | Receive all unread counts                   | On connect or explicit request          |
+
+---
+
+## 9. Connection Example
+
+```javascript
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:8405', {
+  path: '/api/chat/private/socket.io',
+  transports: ['websocket']
+});
+
+// Initialize connection
+socket.on('connect', () => {
+  console.log('Connected to chat server');
+  socket.emit('userId', currentUserId);
+});
+
+// Listen for all events
+socket.on('all_unread_counts', (data) => {
+  console.log('Unread counts:', data.unreadCounts);
+});
+
+socket.on('receive_message', (message) => {
+  console.log('New message:', message);
+});
+
+socket.on('new_notification', (notification) => {
+  console.log('Notification:', notification);
+});
+
+socket.on('unread_messages', (data) => {
+  console.log('Unread update:', data);
+});
+
+socket.on('messages_seen', (data) => {
+  console.log('Messages seen:', data);
+});
+
+socket.on('user_typing', (data) => {
+  console.log('User typing:', data);
+});
+```
+
+---

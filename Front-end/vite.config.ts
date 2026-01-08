@@ -1,10 +1,12 @@
-import { defineConfig } from "vite";
+import { defineConfig, UserConfig } from "vite"; // npm install -D @types/node
 import { resolve } from "path";
 import fs from "fs";
 
 export default defineConfig(({ command }) => {
 
-  const config = {
+  const serviceExt = process.env.SERVICE_EXT || '-dev';
+
+  const config: UserConfig = {
     root: "src",
     publicDir: resolve(process.cwd(), "assets"),
     build: {
@@ -18,17 +20,18 @@ export default defineConfig(({ command }) => {
       host: '0.0.0.0',
       proxy: {
         '/api/': {
-          target: 'http://modSecurity:8080',
+          target: `http://modSecurity${serviceExt}:8080`,
           changeOrigin: true,
           secure: false,
-        }
+          ws: true
+        },
       },
-      https: undefined
     }
   };
 
   if (command === 'serve') {
     try {
+      config.server = config.server || {};
       config.server.https = {
         key: fs.readFileSync('/app/certs/nginx.key'),
         cert: fs.readFileSync('/app/certs/nginx.crt'),

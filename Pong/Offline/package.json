@@ -1,0 +1,15 @@
+{
+  "name": "pong-offline",
+  "version": "1.0.0",
+  "description": "Offline version of Pong",
+  "type": "module",
+  "scripts": {
+	"dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "dependencies": {
+    "pong-shared": "file:../Shared",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0"
+  }
+}

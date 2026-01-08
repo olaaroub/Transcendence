@@ -1,14 +1,19 @@
-import { navigate } from "../router";
-
 export interface IUserData {
 	id: number | string | null;
 	email: string | null;
 	username: string | null;
-	profileImage: string | null;
 	bio: string | null;
 	status: string | null;
+	onlineStatus?: string | null;
 	auth_provider: string | null;
+	avatar_url: string | null;
+	is_read: string | null;
+	Rating: number;
+	TotalWins: number;
+	TotalLosses: number;
+	GamesPlayed: number;
 }
+
 
 export const credentials = {
 	id: localStorage.getItem('id'),
@@ -21,18 +26,19 @@ export function setCredentials()
 	credentials.token = localStorage.getItem('token');
 }
 
-if (!credentials.id || !credentials.token) {
-	console.warn('Missing credentials in store');
-}
-
 export const userData : IUserData = {
 	id: null,
 	email: null,
 	username: null,
-	profileImage: null,
 	bio: null,
 	status: null,
 	auth_provider: null,
+	avatar_url: null,
+	is_read: null,
+	Rating: 0,
+	TotalWins: 0,
+	TotalLosses: 0,
+	GamesPlayed: 0
 };
 
 export function setUserData(newData: IUserData)
@@ -48,7 +54,8 @@ export function getUserData(): IUserData
  /// had function adds /api prefix only if its not already there ( to prevent /api/api and if mmondad uses profile photo online
  // for example https://profilephoto) and i used it here 7itach simo tayloadi profile photo f b<f tlblays
  // so i should make a function to call mra w7da l kolchi
-export function getImageUrl(profileImage: string | null | undefined): string | null {
-	if (!profileImage) return null;
-	return profileImage.startsWith('/public/') ? `/api${profileImage}` : profileImage;
+export function getImageUrl(avatar_url: string | null | undefined): string | null {
+	// console.log("profile img", avatar_url)
+	if (!avatar_url) return null;
+	return avatar_url.startsWith('/public/') ? `/api${avatar_url}` : avatar_url;
 }

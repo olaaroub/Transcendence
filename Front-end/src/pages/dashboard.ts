@@ -1,102 +1,148 @@
 import { notifications, renderDashboardNavBar } from "./components/NavBar";
 import { navigate } from "../router";
-import { renderGroupChat } from "./chat/groupChat";
+import { renderGlobalChat } from "./chat/globalChat";
 import { renderProfileMenu } from "./components/profileMenu";
 import { searchbar } from "./components/searchbar";
 import { dashboardLearderboard } from "./components/leaderboard";
-import { showErrorMessage } from "./components/errorsHandler";
+import { apiFetch, showErrorMessage } from "./components/errorsHandler";
 import { setUserData, userData, getImageUrl, credentials, IUserData, setCredentials} from "./store"
-import { chatEventHandler } from "./chat/chat";
+import { chatEventHandler, initGlobalChatNotifications, initUnreadFromStorage } from "./chat/chat";
+import { showDifficultyModal } from "./components/difficultyModal";
+import { AliasPopUp } from "./home";
 
-(window as any).navigate = navigate;
+// (window as any).navigate = navigate;
+const $ = (id : string) => document.getElementById(id as string);
+
+interface IUserStatistics {
+	TotalWins: number;
+	WinRate: number;
+	CurrentStreak: number;
+	Rating: number;
+}
 
 export let response: Response  | null = null;
+
+export async function fetchUserStatistics(userId: string | number | null): Promise<IUserStatistics | null> {
+	if (!userId) {
+		console.warn('User ID is null or undefined');
+		return null;
+	}
+	const { data, error } = await apiFetch<IUserStatistics>(`/api/user/statistic/${userId}`, {
+		showErrorToast: false
+	});
+	if (error) {
+		if (error.isNetworkError)
+			showErrorMessage('Server unreachable. Try again later.', 503);
+		return null;
+	}
+	return data;
+}
 
 export async function fetchProfile(userId: string | number | null) : Promise<IUserData | null> {
 	if (!userId) {
 		console.warn('User ID is null or undefined');
 		return null;
 	}
-	let tmpUserData: IUserData | null = null;
-	try {
-		const response = await fetch(`/api/users/${userId}/profile`, {
-			headers: { "Authorization": `Bearer ${credentials.token}` },
-		});
-		if (response.status === 401 || response.status === 403) {
-			localStorage.clear();
-			navigate('/login');
-			return null;
-		}
-		try {
-			tmpUserData = await response.json();
-			if (tmpUserData && userId == credentials.id)
-				setUserData(tmpUserData);
-		} catch (parseErr) {
-			console.error('Invalid JSON from API:', parseErr);
-			showErrorMessage('Unexpected server response.', 502); // to test later
-			return null;
-		}
+	const { data, error } = await apiFetch<IUserData>(`/api/user/${userId}/profile`, {
+		showErrorToast: false
+	});
+	if (error) {
+		if (error.isNetworkError)
+			showErrorMessage('Server unreachable. Try again later.', 503);
+		return null;
 	}
-	catch (err) {
-		console.error('Network error:', err);
-		showErrorMessage('Server unreachable. Try again later.', 503);
-	}
-	return tmpUserData;
+	if (data && userId == credentials.id)
+		setUserData(data);
+	return data;
 }
 
 export async function initDashboard(isDashboard: boolean = true) {
 	setCredentials();
 	const profileResponse = await fetchProfile(credentials.id);
-	if (profileResponse)
+	if (profileResponse) {
+		initGlobalChatNotifications();
 		renderDashboard(isDashboard);
+	}
 }
 
-function gameButtons(bg:string)
-{
-	return `
-		<button class="rounded-2xl transition-all h-[250px]
-		duration-300 hover:scale-[1.02] hover:shadow-2xl relative overflow-hidden group">
-			<img class="w-full h-full" src=${bg}></img>
+function renderGameModeButton(id: string, colorClass: string, icon: string, title: string, description: string): string {
+	return /* html */ `
+		<button id="${id}" class="group relative bg-[#0f0f1a] hover:bg-[#1a1a2e]
+			rounded-xl p-5 border border-white/5 hover:border-${colorClass}/50
+			transition-all duration-200 cursor-pointer text-left">
+			<div class="flex items-center gap-3 mb-3">
+				<div class="w-10 h-10 rounded-lg bg-${colorClass}/10 group-hover:bg-${colorClass}/20
+					flex items-center justify-center transition-colors duration-200">
+					<svg class="w-5 h-5 text-${colorClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						${icon}
+					</svg>
+				</div>
+				<span class="text-white font-medium group-hover:text-${colorClass} transition-colors duration-200">${title}</span>
+			</div>
+			<p class="text-gray-500 text-sm">${description}</p>
 		</button>
-	`
+	`;
 }
 
 function LocalPong() : string
 {
-	return `
-		<div class="relative ">
-			<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02]
-			transition-all duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px]
-			items-center md:items-start gap-4 overflow-visible relative">
-				<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Local Pong</p>
-				<div class="flex h-full gap-3 justify-center w-full">
-					${gameButtons('images/online.webp')}
-					${gameButtons('images/online.webp')}
-					${gameButtons('images/online.webp')}
-				</div>
+	const localModes = [
+		{
+			id: 'btn-local-vs-player',
+			colorClass: 'color1',
+			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>',
+			title: '1v1 Player',
+			description: 'Challenge a friend locally'
+		},
+		{
+			id: 'btn-local-vs-ai',
+			colorClass: 'color2',
+			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>',
+			title: 'Vs AI',
+			description: 'Test your skills against AI'
+		}
+	];
+
+	return /* html */ `
+		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] glow-effect rounded-2xl p-6
+		transition-all duration-300 border border-white/5">
+			<div class="flex items-center gap-3 mb-6">
+				<h3 class="text-white text-2xl font-bold">Local Pong</h3>
+			</div>
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+				${localModes.map(mode => renderGameModeButton(mode.id, mode.colorClass, mode.icon, mode.title, mode.description)).join('')}
 			</div>
 		</div>
 	`
 }
 
-
-
 function OnlinePong() : string
 {
-	return `
-		<div class="bg-color4 glow-effect hover:bg-[rgb(0_0_0_/_80%)] hover:scale-[1.02] transition-all
-		duration-300 rounded-3xl px-6 pt-2 flex flex-col h-[400px] items-center md:items-start gap-4
-		overflow-visible relative" style="animation-delay: 0.5s;">
-			<p class="text-color1 text-[50px] font-[900]" style="font-family: 'Pixelify Sans', sans-serif;">Online Pong</p>
-			<div class="grid grid-cols-2 gap-3 w-[65%] h-full">
-				${gameButtons('images/online.webp')}
-				${gameButtons('images/online.webp')}
+	const onlineModes = [
+		{
+			id: 'btn-online-matchmaking',
+			colorClass: 'color1',
+			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>',
+			title: 'Matchmaking',
+			description: 'Find a ranked opponent'
+		},
+		{
+			id: 'btn-online-room',
+			colorClass: 'color2',
+			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>',
+			title: 'Join Room',
+			description: 'Join competitive brackets'
+		}
+	];
+
+	return /* html */ `
+		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] glow-effect rounded-2xl p-6
+		transition-all duration-300 border border-white/5">
+			<div class="flex items-center gap-3 mb-6">
+				<h3 class="text-white text-2xl font-bold">Online Pong</h3>
 			</div>
-			<div class="flex-shrink-0 self-center md:self-start md:absolute md:right-8
-			lg:right-0 md:top-[65%] md:-translate-y-1/2">
-				<img class="h-auto w-[280px] lg:w-[340px] xl:w-[380px]
-				md:translate-x-[40px] md:-translate-y-[95px]
-				object-contain drop-shadow-2xl" src="images/pongOnline.png" alt="">
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+				${onlineModes.map(mode => renderGameModeButton(mode.id, mode.colorClass, mode.icon, mode.title, mode.description)).join('')}
 			</div>
 		</div>
 	`
@@ -104,7 +150,7 @@ function OnlinePong() : string
 
 function renderWelcome() : string
 {
-	return `
+	return /* html */ `
 		<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
 			${LocalPong()}
 			${OnlinePong()}
@@ -112,112 +158,171 @@ function renderWelcome() : string
 	`
 }
 
-async function getStatistics()
-{
+function renderStatistics(stats: IUserStatistics | null): string {
+	const totalWins = stats?.TotalWins ?? 0;
+	const winRate = stats?.WinRate ?? 0;
+	const currentStreak = stats?.CurrentStreak ?? 0;
+	const rating = stats?.Rating ?? 0;
+	const winRateStatus = winRate >= 50 ? 'Above average' : 'Below average';
+	const winRateColor = winRate >= 50 ? 'text-blue-600' : 'text-red-400';
+	const streakStatus = currentStreak >= 5 ? 'Personal best!' : currentStreak >= 3 ? 'On fire!' : '';
+	const streakColor = currentStreak >= 5 ? 'text-orange-400' : 'text-yellow-400';
+	const getRank = (rating: number): { name: string; color: string } => {
+		if (rating >= 3000) return { name: 'Grandmaster', color: 'text-red-500' };
+		if (rating >= 2800) return { name: 'Master', color: 'text-purple-500' };
+		if (rating >= 2500) return { name: 'Diamond III', color: 'text-[#8261BE]' };
+		if (rating >= 2200) return { name: 'Diamond II', color: 'text-[#8261BE]' };
+		if (rating >= 2000) return { name: 'Diamond I', color: 'text-[#8261BE]' };
+		if (rating >= 1800) return { name: 'Platinum', color: 'text-cyan-400' };
+		if (rating >= 1600) return { name: 'Gold', color: 'text-yellow-500' };
+		if (rating >= 1400) return { name: 'Silver', color: 'text-gray-400' };
+		return { name: 'Bronze', color: 'text-orange-700' };
+	};
+	const rank = getRank(rating);
 
-}
-
-function renderStatistics(): string {
-	return `
+	return /* html */ `
 		<div class="statistics mb-6">
-			<h2 class="text-txtColor font-bold text-2xl mb-4 transition-all duration">Your Statistic</h2>
-			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-3xl
-			text-txtColor grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
-					<p class="text-sm">Total Wins</p>
-					<p class="text-4xl font-bold text-txtColor">127</p>
-					<p class="text-sm text-color15">+12 this week</p>
+			<h2 class="text-txtColor font-bold text-xl sm:text-2xl mb-3 sm:mb-4 transition-all duration">Your Statistic</h2>
+			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-2xl sm:rounded-3xl
+			text-txtColor grid grid-cols-2 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6">
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
+					<p class="text-xs sm:text-sm text-gray-400">Total Wins</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${totalWins}</p>
 				</div>
-				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
-					<p class="text-sm">Win Rate</p>
-					<p class="text-4xl font-bold text-txtColor">74.7%</p>
-					<p class="text-sm text-blue-600">Above average</p>
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
+					<p class="text-xs sm:text-sm text-gray-400">Win Rate</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${winRate.toFixed(1)}%</p>
+					<p class="text-xs sm:text-sm ${winRateColor} mt-1">${winRateStatus}</p>
 				</div>
-				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
-					<p class="text-sm">Current Streak</p>
-					<p class="text-4xl font-bold text-txtColor">8</p>
-					<p class="text-sm text-orange-400">Personal best!</p>
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
+					<p class="text-xs sm:text-sm text-gray-400">Current Streak</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${currentStreak}</p>
+					${streakStatus ? `<p class="text-xs sm:text-sm ${streakColor} mt-1">${streakStatus}</p>` : ''}
 				</div>
-				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-2xl p-6">
-					<p class="text-sm">Rating</p>
-					<p class="text-4xl font-bold text-txtColor">2847</p>
-					<p class="text-sm text-[#8261BE]">Diamond III</p>
+				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
+					<p class="text-xs sm:text-sm text-gray-400">Rating</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${rating}</p>
+					<p class="text-xs sm:text-sm ${rank.color} mt-1">${rank.name}</p>
 				</div>
 			</div>
 		</div>
 	`;
 }
 
-function renderAnalyticsSection(): string {
+function renderAnalyticsSection(stats: IUserStatistics | null): string {
 	return `
 		<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
-			${dashboardLearderboard()}
-			${renderStatistics()}
+			<div id="dashboard-leaderboard"></div>
+			${renderStatistics(stats)}
 		</div>
 	`;
 }
 
-function renderDashboardContent(): string {
+function renderDashboardContent(stats: IUserStatistics | null): string {
 	return `
 		<div class="flex flex-col md:flex-row gap-6 mt-6 w-full" >
-			${renderAnalyticsSection()}
-			${renderGroupChat()}
+			${renderAnalyticsSection(stats)}
+			${renderGlobalChat()}
 		</div>
 	`;
 }
 
 async function renderMain() : Promise<string>
 {
-	return `
+	const stats = await fetchUserStatistics(credentials.id);
+	return /* html */`
 		<div class="w-full">
 			<h2 class="font-bold mb-[20px] text-[#414658] text-3xl">Welcome back,
 			<span class="text-txtColor text-3xl"> ${userData?.username}</span></h2>
 			<div class="flex-1">${renderWelcome()}</div>
-			${renderDashboardContent()}
+			${renderDashboardContent(stats)}
 		</div>
 	`
 }
 
-function addClickInRightPanel()
+function mainBackground() : string
 {
-	const friendsList = document.getElementById("friends-list");
-	friendsList?.addEventListener("click", (e) => {
-		const friendEl = (e.target as HTMLElement).closest(".friend-item");
-		if (!friendEl) return;
-		const friendId = friendEl.getAttribute("data-id");
-		navigate('/profile/' + friendId);
-	});
+	return `
+		<video
+		class="fixed top-0 left-0 w-full h-full object-cover z-[-2] pointer-events-none"
+		autoplay
+		muted
+		loop
+		playsinline
+		preload="auto"
+		disablepictureinpicture
+		tabindex="-1"
+		aria-hidden="true"
+		style="pointer-events: none;"
+		>
+		<source src="images/bg.webm" type="video/webm">
+		</video>
+	`
 }
-
-const $ = (id : string) => document.getElementById(id as string);
 
 export async function renderDashboard(isDashboard: boolean = true)
 {
 	document.body.innerHTML = `
 		<div class=" min-h-screen">
-			<div class="absolute inset-0 bg-black opacity-70 blur-3xl z-[-1]"></div>
-			<video class="fixed w-full h-full object-cover z-[-2]"
-			loop
-			autoplay
-			muted
-			playsinline
-			<source src="images/bg.webm" type="video/webm">
-			Your browser does not support the video tag.
-			</video>
-			${renderDashboardNavBar(userData, getImageUrl(userData?.profileImage))}
+			${mainBackground()}
+			${renderDashboardNavBar(userData, getImageUrl(userData?.avatar_url))}
 			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
 				${isDashboard ? await renderMain() : ''}
 			</main>
 		</div>
 	`;
-	$('see-more')?.addEventListener('click', _=>{
-		navigate('/leaderboard');
-	})
-	addClickInRightPanel();
+	if (isDashboard) {
+		const leaderboardContainer = $('dashboard-leaderboard');
+		if (leaderboardContainer) {
+			leaderboardContainer.innerHTML = await dashboardLearderboard();
+		}
+	}
+	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	notifications();
 	chatEventHandler();
-	document.getElementById('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');})
-	const avatar = document.getElementById('avatar');
+	initUnreadFromStorage(); // Show red dot from persisted unread counts
+	$('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');});
+
+	const btnLocalVsPlayer = $('btn-local-vs-player');
+	btnLocalVsPlayer?.addEventListener('click', () => {
+		AliasPopUp(false, "player2");
+	});
+	const btnLocalVsAi = $('btn-local-vs-ai');
+	btnLocalVsAi?.addEventListener('click', () => {
+		showDifficultyModal();
+	});
+
+	interface RoomData
+	{
+		roomId:			string;
+		PlayerID:		string;
+		playerName: 	string | null;
+		playerAvatar:	string | null;
+	}
+
+	const btnOnlineMatchmaking = $('btn-online-matchmaking');
+	btnOnlineMatchmaking?.addEventListener('click', async () => {
+		interface RoomID {
+			roomId : string
+		}
+		const { data, error} = await apiFetch<RoomID>("/api/game/matchmaking");
+		if (error || !data) return;
+		const roomData : RoomData = {
+			roomId : data.roomId,
+			PlayerID: String(userData.id),
+			playerName: userData.username,
+			playerAvatar: getImageUrl(userData.avatar_url)
+		};
+		sessionStorage.setItem("room", JSON.stringify(roomData));
+		navigate(`/pong-game?mode=online-matchmaking`);
+	});
+
+	const btnOnlineRoom = $('btn-online-room');
+	btnOnlineRoom?.addEventListener('click', () => { // Before navigating, you must await boolean from /api/room/:roomid
+		navigate('/pong-game?mode=online-room');
+	});
+
+	const avatar = $('avatar');
 	if (avatar) {
 		avatar.addEventListener('click', () => {
 			let profile = avatar.querySelector('.profile-menu');

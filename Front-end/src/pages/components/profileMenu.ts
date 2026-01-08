@@ -1,7 +1,13 @@
 import { navigate } from "../../router";
+import { closeNotificationSocket } from "./NavBar";
+import { cleanupGlobalChat } from "../chat/globalChat";
+import { cleanupPrivateChat } from "../chat/chat";
 
 export function logout()
 {
+    closeNotificationSocket();
+    cleanupGlobalChat();
+    cleanupPrivateChat();
     localStorage.removeItem('token');
     localStorage.removeItem('id');
 	navigate('/login');
@@ -16,16 +22,21 @@ export function renderProfileMenu () : HTMLElement
     ]
 
     const divMenu = document.createElement('div');
-    divMenu.className = `profile-menu w-[190px] absolute z-10 h-[154px]
-                        space-y-3 bg-color4 border border-[#87878766]
-                        rounded-[14px] p-7 mx-auto transform -translate-x-1/3`;
-    profileMenu.forEach(item => {
+    divMenu.className = `profile-menu w-[200px] absolute z-50 right-0 top-full mt-2
+                        bg-black/90 backdrop-blur-md border border-borderColor
+                        rounded-2xl py-2 shadow-lg`;
+    
+    profileMenu.forEach((item) => {
         const div = document.createElement('div');
-
-        div.className = `${item.label} flex items-center gap-4 text-white`;
+        const isLogout = item.label === 'Logout';
+        
+        div.className = `flex items-center gap-3 mx-2 px-4 py-3 rounded-xl cursor-pointer
+                        transition-colors duration-200
+                        ${isLogout ? 'hover:bg-red-500/20 mt-1' : 'hover:bg-color1/20'}`;
+        
         div.addEventListener('click', _=>{
             let menu = document.querySelector('.profile-menu');
-				if (menu) menu.remove();
+			if (menu) menu.remove();
             if (item.label === 'Logout')
                 logout();
             else if (item.label === 'Profile')
@@ -33,18 +44,20 @@ export function renderProfileMenu () : HTMLElement
             else
                 navigate(`/${item.label}`.toLowerCase());
         })
+        
         const img = document.createElement('img');
-        img.className = "w-[20px] h-[20px]";
+        img.className = `w-5 h-5`;
         img.src = item.icon;
 
         const span = document.createElement('span');
         span.textContent = item.label;
-        span.className = "hover:text-color1 trasition-colors duration-200";
+        span.className = `text-txtColor text-sm font-medium ${isLogout ? 'text-red-400' : ''}`;
 
         div.appendChild(img);
         div.appendChild(span);
         divMenu.appendChild(div);
     })
+    
     divMenu.addEventListener('click', (e) => e.stopPropagation());
     return divMenu;
 }

@@ -1,12 +1,15 @@
 import { getImageUrl, userData } from "../store";
 import { navigate } from "../../router";
-import { sendFriendRequest } from "../profile";
+import { sendFriendRequest, unfriend, blockFriend } from "../profile";
+import { confirmPopUp } from "../settings";
+import { toastError } from "./toast";
+import { apiFetch } from "./errorsHandler";
 
 interface UserData {
     id: string;
     username: string;
-	profileImage: string;
 	status: string | null;
+	avatar_url: string;
 }
 
 async function ViewProfile(userId: string) {
@@ -19,37 +22,85 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		const divp = document.createElement('div');
 		divp.className = `flex justify-between px-4 py-1 text-gray-200 hover:bg-[#ffffff10]
 						cursor-pointer transition-colors items-center duration-200`;
-		divp.innerHTML = `<div class="flex gap-3 items-center">
-			<img src="${getImageUrl(user.profileImage)}" alt="${user.username}" class="w-10 h-10 rounded-full">
-			<div>
+		divp.innerHTML = /* html */`
+			<div class="flex gap-3 items-center">
+				<img src="${getImageUrl(user.avatar_url)}" alt="${user.username}" class="w-10 h-10 rounded-full">
 				<p class="font-bold">${user.username}</p>
-			</div>
-		</div>`;
+			</div>`;
 		const buttonsDiv = document.createElement('div');
-		buttonsDiv.className = "flex gap-4 items-center";
-		const addFriend = document.createElement('img');
-		addFriend.src = `/images/addFriends.svg`;
-		addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110`;
-		addFriend.title = "Add Friend";
-		if (!user.status && user.id != userData.id)
-			buttonsDiv.appendChild(addFriend);
-		addFriend.addEventListener('click', async _=> {
-			if (user.status == 'pending' || user.status)
-				return;
-		try {
-			await sendFriendRequest(user!.id);
-			addFriend.src = `/images/pending.gif`
-		} catch (error) {
-			alert('Error sending friend request: ' + error);
+		buttonsDiv.className = "flex gap-3 items-center";
+		const status = user.status?.toLowerCase();
+		
+		if (user.id != userData.id) {
+			if (status !== 'accepted' && status !== 'blocked') {
+				const addFriend = document.createElement('img');
+				addFriend.className = `w-6 h-6 cursor-pointer hover:scale-110 transition-transform`;
+				addFriend.title = status === 'pending' ? 'Request Pending' : 'Add Friend';
+				
+				if (status === 'pending') {
+					addFriend.src = '/images/pending.svg';
+				} else {
+					addFriend.src = '/images/addFriend.svg';
+					addFriend.addEventListener('click', async (e) => {
+						e.stopPropagation();
+						try {
+							await sendFriendRequest(user.id);
+							addFriend.src = '/images/pending.svg';
+							addFriend.title = 'Request Pending';
+						} catch (error) {
+							toastError('Error sending friend request: ' + error);
+						}
+					});
+				}
+				buttonsDiv.appendChild(addFriend);
+			}
+			if (status === 'accepted') {
+				const unfriendIcon = document.createElement('img');
+				unfriendIcon.src = '/images/unfriend.svg';
+				unfriendIcon.className = `w-6 h-6 cursor-pointer hover:scale-110 transition-transform`;
+				unfriendIcon.title = 'Unfriend';
+				unfriendIcon.onerror = () => { unfriendIcon.style.display = 'none'; };
+				unfriendIcon.addEventListener('click', async (e) => {
+					e.stopPropagation();
+					if (await confirmPopUp('Are you sure you want to unfriend this user?')) {
+						try {
+							await unfriend(user.id);
+							divp.remove();
+						} catch (error) {
+							toastError('Error unfriending: ' + error);
+						}
+					}
+				});
+				buttonsDiv.appendChild(unfriendIcon);
+				const blockIcon = document.createElement('img');
+				blockIcon.src = '/images/block.svg';
+				blockIcon.className = `w-5 h-5 cursor-pointer hover:scale-110 transition-transform opacity-60 hover:opacity-100`;
+				blockIcon.title = 'Block User';
+				blockIcon.onerror = () => { blockIcon.style.display = 'none'; };
+				blockIcon.addEventListener('click', async (e) => {
+					e.stopPropagation();
+					if (await confirmPopUp('Are you sure you want to block this user?')) {
+						try {
+							await blockFriend(user.id);
+							divp.remove();
+						} catch (error) {
+							toastError('Error blocking user: ' + error);
+						}
+					}
+				});
+				buttonsDiv.appendChild(blockIcon);
+			}
 		}
-		});
-		const view  = document.createElement('button');
+		
+		const view = document.createElement('button');
 		view.textContent = 'view';
-		view.className = "font-bold text-color2 hover:scale-110 hover:text-white";
+		view.className = "font-bold text-color2 hover:scale-110 hover:text-white transition-transform";
 		buttonsDiv.appendChild(view);
-		view.addEventListener('click', _=> {
+		view.addEventListener('click', (e) => {
+			e.stopPropagation();
 			ViewProfile(user.id);
 		});
+		
 		divp.append(buttonsDiv);
 		div.appendChild(divp);
 	});
@@ -70,11 +121,10 @@ export async function searchbar() {
 		div.id = 'search-results';
 		div.className = `absolute z-10 top-[44px] left-0 w-full max-h-[300px]
 		overflow-y-auto bg-color4 border py-3 border-[#87878766] rounded-xl scrollbar-custom`;
-		const response = await fetch(`api/users/search/${userData.id}?username=${value}`, {
-			headers: {"Authorization": `Bearer ${localStorage.getItem('token')}`},
+		const { data: users } = await apiFetch<UserData[]>(`api/user/search/${userData.id}?username=${value}`, {
+			showErrorToast: false
 		});
-		const users: UserData[] = await response.json();
-		if (users.length === 0) {
+		if (!users || users.length === 0) {
 			const p = document.createElement('p');
 			p.className = "text-gray-400 p-4";
 			p.textContent = "No users found";

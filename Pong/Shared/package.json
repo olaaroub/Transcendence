@@ -1,0 +1,19 @@
+{
+  "name": "pong-shared",
+  "version": "1.0.0",
+  "description": "Shared game logic and graphics for Pong",
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^8.43.0",
+    "@babylonjs/materials": "^8.43.0",
+	"@babylonjs/gui": "^8.43.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "auth.js",
+  "scripts": {
+    "start": "node auth.js",
+    "dev": "nodemon --delay 2s auth.js"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.1.0",
+    "@fastify/jwt": "^10.0.0",
+    "@fastify/oauth2": "^8.1.2",
+    "argon2": "^0.44.0",
+    "better-sqlite3": "^12.4.1",
+    "fastify": "^5.6.2",
+    "fastify-metrics": "^12.1.0",
+    "http-errors": "^2.0.1",
+    "node-vault": "^0.10.9",
+    "qrcode": "^1.5.4",
+    "speakeasy": "^2.0.0"
+  },
+  "overrides": {
+    "node-vault": {
+      "postman-request": {
+        "qs": "^6.14.1"
+      }
+    }
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

@@ -1,0 +1,24 @@
+FROM node:20-alpine
+
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_FUND=false
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY package*.json ./
+
+RUN npm ci --omit=dev && npm cache clean --force
+
+COPY . .
+
+RUN mkdir -p /data && chown -R node:node /data
+
+USER node
+
+ARG PORT=3000
+ENV PORT=${PORT}
+EXPOSE ${PORT}
+
+CMD ["npm", "run", "start"]
