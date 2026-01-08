@@ -202,7 +202,10 @@ async function startCountdown(room: GameRoom): Promise<void>
 	await new Promise((resolve) => setTimeout(resolve, 2000));
 	for (let count = 3; count >= 0; count--)
 	{
-		broadcastToRoom(room.id, 'countdown', `${count}`);
+		if (count === 0)
+			broadcastToRoom(room.id, 'countdown', 'GO!');
+		else
+			broadcastToRoom(room.id, 'countdown', `${count}`);
 		if (count > 0)
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 	}
@@ -335,12 +338,22 @@ fastify.get('/api/game/friendly-match', {preHandler: [jwtChecker]} ,async (reque
 	return reply.send({ roomId });
 });
 
+fastify.get<{ Params: { roomid: string } }>('/api/game/room/:roomid', {preHandler: [jwtChecker]}, async (request, reply) =>
+{
+	const { roomid } = request.params;
+	const exists = rooms.has(roomid.toUpperCase());
+	return reply.send({ exists });
+});
+
 fastify.get('/api/game/spectate', {preHandler: [jwtChecker]} ,async (request, reply) =>
 {
-	if (rooms.size > 0)
+	const roomIDs = Array.from(rooms.entries())
+		.filter(([_, room]) => getPlayerCount(room) > 1)
+		.map(([roomId, _]) => roomId);
+
+	if (roomIDs.length > 0)
 	{
-		const roomIDs = Array.from(rooms.keys());
-		let roomId = roomIDs[Math.floor(Math.random() * roomIDs.length)];
+		const roomId = roomIDs[Math.floor(Math.random() * roomIDs.length)];
 		fastify.log.info(`Spectate: Returning room ${roomId}`);
 		return reply.send({ roomId });
 	}

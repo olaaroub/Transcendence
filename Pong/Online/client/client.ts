@@ -160,10 +160,9 @@ socket.on("session", (session: Match['session']) =>
 
 socket.on("countdown", (count: string) =>
 {
-	if (count === '0')
-		createSign();
-	else
-		createSign(count);
+	createSign(count);
+	if (count === 'GO')
+		setTimeout(() => {createSign();}, 500);
 });
 
 optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
