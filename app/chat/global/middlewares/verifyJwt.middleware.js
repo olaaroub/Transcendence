@@ -3,6 +3,11 @@ import createError from 'http-errors';
 export async function JwtHandler(request, reply) {
   try {
 
+    const token = request.query?.token;
+
+    // console.log("---------------> ",token)
+    if (token) 
+      request.headers['authorization'] = `Bearer ${token}`;
     const payload = await request.jwtVerify();
 
     request.userId = payload.id;
@@ -12,6 +17,6 @@ export async function JwtHandler(request, reply) {
   }
   catch (err) {
     request.log.warn("Unauthorized access attempt (Invalid or missing token)");
-    // throw createError.Unauthorized("Invalid or missing token");
+    throw createError.Unauthorized("Invalid or missing token");
   }
 }
