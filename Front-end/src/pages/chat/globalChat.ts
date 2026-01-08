@@ -13,6 +13,7 @@ interface ChatMessage {
 
 let globalChatMessages: ChatMessage[] = [];
 let golobalChatSocket: WebSocket | null = null;
+let globalChatInitialized = false;
 
 async function fetchPreviousMessages() {
 	const { data } = await apiFetch<ChatMessage[]>(`/api/chat/global/messages`);
@@ -24,12 +25,29 @@ async function fetchPreviousMessages() {
 }
 
 function initializeWebSocket() {
+	if (globalChatInitialized && golobalChatSocket && 
+		golobalChatSocket.readyState === WebSocket.OPEN) {
+		return;
+	}
+	if (golobalChatSocket && golobalChatSocket.readyState === WebSocket.CONNECTING) {
+		return;
+	}
+	
+	if (golobalChatSocket && golobalChatSocket.readyState !== WebSocket.OPEN) {
+		golobalChatSocket.close();
+		golobalChatSocket = null;
+	}
+	if (golobalChatSocket && golobalChatSocket.readyState === WebSocket.OPEN) {
+		return;
+	}
+
 	const token = localStorage.getItem('token');
 	const wsUrl = `wss://${window.location.host}/api/chat/global/${credentials.id}?token=${token}`;
 	golobalChatSocket = new WebSocket(wsUrl);
 
 	golobalChatSocket.onopen = () => {
 		console.log('WebSocket connection established for global chat');
+		globalChatInitialized = true;
 	}
 
 	golobalChatSocket.onmessage = (event) => {
@@ -37,7 +55,6 @@ function initializeWebSocket() {
 			const data = JSON.parse(event.data);
 
 			if (data.type === 'MESSAGE_SENT_SUCCESSFULLY') {
-				console.log('Message sent successfully confirmation received');
 				return;
 			}
 			const message: ChatMessage = data;
@@ -59,6 +76,8 @@ function initializeWebSocket() {
 
 	golobalChatSocket.onclose = (event) => {
 		console.log('WebSocket connection closed:', event.code, event.reason);
+		globalChatInitialized = false;
+		golobalChatSocket = null;
 	};
 }
 
@@ -210,4 +229,5 @@ export function cleanupGlobalChat() {
 		golobalChatSocket.close();
 		golobalChatSocket = null;
 	}
+	globalChatInitialized = false;
 }
