@@ -1,9 +1,9 @@
 import { navigate } from '../../router';
 import * as data from '../dashboard';
 import { shortString, formatMessageTime } from '../utils';
-import { credentials, getImageUrl, IUserData } from '../store';
+import { credentials, getImageUrl, IUserData, userData } from '../store';
 import { apiFetch } from '../components/errorsHandler';
-import { toastInfo } from '../components/toast';
+import { toastInfo, toastError } from '../components/toast';
 import { io, Socket } from "socket.io-client";
 import { subscribeFriendStatus } from '../components/NavBar';
 
@@ -260,6 +260,146 @@ function sendMessage(content: string) {
 	updateMessagesUI();
 }
 
+interface RoomData {
+	roomId: string;
+	PlayerID: string;
+	playerName: string | null;
+	playerAvatar: string | null;
+}
+
+async function challengeFriend() {
+	if (!chatState.currentFriend) {
+		toastError('No friend selected to challenge');
+		return;
+	}
+
+	if (chatState.currentFriend.status !== 'ONLINE') {
+		toastInfo('Your friend is offline. They can join when they come online!');
+	}
+
+	const { data: roomData, error } = await apiFetch<{ roomId: string }>('/api/game/friendly-match');
+	
+	if (error || !roomData) {
+		toastError('Failed to create game room. Please try again.');
+		return;
+	}
+
+	const challengeMessage = `🎮 I challenge you to a Pong match! Join room: ${roomData.roomId}`;
+	sendMessage(challengeMessage);
+
+	const sessionData: RoomData = {
+		roomId: roomData.roomId,
+		PlayerID: String(userData.id),
+		playerName: userData.username || '',
+		playerAvatar: getImageUrl(userData.avatar_url) || '/game/Assets/default.png'
+	};
+	sessionStorage.setItem('room', JSON.stringify(sessionData));
+
+	navigate('/pong-game?mode=online-matchmaking');
+}
+
+function extractRoomId(content: string): string | null {
+	const match = content.match(/Join room: ([a-zA-Z0-9-]+)/);
+	return match ? match[1] : null;
+}
+
+function isChallengeMessage(content: string): boolean {
+	return content.includes('🎮') && content.includes('Join room:');
+}
+
+async function joinGameRoom(roomId: string) {
+	const { data, error } = await apiFetch<{ exists: boolean }>(`/api/game/room/${roomId}`);
+	
+	if (error || !data) {
+		toastError('Failed to check room availability. Please try again.');
+		return;
+	}
+
+	if (!data.exists) {
+		toastInfo('Room is no longer available.');
+		return;
+	}
+
+	const sessionData: RoomData = {
+		roomId: roomId,
+		PlayerID: String(userData.id),
+		playerName: userData.username || '',
+		playerAvatar: getImageUrl(userData.avatar_url) || '/game/Assets/default.png'
+	};
+	sessionStorage.setItem('room', JSON.stringify(sessionData));
+
+	navigate('/pong-game?mode=online-matchmaking');
+}
+
+function renderChallengeMessage(msg: ChatMessage, isMine: boolean, seenIcon: string): string {
+	const roomId = extractRoomId(msg.content);
+	
+	if (isMine) {
+		return /* html */`
+			<div class="flex justify-end mb-3">
+				<div class="max-w-[70%] bg-color1 text-bgColor px-4 py-2 rounded-2xl rounded-br-sm">
+					<div class="flex items-center gap-2 mb-1">
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						<span class="font-bold">Challenge Sent!</span>
+					</div>
+					<p class="text-sm">Waiting for opponent to join...</p>
+					<span class="text-xs text-bgColor/70 mt-1 flex items-center justify-end">
+						${formatMessageTime(msg.createdAt)}${seenIcon}
+					</span>
+				</div>
+			</div>
+		`;
+	} else {
+		return /* html */`
+			<div class="flex justify-start mb-3">
+				<div class="max-w-[70%] bg-gradient-to-r from-[#1a1a2e] to-[#2a1a3e] text-txtColor 
+					px-4 py-3 rounded-2xl rounded-bl-sm border border-color1/30">
+					<div class="flex items-center gap-2 mb-2">
+						<svg class="w-5 h-5 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						<span class="font-bold text-color1">Game Challenge!</span>
+					</div>
+					<p class="text-sm mb-3">You've been challenged to a Pong match!</p>
+					<button data-room-id="${roomId}" 
+						class="join-game-btn w-full bg-color1 hover:bg-color2 text-bgColor font-bold 
+						py-2 px-4 rounded-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+						</svg>
+						Join Game
+					</button>
+					<span class="text-xs text-gray-400 mt-2 flex items-center justify-end">
+						${formatMessageTime(msg.createdAt)}
+					</span>
+				</div>
+			</div>
+		`;
+	}
+}
+
+function setupJoinGameListeners() {
+	const joinButtons = document.querySelectorAll('.join-game-btn');
+	joinButtons.forEach(btn => {
+		btn.addEventListener('click', async (e) => {
+			const target = e.currentTarget as HTMLElement;
+			const roomId = target.getAttribute('data-room-id');
+			if (roomId) {
+				await joinGameRoom(roomId);
+			}
+		});
+	});
+}
+
 function updateMessagesUI() {
 	const messagesContainer = document.getElementById('private-chat-messages');
 	const input = document.getElementById('private-chat-input') as HTMLInputElement;
@@ -295,6 +435,11 @@ function updateMessagesUI() {
 						</svg>`
 					}
 				</span>` : '';
+			
+			if (isChallengeMessage(msg.content)) {
+				return renderChallengeMessage(msg, isMine, seenIcon);
+			}
+			
 			return /* html */`
 				<div class="flex ${isMine ? 'justify-end' : 'justify-start'} mb-3">
 					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'}
@@ -309,6 +454,7 @@ function updateMessagesUI() {
 		}).join('');
 	}
 	updateTypingIndicatorUI();
+	setupJoinGameListeners();
 	messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
@@ -317,17 +463,38 @@ function updateChatHeaderUI() {
 	if (!chatHeader || !chatState.currentFriend) return;
 	console.log("chat state : ", chatState);
 	chatHeader.innerHTML = /* html */`
-		<div class="flex gap-3 font-bold items-center">
-			<img class="h-12 w-12 border border-color1 rounded-full object-cover"
-				src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
-			<div class="flex flex-col">
-				<span class="text-txtColor text-lg">${chatState.currentFriend.username}</span>
-				<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
-					${chatState.isTyping ? 'typing...' : (chatState.currentFriend.status || 'offline')}
-				</span>
+		<div class="flex justify-between items-center w-full">
+			<div class="flex gap-3 font-bold items-center">
+				<img class="h-12 w-12 border border-color1 rounded-full object-cover"
+					src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
+				<div class="flex flex-col">
+					<span class="text-txtColor text-lg">${chatState.currentFriend.username}</span>
+					<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
+						${chatState.isTyping ? 'typing...' : (chatState.currentFriend.status || 'offline')}
+					</span>
+				</div>
 			</div>
+			<button id="challenge-btn" 
+				class="flex items-center gap-2 bg-color1 hover:bg-color2 text-bgColor font-bold 
+				px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+						d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+						d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				</svg>
+				<span>Challenge</span>
+			</button>
 		</div>
 	`;
+	setupChallengeButtonListener();
+}
+
+function setupChallengeButtonListener() {
+	const challengeBtn = document.getElementById('challenge-btn');
+	if (challengeBtn) {
+		challengeBtn.addEventListener('click', challengeFriend);
+	}
 }
 
 function updateTypingIndicatorUI() {

@@ -60,10 +60,13 @@ export async function initDashboard(isDashboard: boolean = true) {
 	setCredentials();
 	cleanupPrivateChat();
 	const profileResponse = await fetchProfile(credentials.id);
-	if (profileResponse) {
-		initGlobalChatNotifications();
-		renderDashboard(isDashboard);
+	if (!profileResponse) {
+		localStorage.clear();
+		navigate('/login');
+		return;
 	}
+	initGlobalChatNotifications();
+	renderDashboard(isDashboard);
 }
 
 function renderGameModeButton(id: string, colorClass: string, icon: string, title: string, description: string): string {
