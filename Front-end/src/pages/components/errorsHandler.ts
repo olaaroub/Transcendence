@@ -28,11 +28,11 @@ export async function isUserAuthenticated(): Promise<boolean> {
 		const response = await fetch(`api/user/${id}`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
-		if (response.status === 401) {
+		if (response.status === 401 || response.status === 404) {
 			handleSessionExpired();
 			return false;
 		}
-		return true;
+		return response.ok;
 	}
 	catch(err) {
 		console.error('Auth check failed:', err);
