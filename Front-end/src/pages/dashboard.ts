@@ -9,6 +9,8 @@ import { setUserData, userData, getImageUrl, credentials, IUserData, setCredenti
 import { chatEventHandler, cleanupPrivateChat, initGlobalChatNotifications, initUnreadFromStorage } from "./chat/chat";
 import { showDifficultyModal } from "./components/difficultyModal";
 import { AliasPopUp } from "./home";
+import { toastInfo } from "./components/toast";
+import { shortString } from "./utils"
 
 // (window as any).navigate = navigate;
 const $ = (id : string) => document.getElementById(id as string);
@@ -60,10 +62,13 @@ export async function initDashboard(isDashboard: boolean = true) {
 	setCredentials();
 	cleanupPrivateChat();
 	const profileResponse = await fetchProfile(credentials.id);
-	if (profileResponse) {
-		initGlobalChatNotifications();
-		renderDashboard(isDashboard);
+	if (!profileResponse) {
+		localStorage.clear();
+		navigate('/login');
+		return;
 	}
+	initGlobalChatNotifications();
+	renderDashboard(isDashboard);
 }
 
 function renderGameModeButton(id: string, colorClass: string, icon: string, title: string, description: string): string {
@@ -74,11 +79,9 @@ function renderGameModeButton(id: string, colorClass: string, icon: string, titl
 			<div class="flex items-center gap-3 mb-3">
 				<div class="w-10 h-10 rounded-lg bg-${colorClass}/10 group-hover:bg-${colorClass}/20
 					flex items-center justify-center transition-colors duration-200">
-					<svg class="w-5 h-5 text-${colorClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						${icon}
-					</svg>
+					<img src="images/${icon}" class="w-10 h-10 text-${colorClass}">
 				</div>
-				<span class="text-white font-medium group-hover:text-${colorClass} transition-colors duration-200">${title}</span>
+				<span class="text-white font-Oi font-bold group-hover:text-${colorClass} transition-colors duration-200">${title}</span>
 			</div>
 			<p class="text-gray-500 text-sm">${description}</p>
 		</button>
@@ -91,14 +94,14 @@ function LocalPong() : string
 		{
 			id: 'btn-local-vs-player',
 			colorClass: 'color1',
-			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>',
+			icon: 'vsplayer.svg',
 			title: '1v1 Player',
 			description: 'Challenge a friend locally'
 		},
 		{
 			id: 'btn-local-vs-ai',
 			colorClass: 'color2',
-			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>',
+			icon: 'vsai.svg',
 			title: 'Vs AI',
 			description: 'Test your skills against AI'
 		}
@@ -108,7 +111,7 @@ function LocalPong() : string
 		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] glow-effect rounded-2xl p-6
 		transition-all duration-300 border border-white/5">
 			<div class="flex items-center gap-3 mb-6">
-				<h3 class="text-white text-2xl font-bold">Local Pong</h3>
+				<h3 class="text-white text-3xl font-Oi font-bold">Local Pong</h3>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 				${localModes.map(mode => renderGameModeButton(mode.id, mode.colorClass, mode.icon, mode.title, mode.description)).join('')}
@@ -123,16 +126,16 @@ function OnlinePong() : string
 		{
 			id: 'btn-online-matchmaking',
 			colorClass: 'color1',
-			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>',
+			icon: 'matchmaking.svg',
 			title: 'Matchmaking',
 			description: 'Find a ranked opponent'
 		},
 		{
-			id: 'btn-online-room',
+			id: 'btn-online-spectate',
 			colorClass: 'color2',
-			icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>',
-			title: 'Join Room',
-			description: 'Join competitive brackets'
+			icon: 'spectate.svg',
+			title: 'Spectate a Game',
+			description: 'Watch a live match'
 		}
 	];
 
@@ -140,7 +143,7 @@ function OnlinePong() : string
 		<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] glow-effect rounded-2xl p-6
 		transition-all duration-300 border border-white/5">
 			<div class="flex items-center gap-3 mb-6">
-				<h3 class="text-white text-2xl font-bold">Online Pong</h3>
+				<h3 class="text-white text-3xl font-Oi font-bold">Online Pong</h3>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 				${onlineModes.map(mode => renderGameModeButton(mode.id, mode.colorClass, mode.icon, mode.title, mode.description)).join('')}
@@ -233,8 +236,8 @@ async function renderMain() : Promise<string>
 	const stats = await fetchUserStatistics(credentials.id);
 	return /* html */`
 		<div class="w-full">
-			<h2 class="font-bold mb-[20px] text-[#414658] text-3xl">Welcome back,
-			<span class="text-txtColor text-3xl"> ${userData?.username}</span></h2>
+			<h2 class="font-bold mb-[20px] text-[#414658] font-Oi text-3xl">Welcome back,
+			<span class="text-txtColor text-3xl"> ${shortString(userData.username, 10)}</span></h2>
 			<div class="flex-1">${renderWelcome()}</div>
 			${renderDashboardContent(stats)}
 		</div>
@@ -303,10 +306,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 
 	const btnOnlineMatchmaking = $('btn-online-matchmaking');
 	btnOnlineMatchmaking?.addEventListener('click', async () => {
-		interface RoomID {
-			roomId : string
-		}
-		const { data, error} = await apiFetch<RoomID>("/api/game/matchmaking");
+		const { data, error} = await apiFetch<{roomId : string}>("/api/game/matchmaking");
 		if (error || !data) return;
 		const roomData : RoomData = {
 			roomId : data.roomId,
@@ -318,9 +318,23 @@ export async function renderDashboard(isDashboard: boolean = true)
 		navigate(`/pong-game?mode=online-matchmaking`);
 	});
 
-	const btnOnlineRoom = $('btn-online-room');
-	btnOnlineRoom?.addEventListener('click', () => { // Before navigating, you must await boolean from /api/room/:roomid
-		navigate('/pong-game?mode=online-room');
+	const btnOnlineSpectate = $('btn-online-spectate');
+	btnOnlineSpectate?.addEventListener('click', async () => {
+		const { data, error} = await apiFetch<{roomId: string | null}>("/api/game/spectate");
+		if (error || !data) return;
+		if (!data.roomId)
+		{
+			toastInfo("No available games to spectate. Please try again later.");
+			return;
+		}
+		const roomData : RoomData = {
+			roomId : data.roomId,
+			PlayerID: String(userData.id),
+			playerName: userData.username,
+			playerAvatar: getImageUrl(userData.avatar_url)
+		};
+		sessionStorage.setItem("room", JSON.stringify(roomData));
+		navigate('/pong-game');
 	});
 
 	const avatar = $('avatar');

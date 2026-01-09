@@ -1,6 +1,7 @@
 import { navigate } from "../router";
 import { renderNavBar } from "./components/NavBar";
 import { AliasPopUp } from "./home"
+import { showDifficultyModal } from "./components/difficultyModal"
 
 const $ = (id : string) => document.getElementById(id as string);
 export async function renderGuest()
@@ -32,7 +33,7 @@ export async function renderGuest()
 					</p>
 				</div>
 				<div id="guest-content" class="max-w-7xl mx-auto px-4 pb-20">
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
 						<button id="vs-ai-btn" class="group relative bg-gradient-to-br from-bgColor/90 to-black/80
 							backdrop-blur-xl p-8 rounded-3xl border-2 border-color1/30 
 							hover:border-color1 transition-all duration-500 
@@ -81,31 +82,6 @@ export async function renderGuest()
 								</div>
 							</div>
 						</button>
-
-						<button id="tournament-btn" class="group relative bg-gradient-to-br from-bgColor/90 to-black/80 
-							backdrop-blur-xl p-8 rounded-3xl border-2 border-color3/30 
-							hover:border-txtColor transition-all duration-500 
-							hover:scale-105 
-							overflow-hidden"
-							style="box-shadow: 0 0 20px rgba(237, 239, 255, 0.1);">
-							<div class="absolute inset-0 bg-gradient-to-br from-txtColor/0 via-txtColor/5 to-txtColor/10 
-								opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-							<div class="relative z-10">
-								<div class="mb-6 text-6xl flex justify-center">🏆</div>
-								<h3 class="text-4xl lg:text-5xl font-bold text-txtColor mb-4 group-hover:scale-110 transition-transform duration-300">
-									Tournament
-								</h3>
-								<p class="text-txtColor/60 text-lg mb-6">
-									Compete in a multi-player tournament mode
-								</p>
-								<div class="flex items-center justify-center gap-2 text-txtColor font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-									<span>Play Now</span>
-									<svg class="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-									</svg>
-								</div>
-							</div>
-						</button>
 					</div>
 				</div>
 			</div>
@@ -121,12 +97,9 @@ export async function renderGuest()
 	$('go-as-guest')!.addEventListener('click',_ => {navigate("/guest")})
 	
 	$('vs-ai-btn')?.addEventListener('click', _ => {
-		console.log('VS AI mode selected');
+		showDifficultyModal();
 	});
 	$('vs-player-btn')?.addEventListener('click', _ => {
 		console.log('VS Player mode selected');
-	});
-	$('tournament-btn')?.addEventListener('click', _ => {
-		console.log('Tournament mode selected');
 	});
 }
