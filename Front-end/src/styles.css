@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Kranky&family=Oi&family=Rubik+Beastly&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Share+Tech&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&display=swap');
+
 
 
 @tailwind base;
@@ -25,7 +27,7 @@
 
 
 .font-Oi {
-    font-family: 'Pixelify Sans', 'Jersey 10', 'Press Start 2P', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: 'Bruno Ace SC', 'Jersey 10', 'Press Start 2P', system-ui;
 }
 .font-Oi *,
 .font-Oi input,

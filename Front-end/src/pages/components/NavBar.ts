@@ -66,7 +66,7 @@ export function renderNavBar (isLoged: boolean)
 {
     return /* html */ `
 		<nav class="flex justify-between items-center pt-6 sm:pt-10">
-			<img id="navBar-logo" class="w-[120px] sm:w-[155px] h-auto cursor-pointer" src="/images/logo.png" alt="pong" />
+			<img id="navBar-logo" class="w-[115px] h-auto cursor-pointer" src="/images/logo.png" alt="pong" />
 			<div  class=" ${isLoged ? "hidden" : ""} gap-3 sm:gap-5 flex">
 				${costumeButton("Sign Up", "", "", "py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base", "go-sign-up")}
 				${costumeButton("Login", "", "", "bg-[#F0F0F0] py-2 px-4 sm:px-6 text-black border border-color2 transition-all duration-500 hover:bg-color2 rounded-lg hover:text-black font-bold text-sm sm:text-base opacity-70", "go-sign-in")}
@@ -154,11 +154,7 @@ export async function notifications()
 	notificationIcon.addEventListener('click',async  () => {
 		const existingResult = $('notifications-result');
 		if (!existingResult && socket)
-		{
-			socket.send(JSON.stringify({
-				type: 'MAKE_AS_READ'
-			}))
-		}
+			socket.send(JSON.stringify({type: 'MAKE_AS_READ'}))
 		if (existingResult) {
 			existingResult.remove();
 			return;
@@ -233,7 +229,7 @@ export function renderDashboardNavBar(user: IUserData | null, imageUrl: string |
 	return /* html */ `
 	<nav class="relative z-50 flex justify-between items-center py-14 w-full m-auto md:px-10 h-[70px] mb-7">
 		<img id="main-logo" src="/images/logo.png"
-		class="w-[100px] xl:w-[130px] my-10 xl:my-14 block cursor-pointer" />
+		class="w-[100px] xl:w-[115px] my-10 xl:my-14 block cursor-pointer" />
 		${searchBar()}
 		<div class="flex items-center gap-3 mr-6">
 			<div id="message-icon"
