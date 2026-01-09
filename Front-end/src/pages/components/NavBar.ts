@@ -70,7 +70,6 @@ export function renderNavBar (isLoged: boolean)
 			<div  class=" ${isLoged ? "hidden" : ""} gap-3 sm:gap-5 flex">
 				${costumeButton("Sign Up", "", "", "py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base", "go-sign-up")}
 				${costumeButton("Login", "", "", "bg-[#F0F0F0] py-2 px-4 sm:px-6 text-black border border-color2 transition-all duration-500 hover:bg-color2 rounded-lg hover:text-black font-bold text-sm sm:text-base opacity-70", "go-sign-in")}
-				${costumeButton("As Guest", "", "", "bg-[#F0F0F0] py-2 px-4 sm:px-6 text-black border border-color2 transition-all duration-500 hover:bg-color2 rounded-lg hover:text-black font-bold text-sm sm:text-base opacity-70", "go-as-guest")}
 			</div>
 		</nav>
     `

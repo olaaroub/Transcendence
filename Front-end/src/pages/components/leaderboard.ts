@@ -1,5 +1,6 @@
 import { initDashboard } from "../dashboard";
 import { getImageUrl } from "../store";
+import { shortString } from "../utils";
 import { apiFetch } from "./errorsHandler";
 import { navigate } from "../../router";
 
@@ -56,7 +57,7 @@ export async function dashboardLearderboard(): Promise<string> {
 					hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 border-x-4 border-color2">
 						${index === 0 ? '<img class="absolute -top-5 -left-7 -rotate-[50deg]" src="images/king.svg">' : ''}
 						<img class="rounded-full w-[70px] h-[70px] object-cover" src="${getImageUrl(player.avatar_url)}">
-						<span class="font-bold text-lg text-txtColor">${player.username}</span>
+						<span class="font-bold text-lg text-txtColor">${shortString(player.username, 14)}</span>
 						<span class="ml-auto mr-4 bg-color1/20 px-3 py-1 rounded-full border border-color1/40 text-color1 font-bold">${player.Rating}</span>
 					</div>
 				`).join('')}
@@ -86,11 +87,11 @@ function renderPodiumPlayer(player: LeaderboardPlayer, rank: number): string {
 				</div>
 			</div>
 			<div class="bg-gradient-to-b ${cfg.gradient} rounded-t-2xl p-4 w-32 ${cfg.minH} transition-all duration-500 ${cfg.hoverMinH} flex flex-col items-center justify-center border-t-4 ${cfg.border} overflow-hidden">
-				<span class="text-txtColor font-bold ${cfg.textSize}">${player.username}</span>
+				<span class="text-txtColor font-bold ${cfg.textSize}">${shortString(player.username, 6)}</span>
 				<span class="text-color1 font-black ${cfg.ratingSize} mb-2">${player.Rating}</span>
 				<div class="max-h-0 group-hover:max-h-20 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col gap-1 text-xs">
 					<span class="text-gray-300"><span class="text-green-400 font-semibold">${player.TotalWins}W</span> / <span class="text-red-400 font-semibold">${player.TotalLosses}L</span></span>
-					<span class="text-gray-400">${player.WinRate}% Win Rate</span>
+					<span class="text-gray-400">${Math.floor(player.WinRate)}% Win Rate</span>
 				</div>
 			</div>
 		</div>
@@ -106,15 +107,15 @@ function renderPlayerRow(player: LeaderboardPlayer, rank: number): string {
 				<span class="text-txtColor font-black text-lg min-w-[2rem] ${rank <= 3 ? 'text-color1' : ''}">#${rank}</span>
 				<img src="${getImageUrl(player.avatar_url)}" 
 					class="w-12 h-12 rounded-full object-cover border-2 ${rank === 1 ? 'border-color1' : 'border-color3'}">
-				<span class="text-txtColor font-bold text-base">${player.username}</span>
+				<span class="text-txtColor font-bold text-base">${shortString(player.username, 14)}</span>
 			</div>
 			<div class="text-center text-txtColor font-semibold">${player.GamesPlayed}</div>
 			<div class="text-center">
 				<div class="inline-flex items-center gap-2">
 					<div class="w-16 bg-gray-700 rounded-full h-2 overflow-hidden">
-						<div class="bg-color1 h-full rounded-full transition-all duration-300" style="width: ${player.WinRate}%"></div>
+						<div class="bg-color1 h-full rounded-full transition-all duration-300" style="width: ${Math.floor(player.WinRate)}%"></div>
 					</div>
-					<span class="text-color1 font-bold text-sm">${player.WinRate}%</span>
+					<span class="text-color1 font-bold text-sm">${Math.floor(player.WinRate)}%</span>
 				</div>
 			</div>
 			<div class="text-center">
@@ -147,7 +148,7 @@ export async function renderLeaderboard() {
 	}
 
 	const top3 = leaderboardData.slice(0, 3);
-	
+
 	dashContent.innerHTML = /* html */ `
 		<div class="w-full h-full flex flex-col gap-6 p-6">
 			<div class="flex items-end justify-center gap-6 mb-6 min-h-[280px]">

@@ -31,7 +31,7 @@ export function renderHomeText (isLoged: boolean)
     `
 }
 
-export function AliasPopUp(isGuest : boolean, item: string)
+export function AliasPopUp(item: string)
 {
 	const aliasPopUp = document.createElement('div');
 	aliasPopUp.id = "Alias-popup";
@@ -86,11 +86,7 @@ export function AliasPopUp(isGuest : boolean, item: string)
 		</div>
 	`;
 	document.body.appendChild(aliasPopUp);
-
-	aliasPopUp.addEventListener('click', (e) => {
-		if (e.target === aliasPopUp) aliasPopUp.remove();
-	});
-
+	aliasPopUp.addEventListener('click', (e) => {if (e.target === aliasPopUp) aliasPopUp.remove();});
 	$("Cancel-alias")?.addEventListener('click', _=> {aliasPopUp?.remove();})
 	$("confirm-alias")?.addEventListener('click', _=> {
 		const AliasInput = $("alias-input") as HTMLInputElement ;
@@ -101,13 +97,7 @@ export function AliasPopUp(isGuest : boolean, item: string)
 		{
 			sessionStorage.setItem(item, value);
 			aliasPopUp?.remove();
-			if (isGuest)
-			{
-				$("go-as-guest")!.textContent = sessionStorage.getItem(item);
-				navigate("/guest");
-			}
-			else if (item === "player2")
-				navigate('/pong-game?mode=local-vs-player');
+			if (item === "player2") navigate('/pong-game?mode=local-vs-player');
 		}
 	})
 }
@@ -131,10 +121,8 @@ export async function renderHome()
 			${renderFooter()}
 		</footer>
 	`
-
 	$('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
 	$('go-sign-in')!.addEventListener('click',_ => {navigate("/login")})
 	$('go-sign-up')!.addEventListener('click',_ => {navigate("/sign-up")})
-	$('go-as-guest')!.addEventListener('click',_ => {AliasPopUp(true, "guest")})
 	$('about-us')!.addEventListener('click',_ => {navigate("/about")})
 }

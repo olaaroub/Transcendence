@@ -36,7 +36,7 @@ interface GameRoom
 }
 
 const HOST = process.env.HOST as string;
-const PORT = Number(process.env.PORT) ||3005;
+const PORT = Number(process.env.PORT) || 3005;
 
 const ext = process.env.SERVICE_EXT || '-dev';
 const USER_SERVICE_URL = `http://user-service${ext}:3002`;

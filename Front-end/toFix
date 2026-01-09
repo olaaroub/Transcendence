@@ -1,9 +1,8 @@
 check the input values
-limit chat chars1
-
-
-
+check for 413 site-wide
 FIX FONTS FOR GAME AND DASHBOARD
+fix the {dashboard, home, leaderboard} responsiveness
+remove footer file and remoove buttons.ts
 
 tailwind :
     truncate
@@ -15,42 +14,3 @@ js :
     call stack
     microtask queue
     task queue
-
-
-
-NEW GAME FEATURES:
-
-	FRIENDLY MATCH
-		Endpoint : /api/game/friendly-match
-		Method : GET
-		Response : Room ID (Guaranteed)
-		Where : Chatroom, When user clicks new button "Challenge"
-		Behavior : Create a sessionStorage similar to Matchmaking, then redirect to online Client.
-				   Also send to friend a clickable message. When clicked :
-				   Query /api/game/available/:id for a Boolean
-				       if true:
-				   			Create a sessionStorage similar to Matchmaking, then redirect to online Client.
-					   else
-					   		Show ToastInfo : "Room is no Longer Available."
-
-	SPECTATE
-		Endpoint : /api/game/spectate
-		Method : GET
-		Response : Room ID  OR  roomId : null if no rooms to spectate
-		Where : Dashboard Spectate Button (Previously Join Room)
-		Behavior : Create a sessionStorage similar to Matchmaking, then redirect to online Client.
-				   OR
-				   If roomId is null, inform User: "There are No Matches to Spectate!"
-
-
-SESSION STORAGE FORMAT REMINDER:
-
-interface RoomData
-{
-	roomId:			string;
-	PlayerID:		string;
-	playerName: 	string | null;   <== if null default to empty string
-	playerAvatar:	string | null;	 <== if null default to "/game/Assets/default.png"
-}
-
-sessionStorage.setItem("room", JSON.stringify(roomData));

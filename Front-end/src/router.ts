@@ -1,12 +1,9 @@
 import { showErrorMessage, isUserAuthenticated } from "./pages/components/errorsHandler";
 
-const app = document.getElementById("app");
-
 let previousPath: string = "/dashboard";
 
 const protectedRoutes = ["/dashboard", "/settings", "/game", "/chat", "/profile", "/leaderboard"];
 const authRoutes = ["/login", "/sign-up"];
-const publicRoutes = ["/", "/about", "/guest"];
 
 function isProtectedRoute(path: string): boolean {
 	return protectedRoutes.some(route => path === route || path.startsWith(route + "/"));
@@ -96,13 +93,6 @@ const routes: Route[] = [
 			renderLeaderboard();
 		},
 	},
-	{
-		path: "/guest",
-		render: async (params) => {
-			const { renderGuest }  = await import("./pages/guestPage");
-			renderGuest();
-		}
-	},
 ];
 
 export function navigate(path: string) {
@@ -125,16 +115,13 @@ export function navigate(path: string) {
 	router();
 }
 
-export function navigateBack() {
-	navigate(previousPath || "/dashboard");
-}
+export function navigateBack() {navigate(previousPath || "/dashboard");}
 
 function matchRoute(path: string, routePath: string) : { matched: boolean, params?: Record<string, string> } {
 	const routeParts = routePath.split("/").filter(Boolean);
 	const pathParts = path.split("/").filter(Boolean);
 
-	if (routeParts.length !== pathParts.length)
-		return { matched: false };
+	if (routeParts.length !== pathParts.length) return { matched: false };
 	const params: Record<string, string> = {};
 	for (let i = 0; i < routeParts.length; i++) {
 		if (routeParts[i].startsWith(":"))
@@ -180,5 +167,4 @@ export async function router() {
 	else
 		showErrorMessage("Page not found", 404);
 }
-
 window.addEventListener("popstate", router);

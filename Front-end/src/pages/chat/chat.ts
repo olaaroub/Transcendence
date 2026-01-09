@@ -244,15 +244,21 @@ function sendMessage(content: string) {
 	if (!socket || !content.trim() || !chatState.currentConversationId || !chatState.currentFriend)
 		return;
 
+	const trimmedContent = content.trim();
+	if (trimmedContent.length > 200) {
+		toastError('Message is too long. Maximum 200 characters allowed.');
+		return;
+	}
+
 	socket.emit("send_message", {
 		conversationId: chatState.currentConversationId,
 		senderId: Number(credentials.id),
 		receiverId: Number(chatState.currentFriend.id),
-		content: content.trim()
+		content: trimmedContent
 	});
 	const optimisticMessage: ChatMessage = {
 		senderId: Number(credentials.id),
-		content: content.trim(),
+		content: trimmedContent,
 		conversationId: chatState.currentConversationId,
 		createdAt: new Date().toISOString()
 	};
@@ -290,7 +296,7 @@ async function challengeFriend() {
 	const sessionData: RoomData = {
 		roomId: roomData.roomId,
 		PlayerID: String(userData.id),
-		playerName: userData.username || '',
+		playerName: shortString(userData.username, 12) || '',
 		playerAvatar: getImageUrl(userData.avatar_url) || '/game/Assets/default.png'
 	};
 	sessionStorage.setItem('room', JSON.stringify(sessionData));
@@ -323,7 +329,7 @@ async function joinGameRoom(roomId: string) {
 	const sessionData: RoomData = {
 		roomId: roomId,
 		PlayerID: String(userData.id),
-		playerName: userData.username || '',
+		playerName: shortString(userData.username, 12) || '',
 		playerAvatar: getImageUrl(userData.avatar_url) || '/game/Assets/default.png'
 	};
 	sessionStorage.setItem('room', JSON.stringify(sessionData));
@@ -468,7 +474,7 @@ function updateChatHeaderUI() {
 				<img class="h-12 w-12 border border-color1 rounded-full object-cover"
 					src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
 				<div class="flex flex-col">
-					<span class="text-txtColor text-lg">${chatState.currentFriend.username}</span>
+					<span class="text-txtColor text-lg">${shortString(chatState.currentFriend.username, 20)}</span>
 					<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
 						${chatState.isTyping ? 'typing...' : (chatState.currentFriend.status || 'offline')}
 					</span>
@@ -757,7 +763,6 @@ async function listFriends() : Promise<string> {
 							<div class="w-full">
 								<div class="flex justify-between w-full">
 									<span class="username-link text-txtColor font-bold text-lg hover:text-color1 transition-colors">${shortString(friend.username, 15)}</span>
-									<span class="status-dot w-2 h-2 mt-2 rounded-full ${friend.status === 'ONLINE' ? 'bg-green-500' : 'bg-gray-400'}"></span>
 								</div>
 								<p class="status-text text-sm ${friend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'}">${friend.status?.toLocaleLowerCase() || 'offline'}</p>
 							</div>

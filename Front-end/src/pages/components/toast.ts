@@ -88,7 +88,7 @@ export function showToast(message: string, type: ToastType = 'info', options: To
 	toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl
 		bg-gradient-to-r ${styles.bg} backdrop-blur-xl border ${styles.border}
 		shadow-lg transform transition-all duration-300 ease-out
-		translate-x-full opacity-0 min-w-[280px] max-w-[400px]`;
+		translate-x-full translate-y-[65px] opacity-0 min-w-[280px] max-w-[400px]`;
 	
 	toast.innerHTML = `
 		<div class="flex-shrink-0 w-8 h-8 rounded-full bg-black/30 flex items-center justify-center">
