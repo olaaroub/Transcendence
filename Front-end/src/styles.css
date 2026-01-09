@@ -22,3 +22,15 @@
                     0 0 90px rgba(255, 106, 32, 0.1);
     }
 }
+
+
+.font-Oi {
+    font-family: 'Pixelify Sans', 'Jersey 10', 'Press Start 2P', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+.font-Oi *,
+.font-Oi input,
+.font-Oi textarea,
+.font-Oi button,
+.font-Oi select {
+    font-family: inherit !important;
+}
