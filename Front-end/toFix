@@ -1,4 +1,3 @@
-check the input values
 check for 413 site-wide
 fix the {dashboard, home, leaderboard} responsiveness
 remove footer file and remoove buttons.ts
