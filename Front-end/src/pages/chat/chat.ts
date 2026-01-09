@@ -244,15 +244,21 @@ function sendMessage(content: string) {
 	if (!socket || !content.trim() || !chatState.currentConversationId || !chatState.currentFriend)
 		return;
 
+	const trimmedContent = content.trim();
+	if (trimmedContent.length > 200) {
+		toastError('Message is too long. Maximum 200 characters allowed.');
+		return;
+	}
+
 	socket.emit("send_message", {
 		conversationId: chatState.currentConversationId,
 		senderId: Number(credentials.id),
 		receiverId: Number(chatState.currentFriend.id),
-		content: content.trim()
+		content: trimmedContent
 	});
 	const optimisticMessage: ChatMessage = {
 		senderId: Number(credentials.id),
-		content: content.trim(),
+		content: trimmedContent,
 		conversationId: chatState.currentConversationId,
 		createdAt: new Date().toISOString()
 	};

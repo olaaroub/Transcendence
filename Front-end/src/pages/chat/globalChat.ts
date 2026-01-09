@@ -2,6 +2,7 @@ import { credentials, getImageUrl, userData } from "../store";
 import { apiFetch } from "../components/errorsHandler";
 import { formatMessageTime, shortString } from "../utils";
 import { navigate } from "../../router";
+import { toastError } from "../components/toast";
 
 interface ChatMessage {
 	sender_id: string | number;
@@ -129,16 +130,22 @@ function sendMessage(content: string) {
 		return;
 	}
 
+	const trimmedContent = content.trim();
+	if (trimmedContent.length > 200) {
+		toastError('Message is too long. Maximum 200 characters allowed.');
+		return;
+	}
+
 	const optimisticMessage: ChatMessage = {
 		sender_id: Number(credentials.id),
 		username: userData.username || 'You',
 		avatar_url: userData.avatar_url || '',
-		msg: content.trim(),
+		msg: trimmedContent,
 		created_at: new Date().toISOString()
 	};
 	globalChatMessages.push(optimisticMessage);
 	updateChatUI();
-	golobalChatSocket.send(JSON.stringify({msg: content.trim()}));
+	golobalChatSocket.send(JSON.stringify({msg: trimmedContent}));
 }
 
 function setupChatEventListeners() {
