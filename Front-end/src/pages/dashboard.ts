@@ -307,10 +307,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 
 	const btnOnlineMatchmaking = $('btn-online-matchmaking');
 	btnOnlineMatchmaking?.addEventListener('click', async () => {
-		interface RoomID {
-			roomId : string
-		}
-		const { data, error} = await apiFetch<RoomID>("/api/game/matchmaking");
+		const { data, error} = await apiFetch<{roomId : string}>("/api/game/matchmaking");
 		if (error || !data) return;
 		const roomData : RoomData = {
 			roomId : data.roomId,
@@ -324,10 +321,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 
 	const btnOnlineSpectate = $('btn-online-spectate');
 	btnOnlineSpectate?.addEventListener('click', async () => {
-		interface RoomID {
-			roomId : string | null
-		}
-		const { data, error} = await apiFetch<RoomID>("/api/game/spectate");
+		const { data, error} = await apiFetch<{roomId: string | null}>("/api/game/spectate");
 		if (error || !data) return;
 		if (!data.roomId)
 		{
