@@ -1,6 +1,6 @@
 import { credentials, getImageUrl, userData } from "../store";
 import { apiFetch } from "../components/errorsHandler";
-import { formatMessageTime } from "../utils";
+import { formatMessageTime, shortString } from "../utils";
 import { navigate } from "../../router";
 
 interface ChatMessage {
@@ -112,7 +112,7 @@ function renderChatMessages(): string {
 						${isSystemUser 
 							? `<span class="text-txtColor font-semibold text-sm">${msg.username}</span>`
 							: `<span data-user-id="${msg.sender_id}" class="username-link text-txtColor font-semibold text-sm hover:text-color1
-								cursor-pointer transition-colors">${msg.username}</span>`
+								cursor-pointer transition-colors">${shortString(msg.username, 15)}</span>`
 						}
 						<span class="text-color3 text-xs">${formatMessageTime(msg.created_at)}</span>
 					</div>

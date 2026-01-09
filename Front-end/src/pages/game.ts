@@ -1,6 +1,7 @@
 import { navigate } from "../router";
 import { userData, getImageUrl } from "./store";
 import { initDashboard } from "./dashboard";
+import { shortString } from "./utils";
 
 export async function renderGame() {
     await initDashboard(false);
@@ -16,9 +17,9 @@ export async function renderGame() {
         const gameSession = {
             oppAI: mode === 'local-vs-ai',
             diff: mode === 'local-vs-ai' ? difficulty : 'None',
-            p1Alias: userData.username,
+            p1Alias: shortString(userData.username, 12),
             p1Avatar: getImageUrl(userData.avatar_url),
-            p2Alias: mode === 'local-vs-ai' ? 'AI' : player2Alias,
+            p2Alias: mode === 'local-vs-ai' ? 'AI' : shortString(player2Alias, 12),
             p2Avatar: mode ==='local-vs-ai' ? '/game/Assets/ai.png' : '/game/Assets/default.png'
         };
         sessionStorage.setItem('gameSession', JSON.stringify(gameSession));

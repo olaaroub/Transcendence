@@ -290,7 +290,7 @@ async function challengeFriend() {
 	const sessionData: RoomData = {
 		roomId: roomData.roomId,
 		PlayerID: String(userData.id),
-		playerName: userData.username || '',
+		playerName: shortString(userData.username, 12) || '',
 		playerAvatar: getImageUrl(userData.avatar_url) || '/game/Assets/default.png'
 	};
 	sessionStorage.setItem('room', JSON.stringify(sessionData));
@@ -323,7 +323,7 @@ async function joinGameRoom(roomId: string) {
 	const sessionData: RoomData = {
 		roomId: roomId,
 		PlayerID: String(userData.id),
-		playerName: userData.username || '',
+		playerName: shortString(userData.username, 12) || '',
 		playerAvatar: getImageUrl(userData.avatar_url) || '/game/Assets/default.png'
 	};
 	sessionStorage.setItem('room', JSON.stringify(sessionData));
@@ -468,7 +468,7 @@ function updateChatHeaderUI() {
 				<img class="h-12 w-12 border border-color1 rounded-full object-cover"
 					src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
 				<div class="flex flex-col">
-					<span class="text-txtColor text-lg">${chatState.currentFriend.username}</span>
+					<span class="text-txtColor text-lg">${shortString(chatState.currentFriend.username, 20)}</span>
 					<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
 						${chatState.isTyping ? 'typing...' : (chatState.currentFriend.status || 'offline')}
 					</span>
