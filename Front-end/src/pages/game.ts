@@ -44,10 +44,9 @@ export async function renderGame() {
 
     const script = document.createElement('script');
     if (isOffline)
-        script.src = `/game/offline/main.js?t=${Date.now()}`; // For Online: /game/online/client.js
+        script.src = `/game/offline/main.js?t=${Date.now()}`;
     else
     {
-        console.log("online exec");
         script.src = `/game/online/client.js?t=${Date.now()}`;
     }
     script.type = 'module';
