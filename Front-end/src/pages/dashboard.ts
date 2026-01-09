@@ -12,7 +12,6 @@ import { AliasPopUp } from "./home";
 import { toastInfo } from "./components/toast";
 import { shortString } from "./utils"
 
-// (window as any).navigate = navigate;
 const $ = (id : string) => document.getElementById(id as string);
 
 interface IUserStatistics {
@@ -152,16 +151,6 @@ function OnlinePong() : string
 	`
 }
 
-function renderWelcome() : string
-{
-	return /* html */ `
-		<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
-			${LocalPong()}
-			${OnlinePong()}
-		</div>
-	`
-}
-
 function renderStatistics(stats: IUserStatistics | null): string {
 	const totalWins = stats?.TotalWins ?? 0;
 	const winRate = stats?.WinRate ?? 0;
@@ -213,19 +202,13 @@ function renderStatistics(stats: IUserStatistics | null): string {
 	`;
 }
 
-function renderAnalyticsSection(stats: IUserStatistics | null): string {
-	return `
-		<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
-			<div id="dashboard-leaderboard"></div>
-			${renderStatistics(stats)}
-		</div>
-	`;
-}
-
 function renderDashboardContent(stats: IUserStatistics | null): string {
-	return `
+	return /* html */`
 		<div class="flex flex-col md:flex-row gap-6 mt-6 w-full" >
-			${renderAnalyticsSection(stats)}
+			<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
+				<div id="dashboard-leaderboard"></div>
+				${renderStatistics(stats)}
+			</div>
 			${renderGlobalChat()}
 		</div>
 	`;
@@ -238,7 +221,12 @@ async function renderMain() : Promise<string>
 		<div class="w-full">
 			<h2 class="font-bold mb-[20px] text-[#414658] font-Oi text-3xl">Welcome back,
 			<span class="text-txtColor text-3xl"> ${shortString(userData.username, 10)}</span></h2>
-			<div class="flex-1">${renderWelcome()}</div>
+			<div class="flex-1">
+				<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
+					${LocalPong()}
+					${OnlinePong()}
+				</div>
+			</div>
 			${renderDashboardContent(stats)}
 		</div>
 	`
@@ -277,24 +265,16 @@ export async function renderDashboard(isDashboard: boolean = true)
 	`;
 	if (isDashboard) {
 		const leaderboardContainer = $('dashboard-leaderboard');
-		if (leaderboardContainer) {
+		if (leaderboardContainer)
 			leaderboardContainer.innerHTML = await dashboardLearderboard();
-		}
 	}
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	notifications();
 	chatEventHandler();
 	initUnreadFromStorage();
 	$('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');});
-
-	const btnLocalVsPlayer = $('btn-local-vs-player');
-	btnLocalVsPlayer?.addEventListener('click', () => {
-		AliasPopUp(false, "player2");
-	});
-	const btnLocalVsAi = $('btn-local-vs-ai');
-	btnLocalVsAi?.addEventListener('click', () => {
-		showDifficultyModal();
-	});
+	$('btn-local-vs-player')?.addEventListener('click', () => {AliasPopUp("player2");});
+	$('btn-local-vs-ai')?.addEventListener('click', () => {showDifficultyModal();});
 
 	interface RoomData
 	{

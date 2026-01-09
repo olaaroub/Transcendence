@@ -3,7 +3,6 @@ import { renderNavBar } from "./components/NavBar";
 import { renderFooter } from "./components/footer"
 import { renderAuthPage } from "./components/loginPage"
 
-
 const $ = (id: string) => document.getElementById(id as string);
 
 function AuthRedirect()
