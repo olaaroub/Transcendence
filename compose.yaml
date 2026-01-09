@@ -9,6 +9,7 @@ services:
       - "8443:8443"
     volumes:
       - ./certs:/etc/nginx/certs:ro
+      - ./Front-end/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
       - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
       - pong-dist:/app/assets/game:ro
     environment:
@@ -133,8 +134,6 @@ services:
     build:
       context: ./Pong
       dockerfile: Dockerfile.pong.prod.multistage
-      # dockerfile: Dockerfile.pong.prod
-
       args:
         - PORT=3005
     image: pong-game-prod:1337
