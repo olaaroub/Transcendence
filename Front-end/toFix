@@ -2,6 +2,7 @@ check the input values
 check for 413 site-wide
 FIX FONTS FOR GAME AND DASHBOARD
 fix the {dashboard, home, leaderboard} responsiveness
+remove footer file and remoove buttons.ts
 
 tailwind :
     truncate

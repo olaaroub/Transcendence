@@ -305,7 +305,6 @@ export async function renderProfile(userId: string | null = null)
 		tmpUserData = userData;
 	else
 		tmpUserData = await getUserDataById(userId);
-	
 	if (!tmpUserData) return;
 
 	const profileUserId = userId || String(userData.id);
@@ -315,9 +314,8 @@ export async function renderProfile(userId: string | null = null)
 	if (!isMyProfile && userId) {
 		const { data: friendData } = await apiFetch<IUserData[]>(`/api/user/${credentials.id}/friends`);
 		const friend = friendData?.find(f => String(f.id) === userId);
-		if (friend && friend.status) {
+		if (friend && friend.status)
 			onlineStatusData = { status: friend.status === 'ONLINE' ? 'ONLINE' : 'OFFLINE' };
-		}
 	}
 
 	const dashContent = document.getElementById('dashboard-content');
@@ -331,13 +329,7 @@ export async function renderProfile(userId: string | null = null)
 			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8" data-profile-user-id="${profileUserId}">
 				<div class="bg-color4 glow-effect mx-auto w-full rounded-3xl p-6 2xl:pl-12 flex gap-5 items-center
 				border-t-4 border-color1">
-					<div class="relative">
-						<img src="${imageUrl}" alt="avatar" class="w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
-						${!isMyProfile && isFriend ? `
-							<span id="online-status-indicator" class="absolute bottom-2 right-2 w-5 h-5 rounded-full border-2 border-color4 
-								${isOnline ? 'bg-green-500' : 'bg-gray-400'}"></span>
-						` : ''}
-					</div>
+					<img src="${imageUrl}" alt="avatar" class="relative w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
 					<div class="flex flex-col gap-2">
 						<div class="flex items-center gap-3">
 							<h2 class="font-bold text-txtColor text-3xl">${tmpUserData.username}</h2>
@@ -361,13 +353,8 @@ export async function renderProfile(userId: string | null = null)
 		if (profileCard)
 			attachActionButtonListeners(profileCard, currentStatus, userId, tmpUserData);
 
-		if (!isMyProfile && userId && isFriend) {
-			profileStatusUnsubscribe = subscribeFriendStatus((friendId, status) => {
-				if (friendId === userId) {
-					updateProfileOnlineStatus(status);
-				}
-			});
-		}
+		if (!isMyProfile && userId && isFriend)
+			profileStatusUnsubscribe = subscribeFriendStatus((friendId, status) => {if (friendId === userId) updateProfileOnlineStatus(status);});
 	}
 }
 
