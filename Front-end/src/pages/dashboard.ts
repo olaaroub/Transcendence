@@ -72,7 +72,7 @@ export async function initDashboard(isDashboard: boolean = true) {
 
 function renderGameModeButton(id: string, colorClass: string, icon: string, title: string, description: string): string {
 	return /* html */ `
-		<button id="${id}" class="group relative bg-[#0f0f1a] hover:bg-[#1a1a2e]
+		<button id="${id}" class="group relative bg-[linear-gradient(90deg,#0f0f1a,#111111)] hover:bg-[#1a1a2e]
 			rounded-xl p-5 border border-white/5 hover:border-${colorClass}/50
 			transition-all duration-200 cursor-pointer text-left">
 			<div class="flex items-center gap-3 mb-3">
