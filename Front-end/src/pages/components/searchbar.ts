@@ -4,6 +4,7 @@ import { sendFriendRequest, unfriend, blockFriend } from "../profile";
 import { confirmPopUp } from "../settings";
 import { toastError } from "./toast";
 import { apiFetch } from "./errorsHandler";
+import { shortString } from "../utils";
 
 interface UserData {
     id: string;
@@ -25,7 +26,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		divp.innerHTML = /* html */`
 			<div class="flex gap-3 items-center">
 				<img src="${getImageUrl(user.avatar_url)}" alt="${user.username}" class="w-10 h-10 rounded-full">
-				<p class="font-bold">${user.username}</p>
+				<p class="font-bold">${shortString(user.username, 10)}</p>
 			</div>`;
 		const buttonsDiv = document.createElement('div');
 		buttonsDiv.className = "flex gap-3 items-center";

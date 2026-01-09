@@ -87,7 +87,7 @@ function renderPodiumPlayer(player: LeaderboardPlayer, rank: number): string {
 				</div>
 			</div>
 			<div class="bg-gradient-to-b ${cfg.gradient} rounded-t-2xl p-4 w-32 ${cfg.minH} transition-all duration-500 ${cfg.hoverMinH} flex flex-col items-center justify-center border-t-4 ${cfg.border} overflow-hidden">
-				<span class="text-txtColor font-bold ${cfg.textSize}">${shortString(player.username, 14)}</span>
+				<span class="text-txtColor font-bold ${cfg.textSize}">${shortString(player.username, 6)}</span>
 				<span class="text-color1 font-black ${cfg.ratingSize} mb-2">${player.Rating}</span>
 				<div class="max-h-0 group-hover:max-h-20 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col gap-1 text-xs">
 					<span class="text-gray-300"><span class="text-green-400 font-semibold">${player.TotalWins}W</span> / <span class="text-red-400 font-semibold">${player.TotalLosses}L</span></span>
@@ -148,7 +148,7 @@ export async function renderLeaderboard() {
 	}
 
 	const top3 = leaderboardData.slice(0, 3);
-	
+
 	dashContent.innerHTML = /* html */ `
 		<div class="w-full h-full flex flex-col gap-6 p-6">
 			<div class="flex items-end justify-center gap-6 mb-6 min-h-[280px]">

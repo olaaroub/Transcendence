@@ -10,6 +10,7 @@ import { chatEventHandler, cleanupPrivateChat, initGlobalChatNotifications, init
 import { showDifficultyModal } from "./components/difficultyModal";
 import { AliasPopUp } from "./home";
 import { toastInfo } from "./components/toast";
+import { shortString } from "./utils"
 
 // (window as any).navigate = navigate;
 const $ = (id : string) => document.getElementById(id as string);
@@ -237,8 +238,8 @@ async function renderMain() : Promise<string>
 	const stats = await fetchUserStatistics(credentials.id);
 	return /* html */`
 		<div class="w-full">
-			<h2 class="font-bold mb-[20px] text-[#414658] text-3xl">Welcome back,
-			<span class="text-txtColor text-3xl"> ${userData?.username}</span></h2>
+			<h2 class="font-bold mb-[20px] text-[#414658] font-Oi text-3xl">Welcome back,
+			<span class="text-txtColor text-3xl"> ${shortString(userData.username, 10)}</span></h2>
 			<div class="flex-1">${renderWelcome()}</div>
 			${renderDashboardContent(stats)}
 		</div>
