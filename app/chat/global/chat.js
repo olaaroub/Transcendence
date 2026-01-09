@@ -34,7 +34,7 @@ async function startChatService() {
         logger: {
             level: process.env.LOG_LEVEL || 'info',
             base: {
-                service: 'global-chat-service',
+                service_name: 'global-chat-service',
                 env: process.env.NODE_ENV || 'development'
             },
 
@@ -59,7 +59,7 @@ async function startChatService() {
 
     /// dir hadi flblasa fach kisift user msg:
     // fastify.customMetrics.chatMessagesCounter.inc({ chat_type: 'global' });
-    // const 
+    // const
     try {
         fastify.log.info("global chat service is starting...");
         const { jwtSecret } = await getSecrets(fastify.log);

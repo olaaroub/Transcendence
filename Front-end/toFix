@@ -26,7 +26,7 @@ NEW GAME FEATURES:
 		Behavior : Create a sessionStorage similar to Matchmaking, then redirect to online Client.
 				   Also send to friend a clickable message. When clicked :
 				   Create a sessionStorage similar to Matchmaking, then redirect to online Client.
-	
+
 	SPECTATE
 		Endpoint : /api/game/spectate
 		Method : GET
