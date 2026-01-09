@@ -175,7 +175,7 @@ function renderStatistics(stats: IUserStatistics | null): string {
 
 	return /* html */ `
 		<div class="statistics mb-6">
-			<h2 class="text-txtColor font-bold text-xl sm:text-2xl mb-3 sm:mb-4 transition-all duration">Your Statistic</h2>
+			<h2 class="text-txtColor font-bold text-xl sm:text-2xl mb-3 sm:mb-4 transition-all duration">Your Statistics</h2>
 			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-2xl sm:rounded-3xl
 			text-txtColor grid grid-cols-2 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6">
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
@@ -184,7 +184,7 @@ function renderStatistics(stats: IUserStatistics | null): string {
 				</div>
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
 					<p class="text-xs sm:text-sm text-gray-400">Win Rate</p>
-					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${winRate.toFixed(1)}%</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${Math.floor(winRate)}%</p>
 					<p class="text-xs sm:text-sm ${winRateColor} mt-1">${winRateStatus}</p>
 				</div>
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
