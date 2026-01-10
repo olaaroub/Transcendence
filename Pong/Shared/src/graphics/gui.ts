@@ -15,6 +15,7 @@ let options: boolean = false;
 let camButtons: GUI.Button[] = [];
 let colButtons: GUI.Button[] = [];
 let picker: GUI.ColorPicker | null = null;
+let signBox: GUI.Container | null = null;
 let sign: GUI.Image | null = null;
 let signText: GUI.TextBlock | null = null;
 let p1Goals = 0;
@@ -300,14 +301,21 @@ export function createSign(text?: string): void
 	{
 		if (signText)
 		{
+			signBox?.removeControl(signText);
 			signText.dispose();
 			signText = null;
 		}
 		if (sign)
 		{
-			ui.removeControl(sign);
+			signBox?.removeControl(sign);
 			sign.dispose();
 			sign = null;
+		}
+		if (signBox)
+		{
+			ui.removeControl(signBox);
+			signBox.dispose();
+			signBox = null;
 		}
 		return ;
 	}
@@ -321,28 +329,24 @@ export function createSign(text?: string): void
 		return ;
 	}
 	
+	signBox = new GUI.Container("BOX");
+    signBox.adaptHeightToChildren = true;
+    signBox.adaptWidthToChildren = true;
+
 	signText = new GUI.TextBlock('SignText', text);
 	signText.fontSize = fontSize;
 	signText.fontStyle = 'bold';
 	signText.color = '#ED6F30';
-	signText.outlineColor = '#000000';
-	signText.outlineWidth = 2;
+	// signText.outlineWidth = 0;
 	signText.resizeToFit = true;
 	signText.paddingLeft = "40px";
 	signText.paddingRight = "40px";
 	signText.paddingTop = "20px";
 	signText.paddingBottom = "20px";
 
-	const signWidth = text.length < 3 ? 250 : signText.width;
-	const signHeight = text.length < 3 ? 150 : signText.height;
-
-	console.log('Sign dimensions:', signWidth, signHeight);
-	console.log('Text dimensions:', signText.width, signText.height);
-
 	sign = new GUI.Image('Sign', '/game/Assets/sign.svg');
-	sign.width = signWidth;
-	sign.height = signHeight;
 	sign.stretch = GUI.Image.STRETCH_FILL;
-	ui.addControl(sign);
-	ui.addControl(signText);
+	signBox.addControl(sign);
+	signBox.addControl(signText);
+	ui.addControl(signBox);
 }
