@@ -1,9 +1,9 @@
-check for 413 site-wide
-cleaning add friend&block&unblock  ui
 cleaning chat ui
 fix home page responsiveness
 fix game canvas responsiveness
-fix chat responsiveness
+
+check for 413 site-wide
+cleaning add friend&block&unblock  ui
 
 tailwind :
     truncate
