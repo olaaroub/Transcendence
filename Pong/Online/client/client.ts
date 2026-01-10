@@ -160,10 +160,9 @@ socket.on("session", (session: Match['session']) =>
 
 socket.on("countdown", (count: string) =>
 {
-	if (count === '0')
-		createSign();
-	else
-		createSign(count);
+	createSign(count);
+	if (count === 'GO')
+		setTimeout(() => {createSign();}, 500);
 });
 
 optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
@@ -202,8 +201,11 @@ else
 			}
 			match = response;
 			console.log(`Joined room successfully. Waiting for game to start...`);
-			modifyState(match.state);
-			createSign(`WAITING FOR\nOPPONENT...`);
+			if (role !== 3)
+			{
+				modifyState(match.state);
+				createSign(`WAITING FOR\nOPPONENT...`);
+			}
 		}
 		catch (e)
 		{

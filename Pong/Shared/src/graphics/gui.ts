@@ -8,6 +8,7 @@ import { PongEngine } from "../game-engine.js";
 const colIcon = ['/game/Assets/ball.svg', '/game/Assets/p1.svg', '/game/Assets/p2.svg'];
 const camIcon = ['/game/Assets/cam1.svg', '/game/Assets/cam2.svg', '/game/Assets/cam3.svg', '/game/Assets/cam4.svg'];
 const clicked = [false, false, false];
+const FONT = 'Press Start 2P';
 
 let ui:GUI.AdvancedDynamicTexture;
 let options: boolean = false;
@@ -20,6 +21,16 @@ let p1Goals = 0;
 let p2Goals = 0;
 
 export function createGUI(): void {ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");}
+
+export async function loadGameFont(): Promise<void> 
+{
+    try
+	{
+        await document.fonts.load(`16px ${FONT}`);
+        await document.fonts.ready;
+    }
+	catch (e) {console.warn("Failed to preload Game Font:", e);}
+}
 
 function disposeButtons(): void
 {
@@ -176,7 +187,7 @@ function createAlias(player : number, alias: string): GUI.TextBlock
 	const name = new GUI.TextBlock(alias, alias);
 	name.horizontalAlignment = horAllign;
 	name.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-	// name.fontFamily = 'Press Start 2P'; // WiP
+	// name.fontFamily = FONT; // WiP
 	name.fontSize = 42;
 	name.fontStyle = 'bold';
 	name.resizeToFit = true;
@@ -246,37 +257,23 @@ export function catchUpGoals(player1: number, player2: number): void
 		updateGoals(player1, player2);
 }
 
-function createSignText(text: string): void
-{
-	if (signText)
-	{
-		ui.removeControl(signText);
-		signText.dispose();
-		signText = null;
-	}
-	signText = new GUI.TextBlock('SignText', text);
-	signText.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-	signText.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-	signText.fontSize = text.length === 1 ? 70 : 48;
-	signText.fontStyle = 'bold';
-	signText.color = '#ED6F30';
-	signText.outlineColor = '#000000';
-	signText.outlineWidth = 4;
-	ui.addControl(signText);
-}
-
 export function startButton(engine: PongEngine): void
 {
-	const button = GUI.Button.CreateImageButton('Start', 'READY ?', '/game/Assets/button.svg');
+	const button = GUI.Button.CreateImageWithCenterTextButton('Start', 'READY?', '/game/Assets/button.svg');
 	button.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-	button.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-	button.width = '100%';
-	button.height = '100%';
+	button.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+	button.width = '20%';
+	button.height = '20%';
+	button.top = '15%';
 	button.thickness = 0;
-	button.fontSize = 48;
-	button.fontStyle = 'bold';
-	button.color = '#ED6F30';
-	// button.outlineColor = '#000000';
+	if (button.textBlock)
+	{
+		button.textBlock.fontSize = 48;
+		button.textBlock.fontStyle = 'bold italic';
+		// button.textBlock.fontFamily = FONT; // WiP
+		button.textBlock.color = '#ED6F30';
+		button.textBlock.outlineColor = '#000000';
+	}
 	ui.addControl(button);
 
 	button.onPointerClickObservable.add(async () =>
@@ -286,29 +283,26 @@ export function startButton(engine: PongEngine): void
 		createSign('GET READY');
 		await new Promise(resolve => setTimeout(resolve, 1000));
 		engine.setState('Countdown');
-		for (let count = 3; count >= 0; count--)
+		for (let count = 3; count > 0; count--)
 		{
-			if (count > 0)
-			{
-				createSignText(`${count}`);
-				await new Promise(resolve => setTimeout(resolve, 1000));
-			}
+			createSign(`${count}`);
+			await new Promise(resolve => setTimeout(resolve, 1000));
 		}
-		createSign();
+		createSign('GO');
 		engine.setState('Playing');
+		setTimeout(() => {createSign();}, 500);
 	});
 }
 
 export function createSign(text?: string): void
 {
-	if (signText)
-	{
-		ui.removeControl(signText);
-		signText.dispose();
-		signText = null;
-	}
 	if (!text)
 	{
+		if (signText)
+		{
+			signText.dispose();
+			signText = null;
+		}
 		if (sign)
 		{
 			ui.removeControl(sign);
@@ -317,17 +311,38 @@ export function createSign(text?: string): void
 		}
 		return ;
 	}
-	if (sign)
+
+	const fontSize = text.length < 3 ? 70 : 48;
+
+	if (signText)
 	{
-		createSignText(text);
+		signText.text = text;
+		signText.fontSize = fontSize;
 		return ;
 	}
+	
+	signText = new GUI.TextBlock('SignText', text);
+	signText.fontSize = fontSize;
+	signText.fontStyle = 'bold';
+	signText.color = '#ED6F30';
+	signText.outlineColor = '#000000';
+	signText.outlineWidth = 2;
+	signText.resizeToFit = true;
+	signText.paddingLeft = "40px";
+	signText.paddingRight = "40px";
+	signText.paddingTop = "20px";
+	signText.paddingBottom = "20px";
+
+	const signWidth = text.length < 3 ? 250 : signText.width;
+	const signHeight = text.length < 3 ? 150 : signText.height;
+
+	console.log('Sign dimensions:', signWidth, signHeight);
+	console.log('Text dimensions:', signText.width, signText.height);
+
 	sign = new GUI.Image('Sign', '/game/Assets/sign.svg');
-	sign.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-	sign.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-	sign.width = '300px';
-	sign.height = '150px';
-	// sign.adaptWidthToChildren = true;
+	sign.width = signWidth;
+	sign.height = signHeight;
+	sign.stretch = GUI.Image.STRETCH_FILL;
 	ui.addControl(sign);
-	createSignText(text);
+	ui.addControl(signText);
 }

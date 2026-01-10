@@ -1,5 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Jersey+10&family=Pixelify+Sans:wght@400..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Share+Tech&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&display=swap');
+
 
 
 @tailwind base;
@@ -22,4 +23,16 @@
                     0 0 60px rgba(255, 106, 32, 0.15),
                     0 0 90px rgba(255, 106, 32, 0.1);
     }
+}
+
+
+.font-Oi {
+    font-family: 'Bruno Ace SC', 'Jersey 10', 'Press Start 2P', system-ui;
+}
+.font-Oi *,
+.font-Oi input,
+.font-Oi textarea,
+.font-Oi button,
+.font-Oi select {
+    font-family: inherit !important;
 }
