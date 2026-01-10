@@ -189,7 +189,6 @@ else
 {
 	socket.on("connect", async () =>
 	{
-		console.log("Connection Established. Joining room...");
 		try
 		{
 			const response = await socket.timeout(60000).emitWithAck("match", roomData);
@@ -200,7 +199,6 @@ else
 				return;
 			}
 			match = response;
-			console.log(`Joined room successfully. Waiting for game to start...`);
 			if (role !== 3)
 			{
 				modifyState(match.state);
@@ -217,7 +215,6 @@ else
 	socket.on("side", (side: number) =>
 	{
 		role = side;
-		console.log(`Assigned as ${side === 3 ? 'Spectator' : `Player ${side}`}`);
 		if (role === 3)
 		{
 			addHUDs(match.session);

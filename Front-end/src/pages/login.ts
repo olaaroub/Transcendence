@@ -27,7 +27,7 @@ export function renderLogin (isLoged: boolean)
 		<footer id="footer" class="w-[90%] absolute bottom-0 left-1/2 transform -translate-x-1/2
 		mx-auto flex flex-col sm:flex-row justify-between items-center gap-4
 		py-8 text-white border-t border-slate-500 mt-auto">
-			<p class="text-[#878787] text-sm sm:text-base">© 2025 GOLDEN PONG Made By Simo</p>
+			<p class="text-[#878787] text-sm sm:text-base">© 2025 SPACE PONG Made By Simo</p>
 			<div class="flex flex-wrap justify-center gap-3 sm:gap-4">
 				<button id="terms-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Terms</button>
 				<button id="privacy-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Privacy</button>
