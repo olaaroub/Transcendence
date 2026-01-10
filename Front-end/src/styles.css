@@ -1,4 +1,4 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Share+Tech&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&display=swap');
 
 
@@ -6,6 +6,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Typography - Font Selection */
+* {
+    font-family: 'Share Tech', system-ui, -apple-system, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Bruno Ace SC', system-ui, -apple-system, sans-serif;
+}
 
 @layer utilities {
     .scrollbar-custom {
