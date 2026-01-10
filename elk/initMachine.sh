@@ -51,3 +51,11 @@ if [ -n "$1" ]; then
 fi
 
 echo "Docker and Docker Compose installation completed successfully!"
+
+
+
+
+# check max memorymapping
+# sysctl vm.max_map_count
+
+# sudo sysctl -w vm.max_map_count=262144
