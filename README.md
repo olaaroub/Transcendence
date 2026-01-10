@@ -48,7 +48,7 @@
 - 👤 **User Management** - Profiles, avatars, friends system, and online status
 - 💬 **Chat System** - Global and private messaging with real-time updates
 - 📊 **Statistics & Leaderboard** - Track your performance and compete for rankings
-- 🔐 **Secure Authentication** - Local, OAuth 2.0 (Google, GitHub, 42 Intra), and 2FA
+- 🔐 **Secure Authentication** - Local & OAuth 2.0 (Google, GitHub, 42 Intra)
 - 🛡️ **Security** - WAF/ModSecurity hardened with HashiCorp Vault for secrets
 - 📈 **Monitoring** - Prometheus + Grafana dashboards with ELK stack logging
 
@@ -187,7 +187,7 @@ make elk
 ### Backend (Microservices)
 | Service | Framework | Database | Purpose |
 |---------|-----------|----------|---------|
-| **Auth Service** | Fastify | SQLite (better-sqlite3) | Authentication & 2FA |
+| **Auth Service** | Fastify | SQLite (better-sqlite3) | Authentication |
 | **User Service** | Fastify | SQLite (better-sqlite3) | User management, friends, leaderboard |
 | **Global Chat** | Fastify | SQLite (better-sqlite3) | Public chat rooms |
 | **Private Chat** | Fastify + Socket.io | SQLite (better-sqlite3) | Direct messaging |
@@ -223,58 +223,58 @@ make elk
 ### Auth Service Database
 ```
 ┌─────────────────────────────────────────┐
-│                 users                    │
+│                 users                   │
 ├─────────────────────────────────────────┤
-│ id            INTEGER PRIMARY KEY        │
-│ username      TEXT UNIQUE NOT NULL       │
-│ password      TEXT                       │
-│ auth_provider TEXT (local/google/github) │
-│ email         TEXT UNIQUE NOT NULL       │
-│ towFaSecret   TEXT                       │
-│ towFaEnabled  BOOLEAN                    │
+│ id            INTEGER PRIMARY KEY       │
+│ username      TEXT UNIQUE NOT NULL      │
+│ password      TEXT                      │
+│ auth_provider TEXT (local/google/github)│
+│ email         TEXT UNIQUE NOT NULL      │
+│ towFaSecret   TEXT                      │
+│ towFaEnabled  BOOLEAN                   │
 └─────────────────────────────────────────┘
 ```
 
 ### User Service Database
 ```
 ┌─────────────────────────────────────────┐
-│               userInfo                   │
+│               userInfo                  │
 ├─────────────────────────────────────────┤
-│ id            INTEGER UNIQUE NOT NULL    │
-│ username      TEXT UNIQUE NOT NULL       │
-│ bio           TEXT                       │
-│ avatar_url    TEXT                       │
-│ GamesPlayed   INTEGER                    │
-│ TotalWins     INTEGER                    │
-│ TotalLosses   INTEGER                    │
-│ WinRate       FLOAT                      │
-│ GoalsScored   INTEGER                    │
-│ GoalsTaken    INTEGER                    │
-│ CurrentStreak INTEGER                    │
-│ MaxStreak     INTEGER                    │
-│ Rating        INTEGER (ELO-based)        │
+│ id            INTEGER UNIQUE NOT NULL   │
+│ username      TEXT UNIQUE NOT NULL      │
+│ bio           TEXT                      │
+│ avatar_url    TEXT                      │
+│ GamesPlayed   INTEGER                   │
+│ TotalWins     INTEGER                   │
+│ TotalLosses   INTEGER                   │
+│ WinRate       FLOAT                     │
+│ GoalsScored   INTEGER                   │
+│ GoalsTaken    INTEGER                   │
+│ CurrentStreak INTEGER                   │
+│ MaxStreak     INTEGER                   │
+│ Rating        INTEGER (ELO-based)       │
 └─────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────┐
-│             friendships                  │
+│             friendships                 │
 ├─────────────────────────────────────────┤
-│ id             INTEGER PRIMARY KEY       │
-│ userRequester  INTEGER (FK → userInfo)   │
-│ userReceiver   INTEGER (FK → userInfo)   │
-│ blocker_id     INTEGER                   │
-│ status         TEXT (PENDING/ACCEPTED/   │
-│                     REJECTED/BLOCKED)    │
+│ id             INTEGER PRIMARY KEY      │
+│ userRequester  INTEGER (FK → userInfo)  │
+│ userReceiver   INTEGER (FK → userInfo)  │
+│ blocker_id     INTEGER                  │
+│ status         TEXT (PENDING/ACCEPTED/  │
+│                     REJECTED/BLOCKED)   │
 └─────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────┐
-│            matchHistory                  │
+│            matchHistory                 │
 ├─────────────────────────────────────────┤
-│ id             INTEGER PRIMARY KEY       │
-│ player1_id     INTEGER (FK → userInfo)   │
-│ player2_id     INTEGER (FK → userInfo)   │
-│ player1_score  INTEGER                   │
-│ player2_score  INTEGER                   │
-│ match_date     DATETIME                  │
+│ id             INTEGER PRIMARY KEY      │
+│ player1_id     INTEGER (FK → userInfo)  │
+│ player2_id     INTEGER (FK → userInfo)  │
+│ player1_score  INTEGER                  │
+│ player2_score  INTEGER                  │
+│ match_date     DATETIME                 │
 └─────────────────────────────────────────┘
 ```
 
@@ -297,7 +297,7 @@ make elk
 |---------|-------------|
 | Single-Page Application | Smooth navigation without page reloads using custom router |
 | Responsive Design | Mobile-first design adapting to all screen sizes |
-| User Authentication UI | Login, signup, OAuth flows, and 2FA setup |
+| User Authentication UI | Login, signup & OAuth flows |
 | Dashboard | Central hub for user activities and quick actions |
 | Profile Management | View and edit user profiles, avatars, and settings |
 | Leaderboard | Global rankings with player statistics |
@@ -312,7 +312,6 @@ make elk
 | WebSocket Integration | Real-time updates for notifications and presence |
 | JWT Authentication | Secure token-based authentication |
 | OAuth 2.0 Integration | Google, GitHub, and 42 Intra login |
-| 2FA Support | TOTP-based two-factor authentication with QR codes |
 | Friends System | Send/accept/reject requests, block users |
 | Search Functionality | Find users by username |
 | Match History Recording | Track and store game results |
@@ -397,7 +396,7 @@ make elk
 - Built the SPA architecture with custom TypeScript router
 - Designed and implemented the UI with Tailwind CSS
 - Created responsive layouts for all screen sizes
-- Implemented user authentication flows (login, signup, OAuth, 2FA)
+- Implemented user authentication flows (login, signup, OAuth)
 - Built the dashboard, profile, and settings pages
 - Developed the leaderboard and statistics views
 - Created Privacy Policy and Terms of Service pages
@@ -405,7 +404,7 @@ make elk
 
 ### Oussama HAMMOU MESSAOUD (ohammou-) - Backend
 - Designed the microservices architecture
-- Implemented Auth Service (local auth, OAuth, 2FA)
+- Implemented Auth Service (local auth, OAuth)
 - Built User Service (profiles, friends, statistics, leaderboard)
 - Integrated WebSocket for real-time notifications
 - Implemented match history and statistics tracking

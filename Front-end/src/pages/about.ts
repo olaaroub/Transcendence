@@ -26,7 +26,7 @@ export async function renderAbout() {
 		},
 		{
 			name: 'oumondad',
-			role: 'security',
+			role: 'Chat Dev',
 			image: 'images/oumondad.jpeg',
 			gradientFrom: '#ed6f30',
 			gradientTo: '#878787',
