@@ -258,7 +258,7 @@ export async function renderDashboard(isDashboard: boolean = true)
 		<div class=" min-h-screen">
 			${mainBackground()}
 			${renderDashboardNavBar(userData, getImageUrl(userData?.avatar_url))}
-			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
+			<main id="dashboard-content" class="flex w-[93%] m-auto">
 				${isDashboard ? await renderMain() : ''}
 			</main>
 		</div>
