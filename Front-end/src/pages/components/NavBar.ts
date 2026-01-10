@@ -81,7 +81,6 @@ function searchBar() : string
 		border border-color4 rounded-full
 		flex items-center">
 			<input
-
 				id="search-input"
 				type="text"
 				autocomplete="off"

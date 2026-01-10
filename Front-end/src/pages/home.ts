@@ -118,11 +118,17 @@ export async function renderHome()
 		transform -translate-x-1/2  mx-auto flex flex-col sm:flex-row
 		justify-between items-center gap-4 py-8 text-white border-t border-slate-500 mt-auto">
 			<p class="text-[#878787] text-sm sm:text-base">© 2025 GOLDEN PONG Made By Simo</p>
-			<button id="about-us" class="py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base">About Us</button>
+			<div class="flex flex-wrap justify-center gap-3 sm:gap-4">
+				<button id="terms-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Terms</button>
+				<button id="privacy-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Privacy</button>
+				<button id="about-us" class="py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base">About Us</button>
+			</div>
 		</footer>
 	`
 	$('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
 	$('go-sign-in')!.addEventListener('click',_ => {navigate("/login")})
 	$('go-sign-up')!.addEventListener('click',_ => {navigate("/sign-up")})
 	$('about-us')!.addEventListener('click',_ => {navigate("/about")})
+	$('terms-link')!.addEventListener('click',_ => {navigate("/terms")})
+	$('privacy-link')!.addEventListener('click',_ => {navigate("/privacy")})
 }

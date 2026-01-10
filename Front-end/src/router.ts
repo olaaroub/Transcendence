@@ -38,6 +38,20 @@ const routes: Route[] = [
 		},
 	},
 	{
+		path: "/terms",
+		render: async () => {
+			const { renderTerms } = await import("./pages/terms");
+			renderTerms();
+		},
+	},
+	{
+		path: "/privacy",
+		render: async () => {
+			const { renderPrivacy } = await import("./pages/privacy");
+			renderPrivacy();
+		},
+	},
+	{
 		path: "/login",
 		render: async () => {
 			const { renderLogin }  = await import("./pages/login");
