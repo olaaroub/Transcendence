@@ -9,7 +9,7 @@ services:
       - "8443:8443"
     volumes:
       - ./certs:/etc/nginx/certs:ro
-      - ./Front-end/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
+      # - ./Front-end/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
       - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
       - pong-dist:/app/assets/game:ro
     environment:

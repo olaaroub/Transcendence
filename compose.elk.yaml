@@ -9,7 +9,7 @@ services:
       - "443:443"
     volumes:
       - ./certs:/etc/nginx/certs:ro
-      - ./Front-end/Nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
+      # - ./Front-end/Nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
       - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
       - pong-dist:/app/assets/game:ro
     environment:
@@ -324,22 +324,36 @@ services:
     #       cpus: '0.50'   #
     #       memory: 1G
 
-  fluent-bit:
-    image: fluent/fluent-bit:4.2.0
-    container_name: fluent-bit
+  # fluent-bit:
+  #   image: fluent/fluent-bit:4.2.0
+  #   container_name: fluent-bit
+  #   user: root
+  #   volumes:
+  #     - ./elk/fluent-bit/config:/fluent-bit/etc:ro
+  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   networks:
+  #     - transcendence-elk-net
+  #   depends_on:
+  #     - logstash
+  #   # deploy:
+  #   #   resources:
+  #   #     limits:
+  #   #       cpus: '0.20'
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:9.2.2
+    container_name: filebeat
     user: root
+    command: ["-e", "--strict.perms=false"]
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./elk/fluent-bit/config:/fluent-bit/etc:ro
+      - ./elk/filebeat/config/filebeat.yaml:/usr/share/filebeat/filebeat.yml:ro
     networks:
       - transcendence-elk-net
     depends_on:
       - logstash
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '0.20'
 
 networks:
   transcendence-elk-net:
