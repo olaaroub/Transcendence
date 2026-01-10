@@ -93,11 +93,16 @@ async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DAR
       });
       await fastify.register(chatRoutes); // khsek tzid {prefix: '/api'} hnaya (ta checki m3a ohammou)
   
-      await fastify.delete('/api/chat/private/user/:id', async (req, res) => 
+      // await fastify.get('/api/conversation/test', async (req, res) => {
+      //   return db.prepare(`SELECT * FROM conversation`).all();
+      // }); just for test if the user is deleted or not
+  
+      await fastify.delete('/api/chat/private/account/:id', async (req, res) => 
       {
         const id = req.params.id;
   
           try {
+              console.log("deleting user conversations for user id: ", id);
               db.prepare('DELETE FROM conversation WHERE (senderId = ? OR receiverId = ?)').run(id, id);
               res.code(200).send({message: "user deleted", ok: true})
           } catch(err)

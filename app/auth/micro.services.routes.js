@@ -36,7 +36,7 @@ async function getAuthProviderAndEmailHandler(req, reply) {
 
 export default async function localRoutes(fastify) // this local routes for the commenication between micro services ...
 {
-    fastify.delete("/auth/deletAccount/:id", deleteAccountHandler)
+    fastify.delete("/auth/deleteAccount/:id", deleteAccountHandler)
     fastify.put("/auth/changeUsername/:id", changeUserNameHandler)
     fastify.get("/auth/provider/:id", getAuthProviderAndEmailHandler);
 }

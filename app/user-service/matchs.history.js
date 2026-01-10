@@ -16,30 +16,30 @@ async function matchHistoryHandler(req, reply) {
     `).all(userId, userId, limit, offset);
     req.log.info({ userId: userId, count: matchs.length }, "Fetched match history");
 
-    matchs.push(  {
-        "match_id": 1,
-        "player1_id": 1,
-        "player2_id": 2,
-        "player1_score": 4,
-        "player2_score": 2,
-        "match_date": "2026-01-03 20:28:04",
-        "player1_username": "oussama",
-        "player2_username": "oussamaHammou",
-        "player1_avatar": "/public/default_pfp.png",
-        "player2_avatar": "/public/default_pfp.png"
-    })
-    matchs.push(  {
-        "match_id": 1,
-        "player1_id": 1,
-        "player2_id": 2,
-        "player1_score": 4,
-        "player2_score": 2,
-        "match_date": "2026-01-03 20:28:04",
-        "player1_username": "oussama",
-        "player2_username": "oussamaHammou",
-        "player1_avatar": "/public/default_pfp.png",
-        "player2_avatar": "/public/default_pfp.png"
-    })
+    // matchs.push(  {
+    //     "match_id": 1,
+    //     "player1_id": 1,
+    //     "player2_id": 2,
+    //     "player1_score": 4,
+    //     "player2_score": 2,
+    //     "match_date": "2026-01-03 20:28:04",
+    //     "player1_username": "oussama",
+    //     "player2_username": "oussamaHammou",
+    //     "player1_avatar": "/public/default_pfp.png",
+    //     "player2_avatar": "/public/default_pfp.png"
+    // })
+    // matchs.push(  {
+    //     "match_id": 1,
+    //     "player1_id": 1,
+    //     "player2_id": 2,
+    //     "player1_score": 4,
+    //     "player2_score": 2,
+    //     "match_date": "2026-01-03 20:28:04",
+    //     "player1_username": "oussama",
+    //     "player2_username": "oussamaHammou",
+    //     "player1_avatar": "/public/default_pfp.png",
+    //     "player2_avatar": "/public/default_pfp.png"
+    // })
     return matchs;
 }
 
