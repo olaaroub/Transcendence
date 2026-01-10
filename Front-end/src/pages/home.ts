@@ -10,7 +10,7 @@ export function renderHomeText (isLoged: boolean)
 		gap-6 sm:gap-8 md:gap-10 xl:gap-12 2xl:gap-16 px-4 md:px-6 xl:px-8 2xl:px-10">
 			<div class="txt sm:w-1/2 transition-all duration-500 ${isLoged ? 'opacity-0' : ''}">
 				<h1
-					class="text-[40px] sm:text-[70px] md:text-[80px] lg:text-[100px] xl:text-[130px] 2xl:text-[150px]
+					class="text-[40px] sm:text-[70px] md:text-[80px] lg:text-[100px] xl:text-[130px] 2xl:text-[135px]
 					font-bold text-txtColor glow-stroke leading-[1.1] mb-4 sm:mb-6 xl:mb-8">
 					Let's play<br/>Together...
 				</h1>
