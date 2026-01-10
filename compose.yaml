@@ -1,5 +1,4 @@
 services:
-
   frontend-prod:
     build:
       context: ./Front-end
@@ -10,6 +9,7 @@ services:
       - "8443:8443"
     volumes:
       - ./certs:/etc/nginx/certs:ro
+      - ./Front-end/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
       - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
       - pong-dist:/app/assets/game:ro
     environment:
@@ -46,9 +46,7 @@ services:
       - transcendence-prod-net
     depends_on:
       vault-init-prod:
-          condition: service_completed_successfully
-
-
+        condition: service_completed_successfully
 
   user-service-prod:
     build:
@@ -77,7 +75,6 @@ services:
     depends_on:
       vault-init-prod:
         condition: service_completed_successfully
-
 
   global-chat-prod:
     build:
@@ -133,13 +130,10 @@ services:
       vault-init-prod:
         condition: service_completed_successfully
 
-
   pong-game-prod:
     build:
       context: ./Pong
       dockerfile: Dockerfile.pong.prod.multistage
-      # dockerfile: Dockerfile.pong.prod
-
       args:
         - PORT=3005
     image: pong-game-prod:1337
@@ -159,12 +153,7 @@ services:
       - transcendence-prod-net
     depends_on:
       vault-init-prod:
-          condition: service_completed_successfully
-
-
-
-
-
+        condition: service_completed_successfully
 
   vault-prod:
     image: hashicorp/vault:1.21.1
@@ -232,7 +221,6 @@ services:
       - private-chat-prod
       - pong-game-prod
 
-
   prometheus-prod:
     image: prom/prometheus:v3.8.1
     container_name: prometheus-prod
@@ -266,7 +254,6 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
     depends_on:
       - prometheus-prod
-
 
 networks:
   transcendence-prod-net:
