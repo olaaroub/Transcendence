@@ -550,11 +550,7 @@ function updateUnreadIndicatorsUI() {
 
 		const unreadCount = chatState.unreadCounts.get(Number(friendId)) || 0;
 		const hasUnread = unreadCount > 0;
-
-		if (existingDot) {
-			existingDot.remove();
-		}
-
+		if (existingDot) existingDot.remove();
 		if (hasUnread) {
 			const dot = document.createElement('div');
 			dot.className = 'unread-dot absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full';
@@ -717,7 +713,7 @@ function renderMessages() : string {
 					<p>Select a friend to start chatting</p>
 				</div>
 			</div>
-			<div id="private-chat-messages" class="flex-1 bg-black p-4 overflow-y-auto min-h-[300px] max-h-[calc(100vh-450px)]
+			<div id="private-chat-messages" class="flex-1 bg-[linear-gradient(90deg,#0f0f1a,#111111)] p-4 overflow-y-auto min-h-[300px] max-h-[calc(100vh-450px)]
 				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
 				<div class="flex items-center justify-center h-full text-gray-400">
 					<p>Select a conversation from the left</p>
