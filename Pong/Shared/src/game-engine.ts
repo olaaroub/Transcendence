@@ -84,17 +84,17 @@ export class PongEngine
 		this.state.ballX = WIDTH / 2;
 		this.state.ballY = HEIGHT / 2;
 		this.state.ballS = BSPEED;
-		if (this.currentState === 'Playing')
-		{
-			// await new Promise(res => setTimeout(res, 1000));
-			setTimeout(() => {}, 1000);
-			const angle = (Math.random() - 0.5) * 0.6;
-			this.ballVX = Math.cos(angle) * this.state.ballS * this.lastGoal;
-			this.ballVY = Math.sin(angle) * this.state.ballS;
-			return ;
-		}
 		this.ballVX = 0;
 		this.ballVY = 0;
+		if (this.currentState === 'Playing')
+		{
+			setTimeout(() =>
+			{
+				const angle = (Math.random() - 0.5) * 0.6;
+				this.ballVX = Math.cos(angle) * this.state.ballS * this.lastGoal;
+				this.ballVY = Math.sin(angle) * this.state.ballS;
+			}, 1000);
+		}
 	}
 
 	setState(newState: State): void
@@ -198,12 +198,12 @@ export class PongEngine
 
 	private goal(): void
 	{
-		if (this.state.ballX < -BRADIUS)
+		if (this.state.ballX < 0)
 		{
 			this.state.p1++;
 			this.lastGoal = 1;
 		}
-		else if (this.state.ballX > WIDTH + BRADIUS)
+		else if (this.state.ballX > WIDTH)
 		{
 			this.state.p2++;
 			this.lastGoal = -1;
