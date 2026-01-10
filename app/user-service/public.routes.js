@@ -14,13 +14,13 @@ export async function publicRoutes(fastify) {
   fastify.register(fastifyStatic, staticOps);
   fastify.register(notificationLiveStream);
 
-  fastify.get("/user/test", async (req, reply) => {
-    const data = fastify.db.prepare("SELECT userRequester, userReceiver, blocker_id, status FROM friendships").all();
-    return data;
-  })
+  // fastify.get("/user/test", async (req, reply) => {
+  //   const data = fastify.db.prepare("SELECT userRequester, userReceiver, blocker_id, status FROM friendships").all();
+  //   return data;
+  // })
 
-  fastify.get("/user/all-users", async (req, reply) => {
-    const data = fastify.db.prepare("SELECT * FROM userInfo").all();
-    return data;
-  })
+  // fastify.get("/user/all-users", async (req, reply) => {
+  //   const data = fastify.db.prepare("SELECT * FROM userInfo").all();
+  //   return data;
+  // })
 }
