@@ -192,7 +192,7 @@ export function renderPrivacy() {
 		</div>
 
 		<footer id="footer" class="w-[90%] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 py-8 text-white border-t border-slate-500 mt-auto">
-			<p class="text-[#878787] text-sm sm:text-base">© 2025 SPACE PONG Made By Simo</p>
+			<p class="text-[#878787] text-sm sm:text-base">© 2025 SPACE PONG</p>
 			<div class="flex flex-wrap justify-center gap-3 sm:gap-4">
 				<button id="terms-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Terms of Service</button>
 				<button id="about-us" class="py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base">About Us</button>

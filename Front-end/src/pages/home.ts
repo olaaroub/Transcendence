@@ -18,13 +18,13 @@ export function renderHomeText (isLoged: boolean)
 					class="text-[#878787] max-w-[90%]
 					sm:max-w-[431px] xl:max-w-[500px] text-[16px] sm:text-[18px]
 					md:text-[20px] xl:text-[22px] leading-[1.6] sm:leading-[1.7] xl:leading-[1.75] ">
-						Lorem ipsum dolor sit amet consectetur, adipisicing
-						elit. Ex laudantium ducimus ipsam nisi consectetur repellat voluptatum?
+						Welcome to SPACE PONG, where you can experience the legendary original Pong game in all its Glory.
+						<br> From Competitive Matchmaking to Friendly Bouts, a Challenging AI or Spectating, You are sure to find your favorite way to enjoy this symbol of VideoGame history.
 				</p>
 			</div>
 			<div class="absolute right-24 -z-10">
 				<img src="/images/smi.png" alt="pong game" class="opacity-[60%]
-				w-[250px] sm:w-[400px] md:w-[500px] xl:w-[600px] 2xl:w-[700px] h-auto">
+				hidden xl:block xl:w-[600px] 2xl:w-[700px] h-auto">
 			</div>
 		</div>
     `
@@ -117,10 +117,10 @@ export async function renderHome()
 		<footer id="footer" class="w-[90%] absolute bottom-0 left-1/2
 		transform -translate-x-1/2  mx-auto flex flex-col sm:flex-row
 		justify-between items-center gap-4 py-8 text-white border-t border-slate-500 mt-auto">
-			<p class="text-[#878787] text-sm sm:text-base">© 2025 SPACE PONG Made By Simo</p>
+			<p class="text-[#878787] text-sm sm:text-base">© 2025 SPACE PONG</p>
 			<div class="flex flex-wrap justify-center gap-3 sm:gap-4">
-				<button id="terms-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Terms</button>
-				<button id="privacy-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Privacy</button>
+				<button id="terms-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Terms of Service</button>
+				<button id="privacy-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Privacy Policy</button>
 				<button id="about-us" class="py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base">About Us</button>
 			</div>
 		</footer>
