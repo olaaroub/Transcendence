@@ -86,7 +86,8 @@ export class PongEngine
 		this.state.ballS = BSPEED;
 		if (this.currentState === 'Playing')
 		{
-			await new Promise(res => setTimeout(res, 1000));
+			// await new Promise(res => setTimeout(res, 1000));
+			setTimeout(() => {}, 1000);
 			const angle = (Math.random() - 0.5) * 0.6;
 			this.ballVX = Math.cos(angle) * this.state.ballS * this.lastGoal;
 			this.ballVY = Math.sin(angle) * this.state.ballS;
