@@ -25,7 +25,7 @@
 
 ## Backend (OHAMMOU-)
 
-- [*]  Use a backend framewor
+- [*]  Use a backend framework
 - [**] Implement real-time features using WebSockets. /with MMONDAD
 - [**] Allow users to interact with other users. /with MMONDAD
 - [**] A public API to interact with the database.

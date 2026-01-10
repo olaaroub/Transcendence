@@ -1,7 +1,8 @@
 import { credentials, getImageUrl, userData } from "../store";
 import { apiFetch } from "../components/errorsHandler";
-import { formatMessageTime } from "../utils";
+import { formatMessageTime, shortString } from "../utils";
 import { navigate } from "../../router";
+import { toastError } from "../components/toast";
 
 interface ChatMessage {
 	sender_id: string | number;
@@ -13,6 +14,7 @@ interface ChatMessage {
 
 let globalChatMessages: ChatMessage[] = [];
 let golobalChatSocket: WebSocket | null = null;
+let globalChatInitialized = false;
 
 async function fetchPreviousMessages() {
 	const { data } = await apiFetch<ChatMessage[]>(`/api/chat/global/messages`);
@@ -24,20 +26,29 @@ async function fetchPreviousMessages() {
 }
 
 function initializeWebSocket() {
+	if (globalChatInitialized && golobalChatSocket && 
+		golobalChatSocket.readyState === WebSocket.OPEN) {
+		return;
+	}
+	if (golobalChatSocket && golobalChatSocket.readyState === WebSocket.CONNECTING) return;
+	if (golobalChatSocket && golobalChatSocket.readyState !== WebSocket.OPEN) {
+		golobalChatSocket.close();
+		golobalChatSocket = null;
+	}
+	if (golobalChatSocket && golobalChatSocket.readyState === WebSocket.OPEN) return;
 	const token = localStorage.getItem('token');
 	const wsUrl = `wss://${window.location.host}/api/chat/global/${credentials.id}?token=${token}`;
 	golobalChatSocket = new WebSocket(wsUrl);
 
 	golobalChatSocket.onopen = () => {
 		console.log('WebSocket connection established for global chat');
+		globalChatInitialized = true;
 	}
-
 	golobalChatSocket.onmessage = (event) => {
 		try {
 			const data = JSON.parse(event.data);
 
 			if (data.type === 'MESSAGE_SENT_SUCCESSFULLY') {
-				console.log('Message sent successfully confirmation received');
 				return;
 			}
 			const message: ChatMessage = data;
@@ -48,17 +59,14 @@ function initializeWebSocket() {
 				globalChatMessages.push(message);
 				updateChatUI();
 			}
-		} catch(err) {
-			console.error('Error parsing WebSocket message:', err);
-		}
+		} catch(err) {console.error('Error parsing WebSocket message:', err);}
 	}
 
-	golobalChatSocket.onerror = (error) => {
-		console.error("global chat websocket error", error);
-	}
-
+	golobalChatSocket.onerror = (error) => {console.error("global chat websocket error", error);}
 	golobalChatSocket.onclose = (event) => {
 		console.log('WebSocket connection closed:', event.code, event.reason);
+		globalChatInitialized = false;
+		golobalChatSocket = null;
 	};
 }
 
@@ -71,7 +79,6 @@ function updateChatUI() {
 	if (chatCount)
 		chatCount.textContent = `${globalChatMessages.length} messages`;
 	chatContainer.scrollTop = chatContainer.scrollHeight;
-
 	chatContainer.querySelectorAll('.username-link').forEach(el => {
 		el.addEventListener('click', () => {
 			const userId = el.getAttribute('data-user-id');
@@ -93,7 +100,7 @@ function renderChatMessages(): string {
 						${isSystemUser 
 							? `<span class="text-txtColor font-semibold text-sm">${msg.username}</span>`
 							: `<span data-user-id="${msg.sender_id}" class="username-link text-txtColor font-semibold text-sm hover:text-color1
-								cursor-pointer transition-colors">${msg.username}</span>`
+								cursor-pointer transition-colors">${shortString(msg.username, 15)}</span>`
 						}
 						<span class="text-color3 text-xs">${formatMessageTime(msg.created_at)}</span>
 					</div>
@@ -110,16 +117,22 @@ function sendMessage(content: string) {
 		return;
 	}
 
+	const trimmedContent = content.trim();
+	if (trimmedContent.length > 200) {
+		toastError('Message is too long. Maximum 200 characters allowed.');
+		return;
+	}
+
 	const optimisticMessage: ChatMessage = {
 		sender_id: Number(credentials.id),
 		username: userData.username || 'You',
 		avatar_url: userData.avatar_url || '',
-		msg: content.trim(),
+		msg: trimmedContent,
 		created_at: new Date().toISOString()
 	};
 	globalChatMessages.push(optimisticMessage);
 	updateChatUI();
-	golobalChatSocket.send(JSON.stringify({msg: content.trim()}));
+	golobalChatSocket.send(JSON.stringify({msg: trimmedContent}));
 }
 
 function setupChatEventListeners() {
@@ -210,4 +223,5 @@ export function cleanupGlobalChat() {
 		golobalChatSocket.close();
 		golobalChatSocket = null;
 	}
+	globalChatInitialized = false;
 }

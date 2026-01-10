@@ -1,3 +1,2 @@
 Dockerfile.pong.prod
-Dockerfile.pong.dev
-Makefile
+Dockerfile.pong.prod.multistage

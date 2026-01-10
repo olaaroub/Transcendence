@@ -1,9 +1,9 @@
 import { navigate } from '../../router';
 import * as data from '../dashboard';
 import { shortString, formatMessageTime } from '../utils';
-import { credentials, getImageUrl, IUserData } from '../store';
+import { credentials, getImageUrl, IUserData, userData } from '../store';
 import { apiFetch } from '../components/errorsHandler';
-import { toastInfo } from '../components/toast';
+import { toastInfo, toastError } from '../components/toast';
 import { io, Socket } from "socket.io-client";
 import { subscribeFriendStatus } from '../components/NavBar';
 
@@ -11,14 +11,11 @@ import { subscribeFriendStatus } from '../components/NavBar';
 let socket: Socket | null = null;
 let friendStatusUnsubscribe: (() => void) | null = null;
 let notificationSocketInitialized = false;
-
 const UNREAD_STORAGE_KEY = 'chat_unread_counts';
 
 function saveUnreadToStorage() {
 	const data: Record<number, number> = {};
-	chatState.unreadCounts.forEach((count, friendId) => {
-		data[friendId] = count;
-	});
+	chatState.unreadCounts.forEach((count, friendId) => {data[friendId] = count;});
 	localStorage.setItem(UNREAD_STORAGE_KEY, JSON.stringify(data));
 }
 
@@ -31,22 +28,21 @@ function loadUnreadFromStorage() {
 				chatState.unreadCounts.set(Number(friendId), count as number);
 			});
 		}
-	} catch (e) {
-		console.error('Error loading unread counts from storage:', e);
-	}
+	} catch (e) {console.error('Error loading unread counts from storage:', e);}
+}
+
+export function getTotalUnreadCount(): number {
+	let total = 0;
+	chatState.unreadCounts.forEach(count => {total += count;});
+	return total;
 }
 
 export function updateMessageIconBadge() {
 	const messageIcon = document.getElementById('message-icon');
 	if (!messageIcon) return;
 
-	let totalUnread = 0;
-	chatState.unreadCounts.forEach(count => {
-		totalUnread += count;
-	});
-
+	let totalUnread = getTotalUnreadCount();
 	let redDot = messageIcon.querySelector('.message-unread-dot');
-
 	if (totalUnread > 0) {
 		if (!redDot) {
 			redDot = document.createElement('span');
@@ -54,19 +50,7 @@ export function updateMessageIconBadge() {
 			messageIcon.classList.add('relative');
 			messageIcon.appendChild(redDot);
 		}
-	} else {
-		if (redDot) {
-			redDot.remove();
-		}
-	}
-}
-
-export function getTotalUnreadCount(): number {
-	let total = 0;
-	chatState.unreadCounts.forEach(count => {
-		total += count;
-	});
-	return total;
+	} else {if (redDot) redDot.remove();}
 }
 
 export function initUnreadFromStorage() {
@@ -94,7 +78,7 @@ interface ChatState {
 	unreadCounts: Map<number, number>;
 }
 
-const chatState: ChatState = {
+const chatState: ChatState = { // why
 	currentConversationId: null,
 	currentFriend: null,
 	messages: [],
@@ -107,71 +91,58 @@ const chatState: ChatState = {
 let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
 export function initGlobalChatNotifications() {
-	if (notificationSocketInitialized || socket) return;
+	if (notificationSocketInitialized && socket?.connected) return;
 
-	loadUnreadFromStorage();
-	updateMessageIconBadge();
-
-	socket = io({
-		path: '/api/chat/private/socket.io',
-		transports: ['websocket', 'polling'],
-	});
-
+	initUnreadFromStorage();
+	
+	if (!socket) {
+		socket = io({
+			path: '/api/chat/private/socket.io',
+			transports: ['websocket', 'polling'],
+		});
+	}
+	
+	socket.off("connect");
+	socket.off("connect_error");
+	socket.off("disconnect");
+	socket.off("new_notification");
+	socket.off("unread_messages");
+	socket.off("all_unread_counts");
+	socket.off("error");
+	
 	socket.on("connect", () => {
 		console.log("Connected to private chat");
 		socket?.emit("userId", credentials.id);
 	});
-
-	socket.on("connect_error", (error) => {
-		console.error("Socket connection error:", error.message);
-	});
-
-	socket.on("disconnect", (reason) => {
-		console.log("Disconnected from private chat:", reason);
-	});
-
+	socket.on("connect_error", (error) => {console.error("Socket connection error:", error.message);});
+	socket.on("disconnect", (reason) => {console.log("Disconnected from private chat:", reason);});
 	socket.on("new_notification", (data: { type: string; from: number; conversationId: number; text: string }) => {
-		console.log("New notification:", data);
-		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat')) {
+		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat'))
 			toastInfo(`New message received!`, { duration: 4000 });
-		}
 	});
-
 	socket.on("unread_messages", (data: { conversationId: number; friendId: number; unreadCount: number; hasUnread: boolean }) => {
-		console.log("Unread messages update:", data);
-		if (data.hasUnread && data.friendId) {
+		if (data.hasUnread && data.friendId)
 			chatState.unreadCounts.set(data.friendId, data.unreadCount);
-		} else if (data.friendId) {
+		else if (data.friendId)
 			chatState.unreadCounts.delete(data.friendId);
-		}
 		saveUnreadToStorage();
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
 	});
-
 	socket.on("all_unread_counts", (data: { unreadCounts: { conversationId: number; friendId: number; unreadCount: number }[] }) => {
-		console.log("All unread counts:", data);
 		chatState.unreadCounts.clear();
 		data.unreadCounts.forEach(item => {
-			if (item.friendId) {
+			if (item.friendId)
 				chatState.unreadCounts.set(item.friendId, item.unreadCount);
-			}
 		});
 		saveUnreadToStorage();
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
 	});
-
-	socket.on("error", (data) => {
-		console.error("Chat error:", data.message);
-	});
-
-	if (socket.connected) {
+	socket.on("error", (data) => {console.error("Chat error:", data.message);});
+	if (socket.connected)
 		socket.emit("userId", credentials.id);
-	}
-
 	notificationSocketInitialized = true;
-	console.log("Global chat notifications initialized");
 }
 
 function setupChatListeners() {
@@ -187,13 +158,8 @@ function setupChatListeners() {
 		console.log("Chat initialized:", data);
 		chatState.currentConversationId = data.conversationId;
 		chatState.messages = data.messages || [];
-		if (chatState.currentFriend) {
-			chatState.unreadCounts.delete(Number(chatState.currentFriend.id));
-		}
-		saveUnreadToStorage();
-		updateMessageIconBadge();
-		updateUnreadIndicatorsUI();
 		updateMessagesUI();
+		markMessagesAsSeen();
 	});
 
 	socket.on("receive_message", (data: ChatMessage) => {
@@ -206,22 +172,14 @@ function setupChatListeners() {
 		}
 	});
 
-	socket.on("message_sent", (data) => {
-		console.log("Message sent confirmation:", data);
-	});
-
+	socket.on("message_sent", (data) => {console.log("Message sent confirmation:", data);});
 	socket.on("messages_seen", (data: { conversationId: number; seenBy: number }) => {
-		console.log("Messages seen by:", data);
 		if (data.conversationId === chatState.currentConversationId) {
 			chatState.messages.forEach(msg => {
-				if (msg.senderId === Number(credentials.id)) {
-					msg.seen = true;
-				}
-			});
+				if (msg.senderId === Number(credentials.id)) msg.seen = true;});
 			updateMessagesUI();
 		}
 	});
-
 	socket.on("user_typing", (data: { conversationId: number; userId: number; isTyping: boolean }) => {
 		console.log("User typing:", data);
 		if (data.conversationId === chatState.currentConversationId && data.userId !== Number(credentials.id)) {
@@ -239,6 +197,11 @@ function openChat(friend: IUserData) {
 	chatState.messages = [];
 	chatState.isTyping = false;
 	chatState.typingUserId = null;
+
+	chatState.unreadCounts.delete(Number(friend.id));
+	saveUnreadToStorage();
+	updateMessageIconBadge();
+	updateUnreadIndicatorsUI();
 
 	socket.emit("open_chat", {
 		senderId: credentials.id,
@@ -281,20 +244,166 @@ function sendMessage(content: string) {
 	if (!socket || !content.trim() || !chatState.currentConversationId || !chatState.currentFriend)
 		return;
 
+	const trimmedContent = content.trim();
+	if (trimmedContent.length > 200) {
+		toastError('Message is too long. Maximum 200 characters allowed.');
+		return;
+	}
+
 	socket.emit("send_message", {
 		conversationId: chatState.currentConversationId,
 		senderId: Number(credentials.id),
 		receiverId: Number(chatState.currentFriend.id),
-		content: content.trim()
+		content: trimmedContent
 	});
 	const optimisticMessage: ChatMessage = {
 		senderId: Number(credentials.id),
-		content: content.trim(),
+		content: trimmedContent,
 		conversationId: chatState.currentConversationId,
 		createdAt: new Date().toISOString()
 	};
 	chatState.messages.push(optimisticMessage);
 	updateMessagesUI();
+}
+
+interface RoomData {
+	roomId: string;
+	PlayerID: string;
+	playerName: string | null;
+	playerAvatar: string | null;
+}
+
+async function challengeFriend() {
+	if (!chatState.currentFriend) {
+		toastError('No friend selected to challenge');
+		return;
+	}
+
+	if (chatState.currentFriend.status !== 'ONLINE') {
+		toastInfo('Your friend is offline. They can join when they come online!');
+	}
+
+	const { data: roomData, error } = await apiFetch<{ roomId: string }>('/api/game/friendly-match');
+	
+	if (error || !roomData) {
+		toastError('Failed to create game room. Please try again.');
+		return;
+	}
+
+	const challengeMessage = `🎮 I challenge you to a Pong match! Join room: ${roomData.roomId}`;
+	sendMessage(challengeMessage);
+
+	const sessionData: RoomData = {
+		roomId: roomData.roomId,
+		PlayerID: String(userData.id),
+		playerName: shortString(userData.username, 12) || '',
+		playerAvatar: getImageUrl(userData.avatar_url) || '/game/Assets/default.png'
+	};
+	sessionStorage.setItem('room', JSON.stringify(sessionData));
+
+	navigate('/pong-game?mode=online-matchmaking');
+}
+
+function extractRoomId(content: string): string | null {
+	const match = content.match(/Join room: ([a-zA-Z0-9-]+)/);
+	return match ? match[1] : null;
+}
+
+function isChallengeMessage(content: string): boolean {
+	return content.includes('🎮') && content.includes('Join room:');
+}
+
+async function joinGameRoom(roomId: string) {
+	const { data, error } = await apiFetch<{ exists: boolean }>(`/api/game/room/${roomId}`);
+	
+	if (error || !data) {
+		toastError('Failed to check room availability. Please try again.');
+		return;
+	}
+
+	if (!data.exists) {
+		toastInfo('Room is no longer available.');
+		return;
+	}
+
+	const sessionData: RoomData = {
+		roomId: roomId,
+		PlayerID: String(userData.id),
+		playerName: shortString(userData.username, 12) || '',
+		playerAvatar: getImageUrl(userData.avatar_url) || '/game/Assets/default.png'
+	};
+	sessionStorage.setItem('room', JSON.stringify(sessionData));
+
+	navigate('/pong-game?mode=online-matchmaking');
+}
+
+function renderChallengeMessage(msg: ChatMessage, isMine: boolean, seenIcon: string): string {
+	const roomId = extractRoomId(msg.content);
+	
+	if (isMine) {
+		return /* html */`
+			<div class="flex justify-end mb-3">
+				<div class="max-w-[70%] bg-color1 text-bgColor px-4 py-2 rounded-2xl rounded-br-sm">
+					<div class="flex items-center gap-2 mb-1">
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						<span class="font-bold">Challenge Sent!</span>
+					</div>
+					<p class="text-sm">Waiting for opponent to join...</p>
+					<span class="text-xs text-bgColor/70 mt-1 flex items-center justify-end">
+						${formatMessageTime(msg.createdAt)}${seenIcon}
+					</span>
+				</div>
+			</div>
+		`;
+	} else {
+		return /* html */`
+			<div class="flex justify-start mb-3">
+				<div class="max-w-[70%] bg-gradient-to-r from-[#1a1a2e] to-[#2a1a3e] text-txtColor 
+					px-4 py-3 rounded-2xl rounded-bl-sm border border-color1/30">
+					<div class="flex items-center gap-2 mb-2">
+						<svg class="w-5 h-5 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						<span class="font-bold text-color1">Game Challenge!</span>
+					</div>
+					<p class="text-sm mb-3">You've been challenged to a Pong match!</p>
+					<button data-room-id="${roomId}" 
+						class="join-game-btn w-full bg-color1 hover:bg-color2 text-bgColor font-bold 
+						py-2 px-4 rounded-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+						</svg>
+						Join Game
+					</button>
+					<span class="text-xs text-gray-400 mt-2 flex items-center justify-end">
+						${formatMessageTime(msg.createdAt)}
+					</span>
+				</div>
+			</div>
+		`;
+	}
+}
+
+function setupJoinGameListeners() {
+	const joinButtons = document.querySelectorAll('.join-game-btn');
+	joinButtons.forEach(btn => {
+		btn.addEventListener('click', async (e) => {
+			const target = e.currentTarget as HTMLElement;
+			const roomId = target.getAttribute('data-room-id');
+			if (roomId) {
+				await joinGameRoom(roomId);
+			}
+		});
+	});
 }
 
 function updateMessagesUI() {
@@ -332,6 +441,11 @@ function updateMessagesUI() {
 						</svg>`
 					}
 				</span>` : '';
+			
+			if (isChallengeMessage(msg.content)) {
+				return renderChallengeMessage(msg, isMine, seenIcon);
+			}
+			
 			return /* html */`
 				<div class="flex ${isMine ? 'justify-end' : 'justify-start'} mb-3">
 					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'}
@@ -346,6 +460,7 @@ function updateMessagesUI() {
 		}).join('');
 	}
 	updateTypingIndicatorUI();
+	setupJoinGameListeners();
 	messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
@@ -354,17 +469,38 @@ function updateChatHeaderUI() {
 	if (!chatHeader || !chatState.currentFriend) return;
 	console.log("chat state : ", chatState);
 	chatHeader.innerHTML = /* html */`
-		<div class="flex gap-3 font-bold items-center">
-			<img class="h-12 w-12 border border-color1 rounded-full object-cover"
-				src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
-			<div class="flex flex-col">
-				<span class="text-txtColor text-lg">${chatState.currentFriend.username}</span>
-				<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
-					${chatState.isTyping ? 'typing...' : (chatState.currentFriend.status || 'offline')}
-				</span>
+		<div class="flex justify-between items-center w-full">
+			<div class="flex gap-3 font-bold items-center">
+				<img class="h-12 w-12 border border-color1 rounded-full object-cover"
+					src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
+				<div class="flex flex-col">
+					<span class="text-txtColor text-lg">${shortString(chatState.currentFriend.username, 20)}</span>
+					<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
+						${chatState.isTyping ? 'typing...' : (chatState.currentFriend.status || 'offline')}
+					</span>
+				</div>
 			</div>
+			<button id="challenge-btn" 
+				class="flex items-center gap-2 bg-color1 hover:bg-color2 text-bgColor font-bold 
+				px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+						d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+						d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				</svg>
+				<span>Challenge</span>
+			</button>
 		</div>
 	`;
+	setupChallengeButtonListener();
+}
+
+function setupChallengeButtonListener() {
+	const challengeBtn = document.getElementById('challenge-btn');
+	if (challengeBtn) {
+		challengeBtn.addEventListener('click', challengeFriend);
+	}
 }
 
 function updateTypingIndicatorUI() {
@@ -461,14 +597,8 @@ function setupChatEventListeners() {
 		input.addEventListener('input', () => {
 			if (input.value.trim()) {
 				emitTypingStart();
-
-				if (typingTimeout) {
-					clearTimeout(typingTimeout);
-				}
-
-				typingTimeout = setTimeout(() => {
-					emitTypingStop();
-				}, 2000);
+				if (typingTimeout) clearTimeout(typingTimeout);
+				typingTimeout = setTimeout(() => {emitTypingStop();}, 2000);
 			} else {
 				emitTypingStop();
 				if (typingTimeout) {
@@ -487,8 +617,8 @@ function setupFriendsClickListeners() {
 	friendsList.querySelectorAll('[data-friend-id]').forEach(el => {
 		const friendId = el.getAttribute('data-friend-id');
 		const friend = chatState.friends.find(f => String(f.id) === friendId);
-
 		const usernameLink = el.querySelector('.username-link');
+
 		if (usernameLink && friendId) {
 			usernameLink.addEventListener('click', (e) => {
 				e.stopPropagation();
@@ -528,7 +658,6 @@ function updateFriendStatusUI(friendId: string, status: 'ONLINE' | 'OFFLINE'): v
 			statusText.textContent = status.toLowerCase();
 		}
 	}
-
 	if (chatState.currentFriend && String(chatState.currentFriend.id) === friendId) {
 		chatState.currentFriend.status = status;
 		updateChatHeaderUI();
@@ -537,9 +666,11 @@ function updateFriendStatusUI(friendId: string, status: 'ONLINE' | 'OFFLINE'): v
 
 export function cleanupPrivateChat() {
 	if (socket) {
-		socket.removeAllListeners();
-		socket.disconnect();
-		socket = null;
+		socket.off("chat_initialized");
+		socket.off("receive_message");
+		socket.off("message_sent");
+		socket.off("messages_seen");
+		socket.off("user_typing");
 	}
 	if (friendStatusUnsubscribe) {
 		friendStatusUnsubscribe();
@@ -555,7 +686,16 @@ export function cleanupPrivateChat() {
 	chatState.friends = [];
 	chatState.isTyping = false;
 	chatState.typingUserId = null;
+}
+
+export function disconnectChatSocket() {
+	if (socket) {
+		socket.removeAllListeners();
+		socket.disconnect();
+		socket = null;
+	}
 	notificationSocketInitialized = false;
+	chatState.unreadCounts.clear();
 }
 
 export function chatEventHandler() {
@@ -590,7 +730,6 @@ function renderMessages() : string {
 				disabled:opacity-50 disabled:cursor-not-allowed"
 				${!chatState.currentConversationId ? 'disabled' : ''}>
 				<button id="private-chat-send"
-				<button id="private-chat-send"
 					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
 					transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
 					${!chatState.currentConversationId ? 'disabled' : ''}>
@@ -624,7 +763,6 @@ async function listFriends() : Promise<string> {
 							<div class="w-full">
 								<div class="flex justify-between w-full">
 									<span class="username-link text-txtColor font-bold text-lg hover:text-color1 transition-colors">${shortString(friend.username, 15)}</span>
-									<span class="status-dot w-2 h-2 mt-2 rounded-full ${friend.status === 'ONLINE' ? 'bg-green-500' : 'bg-gray-400'}"></span>
 								</div>
 								<p class="status-text text-sm ${friend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'}">${friend.status?.toLocaleLowerCase() || 'offline'}</p>
 							</div>
@@ -638,15 +776,13 @@ async function listFriends() : Promise<string> {
 
 export async function renderChat() {
 	await data.initDashboard(false);
-
 	chatState.currentConversationId = null;
 	chatState.currentFriend = null;
 	chatState.messages = [];
-	setupChatListeners();
 
+	setupChatListeners();
 	loadUnreadFromStorage();
 	updateMessageIconBadge();
-
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = /* html */`
@@ -664,7 +800,6 @@ export async function renderChat() {
 		setupFriendsClickListeners();
 		updateUnreadIndicatorsUI();
 	}, 0);
-
 	if (friendStatusUnsubscribe)
 		friendStatusUnsubscribe();
 	friendStatusUnsubscribe = subscribeFriendStatus(updateFriendStatusUI);

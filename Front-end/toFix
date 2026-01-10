@@ -1,10 +1,5 @@
-
-add online/offline friends
-routing logic
-add renderprofile when a user clicks on a user name in the chat and the leaderboard and global chat
-FIX FONTS FOR GAME AND DASHBOARD
-
-test the global chat
+check for 413 site-wide
+add new pages : Terms of Service, Privacy Policy
 
 tailwind :
     truncate
@@ -16,38 +11,3 @@ js :
     call stack
     microtask queue
     task queue
-
-
-
-NEW GAME FEATURES:
-
-	FRIENDLY MATCH
-		Endpoint : /api/game/friendly-match
-		Method : GET
-		Response : Room ID (Guaranteed)
-		Where : Chatroom, When user clicks new button "Challenge"
-		Behavior : Create a sessionStorage similar to Matchmaking, then redirect to online Client.
-				   Also send to friend a clickable message. When clicked :
-				   Create a sessionStorage similar to Matchmaking, then redirect to online Client.
-
-	SPECTATE
-		Endpoint : /api/game/spectate
-		Method : GET
-		Response : Room ID  OR  roomId : null if no rooms to spectate
-		Where : Dashboard Spectate Button (Previously Join Room)
-		Behavior : Create a sessionStorage similar to Matchmaking, then redirect to online Client.
-				   OR
-				   If roomId is null, inform User: "There are No Matches to Spectate!"
-
-
-SESSION STORAGE FORMAT REMINDER:
-
-interface RoomData
-{
-	roomId:			string;
-	PlayerID:		string;
-	playerName: 	string | null;   <== if null default to empty string
-	playerAvatar:	string | null;	 <== if null default to "/game/Assets/default.png"
-}
-
-sessionStorage.setItem("room", JSON.stringify(roomData));

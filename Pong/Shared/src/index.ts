@@ -1,7 +1,5 @@
 export * from './types.js';
-
 export * from './constants.js';
-
 export * from './game-engine.js';
 
 export * from './graphics/game-scene.js';
