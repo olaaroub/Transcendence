@@ -34,8 +34,8 @@ const fastify = Fastify({
   logger: {
     level: process.env.LOG_LEVEL || 'info',
     base: {
-      service_name: 'private-chat-service',
-      env: process.env.NODE_ENV || 'development'
+      service_name: 'private-chat',
+      environment: process.env.NODE_ENV || 'development'
     },
 
     redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password']
@@ -86,17 +86,17 @@ async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DAR
     // zid had line fl blasa fin tatconnecti b database
     // fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
 
-    
+
     await fastify.register(socketio, {
         cors: { origin: "*", methods: ["GET", "POST", "DELETE"] },
         path: '/api/chat/private/socket.io' // by simo
       });
       await fastify.register(chatRoutes); // khsek tzid {prefix: '/api'} hnaya (ta checki m3a ohammou)
-  
-      await fastify.delete('/api/chat/private/user/:id', async (req, res) => 
+
+      await fastify.delete('/api/chat/private/user/:id', async (req, res) =>
       {
         const id = req.params.id;
-  
+
           try {
               db.prepare('DELETE FROM conversation WHERE (senderId = ? OR receiverId = ?)').run(id, id);
               res.code(200).send({message: "user deleted", ok: true})
