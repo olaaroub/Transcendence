@@ -93,7 +93,7 @@ export class PongEngine
 				const angle = (Math.random() - 0.5) * 0.6;
 				this.ballVX = Math.cos(angle) * this.state.ballS * this.lastGoal;
 				this.ballVY = Math.sin(angle) * this.state.ballS;
-			}, 1000);
+			}, 500);
 		}
 	}
 

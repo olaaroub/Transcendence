@@ -4,6 +4,7 @@ import {
 	Match,
 	keyMap,
 	createScene,
+	loadGameFont,
 	createGUI,
 	optionsButton,
 	addHUDs,
@@ -58,6 +59,7 @@ let role = 0;
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 
 const { engine, scene, cameras } = createScene(canvas);
+await loadGameFont();
 createGUI();
 
 const sky = createSky(scene);
@@ -139,7 +141,7 @@ socket.on("state", (state: GameState) => {modifyState(state);});
 
 socket.on("gamestate", (state: State) => {match.currState = state;});
 
-socket.on("gameOver", (winner: string) => {createSign(`GAME OVER\n${winner.toUpperCase()} WINS`);});
+socket.on("gameOver", (winner: string) => {createSign(`GAME OVER\n${winner.length > 12 ? winner.slice(0, 12 - 1) + "..." : winner} WINS`);});
 
 socket.on("redirect", () => {exitGame();});
 

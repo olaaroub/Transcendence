@@ -2,6 +2,7 @@ import {
 	PongEngine,
 	keyMap,
 	createScene,
+	loadGameFont,
 	createGUI,
 	optionsButton,
 	startButton,
@@ -19,6 +20,7 @@ import {
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 
 const { engine, scene, cameras } = createScene(canvas);
+await loadGameFont();
 createGUI();
 
 const sky = createSky(scene);
@@ -102,7 +104,8 @@ const renderLoop = () =>
 	if (gameEngine.getCurrentState() === 'Over' && !gameOver)
 	{
 		gameOver = true;
-		setTimeout(() => {createSign(`GAME OVER\n${gameEngine.getWinner().toUpperCase()} WINS`);}, 50);
+		let winner: string = gameEngine.getWinner();
+		setTimeout(() => {createSign(`GAME OVER\n${winner.length > 12 ? winner.slice(0, 12 - 1) + "..." : winner} WINS`);}, 50);
 		setTimeout(() => {exitGame();}, 3000);
 	}
 	renderer.render();

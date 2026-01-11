@@ -8,7 +8,7 @@ import { PongEngine } from "../game-engine.js";
 const colIcon = ['/game/Assets/ball.svg', '/game/Assets/p1.svg', '/game/Assets/p2.svg'];
 const camIcon = ['/game/Assets/cam1.svg', '/game/Assets/cam2.svg', '/game/Assets/cam3.svg', '/game/Assets/cam4.svg'];
 const clicked = [false, false, false];
-const FONT = 'Press Start 2P';
+const FONT = 'Bruno Ace SC';
 
 let ui:GUI.AdvancedDynamicTexture;
 let options: boolean = false;
@@ -161,6 +161,10 @@ function createHUD(player: number, alias: string): GUI.Image
 	hud.height = `${(311.07 * 40) / 100}px`;
 	hud.top = "10px";
 	hud.left = player === 1 ? "10px" : "-10px";
+	hud.shadowColor = '#000000';
+	hud.shadowOffsetX = 2;
+	hud.shadowOffsetY = 2;
+	hud.shadowBlur = 2;
 	return hud;
 }
 
@@ -185,18 +189,22 @@ function createFrame(player: number, alias: string, avatar: string): GUI.Ellipse
 function createAlias(player : number, alias: string): GUI.TextBlock
 {
 	const horAllign = player === 1 ? GUI.Control.HORIZONTAL_ALIGNMENT_LEFT : GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-	const name = new GUI.TextBlock(alias, alias);
+	const name = new GUI.TextBlock(alias, alias.length > 8 ? alias.slice(0, 8 - 1) + "." : alias);
 	name.horizontalAlignment = horAllign;
 	name.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-	// name.fontFamily = FONT;
-	name.fontSize = 42;
-	name.fontStyle = 'bold';
+	name.fontFamily = FONT;
+	name.fontSize = 38;
+	name.shadowColor = '#000000';
+	name.shadowOffsetX = 2;
+	name.shadowOffsetY = 2;
+	name.shadowBlur = 2;
 	name.resizeToFit = true;
 	name.color = '#ED6F30';
 	name.outlineColor = '#000000';
 	name.outlineWidth = 3;
 	name.top = "73px";
 	name.left = player === 1 ? "140px" : "-140px";
+	console.log("Alias:", name.text, "Sizes: ", name.width, name.height);
 	return name;
 }
 
@@ -263,16 +271,29 @@ export function startButton(engine: PongEngine): void
 	const button = GUI.Button.CreateImageWithCenterTextButton('Start', 'READY?', '/game/Assets/button.svg');
 	button.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
 	button.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-	button.width = '15%';
-	button.height = '15%';
+	button.width = '300px';
+	button.height = '132px';
 	button.top = '15%';
 	button.thickness = 0;
+	if (button.image)
+	{
+		button.image.shadowColor = '#000000';
+		button.image.shadowOffsetX = 1;
+		button.image.shadowOffsetY = 1;
+		button.image.shadowBlur = 2;
+	}
 	if (button.textBlock)
 	{
-		button.textBlock.fontSize = 48;
+		button.textBlock.fontFamily = FONT;
+		button.textBlock.fontSize = 42;
+		button.textBlock.outlineWidth = 2;
+		button.textBlock.outlineColor = '#000000';
+		button.textBlock.shadowColor = '#000000';
+		button.textBlock.shadowOffsetX = 4;
+		button.textBlock.shadowOffsetY = 4;
+		button.textBlock.shadowBlur = 2;
 		button.textBlock.fontStyle = 'bold italic';
-		// button.textBlock.fontFamily = FONT;
-		button.textBlock.color = '#000000';
+		button.textBlock.color = '#ED6F30';
 	}
 	ui.addControl(button);
 
@@ -280,8 +301,7 @@ export function startButton(engine: PongEngine): void
 	{
 		ui.removeControl(button);
 		button.dispose();
-		createSign('GET READY');
-		await new Promise(resolve => setTimeout(resolve, 1000));
+		await new Promise(resolve => setTimeout(resolve, 500));
 		engine.setState('Countdown');
 		for (let count = 3; count > 0; count--)
 		{
@@ -326,8 +346,8 @@ export function createSign(text?: string): void
 	signBox.top = "15%";
 	if (text.length < 3)
 	{
-		signBox.width = "120px";
-		signBox.height = "100px";
+		signBox.width = "180px";
+		signBox.height = "130px";
 	}
 	else
 	{
@@ -336,10 +356,15 @@ export function createSign(text?: string): void
 	}
 	signText = new GUI.TextBlock('SignText', text);
 	signText.fontSize = fontSize;
-	// name.fontFamily = FONT;
+	signText.fontFamily = FONT;
 	signText.fontStyle = 'bold';
-	signText.color = '#000000';
-	// signText.outlineWidth = 0;
+	signText.color = '#ED6F30';
+	signText.outlineWidth = 2;
+	signText.outlineColor = '#000000';
+	signText.shadowColor = '#000000';
+	signText.shadowOffsetX = 2;
+	signText.shadowOffsetY = 2;
+	signText.shadowBlur = 2;
 	signText.resizeToFit = true;
 	signText.paddingLeft = "40px";
 	signText.paddingRight = "40px";
@@ -348,6 +373,10 @@ export function createSign(text?: string): void
 
 	sign = new GUI.Image('Sign', '/game/Assets/sign.png');
 	sign.stretch = GUI.Image.STRETCH_FILL;
+	sign.shadowColor = '#000000';
+	sign.shadowOffsetX = 2;
+	sign.shadowOffsetY = 2;
+	sign.shadowBlur = 2;
 	signBox.addControl(sign);
 	signBox.addControl(signText);
 	ui.addControl(signBox);
