@@ -18,6 +18,7 @@ interface IUserStatistics {
 	TotalWins: number;
 	WinRate: number;
 	CurrentStreak: number;
+	BestStreak: number;
 	Rating: number;
 }
 
@@ -72,17 +73,17 @@ export async function initDashboard(isDashboard: boolean = true) {
 
 function renderGameModeButton(id: string, colorClass: string, icon: string, title: string, description: string): string {
 	return /* html */ `
-		<button id="${id}" class="group relative bg-[linear-gradient(90deg,#0f0f1a,#111111)] hover:bg-[#1a1a2e]
+		<button id="${id}" class="group relative bg-[linear-gradient(90deg,#0f0f1a,#111111)]
 			rounded-xl p-5 border border-white/5 hover:border-${colorClass}/50
 			transition-all duration-200 cursor-pointer text-left">
 			<div class="flex items-center gap-3 mb-3">
 				<div class="w-10 h-10 rounded-lg bg-${colorClass}/10 group-hover:bg-${colorClass}/20
 					flex items-center justify-center transition-colors duration-200">
-					<img src="images/${icon}" class="w-10 h-10 text-${colorClass}">
+					<img src="images/${icon}" class="group-hover:scale-[1.15] transition-all duration-150 w-10 h-10">
 				</div>
-				<span class="text-white font-Oi font-bold group-hover:text-${colorClass} transition-colors duration-200">${title}</span>
+				<h1 class="text-white text-xl font-bold group-hover:text-color2 transition-colors duration-200">${title}</h1>
 			</div>
-			<p class="text-gray-500 text-sm">${description}</p>
+			<p class="text-gray-500">${description}</p>
 		</button>
 	`;
 }
@@ -94,7 +95,7 @@ function LocalPong() : string
 			id: 'btn-local-vs-player',
 			colorClass: 'color1',
 			icon: 'vsplayer.svg',
-			title: '1v1 Player',
+			title: 'Vs Player',
 			description: 'Challenge a friend locally'
 		},
 		{
@@ -133,7 +134,7 @@ function OnlinePong() : string
 			id: 'btn-online-spectate',
 			colorClass: 'color2',
 			icon: 'spectate.svg',
-			title: 'Spectate a Game',
+			title: 'Spectate',
 			description: 'Watch a live match'
 		}
 	];
@@ -156,9 +157,13 @@ function renderStatistics(stats: IUserStatistics | null): string {
 	const winRate = stats?.WinRate ?? 0;
 	const currentStreak = stats?.CurrentStreak ?? 0;
 	const rating = stats?.Rating ?? 0;
-	const winRateStatus = winRate >= 50 ? 'Above average' : 'Below average';
+	const winRateGrades = ["Poor", "Below Average", "Average", "Above Average", "Excellent!"];
+	const index = Math.min(Math.floor(winRate / 20), winRateGrades.length - 1);
+	const winRateStatus = winRateGrades[index];
 	const winRateColor = winRate >= 50 ? 'text-blue-600' : 'text-red-400';
-	const streakStatus = currentStreak >= 5 ? 'Personal best!' : currentStreak >= 3 ? 'On fire!' : '';
+	let streakStatus = "";
+	if (stats?.BestStreak)
+		streakStatus = currentStreak >= stats?.BestStreak ? 'Personal best!' : currentStreak != 0 ? 'On fire!' : ''; // Get from Hammou personal best
 	const streakColor = currentStreak >= 5 ? 'text-orange-400' : 'text-yellow-400';
 	const getRank = (rating: number): { name: string; color: string } => {
 		if (rating >= 3000) return { name: 'Grandmaster', color: 'text-red-500' };
@@ -179,21 +184,21 @@ function renderStatistics(stats: IUserStatistics | null): string {
 			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-2xl sm:rounded-3xl
 			text-txtColor grid grid-cols-2 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6">
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
-					<p class="text-xs sm:text-sm text-gray-400">Total Wins</p>
+					<p class="text-gray-400">Total Wins</p>
 					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${totalWins}</p>
 				</div>
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
-					<p class="text-xs sm:text-sm text-gray-400">Win Rate</p>
+					<p class="text-gray-400">Win Rate</p>
 					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${Math.floor(winRate)}%</p>
 					<p class="text-xs sm:text-sm ${winRateColor} mt-1">${winRateStatus}</p>
 				</div>
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
-					<p class="text-xs sm:text-sm text-gray-400">Current Streak</p>
+					<p class="text-gray-400">Current Streak</p>
 					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${currentStreak}</p>
 					${streakStatus ? `<p class="text-xs sm:text-sm ${streakColor} mt-1">${streakStatus}</p>` : ''}
 				</div>
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
-					<p class="text-xs sm:text-sm text-gray-400">Rating</p>
+					<p class="text-gray-400">Rating</p>
 					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${rating}</p>
 					<p class="text-xs sm:text-sm ${rank.color} mt-1">${rank.name}</p>
 				</div>
@@ -219,8 +224,10 @@ async function renderMain() : Promise<string>
 	const stats = await fetchUserStatistics(credentials.id);
 	return /* html */`
 		<div class="w-full">
-			<h2 class="font-bold mb-[20px] text-[#414658] font-Oi text-3xl">Welcome back,
-			<span class="text-txtColor text-3xl"> ${shortString(userData.username, 10)}</span></h2>
+			<div class="flex flex-row gap-2">
+				<h2 class="font-bold mb-[20px] text-gray-500 text-3xl">Welcome back,</h2>
+				<h2 class="text-txtColor text-3xl"> ${shortString(userData.username, 10)}</h2>
+			</div>
 			<div class="flex-1">
 				<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
 					${LocalPong()}

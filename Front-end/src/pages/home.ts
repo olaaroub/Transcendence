@@ -6,7 +6,7 @@ const $ = (id: string) => document.getElementById(id as string)
 export function renderHomeText (isLoged: boolean)
 {
     return /* html */ `
-		<div class="data flex flex-col sm:flex-row items-center justify-between min-h-[calc(100vh-200px)]
+		<div class="data flex flex-row items-center  justify-between min-h-[calc(100vh-200px)]
 		gap-6 sm:gap-8 md:gap-10 xl:gap-12 2xl:gap-16 px-4 md:px-6 xl:px-8 2xl:px-10">
 			<div class="txt sm:w-1/2 transition-all duration-500 ${isLoged ? 'opacity-0' : ''}">
 				<h1
@@ -18,13 +18,12 @@ export function renderHomeText (isLoged: boolean)
 					class="text-[#878787] max-w-[90%]
 					sm:max-w-[431px] xl:max-w-[500px] text-[16px] sm:text-[18px]
 					md:text-[20px] xl:text-[22px] leading-[1.6] sm:leading-[1.7] xl:leading-[1.75] ">
-						Welcome to SPACE PONG, where you can experience the legendary original Pong game in all its Glory.
-						<br> From Competitive Matchmaking to Friendly Bouts, a Challenging AI or Spectating, You are sure to find your favorite way to enjoy this symbol of VideoGame history.
+						Welcome to SPACE PONG, where you can experience the legendary original Pong game in all its glory.
+						<br> From Competitive Matchmaking to Friendly Bouts, a challenging AI or just Spectating, you are sure to find your favorite way to enjoy this symbol of VideoGame history.
 				</p>
 			</div>
-			<div class="absolute right-24 -z-10">
-				<img src="/images/smi.png" alt="pong game" class="opacity-[60%]
-				hidden xl:block xl:w-[600px] 2xl:w-[700px] h-auto">
+			<div class="fixed top-0 left-0 w-full h-full object-cover z-[-2] pointer-events-none">
+				<img src="/images/loading.gif" alt="pong game" class="opacity-[60%] hidden xl:block h-screen">
 			</div>
 		</div>
     `
@@ -109,7 +108,7 @@ export async function renderHome()
 			<div class="absolute w-[45vw] h-[45vw] -z-10 rounded-full
 				right-0 top-[10vh] translate-x-1/2 bg-color1 animate-animateSlow blur-[306px]">
 			</div>
-			<div class=" content mx-auto">
+			<div class="content mx-auto relative">
 				${renderNavBar(false)}
 				${renderHomeText(false)}
 			</div>
