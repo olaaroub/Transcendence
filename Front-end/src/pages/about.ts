@@ -9,13 +9,15 @@ export async function renderAbout() {
 			image: 'images/mmondad.jpeg',
 			gradientFrom: '#ed6f30',
 			gradientTo: '#d18a10',
+			description: "Technical Lead / Architect"
 		},
 		{
-			name: 'Ohammou-',
+			name: 'ohammou-',
 			role: 'Back-End',
 			image: 'images/ohammou-.jpeg',
 			gradientFrom: '#d18a10',
 			gradientTo: '#ed6f30',
+			description: "Developer"
 		},
 		{
 			name: 'hes-safi',
@@ -23,13 +25,15 @@ export async function renderAbout() {
 			image: 'images/hes-safi.jpeg',
 			gradientFrom: '#878787',
 			gradientTo: '#1B1A1DD6',
+			description: "Product Owner (PO)"
 		},
 		{
 			name: 'oumondad',
-			role: 'security',
+			role: 'Chat Dev',
 			image: 'images/oumondad.jpeg',
 			gradientFrom: '#ed6f30',
 			gradientTo: '#878787',
+			description: "Developer"
 		},
 		{
 			name: 'olaaroub',
@@ -37,6 +41,7 @@ export async function renderAbout() {
 			image: 'images/olaaroub.jpeg',
 			gradientFrom: '#d18a10',
 			gradientTo: '#1B1A1DD6',
+			description: "Project Manager (PM)"
 		},
 	]
 	document.body.innerHTML = /* html */`
@@ -46,7 +51,7 @@ export async function renderAbout() {
 			<div class="bg-color1/45 backdrop-blur-md px-8 py-8 rounded-3xl shadow-2xl">
 				<h1 class="text-4xl md:text-5xl font-extrabold text-txtColor mb-3 text-center">About <span class="text-color1">Us</span></h1>
 				<p class="text-[#b1b1b1] max-w-3xl mb-12 text-md md:text-lg mx-auto text-center [text-wrap:balance]">
-					We are a passionate team of developers, each specializing in different domains. Below are the teammates and their roles — click a card to learn more.
+					We are a passionate team of developers, each specializing in different domains. Below are the teammates and their roles.
 				</p>
 
 				<div class="flex flex-wrap justify-center gap-10">
@@ -58,7 +63,7 @@ export async function renderAbout() {
 								</div>
 								<h3 class="mt-4 text-white text-xl font-bold">${card.name}</h3>
 								<p class="text-white/90 text-sm mb-3">${card.role}</p>
-								<p class="text-white/80 text-sm max-w-xs">A dedicated team member contributing to our shared project vision.</p>
+								<p class="text-white/80 text-sm max-w-xs">${card.description}</p>
 							</div>
 						</div>
 					`).join('')}

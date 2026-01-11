@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960.96 593.99" width="960.96px" height="593.99px">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: none;
+      }
+
+      .cls-3 {
+        fill: #f8963e;
+      }
+
+      .cls-4 {
+        opacity: .35;
+      }
+
+      .cls-2 {
+        stroke: #f8963e;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: .9px;
+      }
+
+      .cls-5 {
+        clip-path: url(#clippath);
+      }
+
+      .cls-6 {
+        opacity: .5;
+      }
+    </style>
+  </defs>
+  <g id="_03" data-name="03">
+    <g>
+      <g class="cls-4">
+        <path class="cls-3" d="M151.6,0C92.4,59.2,59.2,92.4,0,151.6v379.73h809.35c59.2-59.2,92.4-92.4,151.6-151.6V0H151.6Z" style="fill: rgb(0, 0, 0);"/>
+      </g>
+      <g>
+        <path class="cls-3" d="M960.96,379.73V0H151.6C92.4,59.2,59.2,92.4,0,151.6v379.73h809.35c59.2-59.2,92.4-92.4,151.6-151.6ZM13.44,517.89V157.17L157.17,13.44h4.18l59.79,59.79h294.48l59.79-59.79h22.3l-59.79,59.79h33.53l59.79-59.79h21.33l-59.79,59.79h33.53l59.79-59.79h21.33l-59.79,59.79h33.53l59.79-59.79h21.33l-59.79,59.79h33.53l59.79-59.79h21.33l-59.79,59.79h33.53l59.79-59.79h96.84v360.72l-143.73,143.73H13.44Z"/>
+        <path class="cls-3" d="M829.44,531.33h88.61c16.75-16.75,26.15-26.15,42.9-42.9v-88.61l-131.51,131.51Z"/>
+        <path class="cls-3" d="M357.63,593.99l62.66-62.66H.5s62.66,62.66,62.66,62.66h294.48Z"/>
+      </g>
+    </g>
+  </g>
+</svg>

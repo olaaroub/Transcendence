@@ -374,10 +374,10 @@ export async function renderSettings()
 			<div class=" flex flex-row justify-between">
 				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Settings</h1>
 				<div class="flex gap-4">
-				<button id="cancel-changes" class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold text-txtColor
+				<button id="cancel-changes" class="h-[50px] xl:text-lg p-2 rounded-2xl font-bold text-txtColor
 				border border-color1 text-sm  hover:scale-105">Cancel Changes</button>
-				<button id="save-changes" class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
-				text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
+				<button id="save-changes" class="h-[50px] xl:text-lg rounded-2xl font-bold
+				text-black text-sm bg-color1 p-2 hover:scale-105">Save Changes</button>
 				</div>
 			</div>
 			<div class="flex flex-col xl:flex-row gap-6">

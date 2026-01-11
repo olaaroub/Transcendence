@@ -20,7 +20,7 @@ export function renderTerms() {
 						<section class="space-y-4">
 							<h2 class="text-xl sm:text-2xl font-bold text-color2 mt-8 mb-4">1. Acceptance of Terms</h2>
 							<p class="text-sm sm:text-base">
-								By accessing and using GOLDEN PONG ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. 
+								By accessing and using SPACE PONG ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. 
 								If you do not agree to these terms, please do not use the Service.
 							</p>
 						</section>
@@ -28,7 +28,7 @@ export function renderTerms() {
 						<section class="space-y-4">
 							<h2 class="text-xl sm:text-2xl font-bold text-color2 mt-8 mb-4">2. Use License</h2>
 							<p class="text-sm sm:text-base">
-								Permission is granted to temporarily access the materials (information or software) on GOLDEN PONG for personal, 
+								Permission is granted to temporarily access the materials (information or software) on SPACE PONG for personal, 
 								non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
 							</p>
 							<ul class="list-disc list-inside space-y-2 ml-4 text-sm sm:text-base">
@@ -76,7 +76,7 @@ export function renderTerms() {
 						<section class="space-y-4">
 							<h2 class="text-xl sm:text-2xl font-bold text-color2 mt-8 mb-4">6. Intellectual Property</h2>
 							<p class="text-sm sm:text-base">
-								The Service and its original content, features, and functionality are and will remain the exclusive property of GOLDEN PONG 
+								The Service and its original content, features, and functionality are and will remain the exclusive property of SPACE PONG 
 								and its licensors. The Service is protected by copyright, trademark, and other laws.
 							</p>
 						</section>
@@ -92,7 +92,7 @@ export function renderTerms() {
 						<section class="space-y-4">
 							<h2 class="text-xl sm:text-2xl font-bold text-color2 mt-8 mb-4">8. Limitation of Liability</h2>
 							<p class="text-sm sm:text-base">
-								In no event shall GOLDEN PONG, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any 
+								In no event shall SPACE PONG, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any 
 								indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, 
 								goodwill, or other intangible losses.
 							</p>
@@ -125,7 +125,7 @@ export function renderTerms() {
 		</div>
 
 		<footer id="footer" class="w-[90%] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 py-8 text-white border-t border-slate-500 mt-auto">
-			<p class="text-[#878787] text-sm sm:text-base">© 2025 GOLDEN PONG Made By Simo</p>
+			<p class="text-[#878787] text-sm sm:text-base">© 2025 SPACE PONG</p>
 			<div class="flex flex-wrap justify-center gap-3 sm:gap-4">
 				<button id="privacy-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Privacy Policy</button>
 				<button id="about-us" class="py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base">About Us</button>

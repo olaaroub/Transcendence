@@ -80,7 +80,7 @@ const fastify = Fastify(
 		base:
 		{
 			service_name: 'pong-game',
-			env: process.env.NODE_ENV || 'development'
+			environment: process.env.NODE_ENV || 'development'
 		},
 		redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password']
 	}

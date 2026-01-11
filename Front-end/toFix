@@ -1,5 +1,9 @@
+cleaning chat ui and responsiveness
+fix home page responsiveness
+fix game canvas responsiveness
+
 check for 413 site-wide
-add new pages : Terms of Service, Privacy Policy
+cleaning add friend&block&unblock  ui
 
 tailwind :
     truncate

@@ -188,7 +188,7 @@ function createAlias(player : number, alias: string): GUI.TextBlock
 	const name = new GUI.TextBlock(alias, alias);
 	name.horizontalAlignment = horAllign;
 	name.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-	// name.fontFamily = FONT; // WiP
+	// name.fontFamily = FONT;
 	name.fontSize = 42;
 	name.fontStyle = 'bold';
 	name.resizeToFit = true;
@@ -263,17 +263,16 @@ export function startButton(engine: PongEngine): void
 	const button = GUI.Button.CreateImageWithCenterTextButton('Start', 'READY?', '/game/Assets/button.svg');
 	button.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
 	button.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-	button.width = '20%';
-	button.height = '20%';
+	button.width = '15%';
+	button.height = '15%';
 	button.top = '15%';
 	button.thickness = 0;
 	if (button.textBlock)
 	{
 		button.textBlock.fontSize = 48;
 		button.textBlock.fontStyle = 'bold italic';
-		// button.textBlock.fontFamily = FONT; // WiP
-		button.textBlock.color = '#ED6F30';
-		button.textBlock.outlineColor = '#000000';
+		// button.textBlock.fontFamily = FONT;
+		button.textBlock.color = '#000000';
 	}
 	ui.addControl(button);
 
@@ -297,54 +296,57 @@ export function startButton(engine: PongEngine): void
 
 export function createSign(text?: string): void
 {
-	if (!text)
-	{
-		if (signText)
-		{
-			signBox?.removeControl(signText);
-			signText.dispose();
-			signText = null;
-		}
-		if (sign)
-		{
-			signBox?.removeControl(sign);
-			sign.dispose();
-			sign = null;
-		}
-		if (signBox)
-		{
-			ui.removeControl(signBox);
-			signBox.dispose();
-			signBox = null;
-		}
-		return ;
-	}
-
-	const fontSize = text.length < 3 ? 70 : 48;
-
 	if (signText)
 	{
-		signText.text = text;
-		signText.fontSize = fontSize;
-		return ;
+		signBox?.removeControl(signText);
+		signText.dispose();
+		signText = null;
 	}
+	if (sign)
+	{
+		signBox?.removeControl(sign);
+		sign.dispose();
+		sign = null;
+	}
+	if (signBox)
+	{
+		ui.removeControl(signBox);
+		signBox.dispose();
+		signBox = null;
+	}
+
+	if (!text)
+		return ;
+
+	let fontSize = text.length < 3 ? 70 : 48;
 	
 	signBox = new GUI.Container("BOX");
-    signBox.adaptHeightToChildren = true;
-    signBox.adaptWidthToChildren = true;
-
+	signBox.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+	signBox.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+	signBox.top = "15%";
+	if (text.length < 3)
+	{
+		signBox.width = "120px";
+		signBox.height = "100px";
+	}
+	else
+	{
+		signBox.adaptHeightToChildren = true;
+		signBox.adaptWidthToChildren = true;
+	}
 	signText = new GUI.TextBlock('SignText', text);
 	signText.fontSize = fontSize;
+	// name.fontFamily = FONT;
 	signText.fontStyle = 'bold';
-	signText.color = '#ED6F30';
+	signText.color = '#000000';
 	// signText.outlineWidth = 0;
 	signText.resizeToFit = true;
 	signText.paddingLeft = "40px";
 	signText.paddingRight = "40px";
-	signText.paddingTop = "20px";
-	signText.paddingBottom = "20px";
+	signText.paddingTop = "40px";
+	signText.paddingBottom = "40px";
 
-	sign = new GUI.Image('Sign', '/game/Assets/sign.svg');
+	sign = new GUI.Image('Sign', '/game/Assets/sign.png');
 	sign.stretch = GUI.Image.STRETCH_FILL;
 	signBox.addControl(sign);
 	signBox.addControl(signText);

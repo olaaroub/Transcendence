@@ -30,6 +30,7 @@ fi;
 
 echo "Setting permissions..."
 chown -R root:root config/certs;
+chown -R 1000:0 config/certs;
 find . -type d -exec chmod 750 \{\} \;;
 find . -type f -exec chmod 640 \{\} \;;
 
@@ -39,6 +40,13 @@ find . -type f -exec chmod 640 \{\} \;;
 
 echo "Waiting for Elasticsearch to be ready for ILM setup..."
 until curl -s -k -u "elastic:${ELASTIC_PASSWORD}" https://elasticsearch:9200 | grep -q "You Know, for Search"; do sleep 5; done;
+
+
+echo "Setting password for built-in kibana_system user..."
+curl -s -X POST -k -u "elastic:${ELASTIC_PASSWORD}" \
+  -H "Content-Type: application/json" \
+  "https://elasticsearch:9200/_security/user/kibana_system/_password" \
+  -d "{\"password\":\"${ELASTIC_PASSWORD}\"}"
 
 echo "Setting up ILM Policy (Hot -> Cold -> Delete)..."
 
