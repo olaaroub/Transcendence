@@ -94,7 +94,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		}
 		
 		const view = document.createElement('button');
-		view.textContent = 'view';
+		view.textContent = 'View';
 		view.className = "font-bold text-color2 hover:scale-110 hover:text-white transition-transform";
 		buttonsDiv.appendChild(view);
 		view.addEventListener('click', (e) => {
@@ -122,9 +122,11 @@ export async function searchbar() {
 		div.id = 'search-results';
 		div.className = `absolute z-10 top-[44px] left-0 w-full max-h-[300px]
 		overflow-y-auto bg-color4 border py-3 border-[#87878766] rounded-xl scrollbar-custom`;
+		console.log("username value : ", value);
 		const { data: users } = await apiFetch<UserData[]>(`api/user/search/${userData.id}?username=${value}`, {
 			showErrorToast: true
 		});
+		console.log("searchbar, users : ", users);
 		if (!users || users.length === 0) {
 			const p = document.createElement('p');
 			p.className = "text-gray-400 p-4";

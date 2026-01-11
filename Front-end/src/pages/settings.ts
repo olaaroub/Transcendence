@@ -38,7 +38,7 @@ async function checkPasswordChange() : Promise<boolean>
 		skipAuthRedirect: true
 	});
 	if (error) {
-		toastError('Current password is incorrect.');
+		toastError('Current Password is Incorrect.');
 		return false;
 	}
 	return true;
@@ -191,7 +191,7 @@ async function deleteAvatar()
 			toastSuccess('Avatar deleted successfully');
 			renderSettings();
 		} else {
-			toastError('Error deleting avatar');
+			toastError('Error deleting Avatar');
 		}
 	});
 }
@@ -208,19 +208,19 @@ function sendAvatar() : FormData | null
 	const fileName = file.name.toLowerCase();
 	const fileExtension = fileName.split('.').pop();
 	if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
-		toastWarning(`Invalid file type. Allowed formats: ${allowedExtensions.join(', ').toUpperCase()}`);
+		toastWarning(`Invalid file type! Allowed formats: ${allowedExtensions.join(', ').toUpperCase()}`);
 		uploadAvatar.value = '';
 		return null;
 	}
 
 	const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 	if (!allowedMimeTypes.includes(file.type)) {
-		toastWarning(`Invalid file type. Please upload a valid image file.`);
+		toastWarning(`Invalid file type! Please upload a valid image file.`);
 		uploadAvatar.value = '';
 		return null;
 	}
 	if (file.size > 2097152) {
-		toastWarning("Image is too large. Max size 2MB.");
+		toastWarning("Image is too large! Max. Size: 2MB");
 		uploadAvatar.value = '';
 		return null;
 	}
@@ -233,13 +233,13 @@ function avatarSettings() : string
 {
 	return  /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl bg-color4 glow-effect flex-1 flex flex-col gap-6">
-			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
-			<div class="flex gap-16">
+			<h2 class="text-color1 font-bold text-lg xl:text-2xl">Your Avatar</h2>
+			<div class="flex gap-10 xl:gap-16 ">
 				<div class="flex flex-col items-center gap-2">
 					<img id="userAvatar" src="${getImageUrl(userData.avatar_url)}" class="
-					w-[150px] h-[150px] xl:w-[200px] xl:h-[200px] rounded-full border-2
+					w-[130px] h-[130px] xl:w-[170px] xl:h-[170px] rounded-full border-2
 					border-color1" alt="user" />
-				<span class="text-sm text-color3">max size 2MB</span>
+					<span class="text-sm text-color3">max size 2MB</span>
 				</div>
 				<div class="flex justify-center flex-col gap-6">
 						<label class="bg-color1 relative flex items-center
@@ -265,15 +265,15 @@ function accountSettings() : string
 {
 	return /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col flex-1 gap-6">
-			<p class="text-color1 font-bold text-lg xl:text-2xl">Account Settings</p>
+			<h2 class="text-color1 font-bold text-lg xl:text-2xl">Personal Info</h2>
 			<div class="settings-name flex flex-col gap-2">
-				<p class="text-txtColor text-sm ">Alias</p>
+				<p class="text-txtColor ">Alias</p>
 				${input("Change Alias", 'text', userData?.username ?? "", "username")}
-				<p class="text-txtColor text-sm ">Mail</p>
+				<p class="text-txtColor ">Mail</p>
 				${input("Change Mail", 'text', userData?.email ?? "", "")}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
-				<p class="text-txtColor text-sm">Your Bio</p>
+				<p class="text-txtColor">Your Bio</p>
 				<textarea
 					name="bio"
 					placeholder="Say something about yourself"
@@ -305,9 +305,8 @@ function security() : string
 {
 	return /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col gap-6 flex-1">
-			<p class=" text-color1 font-bold text-lg xl:text-2xl">Security</p>
+			<h2 class=" text-color1 font-bold text-lg xl:text-2xl">Change Password</h2>
 			<div class="flex flex-col gap-2">
-				<p class="text-txtColor text-sm">Password</p>
 				<div class="flex gap-6 flex-col 2xl:flex-row">
 					${input("Current Password", "password", "", "current-password")}
 					${input("New Password", "password", "", "new-password")}
@@ -322,11 +321,12 @@ function Account() : string
 {
 	return /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col gap-6 flex-1">
-			<p class="text-color1 font-bold text-lg xl:text-2xl">Account</p>
-			<div class="flex flex-col gap-4">
-				<p class="2xl:w-[60%] w-full text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
-				<button id="delete-account" class="bg-red-500 text-white w-full
-				lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
+			<h2 class="text-color1 font-bold text-lg xl:text-2xl">Delete Account</h2>
+			<div class="flex flex-row gap-4 ">
+				<p class="w-full text-white">Permanently delete your account and all associated data.<br/>This action cannot be undone.</p>
+				<button id="delete-account" class="bg-red-500 text-white w-full h-[60px]
+				lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account
+				</button>
 			</div>
 		</div>
 	`
@@ -349,7 +349,7 @@ function cancelChanges()
 
 async function deleteAccount() : Promise<void>
 {
-	const confirmed = await confirmPopUp('Are you sure you want to delete your account? This action cannot be undone.');
+	const confirmed = await confirmPopUp('Are you sure you want to delete your account? This action CANNOT be undone!');
 	if (!confirmed) return;
 	const { error } = await apiFetch<{message: string}>(`api/user/deleteAccount/${userData.id}`, {
 		method: 'DELETE',
@@ -361,7 +361,7 @@ async function deleteAccount() : Promise<void>
 		navigate('/sign-up');
 		toastSuccess('Account deleted successfully.');
 	} else
-		toastError('Failed to delete account.');
+		toastError('Failed to delete account!');
 }
 
 export async function renderSettings()

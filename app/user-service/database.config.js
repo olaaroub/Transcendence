@@ -13,7 +13,7 @@ const creatTable = async () => {
     db.exec(`CREATE TABLE IF NOT EXISTS userInfo (
         id INTEGER UNIQUE NOT NULL,
         username TEXT UNIQUE NOT NULL,
-        bio TEXT DEFAULT 'Hello there i am using Pong game!',
+        bio TEXT DEFAULT 'Hello! I am playing SPACE PONG!',
         avatar_url TEXT DEFAULT '/public/default_pfp.png',
         is_read BOOLEAN DEFAULT FALSE,
 
