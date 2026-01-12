@@ -196,6 +196,7 @@
             }
           },
           "mappings": [],
+          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -247,47 +248,12 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
         "uid": "prometheus_ds"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -318,16 +284,7 @@
                 "readOnly": true
               }
             },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": true,
-                  "viz": true
-                }
-              }
-            ]
+            "properties": []
           }
         ]
       },
@@ -339,17 +296,21 @@
       },
       "id": 7,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
       "pluginVersion": "12.3.0",
       "targets": [
@@ -362,7 +323,7 @@
         }
       ],
       "title": "User searchs counter",
-      "type": "timeseries"
+      "type": "stat"
     },
     {
       "datasource": {
@@ -423,13 +384,13 @@
       "targets": [
         {
           "editorMode": "builder",
-          "expr": "rate(user_friendship_actions_total[24h])",
+          "expr": "user_friendship_actions_total",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Friendships Added / Blocked (per hour)",
+      "title": "Friendships Accepted / Blocked",
       "type": "stat"
     },
     {
@@ -443,6 +404,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [

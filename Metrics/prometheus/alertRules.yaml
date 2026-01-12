@@ -1,0 +1,19 @@
+groups:
+  - name: transcendence_alerts
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
+
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[1m]) > 0.8
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"

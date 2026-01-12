@@ -1,165 +1,12 @@
 services:
-  frontend-elk:
-    build:
-      context: ./Front-end
-      dockerfile: Dockerfile.frontend.prod
-    image: frontend-elk:1337
-    container_name: frontend-elk
-    ports:
-      - "443:443"
-    volumes:
-      - ./certs:/etc/nginx/certs:ro
-      - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
-      - pong-dist:/app/assets/game:ro
-    environment:
-      - SERVICE_EXT=-elk
-    networks:
-      - transcendence-elk-net
-    depends_on:
-      - modSecurity-elk
 
-  auth-service-elk:
-    build:
-      context: ./app/auth
-      dockerfile: ../Dockerfile.microservices.prod
-      args:
-        - PORT=3001
-    image: auth-service-elk:1337
-    container_name: auth-service-elk
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR_ELK}
-      - VAULT_SECRET_PATH=${AUTH_SECRET_PATH}
-      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/auth.db
-      - HOST=0.0.0.0
-      - DOMAIN=${AUTH_DOMAIN_PROD}
-      - SERVICE_EXT=-elk
-      - LOG_LEVEL=debug
-    expose:
-      - 3001
-    user: root
-    volumes:
-      - ./db/auth:/data
-      - ./app/static:/app/static
-    networks:
-      - transcendence-elk-net
-    depends_on:
-      vault-init-elk:
-        condition: service_completed_successfully
-
-  user-service-elk:
-    build:
-      context: ./app/user-service
-      dockerfile: ../Dockerfile.microservices.prod
-      args:
-        - PORT=3002
-    image: user-service-elk:1337
-    container_name: user-service-elk
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR_ELK}
-      - VAULT_SECRET_PATH=${USER_SECRET_PATH}
-      - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/users.db
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-elk
-      - LOG_LEVEL=debug
-    expose:
-      - 3002
-    user: root
-    volumes:
-      - ./db/users:/data
-      - ./app/static:/app/static
-    networks:
-      - transcendence-elk-net
-    depends_on:
-      vault-init-elk:
-        condition: service_completed_successfully
-
-  global-chat-elk:
-    build:
-      context: ./app/chat/global
-      dockerfile: ../../Dockerfile.microservices.prod
-      args:
-        - PORT=3003
-    image: global-chat-elk:1337
-    container_name: global-chat-elk
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR_ELK}
-      - VAULT_SECRET_PATH=${GLOBAL_CHAT_SECRET_PATH}
-      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/global.db
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-elk
-      - LOG_LEVEL=debug
-    expose:
-      - 3003
-    user: root
-    volumes:
-      - ./db/chat:/data
-    networks:
-      - transcendence-elk-net
-    depends_on:
-      vault-init-elk:
-        condition: service_completed_successfully
-
-  private-chat-elk:
-    build:
-      context: ./app/chat/private
-      dockerfile: ../../Dockerfile.microservices.prod
-      args:
-        - PORT=3004
-    image: private-chat-elk:1337
-    container_name: private-chat-elk
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR_ELK}
-      - VAULT_SECRET_PATH=${PRIVATE_CHAT_SECRET_PATH}
-      - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/private.db
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-elk
-      - LOG_LEVEL=debug
-    expose:
-      - 3004
-    user: root
-    volumes:
-      - ./db/chat:/data
-    networks:
-      - transcendence-elk-net
-    depends_on:
-      vault-init-elk:
-        condition: service_completed_successfully
-
-  pong-game-elk:
-    build:
-      context: ./Pong
-      dockerfile: Dockerfile.pong.prod.multistage
-      args:
-        - PORT=3005
-    image: pong-game-elk:1337
-    container_name: pong-game-elk
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR_ELK}
-      - VAULT_SECRET_PATH=${PONG_SECRET_PATH}
-      - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-elk
-      - LOG_LEVEL=debug
-    expose:
-      - 3005
-    user: root
-    volumes:
-      - pong-dist:/pong-dist
-    networks:
-      - transcendence-elk-net
-    depends_on:
-      vault-init-elk:
-        condition: service_completed_successfully
+  # ====================================================
+  #                HASHICORP VAULT
+  # ====================================================
 
   vault-elk:
     image: hashicorp/vault:1.21.1
     container_name: vault-elk
-    networks:
-      - transcendence-elk-net
     ports:
       - "8200:8200"
     environment:
@@ -167,14 +14,16 @@ services:
       - VAULT_ADDR=http://0.0.0.0:8200
     cap_add:
       - IPC_LOCK
+    networks:
+      - transcendence-elk-net
 
   vault-init-elk:
     image: hashicorp/vault:1.21.1
     container_name: vault-init-elk
-    networks:
-      - transcendence-elk-net
+    depends_on:
+      - vault-elk
     volumes:
-      - ./vault/hashicorpVault.init.sh:/init.sh
+      - ./Security/HashicorpVault/hashicorpVault.init.sh:/init.sh
     environment:
       - VAULT_ADDR=${VAULT_ADDR_ELK}
       - VAULT_TOKEN=${VAULT_TOKEN}
@@ -192,89 +41,278 @@ services:
       - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
       - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
     entrypoint: /init.sh
+    networks:
+      - transcendence-elk-net
+
+  # ====================================================
+  #         APPLICATION MICROSERVICES
+  # ====================================================
+
+
+  auth-service-elk:
+    build:
+      context: ./app/auth
+      dockerfile: ../Dockerfile.microservices.prod
+      args:
+        - PORT=3001
+    image: auth-service-elk:1337
+    container_name: auth-service-elk
     depends_on:
-      - vault-elk
+      vault-init-elk:
+        condition: service_completed_successfully
+    expose:
+      - "3001"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_ELK}
+      - VAULT_SECRET_PATH=${AUTH_SECRET_PATH}
+      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/auth.db
+      - HOST=0.0.0.0
+      - DOMAIN=${AUTH_DOMAIN_PROD}
+      - SERVICE_EXT=-elk
+      - LOG_LEVEL=debug
+    user: root
+    volumes:
+      - ./db/auth:/data
+      - ./app/static:/app/static
+    networks:
+      - transcendence-elk-net
+
+  user-service-elk:
+    build:
+      context: ./app/user-service
+      dockerfile: ../Dockerfile.microservices.prod
+      args:
+        - PORT=3002
+    image: user-service-elk:1337
+    container_name: user-service-elk
+    depends_on:
+      vault-init-elk:
+        condition: service_completed_successfully
+    expose:
+      - "3002"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_ELK}
+      - VAULT_SECRET_PATH=${USER_SECRET_PATH}
+      - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/users.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-elk
+      - LOG_LEVEL=debug
+    user: root
+    volumes:
+      - ./db/users:/data
+      - ./app/static:/app/static
+    networks:
+      - transcendence-elk-net
+
+  global-chat-elk:
+    build:
+      context: ./app/chat/global
+      dockerfile: ../../Dockerfile.microservices.prod
+      args:
+        - PORT=3003
+    image: global-chat-elk:1337
+    container_name: global-chat-elk
+    depends_on:
+      vault-init-elk:
+        condition: service_completed_successfully
+    expose:
+      - "3003"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_ELK}
+      - VAULT_SECRET_PATH=${GLOBAL_CHAT_SECRET_PATH}
+      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/global.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-elk
+      - LOG_LEVEL=debug
+    user: root
+    volumes:
+      - ./db/chat:/data
+    networks:
+      - transcendence-elk-net
+
+  private-chat-elk:
+    build:
+      context: ./app/chat/private
+      dockerfile: ../../Dockerfile.microservices.prod
+      args:
+        - PORT=3004
+    image: private-chat-elk:1337
+    container_name: private-chat-elk
+    depends_on:
+      vault-init-elk:
+        condition: service_completed_successfully
+    expose:
+      - "3004"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_ELK}
+      - VAULT_SECRET_PATH=${PRIVATE_CHAT_SECRET_PATH}
+      - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/private.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-elk
+      - LOG_LEVEL=debug
+    user: root
+    volumes:
+      - ./db/chat:/data
+    networks:
+      - transcendence-elk-net
+
+  pong-game-elk:
+    build:
+      context: ./Pong
+      dockerfile: Dockerfile.pong.prod.multistage
+      args:
+        - PORT=3005
+    image: pong-game-elk:1337
+    container_name: pong-game-elk
+    depends_on:
+      vault-init-elk:
+        condition: service_completed_successfully
+    expose:
+      - "3005"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_ELK}
+      - VAULT_SECRET_PATH=${PONG_SECRET_PATH}
+      - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-elk
+      - LOG_LEVEL=debug
+    user: root
+    volumes:
+      - pong-dist:/pong-dist
+    networks:
+      - transcendence-elk-net
+
+  # ====================================================
+  #     MODSECURITY CRS/API GATEWAY & FRONTEND
+  # ====================================================
 
   modSecurity-elk:
     image: owasp/modsecurity-crs:4.21.0-nginx-alpine-202512071012
     container_name: modSecurity-elk
-    networks:
-      - transcendence-elk-net
-    environment:
-      - MODSEC_RULE_ENGINE=on
-      - BLOCKING_PARANOIA=2
-    volumes:
-      - ./waf/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
-      - ./waf/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
-      - ./waf/scan_php.sh:/usr/local/bin/scan_php.sh:ro
-      - ./waf/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     restart: on-failure
+    depends_on:
+      - auth-service-elk
+      - user-service-elk
+      - global-chat-elk
+      - private-chat-elk
+      - pong-game-elk
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 10s
       timeout: 5s
       retries: 3
+    environment:
+      - MODSEC_RULE_ENGINE=on
+      - BLOCKING_PARANOIA=2
+    volumes:
+      - ./Security/ModSecurity/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
+      - ./Security/ModSecurity/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
+      - ./Security/ModSecurity/scan_php.sh:/usr/local/bin/scan_php.sh:ro
+      - ./Security/ModSecurity/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
+    networks:
+      - transcendence-elk-net
+
+  frontend-elk:
+    build:
+      context: ./Front-end
+      dockerfile: Dockerfile.frontend.elk
+    image: frontend-elk:1337
+    container_name: frontend-elk
+    ports:
+      - "443:443"
     depends_on:
-      - auth-service-elk
-      - user-service-elk
-      - global-chat-elk
-      - private-chat-elk
-      - pong-game-elk
+      - modSecurity-elk
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - ./Security/ModSecurity/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
+      - pong-dist:/app/assets/game:ro
+    environment:
+      - SERVICE_EXT=-elk
+    networks:
+      - transcendence-elk-net
+
+  # ====================================================
+  #        METRICS PROMETHEUS / GRAFANA
+  # ====================================================
 
   prometheus-elk:
     image: prom/prometheus:v3.8.1
     container_name: prometheus-elk
-    ports:
-      - "9090:9090"
-    networks:
-      - transcendence-elk-net
-    volumes:
-      - ./prometheus/prometheus.elk.yaml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
+    expose:
+      - "9090"
     depends_on:
       - auth-service-elk
       - user-service-elk
       - global-chat-elk
       - private-chat-elk
       - pong-game-elk
+    volumes:
+      - ./Metrics/prometheus/prometheus.elk.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./Metrics/prometheus/alertRules.yaml:/etc/prometheus/alertRules.yaml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - transcendence-elk-net
 
   grafana-elk:
     image: grafana/grafana:12.3.0
     container_name: grafana-elk
     ports:
       - "3000:3000"
-    networks:
-      - transcendence-elk-net
-    volumes:
-      - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
     depends_on:
       - prometheus-elk
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./Metrics/grafana/provisioning:/etc/grafana/provisioning
+      - ./Metrics/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./certs:/etc/grafana/certs:ro
+    networks:
+      - transcendence-elk-net
+
+  # ====================================================
+  #         ELASTIC STACK (ELK + FILEBEAT)
+  # ====================================================
+
 
   setup-elk:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
     container_name: setup-elk
-    volumes:
-      - ./elk/setup/setupInfra.sh:/usr/share/elasticsearch/config/setupInfra.sh:ro
-      - certs:/usr/share/elasticsearch/config/certs
     user: "0"
+    command: "bash config/setupInfra.sh"
     environment:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-    command: "bash config/setupInfra.sh"
+    volumes:
+      - ./Elastic-Stack/setup/setupInfra.sh:/usr/share/elasticsearch/config/setupInfra.sh:ro
+      - certs:/usr/share/elasticsearch/config/certs
     networks:
       - transcendence-elk-net
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
     container_name: elasticsearch
+    restart: on-failure
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -k https://localhost:9200 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     environment:
       - discovery.type=single-node
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" #"ES_JAVA_OPTS=-Xms1g -Xmx1g" when pushing
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=true
       - xpack.security.http.ssl.key=certs/elasticsearch/elasticsearch.key
@@ -284,50 +322,55 @@ services:
       - xpack.security.transport.ssl.key=certs/elasticsearch/elasticsearch.key
       - xpack.security.transport.ssl.certificate=certs/elasticsearch/elasticsearch.crt
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
-    ports:
-      - "9200:9200"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
       - certs:/usr/share/elasticsearch/config/certs
     networks:
       - transcendence-elk-net
-    healthcheck:
-      test:
-        ["CMD-SHELL", "curl -s -k https://localhost:9200 >/dev/null || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 1G #2gb when pushing
 
   logstash:
     image: docker.elastic.co/logstash/logstash:9.2.2
     container_name: logstash
-    volumes:
-      - ./elk/logstash/pipeline:/usr/share/logstash/pipeline:ro
-      - certs:/usr/share/logstash/config/certs
     expose:
       - "5044"
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-XGET", "http://127.0.0.1:9600/_node/pipelines/main"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     environment:
       - XPACK_MONITORING_ENABLED=false
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - "LS_JAVA_OPTS=-Xms512m -Xmx512m" #"LS_JAVA_OPTS=-Xms1g -Xmx1g" when pushing
+      - "LS_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - ./Elastic-Stack/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - certs:/usr/share/logstash/config/certs
     networks:
       - transcendence-elk-net
-    depends_on:
-      elasticsearch:
-        condition: service_started
-    deploy:
-      resources:
-        limits:
-          memory: 1G #2gb whne pushing
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.2.2
     container_name: kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-k", "https://localhost:5601/api/status"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     environment:
       - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
       - ELASTICSEARCH_USERNAME=kibana_system
@@ -337,33 +380,24 @@ services:
       - SERVER_SSL_ENABLED=true
       - SERVER_SSL_CERTIFICATE=config/certs/kibana/kibana.crt
       - SERVER_SSL_KEY=config/certs/kibana/kibana.key
-    ports:
-      - "5601:5601"
     volumes:
       - certs:/usr/share/kibana/config/certs
     networks:
       - transcendence-elk-net
-    depends_on:
-      elasticsearch:
-        condition: service_started
-    deploy:
-      resources:
-        limits:
-          memory: 1G
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:9.2.2
     container_name: filebeat
     user: root
     command: ["-e", "--strict.perms=false"]
+    depends_on:
+      - logstash
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./elk/filebeat/config/filebeat.yaml:/usr/share/filebeat/filebeat.yml:ro
+      - ./Elastic-Stack/filebeat/config/filebeat.yaml:/usr/share/filebeat/filebeat.yml:ro
     networks:
       - transcendence-elk-net
-    depends_on:
-      - logstash
 
 networks:
   transcendence-elk-net:

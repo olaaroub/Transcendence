@@ -9,8 +9,7 @@ services:
       - "8443:8443"
     volumes:
       - ./certs:/etc/nginx/certs:ro
-      # - ./Front-end/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
-      - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
+      - ./Security/ModSecurity/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
       - pong-dist:/app/assets/game:ro
     environment:
       - SERVICE_EXT=-prod
@@ -174,7 +173,7 @@ services:
     networks:
       - transcendence-prod-net
     volumes:
-      - ./vault/hashicorpVault.init.sh:/init.sh
+      - ./Security/HashicorpVault/hashicorpVault.init.sh:/init.sh
     environment:
       - VAULT_ADDR=${VAULT_ADDR_PROD}
       - VAULT_TOKEN=${VAULT_TOKEN}
@@ -204,10 +203,10 @@ services:
       - MODSEC_RULE_ENGINE=on
       - BLOCKING_PARANOIA=2
     volumes:
-      - ./waf/Nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
-      - ./waf/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
-      - ./waf/scan_php.sh:/usr/local/bin/scan_php.sh:ro
-      - ./waf/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
+      - ./Security/ModSecurity/Nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
+      - ./Security/ModSecurity/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
+      - ./Security/ModSecurity/scan_php.sh:/usr/local/bin/scan_php.sh:ro
+      - ./Security/ModSecurity/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     restart: on-failure
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
@@ -229,7 +228,8 @@ services:
     networks:
       - transcendence-prod-net
     volumes:
-      - ./prometheus/prometheus.prod.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./Metrics/prometheus/prometheus.prod.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./Metrics/prometheus/alertRules.yaml:/etc/prometheus/alertRules.yaml:ro
       - prometheus-data:/prometheus
     depends_on:
       - auth-service-prod
@@ -247,11 +247,11 @@ services:
       - transcendence-prod-net
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./Metrics/grafana/provisioning:/etc/grafana/provisioning
+      - ./Metrics/grafana/dashboards:/var/lib/grafana/dashboards
     environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
     depends_on:
       - prometheus-prod
 
