@@ -1,9 +1,11 @@
 async function searchBarHandler(req, reply) {
 
-    const query = req.query.username || "";
-    if(!query || query.trim() == 0){
+    const query = String(req.query.username) || "";
+
+    if(!query || query.trim() === 0){
         return []
     }
+
     const id = req.params.id;
     req.log.debug({query})
 
