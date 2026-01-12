@@ -26,9 +26,9 @@ export function createScene(canvas: HTMLCanvasElement): GameScene
 	light2.diffuse = BABYLON.Color3.FromHexString("#ED6F30");
 	light2.intensity = 1;
 
-	const cam1 = new BABYLON.FreeCamera('Classic', new BABYLON.Vector3(0, 600, 0), scene);
+	const cam1 = new BABYLON.FreeCamera('Pilot', new BABYLON.Vector3(550, 250, 0), scene);
 	cam1.setTarget(BABYLON.Vector3.Zero());
-	const cam2 = new BABYLON.FreeCamera('Pilot', new BABYLON.Vector3(600, 500, 0), scene);
+	const cam2 = new BABYLON.FreeCamera('Classic', new BABYLON.Vector3(0, 600, 0), scene);
 	cam2.setTarget(BABYLON.Vector3.Zero());
 	const cam3 = new BABYLON.FreeCamera('Spectator', new BABYLON.Vector3(0, 450, 450), scene);
 	cam3.setTarget(BABYLON.Vector3.Zero());

@@ -22,9 +22,20 @@ export function renderHomeText (isLoged: boolean)
 						<br> From Competitive Matchmaking to Friendly Bouts, a challenging AI or just Spectating, you are sure to find your favorite way to enjoy this symbol of VideoGame history.
 				</p>
 			</div>
-			<div class="fixed top-0 left-0 w-full h-full object-cover z-[-2] pointer-events-none">
-				<img src="/images/loading.gif" alt="pong game" class="opacity-[60%] hidden xl:block h-screen">
-			</div>
+			<video
+			class="fixed top-0 left-0 w-full h-full object-cover blur-[3px] z-[-2] pointer-events-none"
+			autoplay
+			muted
+			loop
+			playsinline
+			preload="auto"
+			disablepictureinpicture
+			tabindex="-1"
+			aria-hidden="true"
+			style="pointer-events: none;"
+			>
+			<source src="images/login.webm" type="video/webm">
+			</video>
 		</div>
     `
 }
@@ -36,7 +47,7 @@ export function AliasPopUp(item: string)
 	aliasPopUp.className = `fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm`;
 	aliasPopUp.innerHTML = /* html */`
 		<div class="relative bg-gradient-to-br from-bgColor/95 to-black/90 backdrop-blur-xl
-			rounded-3xl p-8 flex flex-col gap-5 w-[420px] border-2 border-color1/30
+			rounded-3xl px-8 py-4 flex flex-col gap-5 w-[420px] border-2 border-color1/30
 			shadow-2xl transform transition-all duration-300 scale-100"
 			style="box-shadow: 0 0 40px rgba(237, 111, 48, 0.15), 0 0 80px rgba(237, 111, 48, 0.05);">
 
@@ -46,17 +57,17 @@ export function AliasPopUp(item: string)
 				</svg>
 			</button>
 			<div class="relative text-center mb-2">
-				<div class="text-5xl mb-3">🎮</div>
+				<img class="w-16 h-16 m-auto" src="images/joypad1.svg" alt="joypad">
 				<h2 class="text-2xl font-bold bg-gradient-to-r from-color1 via-color2 to-color1 bg-clip-text text-transparent">
 					Enter Your Alias
 				</h2>
-				<p class="text-txtColor/50 text-sm mt-1">Choose a name to identify yourself</p>
+				<p class="text-txtColor/50 text-sm mt-1">Choose your Opponent's Alias</p>
 			</div>
 			<p id="alias-error" class="text-red-500 text-center text-sm hidden bg-red-500/10 py-2 rounded-xl border border-red-500/30">
-				⚠️ Please enter a valid alias
+				⚠️ Please enter a Valid Alias
 			</p>
 			<div class="relative">
-				<input id="alias-input" type="text" placeholder="Your alias..."
+				<input id="alias-input" type="text" placeholder="Alias..."
 					class="w-full bg-black/60 text-txtColor px-5 py-3 rounded-2xl
 					outline-none border-2 border-color3/30 focus:border-color1
 					transition-all duration-300 text-lg placeholder:text-color3/50

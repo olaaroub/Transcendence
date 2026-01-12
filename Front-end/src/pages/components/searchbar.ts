@@ -41,7 +41,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 				if (status === 'pending') {
 					addFriend.src = '/images/pending.svg';
 				} else {
-					addFriend.src = '/images/addFriend.svg';
+					addFriend.src = '/images/addFriendd.svg';
 					addFriend.addEventListener('click', async (e) => {
 						e.stopPropagation();
 						try {

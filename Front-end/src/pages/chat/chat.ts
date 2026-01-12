@@ -114,8 +114,8 @@ export function initGlobalChatNotifications() {
 		console.log("Connected to private chat");
 		socket?.emit("userId", credentials.id);
 	});
-	socket.on("connect_error", (error) => {console.error("Socket connection error:", error.message);});
-	socket.on("disconnect", (reason) => {console.log("Disconnected from private chat:", reason);});
+	socket.on("connect_error", (error: Error) => {console.error("Socket connection error:", error.message);});
+	socket.on("disconnect", (reason: string) => {console.log("Disconnected from private chat:", reason);});
 	socket.on("new_notification", (data: { type: string; from: number; conversationId: number; text: string }) => {
 		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat'))
 			toastInfo(`New message received!`, { duration: 4000 });
@@ -139,7 +139,7 @@ export function initGlobalChatNotifications() {
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
 	});
-	socket.on("error", (data) => {console.error("Chat error:", data.message);});
+	socket.on("error", (data: { message: string }) => {console.error("Chat error:", data.message);});
 	if (socket.connected)
 		socket.emit("userId", credentials.id);
 	notificationSocketInitialized = true;
@@ -172,7 +172,7 @@ function setupChatListeners() {
 		}
 	});
 
-	socket.on("message_sent", (data) => {console.log("Message sent confirmation:", data);});
+	socket.on("message_sent", (data: unknown) => {console.log("Message sent confirmation:", data);});
 	socket.on("messages_seen", (data: { conversationId: number; seenBy: number }) => {
 		if (data.conversationId === chatState.currentConversationId) {
 			chatState.messages.forEach(msg => {
@@ -342,17 +342,17 @@ function renderChallengeMessage(msg: ChatMessage, isMine: boolean, seenIcon: str
 	if (isMine) {
 		return /* html */`
 			<div class="flex justify-end mb-3">
-				<div class="max-w-[70%] bg-color1 text-bgColor px-4 py-2 rounded-2xl rounded-br-sm">
+				<div class="max-w-[85%] sm:max-w-[70%] bg-color1 text-bgColor px-3 sm:px-4 py-2 rounded-2xl rounded-br-sm">
 					<div class="flex items-center gap-2 mb-1">
-						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
 								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
 								d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
-						<span class="font-bold">Challenge Sent!</span>
+						<span class="font-bold text-sm sm:text-base">Challenge Sent!</span>
 					</div>
-					<p class="text-sm">Waiting for opponent to join...</p>
+					<p class="text-xs sm:text-sm">Waiting for opponent to join...</p>
 					<span class="text-xs text-bgColor/70 mt-1 flex items-center justify-end">
 						${formatMessageTime(msg.createdAt)}${seenIcon}
 					</span>
@@ -362,22 +362,22 @@ function renderChallengeMessage(msg: ChatMessage, isMine: boolean, seenIcon: str
 	} else {
 		return /* html */`
 			<div class="flex justify-start mb-3">
-				<div class="max-w-[70%] bg-gradient-to-r from-[#1a1a2e] to-[#2a1a3e] text-txtColor 
-					px-4 py-3 rounded-2xl rounded-bl-sm border border-color1/30">
+				<div class="max-w-[85%] sm:max-w-[70%] bg-gradient-to-r from-[#1a1a2e] to-[#2a1a3e] text-txtColor 
+					px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-bl-sm border border-color1/30">
 					<div class="flex items-center gap-2 mb-2">
-						<svg class="w-5 h-5 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg class="w-4 h-4 sm:w-5 sm:h-5 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
 								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
 								d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
-						<span class="font-bold text-color1">Game Challenge!</span>
+						<span class="font-bold text-color1 text-sm sm:text-base">Game Challenge!</span>
 					</div>
-					<p class="text-sm mb-3">You've been challenged to a Pong match!</p>
+					<p class="text-xs sm:text-sm mb-3">You've been challenged to a Pong match!</p>
 					<button data-room-id="${roomId}" 
 						class="join-game-btn w-full bg-color1 hover:bg-color2 text-bgColor font-bold 
-						py-2 px-4 rounded-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						py-2 px-3 sm:px-4 rounded-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 text-sm sm:text-base">
+						<svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
 								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
 						</svg>
@@ -409,10 +409,13 @@ function updateMessagesUI() {
 	const messagesContainer = document.getElementById('private-chat-messages');
 	const input = document.getElementById('private-chat-input-div') as HTMLElement;
 	console.log("called by  : ", input);
-	if (input && chatState.currentConversationId)
+	if (input && chatState.currentConversationId) {
 		input.classList.remove("hidden");
-	else if (input)
+		input.classList.add("flex");
+	} else if (input) {
 		input.classList.add("hidden");
+		input.classList.remove("flex");
+	}
 
 	if (!messagesContainer) return;
 	if (chatState.messages.length === 0) {
@@ -442,9 +445,9 @@ function updateMessagesUI() {
 			
 			return /* html */`
 				<div class="flex ${isMine ? 'justify-end' : 'justify-start'} mb-3">
-					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'}
-						px-4 py-2 rounded-2xl ${isMine ? 'rounded-br-sm' : 'rounded-bl-sm'}">
-						<p class="text-sm break-words">${msg.content}</p>
+					<div class="max-w-[85%] sm:max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'}
+						px-3 sm:px-4 py-2 rounded-2xl ${isMine ? 'rounded-br-sm' : 'rounded-bl-sm'}">
+						<p class="text-xs sm:text-sm break-words">${msg.content}</p>
 						<span class="text-xs ${isMine ? 'text-bgColor/70' : 'text-gray-400'} mt-1 flex items-center justify-end">
 							${formatMessageTime(msg.createdAt)}${seenIcon}
 						</span>
@@ -461,29 +464,29 @@ function updateMessagesUI() {
 function updateChatHeaderUI() {
 	const chatHeader = document.getElementById('private-chat-header');
 	if (!chatHeader || !chatState.currentFriend) return;
-	console.log("chat state : ", chatState);
 	chatHeader.innerHTML = /* html */`
-		<div class="flex justify-between items-center w-full">
-			<div class="flex gap-3 font-bold items-center">
-				<img class="h-12 w-12 border border-color1 rounded-full object-cover"
+		<div class="flex justify-between items-center w-full flex-wrap gap-2">
+			<div class="flex gap-2 sm:gap-3 font-bold items-center">
+				<img class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover"
 					src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
 				<div class="flex flex-col">
-					<span class="text-txtColor text-lg">${shortString(chatState.currentFriend.username, 20)}</span>
-					<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
-						${chatState.isTyping ? 'typing...' : (chatState.currentFriend.status || 'offline')}
+					<span class="text-txtColor text-base sm:text-lg">${shortString(chatState.currentFriend.username, 15)}</span>
+					<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-xs sm:text-sm">
+						${chatState.isTyping ? 'Typing...' : (chatState.currentFriend.status === "ONLINE" ? "Online"  : "Offline")}
 					</span>
 				</div>
 			</div>
 			<button id="challenge-btn" 
-				class="flex items-center gap-2 bg-color1 hover:bg-color2 text-bgColor font-bold 
-				px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105">
-				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				class="flex items-center gap-1 sm:gap-2 bg-color1 hover:bg-color2 text-bgColor font-bold 
+				px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all duration-300 hover:scale-105 text-sm sm:text-base">
+				<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
 						d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
 						d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 				</svg>
-				<span>Challenge</span>
+				<span class="hidden sm:inline">Challenge</span>
+				<span class="sm:hidden">Game</span>
 			</button>
 		</div>
 	`;
@@ -503,10 +506,10 @@ function updateTypingIndicatorUI() {
 
 	if (statusText && chatState.currentFriend) {
 		if (chatState.isTyping) {
-			statusText.textContent = 'typing...';
+			statusText.textContent = 'Typing...';
 			statusText.className = 'text-color1 text-sm animate-pulse';
 		} else {
-			statusText.textContent = chatState.currentFriend.status || 'offline';
+			statusText.textContent = chatState.currentFriend.status ===  "ONLINE" ? "Online"  : "Offline";
 			statusText.className = `${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm`;
 		}
 	}
@@ -696,37 +699,40 @@ export function chatEventHandler() {
 
 function renderMessages() : string {
 	return /* html */`
-		<div class="relative w-[70%] bg-color4 rounded-2xl min-h-[calc(100vh-200px)]
-		p-6 flex flex-col">
+		<div class="relative w-full lg:w-[70%] bg-color4 rounded-2xl min-h-[calc(100vh-200px)]
+		p-3 sm:p-4 md:p-6 flex flex-col">
 			<div>
-				<h2 class="text-txtColor text-2xl font-bold mb-6">Messages</h2>
+				<h2 class="text-txtColor text-xl sm:text-2xl font-bold mb-2">Messages</h2>
 				<div class="h-[1px] bg-gray-700 mb-4"></div>
 			</div>
-			<div id="private-chat-header" class="bg-black rounded-t-2xl p-3 border-b border-gray-700">
-				<div class="flex gap-3 font-bold items-center text-gray-400">
-					<p>Select a friend to start chatting</p>
+			<div class="bg-[url('/images/space.png')] bg-center flex flex-col h-full rounded-2xl">
+				<div id="private-chat-header" class="rounded-t-2xl p-2 sm:p-3 border-b border-gray-700">
+					<div class="flex gap-2 sm:gap-3 font-bold items-center text-gray-400">
+						<p class="text-sm sm:text-base">Select a friend to start chatting</p>
+					</div>
 				</div>
-			</div>
-			<div id="private-chat-messages" class="flex-1 bg-[linear-gradient(90deg,#0f0f1a,#111111)] p-4 overflow-y-auto min-h-[300px] max-h-[calc(100vh-450px)]
-				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
-				<div class="flex items-center justify-center h-full text-gray-400">
-					<p>Select a conversation from the left</p>
+				<div id="private-chat-messages" class="flex-1 p-2 sm:p-4 overflow-y-auto min-h-[300px] max-h-[calc(100vh-450px)] sm:max-h-[calc(100vh-450px)]
+					scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-1 sm:pr-2">
+					<div class="flex items-center justify-center h-full text-gray-400">
+						<img class="w-[90%] sm:w-[70%] opacity-[50%]" src="/images/chat.gif" alt="Idle">
+
+					</div>
 				</div>
-			</div>
-			<div class="flex justify-center gap-2 mt-0 w-full items-center bg-black rounded-b-2xl p-3 hidden" id="private-chat-input-div">
-				<input type="text" id="private-chat-input" placeholder="Type a message..."
-				class="bg-gray-800 text-txtColor px-4 py-2 rounded-full w-[80%]
-				outline-none border border-color3 focus:border-color1 transition-colors
-				"
-				>
-				<button id="private-chat-send"
-					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
-					transition-all duration-300 hover:scale-105 "
+				<div id="private-chat-input-div" class="hidden justify-center gap-2 mt-0 w-full items-center rounded-b-2xl p-2 sm:p-3">
+					<input type="text" id="private-chat-input" placeholder="Type a message..."
+					class="bg-[#0f0f1a] text-txtColor px-3 sm:px-4 py-2 rounded-full w-full sm:w-[80%]
+					outline-none border border-color3 focus:border-color1 transition-colors text-sm sm:text-base
+					"
 					>
-					<svg class="w-5 h-5 text-bgColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-					</svg>
-				</button>
+					<button id="private-chat-send"
+						class="bg-color1 hover:bg-color2 h-9 w-9 sm:h-10 sm:w-10 rounded-full flex items-center justify-center
+						transition-all duration-300 hover:scale-105 flex-shrink-0"
+						>
+						<svg class="w-4 h-4 sm:w-5 sm:h-5 text-bgColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+						</svg>
+					</button>
+				</div>
 			</div>
 		</div>
 		`;
@@ -736,25 +742,25 @@ async function listFriends() : Promise<string> {
 	const { data: friends } = await apiFetch<IUserData[]>(`/api/user/${credentials.id}/friends`);
 	if (!friends || friends.length === 0) {
 		chatState.friends = [];
-		return /* html */`<p class="pt-24 text-txtColor text-center">No friends to display.</p>`;
+		return /* html */`<p class="pt-12 sm:pt-24 text-txtColor text-center text-sm sm:text-base">No friends to display.</p>`;
 	}
 	chatState.friends = friends;
 	return /* html */`
 		<div class="flex flex-col gap-2">
-			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-200px)]
-				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
+			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[calc(100vh-200px)]
+				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-1 sm:pr-2">
 				${friends.map((friend: IUserData) => /* html */`
 					<div data-friend-id="${friend.id}"
-						class="flex bg-[#0f0f1a] hover:bg-[#1a1a2e] p-3 rounded-2xl cursor-pointer
-						transition-all duration-200 hover:border-l-2 hover:border-color1">
-						<div class="flex w-full gap-4">
-							<img class="w-[45px] h-[45px] rounded-full object-cover"
+						class="flex bg-[#0f0f1a] hover:bg-[#1a1a2e] p-2 sm:p-3 rounded-xl sm:rounded-2xl cursor-pointer
+						transition-all duration-200 hover:border-l-2 hover:border-color1 active:bg-[#252535]">
+						<div class="flex w-full gap-2 sm:gap-3 items-center">
+							<img class="w-[45px] h-[45px] sm:w-[50px] sm:h-[50px] rounded-full object-cover flex-shrink-0"
 								src="${getImageUrl(friend.avatar_url) || '/images/default-avatar.png'}" alt="">
-							<div class="w-full">
-								<div class="flex justify-between w-full">
-									<span class="username-link text-txtColor font-bold text-lg hover:text-color1 transition-colors">${shortString(friend.username, 15)}</span>
+							<div class="flex-1 min-w-0">
+								<div class="flex justify-between items-center w-full gap-2">
+									<span class="username-link text-txtColor font-bold text-sm sm:text-base lg:text-lg hover:text-color1 transition-colors truncate">${shortString(friend.username, 15)}</span>
 								</div>
-								<p class="status-text text-sm ${friend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'}">${friend.status?.toLocaleLowerCase() || 'offline'}</p>
+								<p class="status-text text-xs sm:text-sm ${friend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} truncate">${friend.status ===  "ONLINE" ? "Online"  : "Offline"}</p>
 							</div>
 						</div>
 					</div>
@@ -776,10 +782,10 @@ export async function renderChat() {
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = /* html */`
-		<div class="w-full h-full flex">
-			<div class="w-[30%] bg-color4 rounded-2xl p-6 mr-4">
-				<p class="text-txtColor font-bold mb-2 text-lg">Friends</p>
-				<div class="h-[1px] bg-gray-700 mb-4"></div>
+		<div class="w-full h-full flex flex-col lg:flex-row gap-3 sm:gap-4">
+			<div class="w-full lg:w-[30%] bg-color4 rounded-2xl p-3 sm:p-4 md:p-6 max-h-[400px] lg:max-h-none">
+				<h2 class="text-txtColor font-bold mb-2 text-xl sm:text-2xl">Friends</h2>
+				<div class="h-[1px] bg-gray-700 mb-3 sm:mb-4"></div>
 				${await listFriends()}
 			</div>
 			${renderMessages()}

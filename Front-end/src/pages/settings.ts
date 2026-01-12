@@ -5,6 +5,7 @@ import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/
 import { closeNotificationSocket } from "./components/NavBar";
 import { cleanupGlobalChat } from "./chat/globalChat";
 import { apiFetch } from "./components/errorsHandler";
+import { logout } from "./components/profileMenu";
 
 const $ = (id : String) => document.getElementById(id as string);
 
@@ -129,7 +130,7 @@ export function confirmPopUp(message: string) : Promise<boolean>
 	return new Promise((resolve) => {
 		const deletePopUp = document.createElement('div');
 		deletePopUp.className = `fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm`;
-		deletePopUp.innerHTML = `
+		deletePopUp.innerHTML = /* html */ `
 			<div class="relative bg-gradient-to-br from-bgColor/95 to-black/90 backdrop-blur-xl
 				rounded-3xl p-8 flex flex-col gap-6 w-[380px] border border-color1/30
 				shadow-2xl transform transition-all duration-300"
@@ -239,7 +240,7 @@ function avatarSettings() : string
 					<img id="userAvatar" src="${getImageUrl(userData.avatar_url)}" class="
 					w-[130px] h-[130px] xl:w-[170px] xl:h-[170px] rounded-full border-2
 					border-color1" alt="user" />
-					<span class="text-sm text-color3">max size 2MB</span>
+					<span class="text-sm text-color3">Max. Size: 2MB</span>
 				</div>
 				<div class="flex justify-center flex-col gap-6">
 						<label class="bg-color1 relative flex items-center
@@ -269,7 +270,7 @@ function accountSettings() : string
 			<div class="settings-name flex flex-col gap-2">
 				<p class="text-txtColor ">Alias</p>
 				${input("Change Alias", 'text', userData?.username ?? "", "username")}
-				<p class="text-txtColor ">Mail</p>
+				<p class="text-txtColor ">Email</p>
 				${input("Change Mail", 'text', userData?.email ?? "", "")}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
@@ -358,8 +359,7 @@ async function deleteAccount() : Promise<void>
 		closeNotificationSocket();
 		cleanupGlobalChat();
 		localStorage.clear();
-		navigate('/sign-up');
-		toastSuccess('Account deleted successfully.');
+		logout();
 	} else
 		toastError('Failed to delete account!');
 }

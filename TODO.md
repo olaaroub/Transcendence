@@ -23,8 +23,7 @@
 - [ ] **Uploads:** Add `accept="image/png, image/jpeg"` to the file input HTML.
 - [ ] **Error Handling:** Display generic error messages from backend (example: "Upload failed").
 - [x] **UX:** When I finish uploading an avatar, I should get out from the settings page.
-  PS. (hes-safi) I don't agree with this! You should stay in Settings.
-- [ ] **Offline Session:** Add session storage info for offline PvP & PvAI (Look for file sessionStorage.ts in Front).
+- [x] **Offline Session:** Add session storage info for offline PvP & PvAI (Look for file sessionStorage.ts in Front).
 
 - [ ] **handle the scket not established when login**
 - [ ] **handle the globl chat time error**

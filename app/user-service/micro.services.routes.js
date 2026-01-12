@@ -20,7 +20,7 @@ async function createNewUser(req, reply) {
     throw createError.BadRequest("Invalid user data: user_id and username are required");
   }
 
-  const bio = newUserData.bio || 'Hello there i am using Pong game!';
+  const bio = newUserData.bio || 'Hello there! I am playing SPACE PONG.';
   const avatar_url = newUserData.avatar_url || '/public/default_pfp.png';
 
 
