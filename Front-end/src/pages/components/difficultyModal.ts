@@ -5,19 +5,19 @@ const $ = (id: string) => document.getElementById(id as string);
 export function showDifficultyModal() {
 	const modal = document.createElement('div');
 	modal.id = 'difficulty-modal';
-	modal.className = 'fixed inset-0 z-50 flex items-center justify-center animate-fade-in';
+	modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
 
 	modal.innerHTML = /* html */ `
 		<div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="modal-backdrop"></div>
-
-		<div class="animate-slide-up relative bg-gradient-to-br from-[#1a1a2e] to-[#0f0f1a] rounded-3xl p-8 max-w-2xl w-[90%] border border-white/10 shadow-2xl">
+		<div class="relative bg-gradient-to-br from-bgColor/95 to-black/90
+			backdrop-blur-xl rounded-3xl border border-color1/30 rounded-3xl p-8 max-w-2xl w-[90%]">
 			<button id="close-difficulty-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors duration-200">
 				<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
 				</svg>
 			</button>
 			<div class="text-center mb-8">
-				<h2 class="text-3xl font-bold text-white mb-2">Select AI Difficulty</h2>
+				<h2 class="text-3xl font-bold bg-gradient-to-r from-color1 via-color2 to-color1 bg-clip-text text-transparent mb-2">Select AI Difficulty</h2>
 				<p class="text-gray-400">Choose your challenge level</p>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -55,20 +55,12 @@ export function showDifficultyModal() {
 		</div>
 	`;
 	document.body.appendChild(modal);
-
-	const closeModal = () => {
-		modal.classList.remove('animate-fade-in');
-		modal.classList.add('animate-fade-out');
-		setTimeout(() => modal.remove(), 300);
-	};
-	$('close-difficulty-modal')?.addEventListener('click', closeModal);
-	$('modal-backdrop')?.addEventListener('click', closeModal);
-
+	$('close-difficulty-modal')?.addEventListener('click', _=>{modal.remove()});
+	$('modal-backdrop')?.addEventListener('click', _=>{modal.remove()});
 	modal.querySelectorAll('[data-difficulty]').forEach(btn => {
 		btn.addEventListener('click', (e) => {
 			const difficulty = (e.currentTarget as HTMLElement).getAttribute('data-difficulty');
-			console.log(`Selected difficulty: ${difficulty}`);
-			closeModal();
+			modal.remove();
 			navigate(`/pong-game?mode=local-vs-ai&difficulty=${difficulty}`);
 		});
 	});
