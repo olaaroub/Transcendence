@@ -5,22 +5,17 @@ import { renderHome } from "../home";
 const $ = (id : string) => document.getElementById(id as string);
 
 function inputField(label: string, type: string, placeholder: string, isSignup: boolean) {
-	if (label == "Username")
-	{
-		if (isSignup) label = "Alias";
-		else label = "Alias/Email";
-	}
 	return /* html */ `
-    <li>
-		<h3 class="text-[#F0F0F0] text-sm md:text-base my-2">${label}</h3>
-		<input
-		id=${label}
-        type="${type}"
-        placeholder="${placeholder}"
-        class="w-full rounded-md bg-transparent border border-color1 focus:outline-none
-		text-[#F0F0F0] pl-4 py-2 md:py-3 text-sm md:text-base placeholder-gray-400" required
-		/>
-    </li>
+    	<li>
+			<h3 class="text-[#F0F0F0] text-sm md:text-base my-2">${label}</h3>
+			<input
+			id=${label}
+    	    type="${type}"
+    	    placeholder="${placeholder}"
+    	    class="w-full rounded-md bg-transparent border border-color1 focus:outline-none
+			text-[#F0F0F0] pl-4 py-2 md:py-3 text-sm md:text-base placeholder-gray-400" required
+			/>
+    	</li>
 	`;
 }
 
@@ -53,7 +48,7 @@ function authForm(isSignup: boolean) {
 	return /* html */ `
     <form class="space-y-3 md:space-y-5">
 		<ul class="space-y-2 md:space-y-3 xl:space-y-4 ">
-        ${inputField("Username", "text", "Alias or email", isSignup)}
+        ${inputField(isSignup ? "Alias" : "Alias/Email", "text", isSignup ? "Alias" : "Alias or email", isSignup)}
 		${isSignup ? inputField("Email", "email", "Email", isSignup) : ""}
         ${inputField("Password", "password", "Password", isSignup)}
         ${isSignup ? inputField("Confirm Password", "password", "Confirm password", isSignup) : ''}
@@ -79,12 +74,10 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 	renderHome();
 	document.querySelector(".login")?.remove();
 	document.querySelector(".login-backdrop")?.remove();
-	const isValid = errorMSG === "";
-
 	const backdrop = document.createElement("div");
+
 	backdrop.className = "login-backdrop fixed inset-0 z-10 bg-black/70 backdrop-blur-sm cursor-pointer";
 	document.body.appendChild(backdrop);
-
 	const container = document.createElement("div");
 	container.className = `
 		login fixed z-20 top-[50%] left-1/2
@@ -94,17 +87,14 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 		bg-[linear-gradient(90deg,#040505,#1a1e22),linear-gradient(135deg,#121212,#ed6f30)]
 		max-h-[90vh] sm:max-h-[80vh] overflow-y-auto
 		opacity-0 translate-x-[-50%] translate-y-[-60%]`;
-
 	container.style.backgroundOrigin = 'border-box';
 	container.style.backgroundClip = 'padding-box, border-box';
 	container.style.boxShadow = '0 0 20px rgba(237, 111, 48, 0.4)';
 	container.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-
 	setTimeout(() => {
 		container.style.opacity = '1';
 		container.style.transform = 'translate(-50%, -50%)';
 	}, 250);
-
 	container.innerHTML = /* html */ `
 		<div class="my-6 md:my-8 xl:my-10 relative">
 			<button id="close-auth" class="absolute -top-2 -right-4 text-color3 hover:text-txtColor transition-colors duration-300">
@@ -114,7 +104,7 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 			</button>
 			<h2 class="font-bold text-3xl md:text-4xl xl:text-5xl text-txtColor text-center mb-4 2xl:mb-6">
 				${isSignup ? "Sign Up" : "Login"}
-				${!isValid ? `<p class="text-errorColor text-xs mt-4">${errorMSG}</p>` : ""}
+				${!(errorMSG === "") ? `<p class="text-errorColor text-xs mt-4">${errorMSG}</p>` : ""}
 			</h2>
 			${authForm(isSignup)}
 			<h3 class="text-center text-txtColor mt-6 text-sm md:text-base">or continue with</h3>
@@ -128,17 +118,18 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 		backdrop.remove();
 		navigate('/');
 	};
-
 	backdrop.addEventListener('click', closeAuthPage);
 	$('close-auth')?.addEventListener('click', closeAuthPage);
-	$('Alias/Email')?.focus();
+	if (isSignup)
+		$('Alias')?.focus();
+	else
+		$('Alias/Email')?.focus();
 }
 
 document.body.addEventListener("click", (e) => {
 	const target = e.target as HTMLElement;
 	const action = target.dataset.action;
 	if (!action) return;
-
 	if (action === "signup") navigate('/sign-up');
 	else if (action === "login") navigate('/login');
 });
