@@ -61,13 +61,13 @@ export function AliasPopUp(item: string)
 				<h2 class="text-2xl font-bold bg-gradient-to-r from-color1 via-color2 to-color1 bg-clip-text text-transparent">
 					Enter Your Alias
 				</h2>
-				<p class="text-txtColor/50 text-sm mt-1">Choose a name to identify yourself</p>
+				<p class="text-txtColor/50 text-sm mt-1">Choose your Opponent's Alias</p>
 			</div>
 			<p id="alias-error" class="text-red-500 text-center text-sm hidden bg-red-500/10 py-2 rounded-xl border border-red-500/30">
-				⚠️ Please enter a valid alias
+				⚠️ Please enter a Valid Alias
 			</p>
 			<div class="relative">
-				<input id="alias-input" type="text" placeholder="Your alias..."
+				<input id="alias-input" type="text" placeholder="Alias..."
 					class="w-full bg-black/60 text-txtColor px-5 py-3 rounded-2xl
 					outline-none border-2 border-color3/30 focus:border-color1
 					transition-all duration-300 text-lg placeholder:text-color3/50
