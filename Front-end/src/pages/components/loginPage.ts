@@ -104,7 +104,6 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 		container.style.opacity = '1';
 		container.style.transform = 'translate(-50%, -50%)';
 	}, 250);
-
 	container.innerHTML = /* html */ `
 		<div class="my-6 md:my-8 xl:my-10 relative">
 			<button id="close-auth" class="absolute -top-2 -right-4 text-color3 hover:text-txtColor transition-colors duration-300">
@@ -128,10 +127,12 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 		backdrop.remove();
 		navigate('/');
 	};
-
 	backdrop.addEventListener('click', closeAuthPage);
 	$('close-auth')?.addEventListener('click', closeAuthPage);
-	$('Alias/Email')?.focus();
+	if (isSignup)
+		$('Alias')?.focus();
+	else
+		$('Alias/Email')?.focus();
 }
 
 document.body.addEventListener("click", (e) => {

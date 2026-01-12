@@ -1,6 +1,11 @@
+
+
+
+
+
+
 cleaning chat ui and responsiveness
 fix game canvas responsiveness
-fix settings avatar responsiveness
 add auto focus in signup
 fix alias placeholder in signup
 search for users starting with 0 does not deliver
