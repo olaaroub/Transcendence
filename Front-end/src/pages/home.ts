@@ -23,7 +23,7 @@ export function renderHomeText (isLoged: boolean)
 				</p>
 			</div>
 			<video
-			class="fixed top-0 left-0 w-full h-full object-cover z-[-2] pointer-events-none"
+			class="fixed top-0 left-0 w-full h-full object-cover blur-[3px] z-[-2] pointer-events-none"
 			autoplay
 			muted
 			loop

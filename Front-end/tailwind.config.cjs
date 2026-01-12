@@ -26,45 +26,10 @@ module.exports = {
 				borderColor: '#87878766',
 				errorColor: 'red'
 			},
-			backgroundImage: theme => ({
-				'backgroundGradient': `linear-gradient(to bottom right, black 0%, black 40%, ${theme('colors.color1')} 100%)`,
-				'backgroundGradientWelcome': `linear-gradient(to bottom right, ${theme('colors.color3')} 0%, ${theme('colors.color4')} 50%, ${theme('colors.color9')} 100%)`,
-			}),
 			keyframes: {
-				slideCard: {
-					'0%': { opacity: '0', transform: 'scale(0.95)' },
-					'5%': { opacity: '1', transform: 'scale(1)' },
-					'20%': { opacity: '1', transform: 'scale(1)' },
-					'30%': { opacity: '0', transform: 'scale(0.95)' },
-					'100%': { opacity: '0', transform: 'scale(0.95)' },
-				},
-				dots: {
-					'0%, 20%': { content: '"."' },
-					'40%': { content: '".."'},
-					'60%': { content: '"..."'},
-					'80%, 100%': { content: '""' },
-				},
 				animateSlow: {
 					'0%': { transform: 'translateX(100%)', opacity: '0'},
 					'100%': { transform: 'translateX(50%)', opacity: '1' },
-				},
-				fadeIn: {
-					'0%': { opacity: '0' },
-					'100%': { opacity: '1' },
-				},
-				fadeOut: {
-					'0%': { opacity: '1' },
-					'100%': { opacity: '0' },
-				},
-				slideUp: {
-					'0%': { 
-						opacity: '0',
-						transform: 'translateY(20px) scale(0.95)'
-					},
-					'100%': { 
-						opacity: '1',
-						transform: 'translateY(0) scale(1)'
-					},
 				},
 				pulse: {
 					'0%, 100%': { transform: 'scale(1)' },
@@ -73,11 +38,6 @@ module.exports = {
 			},
 			animation: {
 				animateSlow: 'animateSlow 1.2s ease-out forwards',
-				slideCard: 'slideCard 25s linear infinite both',
-				dots: 'dots 3s steps(4, end) infinite',
-				'fade-in': 'fadeIn 0.3s ease-out',
-				'fade-out': 'fadeOut 0.3s ease-out',
-				'slide-up': 'slideUp 0.4s ease-out',
 				'pulse': 'pulse 2s ease-in-out infinite',
 			},
 		},
