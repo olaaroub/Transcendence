@@ -22,9 +22,20 @@ export function renderHomeText (isLoged: boolean)
 						<br> From Competitive Matchmaking to Friendly Bouts, a challenging AI or just Spectating, you are sure to find your favorite way to enjoy this symbol of VideoGame history.
 				</p>
 			</div>
-			<div class="fixed top-0 left-0 w-full h-full object-cover z-[-2] pointer-events-none">
-				<img src="/images/loading.gif" alt="pong game" class="opacity-[60%] hidden xl:block h-screen">
-			</div>
+			<video
+			class="fixed top-0 left-0 w-full h-full object-cover z-[-2] pointer-events-none"
+			autoplay
+			muted
+			loop
+			playsinline
+			preload="auto"
+			disablepictureinpicture
+			tabindex="-1"
+			aria-hidden="true"
+			style="pointer-events: none;"
+			>
+			<source src="images/PONG.webm" type="video/webm">
+			</video>
 		</div>
     `
 }

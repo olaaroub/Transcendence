@@ -461,16 +461,15 @@ function updateMessagesUI() {
 function updateChatHeaderUI() {
 	const chatHeader = document.getElementById('private-chat-header');
 	if (!chatHeader || !chatState.currentFriend) return;
-	console.log("chat state : ", chatState);
 	chatHeader.innerHTML = /* html */`
 		<div class="flex justify-between items-center w-full">
 			<div class="flex gap-3 font-bold items-center">
-				<img class="h-12 w-12 border border-color1 rounded-full object-cover"
+				<img class="h-12 w-12 rounded-full object-cover"
 					src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
 				<div class="flex flex-col">
 					<span class="text-txtColor text-lg">${shortString(chatState.currentFriend.username, 20)}</span>
 					<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
-						${chatState.isTyping ? 'typing...' : (chatState.currentFriend.status || 'offline')}
+						${chatState.isTyping ? 'Typing...' : (chatState.currentFriend.status === "ONLINE" ? "Online"  : "Offline")}
 					</span>
 				</div>
 			</div>
@@ -503,10 +502,10 @@ function updateTypingIndicatorUI() {
 
 	if (statusText && chatState.currentFriend) {
 		if (chatState.isTyping) {
-			statusText.textContent = 'typing...';
+			statusText.textContent = 'Typing...';
 			statusText.className = 'text-color1 text-sm animate-pulse';
 		} else {
-			statusText.textContent = chatState.currentFriend.status || 'offline';
+			statusText.textContent = chatState.currentFriend.status ===  "ONLINE" ? "Online"  : "Offline";
 			statusText.className = `${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm`;
 		}
 	}
@@ -699,34 +698,37 @@ function renderMessages() : string {
 		<div class="relative w-[70%] bg-color4 rounded-2xl min-h-[calc(100vh-200px)]
 		p-6 flex flex-col">
 			<div>
-				<h2 class="text-txtColor text-2xl font-bold mb-6">Messages</h2>
+				<h2 class="text-txtColor text-2xl font-bold mb-2">Messages</h2>
 				<div class="h-[1px] bg-gray-700 mb-4"></div>
 			</div>
-			<div id="private-chat-header" class="bg-black rounded-t-2xl p-3 border-b border-gray-700">
-				<div class="flex gap-3 font-bold items-center text-gray-400">
-					<p>Select a friend to start chatting</p>
+			<div class="bg-[url('/images/space.png')] bg-center flex flex-col h-full rounded-2xl">
+				<div id="private-chat-header" class=" rounded-t-2xl p-3 border-b border-gray-700">
+					<div class="flex gap-3 font-bold items-center text-gray-400">
+						<p>Select a friend to start chatting</p>
+					</div>
 				</div>
-			</div>
-			<div id="private-chat-messages" class="flex-1 bg-[linear-gradient(90deg,#0f0f1a,#111111)] p-4 overflow-y-auto min-h-[300px] max-h-[calc(100vh-450px)]
-				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
-				<div class="flex items-center justify-center h-full text-gray-400">
-					<p>Select a conversation from the left</p>
+				<div id="private-chat-messages" class="flex-1 p-4 simolikayn overflow-y-auto min-h-[300px] max-h-[calc(100vh-450px)]
+					scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
+					<div class="flex items-center justify-center h-full text-gray-400">
+						<img class="w-[70%] opacity-[50%]" src="/images/chat.gif" alt="Idle">
+
+					</div>
 				</div>
-			</div>
-			<div class="flex justify-center gap-2 mt-0 w-full items-center bg-black rounded-b-2xl p-3 hidden" id="private-chat-input-div">
-				<input type="text" id="private-chat-input" placeholder="Type a message..."
-				class="bg-gray-800 text-txtColor px-4 py-2 rounded-full w-[80%]
-				outline-none border border-color3 focus:border-color1 transition-colors
-				"
-				>
-				<button id="private-chat-send"
-					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
-					transition-all duration-300 hover:scale-105 "
+				<div class="flex justify-center gap-2 mt-0 w-full items-center  rounded-b-2xl p-3 hidden" id="private-chat-input-div">
+					<input type="text" id="private-chat-input" placeholder="Type a message..."
+					class="bg-[#0f0f1a] text-txtColor px-4 py-2 rounded-full w-[80%]
+					outline-none border border-color3 focus:border-color1 transition-colors
+					"
 					>
-					<svg class="w-5 h-5 text-bgColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-					</svg>
-				</button>
+					<button id="private-chat-send"
+						class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
+						transition-all duration-300 hover:scale-105 "
+						>
+						<svg class="w-5 h-5 text-bgColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+						</svg>
+					</button>
+				</div>
 			</div>
 		</div>
 		`;
@@ -754,7 +756,7 @@ async function listFriends() : Promise<string> {
 								<div class="flex justify-between w-full">
 									<span class="username-link text-txtColor font-bold text-lg hover:text-color1 transition-colors">${shortString(friend.username, 15)}</span>
 								</div>
-								<p class="status-text text-sm ${friend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'}">${friend.status?.toLocaleLowerCase() || 'offline'}</p>
+								<p class="status-text text-sm ${friend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'}">${friend.status ===  "ONLINE" ? "Online"  : "Offline"}</p>
 							</div>
 						</div>
 					</div>
@@ -778,7 +780,7 @@ export async function renderChat() {
 		dashContent.innerHTML = /* html */`
 		<div class="w-full h-full flex">
 			<div class="w-[30%] bg-color4 rounded-2xl p-6 mr-4">
-				<p class="text-txtColor font-bold mb-2 text-lg">Friends</p>
+				<h2 class="text-txtColor font-bold mb-2 text-2xl">Friends</h2>
 				<div class="h-[1px] bg-gray-700 mb-4"></div>
 				${await listFriends()}
 			</div>
