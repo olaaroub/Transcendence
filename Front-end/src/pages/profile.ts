@@ -327,6 +327,7 @@ export async function renderProfile(userId: string | null = null)
 
 		dashContent.innerHTML = /* html */`
 			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8" data-profile-user-id="${profileUserId}">
+				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Profile</h1>
 				<div class="bg-color4 glow-effect mx-auto w-full rounded-3xl p-6 2xl:pl-12 flex gap-5 items-center
 				border-t-4 border-color1">
 					<img src="${imageUrl}" alt="avatar" class="relative w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>

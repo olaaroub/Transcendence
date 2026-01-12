@@ -1,13 +1,10 @@
-remove typing field from messages if no friend is selected
-
-
+remove difficulty button animation and change color to something similar to 1v1
 
 
 
 cleaning chat ui and responsiveness
 fix game canvas responsiveness
 search for users starting with 0 does not deliver
-remove difficulty button animation and change color to something similar to 1v1
 ask hammou to send beststreak in statistics
 
 check for 413 site-wide
