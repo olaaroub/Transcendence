@@ -46,16 +46,7 @@ export function setUserData(newData: IUserData)
 	Object.assign(userData, newData);
 }
 
-export function getUserData(): IUserData
-{
-	return userData;
-}
-
- /// had function adds /api prefix only if its not already there ( to prevent /api/api and if mmondad uses profile photo online
- // for example https://profilephoto) and i used it here 7itach simo tayloadi profile photo f b<f tlblays
- // so i should make a function to call mra w7da l kolchi
 export function getImageUrl(avatar_url: string | null | undefined): string | null {
-	// console.log("profile img", avatar_url)
 	if (!avatar_url) return null;
 	return avatar_url.startsWith('/public/') ? `/api${avatar_url}` : avatar_url;
 }

@@ -67,8 +67,5 @@ export async function renderAbout() {
 		</div>
 	</div>
 	`;
-
-	document.getElementById('about-logo')!.onclick = () => {
-		navigate('/');
-	};
+	document.getElementById('about-logo')!.onclick = () => {navigate('/');};
 }

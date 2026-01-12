@@ -211,7 +211,7 @@ export function renderGlobalChat(): string {
 	}, 0);
 
 	return /* html */`
-		<div class="group-chat w-full md:w-[50%] hidden md:block">
+		<div class="group-chat w-full md:w-[50%]">
 			<h2 class="text-txtColor font-bold text-2xl mb-4">Global Chat</h2>
 			${renderChat()}
 		</div>

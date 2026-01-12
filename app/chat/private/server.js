@@ -4,6 +4,7 @@ import chatRoutes from "./routes/private_chat.js";
 import vault from 'node-vault';
 import fastifyMetrics from 'fastify-metrics';
 import "./create_tables.js";
+import db from "./db.js";
 
 async function getSecrets(logger) {
   try {
@@ -85,12 +86,32 @@ async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DAR
     // zid had line fl blasa fin tatconnecti b database
     // fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
 
-
+    
     await fastify.register(socketio, {
-      cors: { origin: "*", methods: ["GET", "POST"] },
-      path: '/api/chat/private/socket.io' // by simo
-    });
-    await fastify.register(chatRoutes); // khsek tzid {prefix: '/api'} hnaya (ta checki m3a ohammou)
+        cors: { origin: "*", methods: ["GET", "POST", "DELETE"] },
+        path: '/api/chat/private/socket.io' // by simo
+      });
+      await fastify.register(chatRoutes); // khsek tzid {prefix: '/api'} hnaya (ta checki m3a ohammou)
+  
+      // await fastify.get('/api/conversation/test', async (req, res) => {
+      //   return db.prepare(`SELECT * FROM conversation`).all();
+      // }); just for test if the user is deleted or not
+  
+      await fastify.delete('/api/chat/private/account/:id', async (req, res) => 
+      {
+        const id = req.params.id;
+  
+          try {
+              console.log("deleting user conversations for user id: ", id);
+              db.prepare('DELETE FROM conversation WHERE (senderId = ? OR receiverId = ?)').run(id, id);
+              res.code(200).send({message: "user deleted", ok: true})
+          } catch(err)
+          {
+            // req.log.error
+            console.log(err);
+            res.code(500).send({message: "you can not delete user conversadtion", ok: false})
+          }
+      })
 
     fastify.listen({
       port: process.env.PORT,

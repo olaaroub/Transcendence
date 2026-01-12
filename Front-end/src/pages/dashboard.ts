@@ -12,7 +12,6 @@ import { AliasPopUp } from "./home";
 import { toastInfo } from "./components/toast";
 import { shortString } from "./utils"
 
-// (window as any).navigate = navigate;
 const $ = (id : string) => document.getElementById(id as string);
 
 interface IUserStatistics {
@@ -73,7 +72,7 @@ export async function initDashboard(isDashboard: boolean = true) {
 
 function renderGameModeButton(id: string, colorClass: string, icon: string, title: string, description: string): string {
 	return /* html */ `
-		<button id="${id}" class="group relative bg-[#0f0f1a] hover:bg-[#1a1a2e]
+		<button id="${id}" class="group relative bg-[linear-gradient(90deg,#0f0f1a,#111111)] hover:bg-[#1a1a2e]
 			rounded-xl p-5 border border-white/5 hover:border-${colorClass}/50
 			transition-all duration-200 cursor-pointer text-left">
 			<div class="flex items-center gap-3 mb-3">
@@ -152,16 +151,6 @@ function OnlinePong() : string
 	`
 }
 
-function renderWelcome() : string
-{
-	return /* html */ `
-		<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
-			${LocalPong()}
-			${OnlinePong()}
-		</div>
-	`
-}
-
 function renderStatistics(stats: IUserStatistics | null): string {
 	const totalWins = stats?.TotalWins ?? 0;
 	const winRate = stats?.WinRate ?? 0;
@@ -186,7 +175,7 @@ function renderStatistics(stats: IUserStatistics | null): string {
 
 	return /* html */ `
 		<div class="statistics mb-6">
-			<h2 class="text-txtColor font-bold text-xl sm:text-2xl mb-3 sm:mb-4 transition-all duration">Your Statistic</h2>
+			<h2 class="text-txtColor font-bold text-xl sm:text-2xl mb-3 sm:mb-4 transition-all duration">Your Statistics</h2>
 			<div class="bg-color4 hover:bg-[rgb(0_0_0_/_80%)] transition-all duration-200 glow-effect rounded-2xl sm:rounded-3xl
 			text-txtColor grid grid-cols-2 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6">
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
@@ -195,7 +184,7 @@ function renderStatistics(stats: IUserStatistics | null): string {
 				</div>
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
 					<p class="text-xs sm:text-sm text-gray-400">Win Rate</p>
-					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${winRate.toFixed(1)}%</p>
+					<p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-txtColor mt-1">${Math.floor(winRate)}%</p>
 					<p class="text-xs sm:text-sm ${winRateColor} mt-1">${winRateStatus}</p>
 				</div>
 				<div class="bg-[rgb(27_26_29_/_75%)] transition-all duration-500 hover:bg-[#ed6f3033] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6">
@@ -213,19 +202,13 @@ function renderStatistics(stats: IUserStatistics | null): string {
 	`;
 }
 
-function renderAnalyticsSection(stats: IUserStatistics | null): string {
-	return `
-		<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
-			<div id="dashboard-leaderboard"></div>
-			${renderStatistics(stats)}
-		</div>
-	`;
-}
-
 function renderDashboardContent(stats: IUserStatistics | null): string {
-	return `
+	return /* html */`
 		<div class="flex flex-col md:flex-row gap-6 mt-6 w-full" >
-			${renderAnalyticsSection(stats)}
+			<div class="w-full md:w-[50%] h-[580px] flex flex-col justify-between">
+				<div id="dashboard-leaderboard"></div>
+				${renderStatistics(stats)}
+			</div>
 			${renderGlobalChat()}
 		</div>
 	`;
@@ -238,7 +221,12 @@ async function renderMain() : Promise<string>
 		<div class="w-full">
 			<h2 class="font-bold mb-[20px] text-[#414658] font-Oi text-3xl">Welcome back,
 			<span class="text-txtColor text-3xl"> ${shortString(userData.username, 10)}</span></h2>
-			<div class="flex-1">${renderWelcome()}</div>
+			<div class="flex-1">
+				<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
+					${LocalPong()}
+					${OnlinePong()}
+				</div>
+			</div>
 			${renderDashboardContent(stats)}
 		</div>
 	`
@@ -270,31 +258,23 @@ export async function renderDashboard(isDashboard: boolean = true)
 		<div class=" min-h-screen">
 			${mainBackground()}
 			${renderDashboardNavBar(userData, getImageUrl(userData?.avatar_url))}
-			<main id="dashboard-content" class="flex sm:w-[95%] w-[99%] m-auto">
+			<main id="dashboard-content" class="flex w-[93%] m-auto">
 				${isDashboard ? await renderMain() : ''}
 			</main>
 		</div>
 	`;
 	if (isDashboard) {
 		const leaderboardContainer = $('dashboard-leaderboard');
-		if (leaderboardContainer) {
+		if (leaderboardContainer)
 			leaderboardContainer.innerHTML = await dashboardLearderboard();
-		}
 	}
 	$('see-more')?.addEventListener('click', _=>{navigate('/leaderboard');})
 	notifications();
 	chatEventHandler();
 	initUnreadFromStorage();
 	$('main-logo')?.addEventListener('click', _=>{navigate('/dashboard');});
-
-	const btnLocalVsPlayer = $('btn-local-vs-player');
-	btnLocalVsPlayer?.addEventListener('click', () => {
-		AliasPopUp(false, "player2");
-	});
-	const btnLocalVsAi = $('btn-local-vs-ai');
-	btnLocalVsAi?.addEventListener('click', () => {
-		showDifficultyModal();
-	});
+	$('btn-local-vs-player')?.addEventListener('click', () => {AliasPopUp("player2");});
+	$('btn-local-vs-ai')?.addEventListener('click', () => {showDifficultyModal();});
 
 	interface RoomData
 	{

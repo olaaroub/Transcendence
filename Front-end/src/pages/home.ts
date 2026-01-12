@@ -1,6 +1,5 @@
 import { navigate } from "../router";
 import { renderNavBar } from "./components/NavBar";
-import { renderFooter } from "./components/footer"
 
 const $ = (id: string) => document.getElementById(id as string)
 
@@ -11,7 +10,7 @@ export function renderHomeText (isLoged: boolean)
 		gap-6 sm:gap-8 md:gap-10 xl:gap-12 2xl:gap-16 px-4 md:px-6 xl:px-8 2xl:px-10">
 			<div class="txt sm:w-1/2 transition-all duration-500 ${isLoged ? 'opacity-0' : ''}">
 				<h1
-					class="text-[40px] sm:text-[70px] md:text-[80px] lg:text-[100px] xl:text-[130px] 2xl:text-[150px]
+					class="text-[40px] sm:text-[70px] md:text-[80px] lg:text-[100px] xl:text-[130px] 2xl:text-[135px]
 					font-bold text-txtColor glow-stroke leading-[1.1] mb-4 sm:mb-6 xl:mb-8">
 					Let's play<br/>Together...
 				</h1>
@@ -31,7 +30,7 @@ export function renderHomeText (isLoged: boolean)
     `
 }
 
-export function AliasPopUp(isGuest : boolean, item: string)
+export function AliasPopUp(item: string)
 {
 	const aliasPopUp = document.createElement('div');
 	aliasPopUp.id = "Alias-popup";
@@ -86,11 +85,7 @@ export function AliasPopUp(isGuest : boolean, item: string)
 		</div>
 	`;
 	document.body.appendChild(aliasPopUp);
-
-	aliasPopUp.addEventListener('click', (e) => {
-		if (e.target === aliasPopUp) aliasPopUp.remove();
-	});
-
+	aliasPopUp.addEventListener('click', (e) => {if (e.target === aliasPopUp) aliasPopUp.remove();});
 	$("Cancel-alias")?.addEventListener('click', _=> {aliasPopUp?.remove();})
 	$("confirm-alias")?.addEventListener('click', _=> {
 		const AliasInput = $("alias-input") as HTMLInputElement ;
@@ -101,13 +96,7 @@ export function AliasPopUp(isGuest : boolean, item: string)
 		{
 			sessionStorage.setItem(item, value);
 			aliasPopUp?.remove();
-			if (isGuest)
-			{
-				$("go-as-guest")!.textContent = sessionStorage.getItem(item);
-				navigate("/guest");
-			}
-			else if (item === "player2")
-				navigate('/pong-game?mode=local-vs-player');
+			if (item === "player2") navigate('/pong-game?mode=local-vs-player');
 		}
 	})
 }
@@ -128,13 +117,18 @@ export async function renderHome()
 		<footer id="footer" class="w-[90%] absolute bottom-0 left-1/2
 		transform -translate-x-1/2  mx-auto flex flex-col sm:flex-row
 		justify-between items-center gap-4 py-8 text-white border-t border-slate-500 mt-auto">
-			${renderFooter()}
+			<p class="text-[#878787] text-sm sm:text-base">© 2025 GOLDEN PONG Made By Simo</p>
+			<div class="flex flex-wrap justify-center gap-3 sm:gap-4">
+				<button id="terms-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Terms</button>
+				<button id="privacy-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Privacy</button>
+				<button id="about-us" class="py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base">About Us</button>
+			</div>
 		</footer>
 	`
-
 	$('navBar-logo')!.addEventListener('click',_ => {navigate("/")})
 	$('go-sign-in')!.addEventListener('click',_ => {navigate("/login")})
 	$('go-sign-up')!.addEventListener('click',_ => {navigate("/sign-up")})
-	$('go-as-guest')!.addEventListener('click',_ => {AliasPopUp(true, "guest")})
 	$('about-us')!.addEventListener('click',_ => {navigate("/about")})
+	$('terms-link')!.addEventListener('click',_ => {navigate("/terms")})
+	$('privacy-link')!.addEventListener('click',_ => {navigate("/privacy")})
 }

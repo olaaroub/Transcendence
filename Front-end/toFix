@@ -1,7 +1,9 @@
-check the input values
+cleaning chat ui
+fix home page responsiveness
+fix game canvas responsiveness
+
 check for 413 site-wide
-FIX FONTS FOR GAME AND DASHBOARD
-fix the {dashboard, home, leaderboard} responsiveness
+cleaning add friend&block&unblock  ui
 
 tailwind :
     truncate

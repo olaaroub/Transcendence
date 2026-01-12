@@ -91,7 +91,7 @@ function renderPodiumPlayer(player: LeaderboardPlayer, rank: number): string {
 				<span class="text-color1 font-black ${cfg.ratingSize} mb-2">${player.Rating}</span>
 				<div class="max-h-0 group-hover:max-h-20 opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col gap-1 text-xs">
 					<span class="text-gray-300"><span class="text-green-400 font-semibold">${player.TotalWins}W</span> / <span class="text-red-400 font-semibold">${player.TotalLosses}L</span></span>
-					<span class="text-gray-400">${player.WinRate}% Win Rate</span>
+					<span class="text-gray-400">${Math.floor(player.WinRate)}% Win Rate</span>
 				</div>
 			</div>
 		</div>
@@ -113,9 +113,9 @@ function renderPlayerRow(player: LeaderboardPlayer, rank: number): string {
 			<div class="text-center">
 				<div class="inline-flex items-center gap-2">
 					<div class="w-16 bg-gray-700 rounded-full h-2 overflow-hidden">
-						<div class="bg-color1 h-full rounded-full transition-all duration-300" style="width: ${player.WinRate}%"></div>
+						<div class="bg-color1 h-full rounded-full transition-all duration-300" style="width: ${Math.floor(player.WinRate)}%"></div>
 					</div>
-					<span class="text-color1 font-bold text-sm">${player.WinRate}%</span>
+					<span class="text-color1 font-bold text-sm">${Math.floor(player.WinRate)}%</span>
 				</div>
 			</div>
 			<div class="text-center">
