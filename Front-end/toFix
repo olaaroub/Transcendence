@@ -1,11 +1,6 @@
 remove difficulty button animation and change color to something similar to 1v1
-
-
-
 cleaning chat ui and responsiveness
 fix game canvas responsiveness
-search for users starting with 0 does not deliver
-ask hammou to send beststreak in statistics
 
 check for 413 site-wide
 cleaning add friend&block&unblock  ui

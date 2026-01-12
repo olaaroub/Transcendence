@@ -220,7 +220,7 @@ function getActionButtonsHTML(status: FriendStatus): string {
 	return /* html */`
 		<button id="add-friend" class="bg-gradient-to-r from-color1 to-[#af4814]
 		min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center hover:opacity-80 transition-opacity">
-			<img class="inline w-[24px] h-[24px]" src="images/addFriend.svg">Add Friend
+			<img class="inline w-[24px] h-[24px]" src="images/addFriendp.svg">Add Friend
 		</button>`;
 }
 

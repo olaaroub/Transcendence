@@ -239,7 +239,7 @@ function avatarSettings() : string
 					<img id="userAvatar" src="${getImageUrl(userData.avatar_url)}" class="
 					w-[130px] h-[130px] xl:w-[170px] xl:h-[170px] rounded-full border-2
 					border-color1" alt="user" />
-					<span class="text-sm text-color3">max size 2MB</span>
+					<span class="text-sm text-color3">Max. Size: 2MB</span>
 				</div>
 				<div class="flex justify-center flex-col gap-6">
 						<label class="bg-color1 relative flex items-center
@@ -269,7 +269,7 @@ function accountSettings() : string
 			<div class="settings-name flex flex-col gap-2">
 				<p class="text-txtColor ">Alias</p>
 				${input("Change Alias", 'text', userData?.username ?? "", "username")}
-				<p class="text-txtColor ">Mail</p>
+				<p class="text-txtColor ">Email</p>
 				${input("Change Mail", 'text', userData?.email ?? "", "")}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">

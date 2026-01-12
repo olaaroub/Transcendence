@@ -17,6 +17,7 @@ interface LeaderboardPlayer {
 	WinRate: number;
 }
 
+let colorArr = ['', 'yellow-500', 'gray-400', 'amber-600', 'color1'];
 let leaderboardData: LeaderboardPlayer[] = [];
 
 async function fetchLeaderboard(start: number = 0, offset: number = 10): Promise<LeaderboardPlayer[]> {
@@ -71,7 +72,7 @@ function renderPodiumPlayer(player: LeaderboardPlayer, rank: number): string {
 		size: string, border: string, badge: string, gradient: string, 
 		minH: string, hoverMinH: string, textSize: string, ratingSize: string, mt: string
 	}> = {
-		1: { size: 'w-24 h-24', border: 'border-color1', badge: '👑', gradient: 'from-color1/30 to-color2/20', minH: 'min-h-[128px]', hoverMinH: 'group-hover:min-h-[180px]', textSize: 'text-xl', ratingSize: 'text-2xl', mt: '-mt-6' },
+		1: { size: 'w-24 h-24', border: 'border-yellow-500', badge: '👑', gradient: 'from-yellow-500/30 to-yellow-600/20', minH: 'min-h-[128px]', hoverMinH: 'group-hover:min-h-[180px]', textSize: 'text-xl', ratingSize: 'text-2xl', mt: '-mt-6' },
 		2: { size: 'w-20 h-20', border: 'border-gray-400', badge: '🥈', gradient: 'from-gray-400/20 to-gray-500/10', minH: 'min-h-[96px]', hoverMinH: 'group-hover:min-h-[140px]', textSize: 'text-lg', ratingSize: 'text-xl', mt: '' },
 		3: { size: 'w-20 h-20', border: 'border-amber-600', badge: '🥉', gradient: 'from-amber-600/20 to-amber-700/10', minH: 'min-h-[80px]', hoverMinH: 'group-hover:min-h-[124px]', textSize: 'text-lg', ratingSize: 'text-xl', mt: '' }
 	};
@@ -102,11 +103,11 @@ function renderPlayerRow(player: LeaderboardPlayer, rank: number): string {
 	return /* html */ `
 		<div data-player-id="${player.id}" class="grid grid-cols-6 gap-4 items-center p-4 rounded-xl bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer
 			${rank <= 3 ? 'border-l-4' : 'border-l-2'} 
-			${rank === 1 ? 'border-color1 bg-color1/5' : rank === 2 ? 'border-gray-400' : rank === 3 ? 'border-amber-600' : 'border-color3'}">
+			${rank === 1 ? 'border-yellow-500 bg-yellow-500/5' : rank === 2 ? 'border-gray-400' : rank === 3 ? 'border-amber-600' : 'border-color3'}">
 			<div class="col-span-2 flex items-center gap-3">
 				<span class="text-txtColor font-black text-lg min-w-[2rem] ${rank <= 3 ? 'text-color1' : ''}">#${rank}</span>
 				<img src="${getImageUrl(player.avatar_url)}" 
-					class="w-12 h-12 rounded-full object-cover border-2 ${rank === 1 ? 'border-color1' : 'border-color3'}">
+					class="w-12 h-12 rounded-full object-cover border-2 border-${rank > 4 ? colorArr[4] : colorArr[rank]}">
 				<span class="text-txtColor font-bold text-base">${shortString(player.username, 14)}</span>
 			</div>
 			<div class="text-center text-txtColor font-semibold">${player.GamesPlayed}</div>

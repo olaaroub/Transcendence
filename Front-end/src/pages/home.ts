@@ -34,7 +34,7 @@ export function renderHomeText (isLoged: boolean)
 			aria-hidden="true"
 			style="pointer-events: none;"
 			>
-			<source src="images/PONG.webm" type="video/webm">
+			<source src="images/login.webm" type="video/webm">
 			</video>
 		</div>
     `

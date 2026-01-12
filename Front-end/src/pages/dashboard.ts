@@ -17,8 +17,8 @@ const $ = (id : string) => document.getElementById(id as string);
 interface IUserStatistics {
 	TotalWins: number;
 	WinRate: number;
+	MaxStreak: number;
 	CurrentStreak: number;
-	BestStreak: number;
 	Rating: number;
 }
 
@@ -161,9 +161,9 @@ function renderStatistics(stats: IUserStatistics | null): string {
 	const index = Math.min(Math.floor(winRate / 20), winRateGrades.length - 1);
 	const winRateStatus = winRateGrades[index];
 	const winRateColor = winRate >= 50 ? 'text-blue-600' : 'text-red-400';
-	let streakStatus = "";
-	if (stats?.BestStreak)
-		streakStatus = currentStreak >= stats?.BestStreak ? 'Personal best!' : currentStreak != 0 ? 'On fire!' : ''; // Get from Hammou personal best
+	let streakStatus = '';
+	if (stats?.MaxStreak !== undefined)
+		streakStatus = currentStreak === 0 ? "Let's do this!" : (currentStreak >= stats?.MaxStreak ? 'Personal Best!' : 'On Fire!');
 	const streakColor = currentStreak >= 5 ? 'text-orange-400' : 'text-yellow-400';
 	const getRank = (rating: number): { name: string; color: string } => {
 		if (rating >= 3000) return { name: 'Grandmaster', color: 'text-red-500' };
