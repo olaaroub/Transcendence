@@ -181,7 +181,6 @@ function setupChatListeners() {
 		}
 	});
 	socket.on("user_typing", (data: { conversationId: number; userId: number; isTyping: boolean }) => {
-		console.log("User typing:", data);
 		if (data.conversationId === chatState.currentConversationId && data.userId !== Number(credentials.id)) {
 			chatState.isTyping = data.isTyping;
 			chatState.typingUserId = data.isTyping ? data.userId : null;
@@ -408,18 +407,13 @@ function setupJoinGameListeners() {
 
 function updateMessagesUI() {
 	const messagesContainer = document.getElementById('private-chat-messages');
-	const input = document.getElementById('private-chat-input') as HTMLInputElement;
-	const sendBtn = document.getElementById('private-chat-send') as HTMLButtonElement;
+	const input = document.getElementById('private-chat-input-div') as HTMLElement;
+	console.log("called by  : ", input);
+	if (input && chatState.currentConversationId)
+		input.classList.remove("hidden");
+	else if (input)
+		input.classList.add("hidden");
 
-	if (input && sendBtn) {
-		if (chatState.currentConversationId) {
-			input.disabled = false;
-			sendBtn.disabled = false;
-		} else {
-			input.disabled = true;
-			sendBtn.disabled = true;
-		}
-	}
 	if (!messagesContainer) return;
 	if (chatState.messages.length === 0) {
 		messagesContainer.innerHTML = /* html */`
@@ -719,16 +713,16 @@ function renderMessages() : string {
 					<p>Select a conversation from the left</p>
 				</div>
 			</div>
-			<div class="flex justify-center gap-2 mt-0 w-full items-center bg-black rounded-b-2xl p-3">
+			<div class="flex justify-center gap-2 mt-0 w-full items-center bg-black rounded-b-2xl p-3 hidden" id="private-chat-input-div">
 				<input type="text" id="private-chat-input" placeholder="Type a message..."
 				class="bg-gray-800 text-txtColor px-4 py-2 rounded-full w-[80%]
 				outline-none border border-color3 focus:border-color1 transition-colors
-				disabled:opacity-50 disabled:cursor-not-allowed"
-				${!chatState.currentConversationId ? 'disabled' : ''}>
+				"
+				>
 				<button id="private-chat-send"
 					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
-					transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-					${!chatState.currentConversationId ? 'disabled' : ''}>
+					transition-all duration-300 hover:scale-105 "
+					>
 					<svg class="w-5 h-5 text-bgColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
 					</svg>
