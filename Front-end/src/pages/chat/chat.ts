@@ -707,7 +707,7 @@ function renderMessages() : string {
 						<p>Select a friend to start chatting</p>
 					</div>
 				</div>
-				<div id="private-chat-messages" class="flex-1 p-4 simolikayn overflow-y-auto min-h-[300px] max-h-[calc(100vh-450px)]
+				<div id="private-chat-messages" class="flex-1 p-4 overflow-y-auto min-h-[300px] max-h-[calc(100vh-450px)]
 					scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
 					<div class="flex items-center justify-center h-full text-gray-400">
 						<img class="w-[70%] opacity-[50%]" src="/images/chat.gif" alt="Idle">

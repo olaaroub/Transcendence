@@ -47,7 +47,7 @@ export function AliasPopUp(item: string)
 	aliasPopUp.className = `fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm`;
 	aliasPopUp.innerHTML = /* html */`
 		<div class="relative bg-gradient-to-br from-bgColor/95 to-black/90 backdrop-blur-xl
-			rounded-3xl p-8 flex flex-col gap-5 w-[420px] border-2 border-color1/30
+			rounded-3xl px-8 py-4 flex flex-col gap-5 w-[420px] border-2 border-color1/30
 			shadow-2xl transform transition-all duration-300 scale-100"
 			style="box-shadow: 0 0 40px rgba(237, 111, 48, 0.15), 0 0 80px rgba(237, 111, 48, 0.05);">
 
@@ -57,7 +57,7 @@ export function AliasPopUp(item: string)
 				</svg>
 			</button>
 			<div class="relative text-center mb-2">
-				<div class="text-5xl mb-3">🎮</div>
+				<img class="w-16 h-16 m-auto" src="images/joypad1.svg" alt="joypad">
 				<h2 class="text-2xl font-bold bg-gradient-to-r from-color1 via-color2 to-color1 bg-clip-text text-transparent">
 					Enter Your Alias
 				</h2>
