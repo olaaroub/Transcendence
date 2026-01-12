@@ -182,19 +182,15 @@ export function confirmPopUp(message: string) : Promise<boolean>
 
 async function deleteAvatar()
 {
-	$('delete-avatar')?.addEventListener('click', async ()=> {
-		const confirmed = await confirmPopUp('Are you sure you want to delete your avatar?');
-		if (!confirmed) return;
-		const { error } = await apiFetch<{message: string}>(`api/user/${userData?.id}/settings-avatar`, {
-			method: 'DELETE',
-		});
-		if (!error) {
-			toastSuccess('Avatar deleted successfully');
-			renderSettings();
-		} else {
-			toastError('Error deleting Avatar');
-		}
+	const confirmed = await confirmPopUp('Are you sure you want to delete your avatar?');
+	if (!confirmed) return;
+	const { error } = await apiFetch<{message: string}>(`api/user/${userData?.id}/settings-avatar`, {
+		method: 'DELETE',
 	});
+	if (!error) {
+		toastSuccess('Avatar deleted successfully');
+		renderSettings();
+	}
 }
 
 function sendAvatar() : FormData | null
