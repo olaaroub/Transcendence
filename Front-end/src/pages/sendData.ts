@@ -10,7 +10,7 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 			method: "POST",
 			headers: {"Content-Type": "application/json",},
 			body: JSON.stringify({
-				username: data["alias or email"],
+				username: data["alias or email"] || data["Alias"] || "",
 				password: data["password"],
 				email: data["email"] || ""
 			}),

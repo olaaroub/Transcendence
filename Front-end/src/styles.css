@@ -33,15 +33,3 @@ h1, h2, h3, h4, h5, h6 {
                     0 0 90px rgba(255, 106, 32, 0.1);
     }
 }
-
-
-.font-Oi {
-    font-family: 'Bruno Ace SC', 'Jersey 10', 'Press Start 2P', system-ui;
-}
-.font-Oi *,
-.font-Oi input,
-.font-Oi textarea,
-.font-Oi button,
-.font-Oi select {
-    font-family: inherit !important;
-}

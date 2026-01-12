@@ -24,7 +24,7 @@ interface IMatchHistory {
 function UserStats(user: IUserData) : string
 {
 	const stats = [
-		{ label: "XP", value: user.Rating ?? 0 },
+		{ label: "RATING", value: user.Rating ?? 0 },
 		{ label: "WINS", value: user.TotalWins ?? 0 },
 		{ label: "LOSSES", value: user.TotalLosses ?? 0 },
 		{ label: "MATCHES", value: user.GamesPlayed ?? 0 },
@@ -187,7 +187,7 @@ function getActionButtonsHTML(status: FriendStatus): string {
 		return /* html */`
 			<button id="edit-profile" class="bg-gradient-to-r from-color1 to-[#af4814]
 			min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center">
-				<img class="inline w-[24px] h-[24px]" src="images/edit.svg">Edit My Profile
+				<img class="inline w-[24px] h-[24px]" src="images/edit.svg">Edit my Profile
 			</button>`;
 	}
 	if (status === 'ACCEPTED') {

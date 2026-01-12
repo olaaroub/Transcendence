@@ -4,6 +4,7 @@ import {
 	Match,
 	keyMap,
 	createScene,
+	loadGameFont,
 	createGUI,
 	optionsButton,
 	addHUDs,
@@ -58,6 +59,7 @@ let role = 0;
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 
 const { engine, scene, cameras } = createScene(canvas);
+await loadGameFont();
 createGUI();
 
 const sky = createSky(scene);
@@ -139,7 +141,7 @@ socket.on("state", (state: GameState) => {modifyState(state);});
 
 socket.on("gamestate", (state: State) => {match.currState = state;});
 
-socket.on("gameOver", (winner: string) => {createSign(`GAME OVER\n${winner.toUpperCase()} WINS`);});
+socket.on("gameOver", (winner: string) => {createSign(`GAME OVER\n${winner.length > 12 ? winner.slice(0, 12 - 1) + "..." : winner} WINS`);});
 
 socket.on("redirect", () => {exitGame();});
 
@@ -189,7 +191,6 @@ else
 {
 	socket.on("connect", async () =>
 	{
-		console.log("Connection Established. Joining room...");
 		try
 		{
 			const response = await socket.timeout(60000).emitWithAck("match", roomData);
@@ -200,7 +201,6 @@ else
 				return;
 			}
 			match = response;
-			console.log(`Joined room successfully. Waiting for game to start...`);
 			if (role !== 3)
 			{
 				modifyState(match.state);
@@ -217,7 +217,6 @@ else
 	socket.on("side", (side: number) =>
 	{
 		role = side;
-		console.log(`Assigned as ${side === 3 ? 'Spectator' : `Player ${side}`}`);
 		if (role === 3)
 		{
 			addHUDs(match.session);

@@ -4,8 +4,12 @@ import { renderHome } from "../home";
 
 const $ = (id : string) => document.getElementById(id as string);
 
-function inputField(label: string, type: string, placeholder: string) {
-	label = label == "Username" ? "Alias/Email" : `${label}`
+function inputField(label: string, type: string, placeholder: string, isSignup: boolean) {
+	if (label == "Username")
+	{
+		if (isSignup) label = "Alias";
+		else label = "Alias/Email";
+	}
 	return /* html */ `
     <li>
 		<h3 class="text-[#F0F0F0] text-sm md:text-base my-2">${label}</h3>
@@ -35,12 +39,12 @@ function mainButton(label: string) {
 function socialIcons() {
 	return /* html */ `
     <div class="flex justify-center gap-4 mt-4">
-		<a href="api/auth/google" id="googleIcon" class="border justify-center items-center flex border-color1 w-6 h-6
-			md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/googleIcon.svg"></a>
-		<a href="api/auth/github" id="icon" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px]
-			md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/gitIcon.svg"></a>
-		<a href="api/auth/intra" id="icon" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px]
-			md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img class="w-[30px] h-[30px]" src="/images/42Icon.svg"></a>
+		<a href="api/auth/google" class="border justify-center items-center flex border-color1 w-6 h-6
+			md:w-[70px] md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img alt="Google" title="Sign in with Google" class="w-[30px] h-[30px]" src="/images/googleIcon.svg"></a>
+		<a href="api/auth/github" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px]
+			md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img alt="GitHub" title="Sign in with GitHub" class="w-[30px] h-[30px]" src="/images/gitIcon.svg"></a>
+		<a href="api/auth/intra" class="border justify-center items-center flex border-color1 w-6 h-6 md:w-[70px]
+			md:h-[40px] rounded-lg cursor-pointer hover:scale-110 transition"><img alt="42 Network" title="Sign in with 42 Network" class="w-[30px] h-[30px]" src="/images/42Icon.svg"></a>
     </div>
 	`;
 }
@@ -49,10 +53,10 @@ function authForm(isSignup: boolean) {
 	return /* html */ `
     <form class="space-y-3 md:space-y-5">
 		<ul class="space-y-2 md:space-y-3 xl:space-y-4 ">
-        ${inputField("Username", "text", "Alias or email")}
-		${isSignup ? inputField("Email", "email", "Email") : ""}
-        ${inputField("Password", "password", "Password")}
-        ${isSignup ? inputField("Confirm Password", "password", "Confirm password") : ''}
+        ${inputField("Username", "text", "Alias or email", isSignup)}
+		${isSignup ? inputField("Email", "email", "Email", isSignup) : ""}
+        ${inputField("Password", "password", "Password", isSignup)}
+        ${isSignup ? inputField("Confirm Password", "password", "Confirm password", isSignup) : ''}
 		</ul>
 		${mainButton(isSignup ? "Create Account" : "Sign In")}
     </form>
@@ -127,7 +131,6 @@ export function renderAuthPage(isSignup = false, errorMSG = "") {
 
 	backdrop.addEventListener('click', closeAuthPage);
 	$('close-auth')?.addEventListener('click', closeAuthPage);
-
 	$('Alias/Email')?.focus();
 }
 

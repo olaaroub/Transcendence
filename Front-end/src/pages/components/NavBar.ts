@@ -87,7 +87,7 @@ function searchBar() : string
 				autocorrect="off"
 				autocapitalize="off"
 				spellcheck="false"
-				placeholder="Search, users..."
+				placeholder="Search for users..."
 				class="w-full bg-transparent text-gray-200 py-1.5 sm:py-2
 				px-3 sm:px-4 outline-none placeholder:text-gray-500 text-xs sm:text-sm placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm"
 			/>
@@ -162,7 +162,7 @@ export async function notifications()
 		scrollbar-custom`;
 		result.id = "notifications-result";
 		result.innerHTML = /* html */ `
-			<p class="text-txtColor text-sm font-medium px-4 py-2 border-b border-borderColor/50">Notifications</p>
+			<h3 class="text-txtColor text-sm font-medium px-4 py-2 border-b border-borderColor/50">Notifications</h3>
 		`;
 		notificationIcon.append(result);
 		if (!pendingUsers || pendingUsers.length === 0)
@@ -224,7 +224,7 @@ export async function notifications()
 
 export function renderDashboardNavBar(user: IUserData | null, imageUrl: string | null): string {
 	return /* html */ `
-	<nav class="relative z-50 flex justify-between items-center py-4 sm:py-6 md:py-8 lg:py-10 xl:py-14 w-full m-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:px-10 h-auto mb-4 sm:mb-5 md:mb-7">
+	<nav class="relative z-50 flex justify-between items-center py-4  w-full m-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:px-10 h-auto mb-4 sm:mb-5 md:mb-7">
 		<img id="main-logo" src="/images/logo.png"
 		class="w-[70px] sm:w-[80px] md:w-[90px] lg:w-[100px] xl:w-[115px] block cursor-pointer flex-shrink-0" />
 		${searchBar()}
