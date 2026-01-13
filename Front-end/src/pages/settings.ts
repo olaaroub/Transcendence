@@ -235,7 +235,7 @@ function avatarSettings() : string
 	return  /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl bg-color4 glow-effect flex-1 flex flex-col gap-6">
 			<h2 class="text-color1 font-bold text-lg xl:text-2xl">Your Avatar</h2>
-			<div class="flex gap-10 xl:gap-16 ">
+			<div class="flex gap-10 xl:gap-16 md:flex-row flex-col items-center">
 				<div class="flex flex-col items-center gap-2">
 					<img id="userAvatar" src="${getImageUrl(userData.avatar_url)}" class="
 					w-[130px] h-[130px] xl:w-[170px] xl:h-[170px] rounded-full border-2
