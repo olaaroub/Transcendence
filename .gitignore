@@ -2,8 +2,8 @@
 node_modules/
 database.db
 .env
-app/static/*
-!app/static/default_pfp.png
+# app/static/*
+# !app/static/default_pfp.png
 
 app/user-service/static/*
 !app/user-service/static/default_pfp.png
