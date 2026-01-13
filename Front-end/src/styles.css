@@ -7,7 +7,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Typography - Font Selection */
 * {
     font-family: 'Share Tech', system-ui, -apple-system, sans-serif;
 }
@@ -32,4 +31,10 @@ h1, h2, h3, h4, h5, h6 {
                     0 0 60px rgba(255, 106, 32, 0.15),
                     0 0 90px rgba(255, 106, 32, 0.1);
     }
+}
+
+.glow-stroke {
+	text-shadow:
+	0 0 6px  #ed6f30ea,
+	0 0 12px #d18a10;
 }

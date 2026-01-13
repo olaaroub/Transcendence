@@ -34,7 +34,7 @@ async function blockAndunblockFriend(req, reply) {
   }
   else {
     const info = this.db.prepare("DELETE FROM friendships WHERE (userRequester = ? AND userReceiver = ?) OR (userReceiver = ? AND userRequester = ?)")
-      .run([id, friend_id, id, friend_id]); // delete it
+      .run([id, friend_id, id, friend_id]);
 
     if (info.changes === 0) throw createError.NotFound("Friendship not found or not blocked");
 

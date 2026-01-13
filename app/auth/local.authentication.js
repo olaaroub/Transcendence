@@ -15,7 +15,6 @@ async function signUpHandler(request, reply) {
 	let newUserData;
 	try {
 		const hashedPassword = await argon2.hash(data.password);
-		// console.log(hashedPassword);
 		newUserData = this.db.prepare("INSERT INTO users(username, password, email) VALUES (?, ?, ?) RETURNING id, username")
 			.get([data.username, hashedPassword, data.email]);
 	}
@@ -29,7 +28,6 @@ async function signUpHandler(request, reply) {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
-			// I will add the secret key to check the request is from the microserves
 		},
 		body: JSON.stringify({
 			user_id: newUserData.id,
@@ -135,7 +133,6 @@ async function routes(fastify) {
 				}
 			}
 		}
-		// errorHandler: 7yedto (Global Handler hia likhasha tkhdm )
 	}, signUpHandler);
 	fastify.get("/auth/users", getUsers);
 	fastify.get('/auth/users/:id', getUserById);

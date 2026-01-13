@@ -107,7 +107,6 @@ async function getProfileData(req, reply) {
 function settingsRoutes(fastify) {
 	fastify.put("/user/:id/settings-username", change_username);
 	fastify.put("/user/:id/settings-bio", change_bio);
-	// fastify.put("/users/:id/settings-password", change_password);
 	fastify.get("/user/:id/profile", getProfileData);
 }
 

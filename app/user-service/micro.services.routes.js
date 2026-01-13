@@ -7,7 +7,6 @@ async function chatProfileHandler(req, reply)
 
     const userData = this.db.prepare('SELECT username, avatar_url FROM userInfo WHERE id = ?').get(id);
 
-    console.log(userData)
     if (!userData)
         createError.NotFound("this user not found");
 
@@ -25,14 +24,8 @@ async function createNewUser(req, reply) {
 
 
   try {
-    // if (newUserData.avatar_url) {
-
       this.db.prepare(`INSERT INTO userInfo(id, username, avatar_url, bio) VALUES(?, ?, ?, ?)`)
         .run([newUserData.user_id, newUserData.username, avatar_url, bio]);
-    // } else {
-    //   this.db.prepare(`INSERT INTO userInfo(id, username, bio) VALUES(?, ?, ?)`)
-    //     .run([newUserData.user_id, newUserData.username, bio]);
-    // }
 
     req.log.info({ userId: newUserData.user_id, username: newUserData.username }, "New user synced from Auth Service");
 

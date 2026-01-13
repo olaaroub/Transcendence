@@ -15,7 +15,6 @@ export default async function chatRoutes(fastify)
         if (err) throw err;
 
         fastify.io.on("connection", (socket) => {
-            console.log("New user connected:", socket.id);
             fastify.log.info({ socketId: socket.id }, "New user connected");
 
             socket.on("open_chat", async (data) => {
@@ -30,10 +29,8 @@ export default async function chatRoutes(fastify)
 
                     const oldMessages = getMessages(conversationId, 20, 0);
 
-                    // Mark messages as seen when opening chat
                     const seenResult = markMessagesAsSeen(conversationId, senderId);
 
-                    // Notify the other user that their messages were seen
                     if (seenResult.changes > 0) {
                         fastify.io.to(`user_${receiverId}`).emit("messages_seen", {
                             conversationId,
@@ -46,7 +43,6 @@ export default async function chatRoutes(fastify)
                         messages: oldMessages
                     });
 
-                    console.log(`User ${senderId} opened chat ${conversationId}`);
                     fastify.log.info({ senderId, conversationId }, `User ${senderId} opened chat ${conversationId}`);
 
                 } catch (error) {
@@ -66,7 +62,7 @@ export default async function chatRoutes(fastify)
                 try {
                     const result = sendMessage(conversationId, senderId, content);
 
-                    fastify.customMetrics.chatMessageCounter.inc({ chat_type: 'private' }); //OLAAROUB
+                    fastify.customMetrics.chatMessageCounter.inc({ chat_type: 'private' });
 
                     const payload = {
                         messageId: result.lastInsertRowid,
@@ -79,7 +75,6 @@ export default async function chatRoutes(fastify)
 
                     fastify.io.to(`chat_${conversationId}`).emit("receive_message", payload);
 
-                    // Get unread count for the receiver
                     const unreadCount = getUnreadCount(conversationId, receiverId);
 
                     fastify.io.to(`user_${receiverId}`).emit("new_notification", {
@@ -89,7 +84,6 @@ export default async function chatRoutes(fastify)
                         text: "You have a new message!"
                     });
 
-                    // Emit unread indicator for red dot
                     fastify.io.to(`user_${receiverId}`).emit("unread_messages", {
                         conversationId,
                         friendId: senderId,
@@ -104,7 +98,6 @@ export default async function chatRoutes(fastify)
                 }
             });
 
-            // Mark messages as seen
             socket.on("mark_seen", async (data) => {
                 const conversationId = parseInt(data.conversationId);
                 const userId = parseInt(data.userId);
@@ -114,13 +107,11 @@ export default async function chatRoutes(fastify)
                     const result = markMessagesAsSeen(conversationId, userId);
 
                     if (result.changes > 0) {
-                        // Notify sender that their messages were seen
                         fastify.io.to(`user_${otherUserId}`).emit("messages_seen", {
                             conversationId,
                             seenBy: userId
                         });
 
-                        // Update unread indicator (remove red dot)
                         socket.emit("unread_messages", {
                             conversationId,
                             friendId: otherUserId,
@@ -134,7 +125,6 @@ export default async function chatRoutes(fastify)
                 }
             });
 
-            // Typing indicator - user started typing
             socket.on("typing_start", (data) => {
                 const conversationId = parseInt(data.conversationId);
                 const userId = parseInt(data.userId);
@@ -146,7 +136,6 @@ export default async function chatRoutes(fastify)
                     isTyping: true
                 });
 
-                // Also send to user's personal room in case they're not in chat room
                 fastify.io.to(`user_${receiverId}`).emit("user_typing", {
                     conversationId,
                     userId,
@@ -154,7 +143,6 @@ export default async function chatRoutes(fastify)
                 });
             });
 
-            // Typing indicator - user stopped typing
             socket.on("typing_stop", (data) => {
                 const conversationId = parseInt(data.conversationId);
                 const userId = parseInt(data.userId);
@@ -173,7 +161,6 @@ export default async function chatRoutes(fastify)
                 });
             });
 
-            // Get all unread counts for a user (useful on app load)
             socket.on("get_unread_counts", (data) => {
                 const userId = parseInt(data.userId);
 
@@ -191,7 +178,6 @@ export default async function chatRoutes(fastify)
             socket.on("userId", (userId) => {
                 socket.join(`user_${userId}`);
 
-                // Send unread counts when user connects
                 try {
                     const unreadCounts = getUnreadCountsForUser(parseInt(userId));
                     socket.emit("all_unread_counts", {
@@ -204,7 +190,6 @@ export default async function chatRoutes(fastify)
             });
 
             socket.on("disconnect", () => {
-                console.log("User disconnected");
                 fastify.log.info("User disconnected");
             });
         });

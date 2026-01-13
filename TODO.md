@@ -15,19 +15,19 @@
 
 - the window inactive jwt expired if i refresh the page i should get that session expired login again
 
-- [x] **JWT Not Updated:** When I log out and get back, the containers are EXITED, I refresh the page I get the
+- [X] **JWT Not Updated:** When I log out and get back, the containers are EXITED, I refresh the page I get the
       sign in form, I do sign in the backend generates a new token, but the jwt token is not updated in
       local storage, so even if i am logged in i cant upload any image because i need the up to date jwt token.
       ![screenshot_of_error](./screenshots/screenshot_jwt_notUpdated_error.png)
 
-- [ ] **Uploads:** Add `accept="image/png, image/jpeg"` to the file input HTML.
-- [ ] **Error Handling:** Display generic error messages from backend (example: "Upload failed").
-- [x] **UX:** When I finish uploading an avatar, I should get out from the settings page.
-- [x] **Offline Session:** Add session storage info for offline PvP & PvAI (Look for file sessionStorage.ts in Front).
+- [X] **Uploads:** Add `accept="image/png, image/jpeg"` to the file input HTML.
+- [X] **Error Handling:** Display generic error messages from backend (example: "Upload failed").
+- [X] **UX:** When I finish uploading an avatar, I should get out from the settings page.
+- [X] **Offline Session:** Add session storage info for offline PvP & PvAI (Look for file sessionStorage.ts in Front).
 
-- [ ] **handle the scket not established when login**
-- [ ] **handle the globl chat time error**
-- [ ] **close the sockets when logout**
+- [X] **handle the scket not established when login**
+- [X] **handle the globl chat time error**
+- [X] **close the sockets when logout**
 
 - [x] (i fixed it) You were hardcoding the host and port for all the websocket connections and you werent talking throught the docker network
   you were using bind mount which is bad (IT WILL FAIL IN PROD BECAUSE I WONT BIND MOUNT THE PORTS FOR YOU) and also you were using not sercure ws (ws://localhost:3003) THIS IS WRONG, i fixed it to be
@@ -43,7 +43,7 @@
 - [x] **Logs:** Ensure errors are printed as JSON for the ELK stack.
 - [x] **Use node modules:** Import instead of  require.
 - [canceled] **learn gRPC:** to build mecro sirveces
-- [ ] **send the email to the front:**
+- [canceled] **send the email to the front:**
 - [x] **setup the app chat service**
 - [x] **create a chat databases:** cash database to store the user information and message database to store the last messages
 - [x] **open the sockets and start users commencation:** send messages with users
@@ -56,11 +56,9 @@
 - [x] **Unfriend api**
 - [x] **change username and avatar_url error ...**
 - [x] **bugs in notification sockets**
-- [simo_part] **global chat time bug**
+- [x] **global chat time bug**
 - [x] **error when blocken friend and unblocken them and resend the add friend request**
-- [ ] **invalid response status when trying to change password using invalid credanstion"
-<!-- union intersect distinct  -->
-- [cancled] **learn gRPC:** to build micro sirveces
+- [x] **invalid response status when trying to change password using invalid credanstion**
 
 ## Game (HES-SAFI)
 
@@ -72,12 +70,3 @@
 ## Known Bugs
 
 - [ ]
-
-"npx depcheck" ==> checks unused packages in package.json
-
-this what happens when i refresh the page, (mse7t database w restartit server):
-(simo: tatrj3 lik 404 wmatadir walo)
-(ohammou: 9ra dok logs w protecti code dialk)
-![logs li tel3o](./screenshots/logs_err.png)
-![dashboard](./screenshots/dashboard_err.png)
-![profile](./screenshots/profile_err.png)
