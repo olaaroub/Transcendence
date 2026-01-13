@@ -28,13 +28,9 @@ export async function renderGame() {
     document.body.className = 'm-0 p-0';
     document.body.innerHTML = /* html */`
         <div class="bg-black fixed inset-0 flex flex-col overflow-hidden">
-            <div class="shrink-0 p-5">
-                <button id="exit-game-btn"
-                    class="bg-white/10 text-white border border-white/50
-                    px-5 py-2.5 font-sans rounded-lg backdrop-blur transition-all duration-200
-                    hover:bg-red-500/50 hover:border-red-500">
-                    ← EXIT GAME
-                </button>
+            <div id="exit-game-btn" class="shrink-0 p-1 group relative h-12 w-12 cursor-pointer">
+				<img  src="/images/exit.svg" alt="Exit" class="absolute inset-1 transition-opacity duration-500 inline-block w-12 h-12 group-hover:opacity-0"/>
+				<img  src="/images/exit2.svg" alt="Exit" class="absolute inset-1 transition-opacity duration-500 inline-block w-12 h-12 opacity-0 group-hover:opacity-100"/>
             </div>
             <div class="flex-1 flex items-center justify-center min-h-0 px-5 pb-5">
                 <canvas id="game" class="block w-full h-[95%]"></canvas>

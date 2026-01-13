@@ -340,7 +340,7 @@ export async function renderProfile(userId: string | null = null)
 								</span>
 							` : ''}
 						</div>
-						<p class="text-color3 mb-4 w-[70%]">${tmpUserData.bio}</p>
+						<p class="text-color3 mb-4 w-[70%]">${tmpUserData.bio || "No Bio Available."}</p>
 						<div id="action-buttons-container">
 							${getActionButtonsHTML(currentStatus)}
 						</div>

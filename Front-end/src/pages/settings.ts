@@ -10,7 +10,7 @@ import { logout } from "./components/profileMenu";
 const $ = (id : String) => document.getElementById(id as string);
 
 let newUserData: Partial<IUserData> = {};
-let body: BodyInit | null = ""; // to learn about this type
+let body: BodyInit | null = "";
 let headers : Record<string, string> = {
 	"Authorization": `Bearer ${localStorage.getItem('token')}`
 }
@@ -71,7 +71,11 @@ function SaveChanges()
 				}
 				let requestBody: BodyInit;
 				let contentType: Record<string, string> = {};
-
+				let tmp = String(value).trim();
+				if (key === 'username' && (tmp.length < 1 || tmp.length > 30 || tmp === userData.username))
+					return toastError("Invalid Alias!");
+				if (key === 'bio' && tmp.length > 200)
+					return toastError("Bio is too long! Max 200 characters.");
 				if (key === 'avatar' && avatar) {
 					requestBody = avatar;
 				} else {
@@ -86,9 +90,9 @@ function SaveChanges()
 				});
 				if (error) {
 					toastError(`Failed to update ${key}.`);
-				} else {
+					return ;
+				} else
 					delete newUserData[key as keyof IUserData];
-				}
 			}
 			navigateBack();
 	});
@@ -114,10 +118,10 @@ function addInputListeners()
 				const upload_avatar = event.target as HTMLInputElement;
 				const userAvatar = $('userAvatar') as HTMLImageElement;
 				if (userAvatar && upload_avatar && upload_avatar.files)
-					userAvatar.src = URL.createObjectURL(upload_avatar.files[0]); // to learn about it
+					userAvatar.src = URL.createObjectURL(upload_avatar.files[0]);
 			}
 			if (value !== userData[name as keyof IUserData])
-				newUserData[name as keyof IUserData] = value as any; //this is the change i made LAAROUBI
+				newUserData[name as keyof IUserData] = value as any;
 			else
 				delete newUserData[name as keyof IUserData];
 		});
@@ -201,18 +205,18 @@ function sendAvatar() : FormData | null
 	if (!uploadAvatar.files || uploadAvatar.files.length === 0) return null;
 	const file = uploadAvatar.files[0];
 
-	const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+	const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 	const fileName = file.name.toLowerCase();
 	const fileExtension = fileName.split('.').pop();
 	if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
-		toastWarning(`Invalid file type! Allowed formats: ${allowedExtensions.join(', ').toUpperCase()}`);
+		toastWarning(`Invalid File Type! Allowed Formats: ${allowedExtensions.join(', ').toUpperCase()}`);
 		uploadAvatar.value = '';
 		return null;
 	}
 
-	const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+	const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
 	if (!allowedMimeTypes.includes(file.type)) {
-		toastWarning(`Invalid file type! Please upload a valid image file.`);
+		toastWarning(`Invalid File Type! Please upload a Valid Image File.`);
 		uploadAvatar.value = '';
 		return null;
 	}

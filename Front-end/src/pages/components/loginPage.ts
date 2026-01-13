@@ -137,7 +137,7 @@ document.body.addEventListener("click", (e) => {
 function validateInfos(inputs : NodeListOf<HTMLInputElement>)  : string
 {
 	console.log(`length : ${inputs[1].value.length} and value :  ${inputs[1].value}`);
-	if (inputs[0].value.length < 5 || inputs[0].value.length > 30)
+	if (inputs[0].value.length < 1 || inputs[0].value.length > 30)
 		return "Invalid Username";
 	if (inputs[2].value !== inputs[3].value)
 		return "Passwords do not match";
