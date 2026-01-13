@@ -58,8 +58,6 @@ fastify.decorate('customMetrics', {
   chatMessageCounter,
 });
 
-fastify.cust
-
 fastify.get("/", async () => {
   return { status: "ok" };
 });
@@ -92,7 +90,7 @@ async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DAR
         path: '/api/chat/private/socket.io' // by simo
       });
       await fastify.register(chatRoutes); // khsek tzid {prefix: '/api'} hnaya (ta checki m3a ohammou)
-      
+
       // await fastify.get('/api/conversation/test', async (req, res) => {
       //   return db.prepare(`SELECT * FROM conversation`).all();
       // }); just for test if the user is deleted or not
@@ -102,13 +100,12 @@ async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DAR
         const id = req.params.id;
 
           try {
-              console.log("deleting user conversations for user id: ", id);
+              req.log.info({ userId: id }, "deleting user conversations for user id");
               db.prepare('DELETE FROM conversation WHERE (senderId = ? OR receiverId = ?)').run(id, id);
               res.code(200).send({message: "user deleted", ok: true})
           } catch(err)
           {
-            // req.log.error
-            console.log(err);
+            req.log.error({ err }, "you can not delete user conversadtion");
             res.code(500).send({message: "you can not delete user conversadtion", ok: false})
           }
       })

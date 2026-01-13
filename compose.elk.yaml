@@ -68,7 +68,7 @@ services:
       - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
       - DATABASE_PATH=/data/auth.db
       - HOST=0.0.0.0
-      - DOMAIN=${AUTH_DOMAIN_PROD}
+      - DOMAIN=${AUTH_DOMAIN}
       - SERVICE_EXT=-elk
       - LOG_LEVEL=debug
     user: root

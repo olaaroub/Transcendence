@@ -1,21 +1,22 @@
 import {
-	getOrCreateConversation,
-	sendMessage,
-	getMessages,
-	markMessagesAsSeen,
-	getUnreadCount,
-	getUnreadCountsForUser,
-	getFriendIdFromConversation
+    getOrCreateConversation,
+    sendMessage,
+    getMessages,
+    markMessagesAsSeen,
+    getUnreadCount,
+    getUnreadCountsForUser,
+    getFriendIdFromConversation
 } from "../conversation.js";
 
 export default async function chatRoutes(fastify)
 {
     fastify.ready((err) =>
-	{
+    {
         if (err) throw err;
 
         fastify.io.on("connection", (socket) => {
             console.log("New user connected:", socket.id);
+            fastify.log.info({ socketId: socket.id }, "New user connected");
 
             socket.on("open_chat", async (data) => {
                 const senderId = parseInt(data.senderId);
@@ -31,7 +32,7 @@ export default async function chatRoutes(fastify)
 
                     // Mark messages as seen when opening chat
                     const seenResult = markMessagesAsSeen(conversationId, senderId);
-                    
+
                     // Notify the other user that their messages were seen
                     if (seenResult.changes > 0) {
                         fastify.io.to(`user_${receiverId}`).emit("messages_seen", {
@@ -46,14 +47,17 @@ export default async function chatRoutes(fastify)
                     });
 
                     console.log(`User ${senderId} opened chat ${conversationId}`);
+                    fastify.log.info({ senderId, conversationId }, `User ${senderId} opened chat ${conversationId}`);
+
                 } catch (error) {
                     console.error(error);
+                    fastify.log.error({ err: error }, "Failed to load chat");
                     socket.emit("error", { message: "Failed to load chat" });
                 }
             });
 
             socket.on("send_message", async (data) =>
-			{
+            {
                 const conversationId = parseInt(data.conversationId);
                 const senderId = parseInt(data.senderId);
                 const receiverId = parseInt(data.receiverId);
@@ -61,14 +65,16 @@ export default async function chatRoutes(fastify)
 
                 try {
                     const result = sendMessage(conversationId, senderId, content);
-                    
+
+                    fastify.customMetrics.chatMessageCounter.inc({ chat_type: 'private' }); //OLAAROUB
+
                     const payload = {
                         messageId: result.lastInsertRowid,
                         senderId,
                         content,
                         conversationId,
                         seen: false,
-                        createdAt: new Date().toISOString() 
+                        createdAt: new Date().toISOString()
                     };
 
                     fastify.io.to(`chat_${conversationId}`).emit("receive_message", payload);
@@ -92,8 +98,9 @@ export default async function chatRoutes(fastify)
                     });
 
                     socket.emit("message_sent", { status: "sent" });
-                } catch (error) { 
-                    console.error(error); 
+                } catch (error) {
+                    console.error(error);
+                    fastify.log.error({ err: error }, "Failed to send message");
                 }
             });
 
@@ -105,7 +112,7 @@ export default async function chatRoutes(fastify)
 
                 try {
                     const result = markMessagesAsSeen(conversationId, userId);
-                    
+
                     if (result.changes > 0) {
                         // Notify sender that their messages were seen
                         fastify.io.to(`user_${otherUserId}`).emit("messages_seen", {
@@ -123,6 +130,7 @@ export default async function chatRoutes(fastify)
                     }
                 } catch (error) {
                     console.error(error);
+                    fastify.log.error({ err: error }, "Failed to mark messages as seen");
                 }
             });
 
@@ -176,6 +184,7 @@ export default async function chatRoutes(fastify)
                     });
                 } catch (error) {
                     console.error(error);
+                    fastify.log.error({ err: error }, "Failed to get unread counts");
                 }
             });
 
@@ -190,11 +199,13 @@ export default async function chatRoutes(fastify)
                     });
                 } catch (error) {
                     console.error(error);
+                    fastify.log.error({ err: error }, "Failed to send initial unread counts");
                 }
             });
 
             socket.on("disconnect", () => {
                 console.log("User disconnected");
+                fastify.log.info("User disconnected");
             });
         });
     });
