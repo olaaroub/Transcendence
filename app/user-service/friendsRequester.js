@@ -29,7 +29,7 @@ async function add_friend(req, reply) {
                                             FROM userInfo
                                             WHERE id = ?`).get([requester_id]);
 
-    if (!requester_Data) {// khona ms7 profile fach sifti lih request
+    if (!requester_Data) {
         throw createError.NotFound("Requester profile not found");
     }
 
@@ -40,7 +40,6 @@ async function add_friend(req, reply) {
         const notificationSockets = this.sockets.get(receiver_id);
 
         if (notificationSockets) {
-            // requester_Data.is_read = false;
             requester_Data["type"] = 'SEND_NOTIFICATION';
 
             req.log.debug({ receiverId: receiver_id }, "Sending friend request notification");
@@ -76,19 +75,6 @@ export async function getFriendsQuery(id, fastify)
 
 async function getFriends(req, reply) {
     const id = req.params.id;
-    // const friends = this.db.prepare(`SELECT u.id, u.username, u.avatar_url
-    //                                 FROM
-    //                                     userInfo u
-    //                                 INNER JOIN
-    //                                         friendships f ON u.id = (
-    //                                             CASE
-    //                                                 WHEN f.userRequester = ? THEN f.userReceiver
-    //                                                 WHEN f.userReceiver = ? THEN f.userRequester
-    //                                             END
-    //                                         )
-    //                                 WHERE
-    //                                     (f.userRequester = ? OR f.userReceiver = ?) AND f.status = 'ACCEPTED'
-    //                                        `).all([id, id, id, id]);
     const friends = await getFriendsQuery(id, this);
     friends.forEach((friendData) => {
         const userId = String(friendData.id);
@@ -98,7 +84,6 @@ async function getFriends(req, reply) {
         } else {
             friendData["status"] = "OFFLINE";
         }
-        console.log(friendData)
     });
     req.log.info({ userId: id, count: friends.length }, "Fetched friend list");
     return (friends);
@@ -109,7 +94,6 @@ async function delete_friend(req, reply)
     const { friend_id } = req.body;
     const user_id = req.userId || req.params.id;
     
-    console.log("user_id:", user_id, "friend_id:", friend_id);
     if (!friend_id)
         throw createError.BadRequest("Friend ID (friend_id) is required");
 

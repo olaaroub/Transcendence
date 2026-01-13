@@ -56,10 +56,6 @@ async function startChatService() {
     fastify.decorate('customMetrics',{
         chatMessageCounter,
     });
-
-    /// dir hadi flblasa fach kisift user msg:
-    // fastify.customMetrics.chatMessagesCounter.inc({ chat_type: 'global' });
-    // const
     try {
         fastify.log.info("global chat service is starting...");
         const { jwtSecret } = await getSecrets(fastify.log);
@@ -82,7 +78,7 @@ async function startChatService() {
             prefix: '/api'
         });
 
-        fastify.register(userProfile, { // thats for user-servise to change the user profile data
+        fastify.register(userProfile, {
             prefix: '/api'
         });
 

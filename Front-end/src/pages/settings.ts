@@ -226,7 +226,7 @@ function sendAvatar() : FormData | null
 		return null;
 	}
 	const formData = new FormData;
-	formData.append("avatar", file); // to learn about it
+	formData.append("avatar", file);
 	return formData;
 }
 

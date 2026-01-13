@@ -5,7 +5,6 @@ export async function updateUsername(req, reply)
     const id = req.params.id;
     const { username } = req.body;
 
-    // console.log(username, " ------------- ", id);
     try {
         this.db.prepare('UPDATE usersCash SET username = ? WHERE id = ?').run(username, id);
         req.log.info({ userId: id, NewUserName: username }, "User username updated in cache");

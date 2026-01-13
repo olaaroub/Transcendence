@@ -1,4 +1,4 @@
-import { defineConfig, UserConfig } from "vite"; // npm install -D @types/node
+import { defineConfig, UserConfig } from "vite";
 import { resolve } from "path";
 import fs from "fs";
 

@@ -45,7 +45,6 @@ export function getMessages(conversationId, limit = 20, offset = 0)
     `).all(conversationId, limit, offset);
 }
 
-// Mark all messages as seen in a conversation for a specific user (receiver)
 export function markMessagesAsSeen(conversationId, receiverId)
 {
     return db.prepare(`
@@ -55,7 +54,6 @@ export function markMessagesAsSeen(conversationId, receiverId)
     `).run(conversationId, receiverId);
 }
 
-// Mark a specific message as seen
 export function markMessageAsSeen(messageId)
 {
     return db.prepare(`
@@ -65,7 +63,6 @@ export function markMessageAsSeen(messageId)
     `).run(messageId);
 }
 
-// Get unread message count for a user in a specific conversation
 export function getUnreadCount(conversationId, userId)
 {
     const result = db.prepare(`
@@ -75,7 +72,6 @@ export function getUnreadCount(conversationId, userId)
     return result.count;
 }
 
-// Get all conversations with unread counts for a user (includes friendId)
 export function getUnreadCountsForUser(userId)
 {
     return db.prepare(`
@@ -96,7 +92,6 @@ export function getUnreadCountsForUser(userId)
     `).all(userId, userId, userId, userId);
 }
 
-// Get friendId from a conversation for a specific user
 export function getFriendIdFromConversation(conversationId, userId)
 {
     const result = db.prepare(`
@@ -110,5 +105,3 @@ export function getFriendIdFromConversation(conversationId, userId)
     `).get(userId, conversationId);
     return result ? result.friendId : null;
 }
-
-// Data Access Layer (DAL)

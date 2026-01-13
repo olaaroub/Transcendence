@@ -23,9 +23,7 @@ function initNotificationSocket(): void {
 
 	const wsUrl = `wss://${window.location.host}/api/user/notification/${credentials.id}`;
 	socket = new WebSocket(wsUrl);
-	socket.onopen = () => {
-		console.log('WebSocket connection established for notifications');
-	};
+	socket.onopen = () => {};
 	socket.onmessage = (event) => {
 		try {
 			const parsed = JSON.parse(event.data);
@@ -49,7 +47,6 @@ function initNotificationSocket(): void {
 		console.error('WebSocket error:', error);
 	};
 	socket.onclose = (event) => {
-		console.log('WebSocket connection closed:', event.code, event.reason);
 		socket = null;
 	};
 }

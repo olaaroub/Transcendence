@@ -78,7 +78,7 @@ interface ChatState {
 	unreadCounts: Map<number, number>;
 }
 
-const chatState: ChatState = { // why
+const chatState: ChatState = {
 	currentConversationId: null,
 	currentFriend: null,
 	messages: [],
@@ -111,11 +111,10 @@ export function initGlobalChatNotifications() {
 	socket.off("error");
 	
 	socket.on("connect", () => {
-		console.log("Connected to private chat");
 		socket?.emit("userId", credentials.id);
 	});
 	socket.on("connect_error", (error: Error) => {console.error("Socket connection error:", error.message);});
-	socket.on("disconnect", (reason: string) => {console.log("Disconnected from private chat:", reason);});
+	socket.on("disconnect", (reason: string) => {});
 	socket.on("new_notification", (data: { type: string; from: number; conversationId: number; text: string }) => {
 		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat'))
 			toastInfo(`New message received!`, { duration: 4000 });
@@ -155,7 +154,6 @@ function setupChatListeners() {
 	socket.off("user_typing");
 
 	socket.on("chat_initialized", (data: { conversationId: number; messages: ChatMessage[] }) => {
-		console.log("Chat initialized:", data);
 		chatState.currentConversationId = data.conversationId;
 		chatState.messages = data.messages || [];
 		updateMessagesUI();
@@ -163,7 +161,6 @@ function setupChatListeners() {
 	});
 
 	socket.on("receive_message", (data: ChatMessage) => {
-		console.log("New message received:", data);
 		if (data.conversationId === chatState.currentConversationId) {
 			if (data.senderId === Number(credentials.id ?? 0)) return;
 			chatState.messages.push(data);
@@ -172,7 +169,7 @@ function setupChatListeners() {
 		}
 	});
 
-	socket.on("message_sent", (data: unknown) => {console.log("Message sent confirmation:", data);});
+	socket.on("message_sent", (data: unknown) => {});
 	socket.on("messages_seen", (data: { conversationId: number; seenBy: number }) => {
 		if (data.conversationId === chatState.currentConversationId) {
 			chatState.messages.forEach(msg => {
@@ -408,7 +405,6 @@ function setupJoinGameListeners() {
 function updateMessagesUI() {
 	const messagesContainer = document.getElementById('private-chat-messages');
 	const input = document.getElementById('private-chat-input-div') as HTMLElement;
-	console.log("called by  : ", input);
 	if (input && chatState.currentConversationId) {
 		input.classList.remove("hidden");
 		input.classList.add("flex");

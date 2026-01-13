@@ -66,7 +66,7 @@ async function githubCallback(req, reply) {
                     bio: userInfo.bio
                 })
             });
-            if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
+            if (!createNewUserRes.ok)
             {
                 await fs.promises.unlink(AvatarUrl.file_path).catch(() => { });
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([data.id]);

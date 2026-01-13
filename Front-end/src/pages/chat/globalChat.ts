@@ -41,7 +41,6 @@ function initializeWebSocket() {
 	golobalChatSocket = new WebSocket(wsUrl);
 
 	golobalChatSocket.onopen = () => {
-		console.log('WebSocket connection established for global chat');
 		globalChatInitialized = true;
 	}
 	golobalChatSocket.onmessage = (event) => {
@@ -64,7 +63,6 @@ function initializeWebSocket() {
 
 	golobalChatSocket.onerror = (error) => {console.error("global chat websocket error", error);}
 	golobalChatSocket.onclose = (event) => {
-		console.log('WebSocket connection closed:', event.code, event.reason);
 		globalChatInitialized = false;
 		golobalChatSocket = null;
 	};

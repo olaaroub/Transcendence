@@ -12,7 +12,7 @@ async function deleteAccountHandler(req, reply) {
     reply.code(204).send();
 }
 
-async function changeUserNameHandler(req, reply) // don't forget to handle if this username is alredy exist
+async function changeUserNameHandler(req, reply)
 {
     const id = req.params.id;
     const { username } = req.body;
@@ -34,7 +34,7 @@ async function getAuthProviderAndEmailHandler(req, reply) {
 }
 
 
-export default async function localRoutes(fastify) // this local routes for the commenication between micro services ...
+export default async function localRoutes(fastify)
 {
     fastify.delete("/auth/deleteAccount/:id", deleteAccountHandler)
     fastify.put("/auth/changeUsername/:id", changeUserNameHandler)

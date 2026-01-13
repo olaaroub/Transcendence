@@ -8,7 +8,7 @@ const creatTable = async () => {
         throw new Error("DB_PATH environment variable is not set for User Service");
     }
     const db = new Database(DB_PATH);
-    db.pragma('journal_mode = WAL'); // bach mli nbghi nktb on 9ra fnafs lwe9t maytblokach liya
+    db.pragma('journal_mode = WAL');
 
     db.exec(`CREATE TABLE IF NOT EXISTS userInfo (
         id INTEGER UNIQUE NOT NULL,
@@ -78,11 +78,12 @@ const creatTable = async () => {
         FOREIGN KEY(player2_id) REFERENCES userInfo(id) ON DELETE CASCADE
     );`);
 
-    db.exec(`INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('ohammou-', 1, '/public/ohammou-.jpeg', 2000, 2000, 100, 10000, 2000, 999999);
-             INSERT OR IGNORE INTO userInfo (username, id, avatar_url) VALUES ('mmondad', 2, '/public/mmondad.jpeg');
-             INSERT OR IGNORE INTO userInfo (username, id, avatar_url) VALUES ('olaaroub', 3, '/public/olaaroub.jpeg');
-             INSERT OR IGNORE INTO userInfo (username, id, avatar_url) VALUES ('hes-safi', 4, '/public/hes-safi.jpeg');
-             INSERT OR IGNORE INTO userInfo (username, id, avatar_url) VALUES ('oumondad', 5, '/public/oumondad.jpeg');`)
+    db.exec(
+			`INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('mmondad', 2, '/public/mmondad.jpeg', 149, 149, 100, 750, 150, 3100);
+			 INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('ohammou-', 1, '/public/ohammou-.jpeg', 147, 147, 100, 750, 150, 3060);
+             INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('olaaroub', 3, '/public/olaaroub.jpeg', 146, 146, 100, 750, 150, 3050);
+             INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('hes-safi', 4, '/public/hes-safi.jpeg', 145, 145, 100, 750, 150, 3030);
+             INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('oumondad', 5, '/public/oumondad.jpeg', 144, 144, 100, 750, 150, 3020);`)
     return db;
 
 }

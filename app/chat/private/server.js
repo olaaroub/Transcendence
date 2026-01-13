@@ -62,10 +62,7 @@ fastify.get("/", async () => {
   return { status: "ok" };
 });
 
-// fastify.register(socketio, {cors: { origin: "*" }}); //dialk
-// fastify.register(chatRoutes);
-
-async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DARORI IKHDM HADCHI HOW LWL, ila mat799atch chi 7aja khas exiti process (unhandled erros ayrj3o lina project)
+async function start() {
 
   try {
     fastify.log.info("private chat service is starting...");
@@ -73,27 +70,11 @@ async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DAR
     const { jwtSecret } = await getSecrets(fastify.log);
     fastify.log.info("Secrets fetched successfully");
 
-
-    // Hadchi aykhsek mn b3d, ---SWEL OHAMMOU---, (tat checki bih token li taysift lik simo fl headers.....)
-    /*
-    await fastify.register(fastifyJwt, {
-        secret: jwtSecret
-    });
-    */
-
-    // zid had line fl blasa fin tatconnecti b database
-    // fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
-
-
     await fastify.register(socketio, {
         cors: { origin: "*", methods: ["GET", "POST", "DELETE"] },
-        path: '/api/chat/private/socket.io' // by simo
+        path: '/api/chat/private/socket.io'
       });
-      await fastify.register(chatRoutes); // khsek tzid {prefix: '/api'} hnaya (ta checki m3a ohammou)
-
-      // await fastify.get('/api/conversation/test', async (req, res) => {
-      //   return db.prepare(`SELECT * FROM conversation`).all();
-      // }); just for test if the user is deleted or not
+      await fastify.register(chatRoutes);
 
       await fastify.delete('/api/chat/private/account/:id', async (req, res) =>
       {
@@ -122,20 +103,3 @@ async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DAR
 }
 
 start();
-
-//dialk
-/* fastify.listen({ port: 8405 }, (err) =>
- {
-   if (err)
-   {
-     fastify.log.error(err);
-     process.exit(1);
-   }
-   console.log("Server running on http://localhost:8405");
- });
-
-
- curl -X POST http://localhost:8405/conversation \
-   -H "Content-Type: application/json" \
-   -d '{"userA":1,"userB":2}'
-*/

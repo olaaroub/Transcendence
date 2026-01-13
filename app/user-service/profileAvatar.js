@@ -108,7 +108,7 @@ async function deleteAvatar(req, reply) {
 async function routes(fastify) {
   await fastify.register(fastifyMultipart, {
     limits: {
-      fileSize: 2 * 1024 * 1024, // 2MB Limit
+      fileSize: 2 * 1024 * 1024,
     }
   });
 

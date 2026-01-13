@@ -5,7 +5,6 @@ export async function JwtHandler(request, reply) {
 
     const token = request.query?.token;
 
-    // console.log("---------------> ",token)
     if (token) 
       request.headers['authorization'] = `Bearer ${token}`;
     const payload = await request.jwtVerify();

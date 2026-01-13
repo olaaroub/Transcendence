@@ -70,7 +70,7 @@ async function googleCallback(req, reply) {
     } catch (err) {
         this.customMetrics.loginCounter.inc({ status: 'failure', provider: 'google' });
         req.log.error({ msg: "Google OAuth Failed", err: err });
-        reply.redirect(`${domain}/login?error=${encodeURIComponent(err.message || "Internal Server Error")}`); // encodeURIComponent that encode the elements that is unsafe in the url (in example: if you have in error:'?' this in url mean you have query this will do error but using this function will encode it to (%43: example) )
+        reply.redirect(`${domain}/login?error=${encodeURIComponent(err.message || "Internal Server Error")}`);
     }
 }
 
