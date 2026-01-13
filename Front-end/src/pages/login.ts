@@ -21,12 +21,11 @@ export function renderLogin (isLoged: boolean)
 {
 	AuthRedirect();
 	document.body.innerHTML = /* html */`
-		<div id="app" class="flex-grow w-[90%] mx-auto">
+		<div id="app" class="flex-grow w-full max-w-[1200px] mx-auto px-4">
 			${renderNavBar(true)}
 		</div>
-		<footer id="footer" class="w-[90%] absolute bottom-0 left-1/2 transform -translate-x-1/2
-		mx-auto flex flex-col sm:flex-row justify-between items-center gap-4
-		py-8 text-white border-t border-slate-500 mt-auto">
+	<footer id="footer" class="w-full max-w-[1200px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4
+	py-8 text-white border-t border-slate-500 mt-auto">
 			<p class="text-[#878787] text-sm sm:text-base">© 2025 SPACE PONG</p>
 			<div class="flex flex-wrap justify-center gap-3 sm:gap-4">
 				<button id="terms-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Terms</button>
