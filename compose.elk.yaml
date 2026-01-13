@@ -290,6 +290,7 @@ services:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     volumes:
       - ./Elastic-Stack/setup/setupInfra.sh:/usr/share/elasticsearch/config/setupInfra.sh:ro
+      - ./Elastic-Stack/kibana/olaaroub-kibanaDashboard.ndjson:/usr/share/elasticsearch/config/dashboard.ndjson:ro
       - certs:/usr/share/elasticsearch/config/certs
     networks:
       - transcendence-elk-net

@@ -35,14 +35,13 @@ find . -type d -exec chmod 750 \{\} \;;
 find . -type f -exec chmod 640 \{\} \;;
 
 
-
-
-
 echo "Waiting for Elasticsearch to be ready for ILM setup..."
+
 until curl -s -k -u "elastic:${ELASTIC_PASSWORD}" https://elasticsearch:9200 | grep -q "You Know, for Search"; do sleep 5; done;
 
 
 echo "Setting password for built-in kibana_system user..."
+
 curl -s -X POST -k -u "elastic:${ELASTIC_PASSWORD}" \
   -H "Content-Type: application/json" \
   "https://elasticsearch:9200/_security/user/kibana_system/_password" \
@@ -93,3 +92,19 @@ curl -X PUT -k -u "elastic:${ELASTIC_PASSWORD}" "https://elasticsearch:9200/_ind
 }'
 
 
+
+echo "[Setup] Waiting for Kibana to be ready..."
+
+until curl -s -k -u elastic:${ELASTIC_PASSWORD} "https://kibana:5601/api/status" | grep -q '"overall":{"level":"available"'; do
+  echo "[Setup] Kibana is not ready yet... sleeping 5s"
+  sleep 5
+done
+
+echo "[Setup] Importing Kibana Dashboard..."
+
+curl -k -u elastic:${ELASTIC_PASSWORD} \
+  -X POST "https://kibana:5601/api/saved_objects/_import?overwrite=true" \
+  -H "kbn-xsrf: true" \
+  --form file=@/usr/share/elasticsearch/config/dashboard.ndjson
+
+echo "[Setup] Dashboard imported successfully!"
