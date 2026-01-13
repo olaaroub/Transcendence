@@ -34,8 +34,8 @@ const fastify = Fastify({
   logger: {
     level: process.env.LOG_LEVEL || 'info',
     base: {
-      service_name: 'private-chat-service',
-      env: process.env.NODE_ENV || 'development'
+      service_name: 'private-chat',
+      environment: process.env.NODE_ENV || 'development'
     },
 
     redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password']
@@ -57,8 +57,6 @@ const chatMessageCounter = new fastify.metrics.client.Counter({
 fastify.decorate('customMetrics', {
   chatMessageCounter,
 });
-
-fastify.cust
 
 fastify.get("/", async () => {
   return { status: "ok" };
@@ -86,29 +84,28 @@ async function start() { // hadchi zdto fhad function wdrt lih try catch 7it DAR
     // zid had line fl blasa fin tatconnecti b database
     // fastify.log.info({ dbPath: process.env.DATABASE_PATH }, "Database connected successfully");
 
-    
+
     await fastify.register(socketio, {
         cors: { origin: "*", methods: ["GET", "POST", "DELETE"] },
         path: '/api/chat/private/socket.io' // by simo
       });
       await fastify.register(chatRoutes); // khsek tzid {prefix: '/api'} hnaya (ta checki m3a ohammou)
-  
+
       // await fastify.get('/api/conversation/test', async (req, res) => {
       //   return db.prepare(`SELECT * FROM conversation`).all();
       // }); just for test if the user is deleted or not
-  
-      await fastify.delete('/api/chat/private/account/:id', async (req, res) => 
+
+      await fastify.delete('/api/chat/private/account/:id', async (req, res) =>
       {
         const id = req.params.id;
-  
+
           try {
-              console.log("deleting user conversations for user id: ", id);
+              req.log.info({ userId: id }, "deleting user conversations for user id");
               db.prepare('DELETE FROM conversation WHERE (senderId = ? OR receiverId = ?)').run(id, id);
               res.code(200).send({message: "user deleted", ok: true})
           } catch(err)
           {
-            // req.log.error
-            console.log(err);
+            req.log.error({ err }, "you can not delete user conversadtion");
             res.code(500).send({message: "you can not delete user conversadtion", ok: false})
           }
       })
