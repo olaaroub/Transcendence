@@ -77,7 +77,16 @@ const creatTable = async () => {
         FOREIGN KEY(player1_id) REFERENCES userInfo(id) ON DELETE CASCADE,
         FOREIGN KEY(player2_id) REFERENCES userInfo(id) ON DELETE CASCADE
     );`);
+
+    db.exec(`INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('ohammou-', 1, '/public/ohammou-.jpeg', 2000, 2000, 100, 10000, 2000, 999999);
+             INSERT OR IGNORE INTO userInfo (username, id, avatar_url) VALUES ('mmondad', 2, '/public/mmondad.jpeg');
+             INSERT OR IGNORE INTO userInfo (username, id, avatar_url) VALUES ('olaaroub', 3, '/public/olaaroub.jpeg');
+             INSERT OR IGNORE INTO userInfo (username, id, avatar_url) VALUES ('hes-safi', 4, '/public/hes-safi.jpeg');
+             INSERT OR IGNORE INTO userInfo (username, id, avatar_url) VALUES ('oumondad', 5, '/public/oumondad.jpeg');`)
     return db;
+
 }
 
+
 export default creatTable;
+

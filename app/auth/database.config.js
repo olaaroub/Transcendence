@@ -24,6 +24,12 @@ const creatTable = async () => {
         CHECK (auth_provider IN ('local', 'google', 'github', 'intra'))
     );`);
 
+    db.exec(`INSERT OR IGNORE INTO users(username, auth_provider, email, id) VALUES ('ohammou-', 'google', 'ohammou-@gmail.com', 1);
+             INSERT OR IGNORE INTO users(username, auth_provider, email, id) VALUES ('mmondad', 'google',  'mmondad-@gmail.com', 2);
+             INSERT OR IGNORE INTO users(username, auth_provider, email, id) VALUES ('olaaroub', 'google', 'olaaroub-@gmail.com', 3);
+             INSERT OR IGNORE INTO users(username, auth_provider, email, id) VALUES ('hes-safi', 'google', 'hes-safi-@gmail.com', 4);
+             INSERT OR IGNORE INTO users(username, auth_provider, email, id) VALUES ('oumondad', 'google', 'oumondad-@gmail.com', 5);`)
+
     return db;
 }
 
