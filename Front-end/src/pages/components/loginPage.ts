@@ -134,6 +134,18 @@ document.body.addEventListener("click", (e) => {
 	else if (action === "login") navigate('/login');
 });
 
+function validateInfos(inputs : NodeListOf<HTMLInputElement>)  : string
+{
+	console.log(`length : ${inputs[1].value.length} and value :  ${inputs[1].value}`);
+	if (inputs[0].value.length < 5 || inputs[0].value.length > 30)
+		return "Invalid Username";
+	if (inputs[2].value !== inputs[3].value)
+		return "Passwords do not match";
+	if (inputs[2].value.length < 8 || inputs[2].value.length > 30)
+		return "Invalid Password";
+	return "";
+}
+
 document.body.addEventListener("submit", (e) => {
 	e.preventDefault();
 	const form = e.target as HTMLFormElement;
@@ -143,10 +155,11 @@ document.body.addEventListener("submit", (e) => {
 	if (inputs.length == 4)
 	{
 		path = 'signUp';
-		if (inputs[2].value !== inputs[3].value)
+		const errorMSG = validateInfos(inputs);
+		if (errorMSG !== "")
 		{
-			renderAuthPage(true, "Passwords do not match");
-			return;
+			renderAuthPage(true, errorMSG);		
+			return ;
 		}
 	}
 	const data: Record<string, string> = {};
