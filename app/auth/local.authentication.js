@@ -64,7 +64,7 @@ async function loginHandler(req, reply) {
 
 	if (!user) {
 		this.customMetrics.loginCounter.inc({ status: 'failure', provider: 'local' });
-		throw createError.Unauthorized("Invalid credentials");
+		throw createError.Unauthorized("Invalid Alias/Password! Try Again.");
 	}
 
 	if (user.auth_provider !== "local") {
@@ -74,7 +74,7 @@ async function loginHandler(req, reply) {
 	const validPassword = await argon2.verify(user.password, body.password);
 	if (!validPassword) {
 		this.customMetrics.loginCounter.inc({ status: 'failure', provider: 'local' });
-		throw createError.Unauthorized("Invalid credentials");
+		throw createError.Unauthorized("Invalid Alias/Password! Try Again.");
 	}
 
 	req.log.info({ userId: user.id, username: user.username }, "User logged in succcessfully");

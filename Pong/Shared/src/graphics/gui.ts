@@ -204,7 +204,6 @@ function createAlias(player : number, alias: string): GUI.TextBlock
 	name.outlineWidth = 3;
 	name.top = "73px";
 	name.left = player === 1 ? "140px" : "-140px";
-	console.log("Alias:", name.text, "Sizes: ", name.width, name.height);
 	return name;
 }
 

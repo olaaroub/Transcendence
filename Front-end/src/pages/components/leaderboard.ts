@@ -101,31 +101,31 @@ function renderPodiumPlayer(player: LeaderboardPlayer, rank: number): string {
 
 function renderPlayerRow(player: LeaderboardPlayer, rank: number): string {
 	return /* html */ `
-		<div data-player-id="${player.id}" class="grid grid-cols-6 gap-4 items-center p-4 rounded-xl bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer
+		<div data-player-id="${player.id}" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4 items-center py-3 sm:py-4 px-3 sm:px-4 rounded-xl bg-black/30 hover:bg-black/50 transition-all duration-300 cursor-pointer
 			${rank <= 3 ? 'border-l-4' : 'border-l-2'} 
 			${rank === 1 ? 'border-yellow-500 bg-yellow-500/5' : rank === 2 ? 'border-gray-400' : rank === 3 ? 'border-amber-600' : 'border-color3'}">
-			<div class="col-span-2 flex items-center gap-3">
-				<span class="text-txtColor font-black text-lg min-w-[2rem] ${rank <= 3 ? 'text-color1' : ''}">#${rank}</span>
+			<div class="col-span-2 flex items-center gap-2 sm:gap-3">
+				<span class="text-txtColor font-black text-sm sm:text-lg min-w-[1.5rem] sm:min-w-[2rem] ${rank <= 3 ? 'text-color1' : ''}">#${rank}</span>
 				<img src="${getImageUrl(player.avatar_url)}" 
-					class="w-12 h-12 rounded-full object-cover border-2 border-${rank > 4 ? colorArr[4] : colorArr[rank]}">
-				<span class="text-txtColor font-bold text-base">${shortString(player.username, 14)}</span>
+					class="w-8 h-8 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-${rank > 4 ? colorArr[4] : colorArr[rank]}">
+				<span class="text-txtColor font-bold text-sm sm:text-base truncate">${shortString(player.username, 14)}</span>
 			</div>
-			<div class="text-center text-txtColor font-semibold">${player.GamesPlayed}</div>
-			<div class="text-center">
-				<div class="inline-flex items-center gap-2">
-					<div class="w-16 bg-gray-700 rounded-full h-2 overflow-hidden">
+			<div class="hidden lg:block text-center text-txtColor font-semibold">${player.GamesPlayed}</div>
+			<div class="hidden sm:block text-center">
+				<div class="inline-flex items-center gap-1 sm:gap-2">
+					<div class="w-10 sm:w-16 bg-gray-700 rounded-full h-2 overflow-hidden">
 						<div class="bg-color1 h-full rounded-full transition-all duration-300" style="width: ${Math.floor(player.WinRate)}%"></div>
 					</div>
-					<span class="text-color1 font-bold text-sm">${Math.floor(player.WinRate)}%</span>
+					<span class="text-color1 font-bold text-xs sm:text-sm">${Math.floor(player.WinRate)}%</span>
 				</div>
 			</div>
-			<div class="text-center">
+			<div class="hidden lg:block text-center">
 				<span class="text-green-400 font-bold text-sm">${player.TotalWins}</span>
 				<span class="text-gray-500 mx-1">/</span>
 				<span class="text-red-400 font-bold text-sm">${player.TotalLosses}</span>
 			</div>
 			<div class="text-center">
-				<span class="bg-color1/20 px-3 py-1 rounded-full border border-color1/40 text-color1 font-bold inline-block">
+				<span class="bg-color1/20 px-2 sm:px-3 py-1 rounded-full border border-color1/40 text-color1 font-bold text-xs sm:text-sm inline-block">
 					${player.Rating}
 				</span>
 			</div>
@@ -158,15 +158,15 @@ export async function renderLeaderboard() {
 				${top3[2] ? renderPodiumPlayer(top3[2], 3) : ''}
 			</div>
 			<div id="player-details" class="hidden"></div>
-			<div class="bg-color4 rounded-2xl p-6 flex-1 overflow-hidden flex flex-col">
-				<div class="grid grid-cols-6 gap-4 text-gray-400 text-sm font-bold mb-4 pb-3 border-b border-color3">
+			<div class="bg-color4 rounded-2xl p-4 sm:p-6 flex-1 overflow-hidden flex flex-col">
+				<div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4 text-gray-400 text-xs sm:text-sm font-bold mb-4 pb-3 border-b border-color3 items-center px-3 sm:px-4 ml-1">
 					<div class="col-span-2">PLAYER</div>
-					<div class="text-center">GAMES</div>
-					<div class="text-center">WIN RATE</div>
-					<div class="text-center">W/L</div>
+					<div class="hidden lg:block text-center">GAMES</div>
+					<div class="hidden sm:block text-center">WIN RATE</div>
+					<div class="hidden lg:block text-center">W/L</div>
 					<div class="text-center">RATING</div>
 				</div>
-				<div class="overflow-y-auto scrollbar-custom pr-2 flex flex-col gap-2">
+				<div class="overflow-y-auto scrollbar-custom flex flex-col gap-2">
 					${leaderboardData.map((player, index) => renderPlayerRow(player, index + 1)).join('')}
 				</div>
 			</div>

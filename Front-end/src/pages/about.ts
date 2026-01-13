@@ -12,12 +12,12 @@ export async function renderAbout() {
 			description: "Technical Lead / Architect"
 		},
 		{
-			name: 'ohammou-',
-			role: 'Back-End',
-			image: 'images/ohammou-.jpeg',
+			name: 'olaaroub',
+			role: 'DevOps',
+			image: 'images/olaaroub.jpeg',
 			gradientFrom: '#d18a10',
-			gradientTo: '#ed6f30',
-			description: "Developer"
+			gradientTo: '#1B1A1DD6',
+			description: "Project Manager (PM)"
 		},
 		{
 			name: 'hes-safi',
@@ -28,6 +28,14 @@ export async function renderAbout() {
 			description: "Product Owner (PO)"
 		},
 		{
+			name: 'ohammou-',
+			role: 'Back-End',
+			image: 'images/ohammou-.jpeg',
+			gradientFrom: '#d18a10',
+			gradientTo: '#ed6f30',
+			description: "Developer"
+		},
+		{
 			name: 'oumondad',
 			role: 'Chat Dev',
 			image: 'images/oumondad.jpeg',
@@ -35,14 +43,7 @@ export async function renderAbout() {
 			gradientTo: '#878787',
 			description: "Developer"
 		},
-		{
-			name: 'olaaroub',
-			role: 'DevOps',
-			image: 'images/olaaroub.jpeg',
-			gradientFrom: '#d18a10',
-			gradientTo: '#1B1A1DD6',
-			description: "Project Manager (PM)"
-		},
+
 	]
 	document.body.innerHTML = /* html */`
 	<div class="w-full min-h-screen bg-bgColor flex flex-col items-center py-16 px-6">

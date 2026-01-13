@@ -1,5 +1,6 @@
 import { navigate } from "../router";
 import { renderNavBar } from "./components/NavBar";
+import { credentials, userData } from "./store";
 
 const $ = (id: string) => document.getElementById(id as string)
 
@@ -100,7 +101,7 @@ export function AliasPopUp(item: string)
 	$("confirm-alias")?.addEventListener('click', _=> {
 		const AliasInput = $("alias-input") as HTMLInputElement ;
 		const value = AliasInput.value.trim();
-		if (value == "")
+		if (value.length < 1 || value.length > 30 || value === userData.username)
 			$("alias-error")?.classList.remove("hidden");
 		else
 		{
