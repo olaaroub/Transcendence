@@ -26,7 +26,7 @@ async function callbackHandler(req, reply) {
         const userdata = await dataUser.json();
         let data = this.db.prepare("SELECT id, username FROM users WHERE email = ?").get([userdata.email]);
 
-        if (!data) // this email not exist dakchi 3lach I will register it in the database
+        if (!data)
         {
             const AvatarUrl = await DownoladImageFromUrl(userdata.image.versions.small, "_intra", req.log);
             data = this.db.prepare("INSERT INTO users(username, email, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
@@ -46,7 +46,7 @@ async function callbackHandler(req, reply) {
                 })
             });
 
-            if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
+            if (!createNewUserRes.ok)
             {
                 await fs.promises.unlink(AvatarUrl.file_path).catch(() => { });
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([data.id]);

@@ -2,6 +2,7 @@ import { navigate } from "../../router";
 import { closeNotificationSocket } from "./NavBar";
 import { cleanupGlobalChat } from "../chat/globalChat";
 import { toastError, toastWarning } from "./toast";
+import { logout } from "./profileMenu";
 
 export interface ApiError {
 	message: string;
@@ -13,8 +14,7 @@ function handleSessionExpired(): void {
 	closeNotificationSocket();
 	cleanupGlobalChat();
 	localStorage.clear();
-	toastWarning('Session expired. Please log in again.');
-	navigate('/login');
+	logout();
 }
 
 export async function isUserAuthenticated(): Promise<boolean> {
@@ -25,14 +25,14 @@ export async function isUserAuthenticated(): Promise<boolean> {
 		return false;
 	}
 	try {
-		const response = await fetch(`api/user/${id}`, {
+		const response = await fetch(`api/user/${id}/profile`, {
 			headers: { "Authorization": `Bearer ${token}` },
 		});
-		if (response.status === 401) {
+		if (response.status === 401 || response.status === 404) {
 			handleSessionExpired();
 			return false;
 		}
-		return true;
+		return response.ok;
 	}
 	catch(err) {
 		console.error('Auth check failed:', err);

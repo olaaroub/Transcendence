@@ -4,7 +4,6 @@
   "description": "Offline version of Pong",
   "type": "module",
   "scripts": {
-	"dev": "vite",
     "build": "tsc && vite build"
   },
   "dependencies": {

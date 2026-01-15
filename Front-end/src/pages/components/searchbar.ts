@@ -4,6 +4,7 @@ import { sendFriendRequest, unfriend, blockFriend } from "../profile";
 import { confirmPopUp } from "../settings";
 import { toastError } from "./toast";
 import { apiFetch } from "./errorsHandler";
+import { shortString } from "../utils";
 
 interface UserData {
     id: string;
@@ -25,7 +26,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		divp.innerHTML = /* html */`
 			<div class="flex gap-3 items-center">
 				<img src="${getImageUrl(user.avatar_url)}" alt="${user.username}" class="w-10 h-10 rounded-full">
-				<p class="font-bold">${user.username}</p>
+				<p class="font-bold">${shortString(user.username, 10)}</p>
 			</div>`;
 		const buttonsDiv = document.createElement('div');
 		buttonsDiv.className = "flex gap-3 items-center";
@@ -40,7 +41,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 				if (status === 'pending') {
 					addFriend.src = '/images/pending.svg';
 				} else {
-					addFriend.src = '/images/addFriend.svg';
+					addFriend.src = '/images/addFriendd.svg';
 					addFriend.addEventListener('click', async (e) => {
 						e.stopPropagation();
 						try {
@@ -93,7 +94,7 @@ function listUsers(users: UserData[], div: HTMLElement) {
 		}
 		
 		const view = document.createElement('button');
-		view.textContent = 'view';
+		view.textContent = 'View';
 		view.className = "font-bold text-color2 hover:scale-110 hover:text-white transition-transform";
 		buttonsDiv.appendChild(view);
 		view.addEventListener('click', (e) => {
@@ -122,7 +123,7 @@ export async function searchbar() {
 		div.className = `absolute z-10 top-[44px] left-0 w-full max-h-[300px]
 		overflow-y-auto bg-color4 border py-3 border-[#87878766] rounded-xl scrollbar-custom`;
 		const { data: users } = await apiFetch<UserData[]>(`api/user/search/${userData.id}?username=${value}`, {
-			showErrorToast: false
+			showErrorToast: true
 		});
 		if (!users || users.length === 0) {
 			const p = document.createElement('p');

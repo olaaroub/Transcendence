@@ -36,14 +36,15 @@ interface GameRoom
 }
 
 const HOST = process.env.HOST as string;
-const PORT = Number(process.env.PORT) ||3005;
+const PORT = Number(process.env.PORT) || 3005;
 
-const ext = process.env.SERVICE_EXT || '-dev';
+const ext = process.env.SERVICE_EXT || '-prod';
 const USER_SERVICE_URL = `http://user-service${ext}:3002`;
 
 const rooms = new Map<string, GameRoom>();
 const matchmakingQueue: string[] = [];
 const connectedUsers = new Map<string, Socket>();
+const pendingUsers = new Set<string>();
 
 declare module 'fastify' { interface FastifyInstance { customMetrics: { matchCounter: any; } } }
 
@@ -80,7 +81,7 @@ const fastify = Fastify(
 		base:
 		{
 			service_name: 'pong-game',
-			env: process.env.NODE_ENV || 'development'
+			environment: process.env.NODE_ENV || 'development'
 		},
 		redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password']
 	}
@@ -202,7 +203,10 @@ async function startCountdown(room: GameRoom): Promise<void>
 	await new Promise((resolve) => setTimeout(resolve, 2000));
 	for (let count = 3; count >= 0; count--)
 	{
-		broadcastToRoom(room.id, 'countdown', `${count}`);
+		if (count === 0)
+			broadcastToRoom(room.id, 'countdown', 'GO');
+		else
+			broadcastToRoom(room.id, 'countdown', `${count}`);
 		if (count > 0)
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 	}
@@ -300,15 +304,19 @@ async function jwtChecker(request: any, reply: any)
 	try
 	{
 		const payload = await request.jwtVerify();
-		if (connectedUsers.has(String(payload.id)))
+		const userId = String(payload.id);
+		if (connectedUsers.has(userId) || pendingUsers.has(userId))
 			throw new Error('User Already Connected!');
+		request.userId = userId;
 	}
 	catch (err) {reply.status(401).send({ message: 'Unauthorized' });}
 }
 
-fastify.get('/api/game/matchmaking', {preHandler: [jwtChecker]} ,async (request, reply) =>
+fastify.get('/api/game/matchmaking', {preHandler: [jwtChecker]} ,async (request: any, reply) =>
 {
 	let roomId: string;
+	const userId = request.userId as string;
+	pendingUsers.add(userId);
 
 	if (matchmakingQueue.length > 0)
 	{
@@ -326,8 +334,10 @@ fastify.get('/api/game/matchmaking', {preHandler: [jwtChecker]} ,async (request,
 	return reply.send({ roomId });
 });
 
-fastify.get('/api/game/friendly-match', {preHandler: [jwtChecker]} ,async (request, reply) =>
+fastify.get('/api/game/friendly-match', {preHandler: [jwtChecker]} ,async (request: any, reply) =>
 {
+	const userId = request.userId as string;
+	pendingUsers.add(userId);
 	let roomId: string = generateRoomId();
 	const room = createGameRoom(roomId);
 	rooms.set(roomId, room);
@@ -335,12 +345,22 @@ fastify.get('/api/game/friendly-match', {preHandler: [jwtChecker]} ,async (reque
 	return reply.send({ roomId });
 });
 
+fastify.get<{ Params: { roomid: string } }>('/api/game/room/:roomid', {preHandler: [jwtChecker]}, async (request, reply) =>
+{
+	const { roomid } = request.params;
+	const exists = rooms.has(roomid.toUpperCase());
+	return reply.send({ exists });
+});
+
 fastify.get('/api/game/spectate', {preHandler: [jwtChecker]} ,async (request, reply) =>
 {
-	if (rooms.size > 0)
+	const roomIDs = Array.from(rooms.entries())
+		.filter(([_, room]) => getPlayerCount(room) > 1)
+		.map(([roomId, _]) => roomId);
+
+	if (roomIDs.length > 0)
 	{
-		const roomIDs = Array.from(rooms.keys());
-		let roomId = roomIDs[Math.floor(Math.random() * roomIDs.length)];
+		const roomId = roomIDs[Math.floor(Math.random() * roomIDs.length)];
 		fastify.log.info(`Spectate: Returning room ${roomId}`);
 		return reply.send({ roomId });
 	}
@@ -379,6 +399,7 @@ function initSocketHandlers(): void
 			playerSide = getAvailableSide(room);
 			room.members.set(socket.id, { socket, userID: data.PlayerID, side: playerSide });
 			userID = data.PlayerID;
+			pendingUsers.delete(data.PlayerID);
 			connectedUsers.set(data.PlayerID, socket);
 			socket.emit('side', playerSide);
 
@@ -407,7 +428,10 @@ function initSocketHandlers(): void
 				}
 			}
 			else
+			{
 				fastify.log.info(`Spectator ${socket.id} joined room ${roomId}`);
+				socket.emit('session', room.session);
+			}
 			callback(getMatchData(room));
 		});
 

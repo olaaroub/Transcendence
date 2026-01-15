@@ -5,25 +5,30 @@ import createError from 'http-errors';
 const __dirname = import.meta.dirname;
 
 const ext = process.env.SERVICE_EXT || '-prod';
+
 const AUTH_SERVICE_URL = `http://auth-service${ext}:3001`;
 const GLOBAL_CHAT_SERVICE_URL = `http://global-chat${ext}:3003`
-
+const PRIVATE_CHAT_SERVICE_URL = `http://private-chat${ext}:3004`
 async function deleteAccountHandler(req, reply) {
     const id = req.params.id;
 
-    const respons = await fetch(`${AUTH_SERVICE_URL}/api/auth/deletAccount/${id}`, {
-        method: 'DELETE'
+    const respons = await Promise.all([
+        fetch(`${AUTH_SERVICE_URL}/api/auth/deleteAccount/${id}`, {
+            method: 'DELETE'
+        }),
+        fetch(`${GLOBAL_CHAT_SERVICE_URL}/api/chat/global/account/${id}`, {
+            method: 'DELETE'
+        }),
+        fetch(`${PRIVATE_CHAT_SERVICE_URL}/api/chat/private/account/${id}`, {
+            method: 'DELETE'
+        })
+    ]);
+
+    respons.forEach((res) => {
+        if (!res.ok) {
+            throw createError.BadGateway("Failed to synchronize deletion with author Service");
+        }
     });
-
-    if (!respons.ok) 
-        throw createError.BadGateway("Failed to synchronize deletion with Auth Service");
-
-    const globalChatRespons = await fetch(`${GLOBAL_CHAT_SERVICE_URL}/api/chat/global/account/${id}`, {
-        method: 'DELETE'
-    });
-
-    if (!globalChatRespons.ok) 
-        throw createError.BadGateway("Failed to synchronize deletion with Auth Service");
 
     const avatar = this.db.prepare(`SELECT avatar_url FROM userInfo WHERE id = ?`).get([id]);
     if (avatar) {

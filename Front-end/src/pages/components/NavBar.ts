@@ -1,6 +1,5 @@
 import { credentials, getImageUrl, IUserData } from "../store";
 import { shortString } from "../utils";
-import { costumeButton } from "./buttons";
 import { apiFetch } from "./errorsHandler";
 
 const $ = (id: string) => document.getElementById(id as string)
@@ -24,9 +23,7 @@ function initNotificationSocket(): void {
 
 	const wsUrl = `wss://${window.location.host}/api/user/notification/${credentials.id}`;
 	socket = new WebSocket(wsUrl);
-	socket.onopen = () => {
-		console.log('WebSocket connection established for notifications');
-	};
+	socket.onopen = () => {};
 	socket.onmessage = (event) => {
 		try {
 			const parsed = JSON.parse(event.data);
@@ -50,7 +47,6 @@ function initNotificationSocket(): void {
 		console.error('WebSocket error:', error);
 	};
 	socket.onclose = (event) => {
-		console.log('WebSocket connection closed:', event.code, event.reason);
 		socket = null;
 	};
 }
@@ -65,12 +61,11 @@ export function closeNotificationSocket(): void {
 export function renderNavBar (isLoged: boolean)
 {
     return /* html */ `
-		<nav class="flex justify-between items-center pt-6 sm:pt-10">
-			<img id="navBar-logo" class="w-[120px] sm:w-[155px] h-auto cursor-pointer" src="/images/logo.png" alt="pong" />
-			<div  class=" ${isLoged ? "hidden" : ""} gap-3 sm:gap-5 flex">
-				${costumeButton("Sign Up", "", "", "py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base", "go-sign-up")}
-				${costumeButton("Login", "", "", "bg-[#F0F0F0] py-2 px-4 sm:px-6 text-black border border-color2 transition-all duration-500 hover:bg-color2 rounded-lg hover:text-black font-bold text-sm sm:text-base opacity-70", "go-sign-in")}
-				${costumeButton("As Guest", "", "", "bg-[#F0F0F0] py-2 px-4 sm:px-6 text-black border border-color2 transition-all duration-500 hover:bg-color2 rounded-lg hover:text-black font-bold text-sm sm:text-base opacity-70", "go-as-guest")}
+		<nav class="flex justify-between items-center pt-4 sm:pt-6 md:pt-8 lg:pt-10 px-2 sm:px-0">
+			<img id="navBar-logo" class="w-[80px] sm:w-[100px] md:w-[115px] h-auto cursor-pointer" src="/images/logo.png" alt="pong" />
+			<div  class=" ${isLoged ? "hidden" : ""} gap-2 sm:gap-3 md:gap-5 flex">
+				<button id="go-sign-up" class="py-1.5 px-3 sm:py-2 sm:px-4 md:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">Sign Up</button>
+				<button id="go-sign-in" class="bg-[#F0F0F0] py-1.5 px-3 sm:py-2 sm:px-4 md:px-6 text-black border border-color2 transition-all duration-500 hover:bg-color2 rounded-lg hover:text-black font-bold text-xs sm:text-sm md:text-base opacity-70 whitespace-nowrap">Login</button>
 			</div>
 		</nav>
     `
@@ -79,23 +74,21 @@ export function renderNavBar (isLoged: boolean)
 function searchBar() : string
 {
 	return /* html */`
-		<div id="search-bar" class="relative w-[150px] mx-2 sm:w-[250px]
-		md:w-[300px] lg:w-[400px] 2xl:w-[550px] bg-color4
+		<div id="search-bar" class="relative w-[240px] xs:w-[240px] sm:w-[300px] md:w-[350px] lg:w-[400px] xl:w-[400px] 2xl:w-[550px] bg-color4
 		border border-color4 rounded-full
 		flex items-center">
 			<input
-
 				id="search-input"
 				type="text"
 				autocomplete="off"
 				autocorrect="off"
 				autocapitalize="off"
 				spellcheck="false"
-				placeholder="Search, users..."
-				class="w-full bg-transparent text-gray-200 py-2
-				px-4 outline-none placeholder:text-gray-500 sm:placeholder:text-sm placeholder:text-xs"
+				placeholder="Search for users..."
+				class="w-full bg-transparent text-gray-200 py-1.5 sm:py-2
+				px-3 sm:px-4 outline-none placeholder:text-gray-500 text-xs sm:text-sm placeholder:text-[10px] sm:placeholder:text-xs md:placeholder:text-sm"
 			/>
-			<svg xmlns="http://www.w3.org/2000/svg" class="absolute right-4 w-6 h-6
+			<svg xmlns="http://www.w3.org/2000/svg" class="absolute right-2 sm:right-3 md:right-4 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6
 			text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 			d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18a7.5 7.5 0 006.15-3.35z" />
@@ -155,11 +148,7 @@ export async function notifications()
 	notificationIcon.addEventListener('click',async  () => {
 		const existingResult = $('notifications-result');
 		if (!existingResult && socket)
-		{
-			socket.send(JSON.stringify({
-				type: 'MAKE_AS_READ'
-			}))
-		}
+			socket.send(JSON.stringify({type: 'MAKE_AS_READ'}))
 		if (existingResult) {
 			existingResult.remove();
 			return;
@@ -170,7 +159,7 @@ export async function notifications()
 		scrollbar-custom`;
 		result.id = "notifications-result";
 		result.innerHTML = /* html */ `
-			<p class="text-txtColor text-sm font-medium px-4 py-2 border-b border-borderColor/50">Notifications</p>
+			<h3 class="text-txtColor text-sm font-medium px-4 py-2 border-b border-borderColor/50">Notifications</h3>
 		`;
 		notificationIcon.append(result);
 		if (!pendingUsers || pendingUsers.length === 0)
@@ -232,32 +221,32 @@ export async function notifications()
 
 export function renderDashboardNavBar(user: IUserData | null, imageUrl: string | null): string {
 	return /* html */ `
-	<nav class="relative z-50 flex justify-between items-center py-14 w-full m-auto md:px-10 h-[70px] mb-7">
+	<nav class="relative z-50 flex justify-between items-center py-4  w-full m-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:px-10 h-auto mb-4 sm:mb-5 md:mb-7">
 		<img id="main-logo" src="/images/logo.png"
-		class="w-[100px] xl:w-[130px] my-10 xl:my-14 block cursor-pointer" />
+		class="w-[70px] sm:w-[80px] md:w-[90px] lg:w-[100px] xl:w-[115px] block cursor-pointer flex-shrink-0" />
 		${searchBar()}
-		<div class="flex items-center gap-3 mr-6">
+		<div class="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
 			<div id="message-icon"
-			class="bg-color4 translate-y-[2px] rounded-full p-2 cursor-pointer">
-				<img src="images/messageIcon.svg" class="w-[25px] h-[25px] invert
+			class="bg-color4 translate-y-[2px] rounded-full p-1.5 sm:p-2 cursor-pointer">
+				<img src="images/messageIcon.svg" class="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[22px] md:h-[22px] lg:w-[25px] lg:h-[25px] invert
 				sepia saturate-200 hue-rotate-[330deg]">
 			</div>
 			<div id="notification-icon"
-			class="relative bg-color4 cursor-pointer translate-y-[2px] rounded-full p-2">
-				<span class="hidden absolute top-0 right-0 w-3 h-3 bg-red-500
+			class="relative bg-color4 cursor-pointer translate-y-[2px] rounded-full p-1.5 sm:p-2">
+				<span class="hidden absolute top-0 right-0 w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 bg-red-500
 				border-2 border-[#0f2a3a] rounded-full"></span>
-				<img src="images/notificationIcon.svg" class="w-[25px] h-[25px] invert
+				<img src="images/notificationIcon.svg" class="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[22px] md:h-[22px] lg:w-[25px] lg:h-[25px] invert
 				sepia saturate-200 hue-rotate-[330deg]">
 			</div>
-			<div class="flex items-center gap-3 ">
-				<div id="avatar" class=" relative cursor-pointer
+			<div class="flex items-center gap-1.5 sm:gap-2 md:gap-3">
+				<div id="avatar" class="relative cursor-pointer
 				transition-transform duration-300">
-					<img src="${imageUrl}" class=" w-[50px] h-[50px] rounded-full
-					border-2 border-transparent" alt="userAvatar"/>
-					<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500
+					<img src="${imageUrl}" class="w-[35px] h-[35px] sm:w-[40px] sm:h-[40px] md:w-[45px] md:h-[45px] lg:w-[50px] lg:h-[50px] rounded-full
+					border-2 border-transparent object-cover" alt="userAvatar"/>
+					<span class="absolute bottom-0 right-0 w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 bg-green-500
 					border-2 border-[#0f2a3a] rounded-full"></span>
 				</div>
-				<p class="text-sm text-gray-200 font-bold">${shortString(user?.username, 10)}</p>
+				<p class="hidden sm:block text-xs sm:text-sm md:text-base text-gray-200 font-bold max-w-[60px] sm:max-w-[80px] md:max-w-none truncate">${shortString(user?.username, 10)}</p>
 			</div>
 		</div>
 	</nav>

@@ -10,11 +10,10 @@ async function setupTowFaHandler(req, reply) {
         throw createError.Conflict("2FA already enabled!");
 
     const secret = speakeasy.generateSecret({
-        name: `42TrancendensUserID_${id}` // I will change the id to username
+        name: `42TrancendensUserID_${id}`
     });
 
-    this.db.prepare("UPDATE users SET towFaSecret = ? WHERE id = ?").run(secret.base32, id)// hna knti tadir two fa enabled 9bl ma yscani qr
-    // matalan ma9derch yscani w 3awd loga aytl3 lih idkhel lcode whow mascanach asln, dkchi 3lach madirch towofa enabled 7ta t verifyi...
+    this.db.prepare("UPDATE users SET towFaSecret = ? WHERE id = ?").run(secret.base32, id)
 
     req.log.info({ userId: id }, "2FA Setup initiated (Secret generated)");
 
@@ -46,7 +45,7 @@ async function verifyTowFaHandler(req, reply) {
         throw createError.Unauthorized("Invalid 2FA token");
     }
 
-    if (!towFaEnabled) { //  awal mra ydkhl, khsni n updati status to true, (7it mab9inach kndiroha lfo9)
+    if (!towFaEnabled) {
         this.db.prepare('UPDATE users SET towFaEnabled = TRUE WHERE id = ?').run(id);
         req.log.info({ userId: id }, "2FA Enabled Successfully");
     }

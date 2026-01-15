@@ -6,11 +6,11 @@ export async function sendAuthData(data: Record<string, string>, path:string) {
 	const isSignup = (path === 'signUp');
 	try
 	{
-		const response = await fetch("api/auth/" + path, { // use apiFetch method
+		const response = await fetch("api/auth/" + path, {
 			method: "POST",
 			headers: {"Content-Type": "application/json",},
 			body: JSON.stringify({
-				username: data["alias or email"],
+				username: data["alias or email"] || data["alias"] || "",
 				password: data["password"],
 				email: data["email"] || ""
 			}),

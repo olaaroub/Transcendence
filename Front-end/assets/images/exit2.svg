@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0,0,256,256" width="128px" height="128px" fill-rule="nonzero">
+  <defs>
+    <linearGradient x1="34.5" y1="7.596" x2="34.5" y2="18.831" gradientUnits="userSpaceOnUse" id="color-1">
+      <stop offset="0" stop-color="#00ffff"/>
+      <stop offset="1" stop-color="#ed6f30"/>
+    </linearGradient>
+    <linearGradient x1="33.639" y1="-0.489" x2="33.639" y2="64.589" gradientUnits="userSpaceOnUse" id="color-2">
+      <stop offset="0" stop-color="#ed6f30"/>
+      <stop offset="1" stop-color="#ed6f30"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal;" transform="matrix(-1, 0, 0, 1, 185.300003, 0)">
+    <g transform="scale(4,4)">
+      <circle cx="34.5" cy="13.5" r="6.5" fill="url(#color-1)"/>
+      <path d="M46.3,38c-0.1,-0.9 -0.6,-1.7 -1.4,-2.2l-6.1,-4.4l-1.3,-3.3c-0.8,-2.1 -1.2,-3.1 -1.5,-3.7c0,0 -0.5,-0.9 -1,-1.4l-2.8,-2.4c0.7,0.2 1.5,0.3 2.2,0.3c4.1,0 7.5,-3.4 7.5,-7.5c0,-4.1 -3.3,-7.4 -7.4,-7.4c-4.1,0 -7.5,3.4 -7.5,7.5c0,1.2 0.3,2.3 0.8,3.3l-4.8,-4.2v-12.6h-2v64h2v-4.4c0,0 0,0 0.1,0l8.1,-7.6c0.1,-0.1 0.4,-0.5 0.5,-0.6c0.8,-1.2 0.8,-2.8 0,-3.9l-7.2,-9.6l6.7,-7.7l1.7,4.5c0.2,0.4 0.4,0.8 0.7,1.1c0.2,0.2 0.4,0.4 0.6,0.6l6.8,4.9c1.5,1.1 3.6,0.8 4.7,-0.7c0.5,-0.8 0.7,-1.7 0.6,-2.6zM34.5,8c3,0 5.5,2.5 5.5,5.5c0,3 -2.5,5.5 -5.5,5.5c-3,0 -5.5,-2.5 -5.5,-5.5c0,-3 2.5,-5.5 5.5,-5.5zM30,48.6c0.3,0.5 0.4,1.1 0,1.6c0,0.1 -0.2,0.2 -0.2,0.3l-6.8,6.4v-17.6zM44,39.4c-0.4,0.6 -1.3,0.7 -1.9,0.3l-6.8,-4.9c-0.1,-0.1 -0.2,-0.1 -0.2,-0.2c0,0 0,-0.1 -0.1,-0.1c-0.1,-0.1 -0.2,-0.3 -0.3,-0.5l-2.3,-6c-0.1,-0.3 -0.4,-0.6 -0.8,-0.6c-0.3,-0.1 -0.7,0.1 -0.9,0.3l-7.7,8.7v-21.1l10.4,9l0.2,0.2c0.3,0.3 0.6,0.6 0.8,0.9c0.3,0.8 2.7,7.1 2.7,7.1c0.1,0.2 0.2,0.3 0.3,0.5l6.4,4.6c0.3,0.2 0.5,0.5 0.5,0.9c0,0.2 -0.1,0.6 -0.3,0.9z" fill="url(#color-2)"/>
+    </g>
+  </g>
+</svg>

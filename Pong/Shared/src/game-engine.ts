@@ -61,7 +61,6 @@ export class PongEngine
 					return ret;
 			}
 		}
-		console.warn('No session data found, using default session.');
 		return {
 			oppAI: false,
 			diff: 'None',
@@ -80,26 +79,27 @@ export class PongEngine
 			this.aiInstance.diff = diffMap[diff];
 	}
 
-	private resetBall(): void
+	private async resetBall(): Promise<void>
 	{
 		this.state.ballX = WIDTH / 2;
 		this.state.ballY = HEIGHT / 2;
 		this.state.ballS = BSPEED;
-		if (this.currentState === 'Playing')
-		{
-			const angle = (Math.random() - 0.5) * 0.6;
-			this.ballVX = Math.cos(angle) * this.state.ballS * this.lastGoal;
-			this.ballVY = Math.sin(angle) * this.state.ballS;
-			return;
-		}
 		this.ballVX = 0;
 		this.ballVY = 0;
+		if (this.currentState === 'Playing')
+		{
+			setTimeout(() =>
+			{
+				const angle = (Math.random() - 0.5) * 0.6;
+				this.ballVX = Math.cos(angle) * this.state.ballS * this.lastGoal;
+				this.ballVY = Math.sin(angle) * this.state.ballS;
+			}, 500);
+		}
 	}
 
 	setState(newState: State): void
 	{
 		this.currentState = newState;
-		console.log(`State Changed To: ${this.currentState}`);
 		this.resetBall();
 	}
 
@@ -154,7 +154,8 @@ export class PongEngine
 		}
 	}
 
-	private pCollision(pX: number, pY: number): boolean {
+	private pCollision(pX: number, pY: number): boolean
+	{
 		const dx = this.state.ballX - Math.max(pX, Math.min(pX + PWIDTH, this.state.ballX));
 		const dy = this.state.ballY - Math.max(pY, Math.min(pY + PHEIGHT, this.state.ballY));
 		const dist2 = dx * dx + dy * dy;
@@ -197,12 +198,12 @@ export class PongEngine
 
 	private goal(): void
 	{
-		if (this.state.ballX < -BRADIUS)
+		if (this.state.ballX < 0)
 		{
 			this.state.p1++;
 			this.lastGoal = 1;
 		}
-		else if (this.state.ballX > WIDTH + BRADIUS)
+		else if (this.state.ballX > WIDTH)
 		{
 			this.state.p2++;
 			this.lastGoal = -1;
@@ -247,8 +248,7 @@ export class PongEngine
 			if (this.pCollision(this.state.p1X, this.state.p1Y) || this.pCollision(this.state.p2X, this.state.p2Y))
 				this.state.ballS = Math.min(this.state.ballS + 50, 800);
 		}
-		if (this.state.ballX < -BRADIUS || this.state.ballX > WIDTH + BRADIUS) {
+		if (this.state.ballX < 0 || this.state.ballX > WIDTH)
 			this.goal();
-		}
 	}
 }

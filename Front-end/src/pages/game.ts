@@ -1,6 +1,7 @@
 import { navigate } from "../router";
 import { userData, getImageUrl } from "./store";
 import { initDashboard } from "./dashboard";
+import { shortString } from "./utils";
 
 export async function renderGame() {
     await initDashboard(false);
@@ -16,9 +17,9 @@ export async function renderGame() {
         const gameSession = {
             oppAI: mode === 'local-vs-ai',
             diff: mode === 'local-vs-ai' ? difficulty : 'None',
-            p1Alias: userData.username,
+            p1Alias: shortString(userData.username, 12),
             p1Avatar: getImageUrl(userData.avatar_url),
-            p2Alias: mode === 'local-vs-ai' ? 'AI' : player2Alias,
+            p2Alias: mode === 'local-vs-ai' ? 'AI' : shortString(player2Alias, 12),
             p2Avatar: mode ==='local-vs-ai' ? '/game/Assets/ai.png' : '/game/Assets/default.png'
         };
         sessionStorage.setItem('gameSession', JSON.stringify(gameSession));
@@ -27,13 +28,9 @@ export async function renderGame() {
     document.body.className = 'm-0 p-0';
     document.body.innerHTML = /* html */`
         <div class="bg-black fixed inset-0 flex flex-col overflow-hidden">
-            <div class="shrink-0 p-5">
-                <button id="exit-game-btn"
-                    class="bg-white/10 text-white border border-white/50
-                    px-5 py-2.5 font-sans rounded-lg backdrop-blur transition-all duration-200
-                    hover:bg-red-500/50 hover:border-red-500">
-                    ← EXIT GAME
-                </button>
+            <div id="exit-game-btn" class="shrink-0 p-1 group relative h-12 w-12 cursor-pointer">
+				<img  src="/images/exit.svg" alt="Exit" class="absolute inset-1 transition-opacity duration-500 inline-block w-12 h-12 group-hover:opacity-0"/>
+				<img  src="/images/exit2.svg" alt="Exit" class="absolute inset-1 transition-opacity duration-500 inline-block w-12 h-12 opacity-0 group-hover:opacity-100"/>
             </div>
             <div class="flex-1 flex items-center justify-center min-h-0 px-5 pb-5">
                 <canvas id="game" class="block w-full h-[95%]"></canvas>
@@ -43,10 +40,9 @@ export async function renderGame() {
 
     const script = document.createElement('script');
     if (isOffline)
-        script.src = `/game/offline/main.js?t=${Date.now()}`; // For Online: /game/online/client.js
+        script.src = `/game/offline/main.js?t=${Date.now()}`;
     else
     {
-        console.log("online exec");
         script.src = `/game/online/client.js?t=${Date.now()}`;
     }
     script.type = 'module';

@@ -5,11 +5,12 @@ import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/
 import { closeNotificationSocket } from "./components/NavBar";
 import { cleanupGlobalChat } from "./chat/globalChat";
 import { apiFetch } from "./components/errorsHandler";
+import { logout } from "./components/profileMenu";
 
 const $ = (id : String) => document.getElementById(id as string);
 
 let newUserData: Partial<IUserData> = {};
-let body: BodyInit | null = ""; // to learn about this type
+let body: BodyInit | null = "";
 let headers : Record<string, string> = {
 	"Authorization": `Bearer ${localStorage.getItem('token')}`
 }
@@ -38,7 +39,7 @@ async function checkPasswordChange() : Promise<boolean>
 		skipAuthRedirect: true
 	});
 	if (error) {
-		toastError('Current password is incorrect.');
+		toastError('Current Password is Incorrect.');
 		return false;
 	}
 	return true;
@@ -70,7 +71,11 @@ function SaveChanges()
 				}
 				let requestBody: BodyInit;
 				let contentType: Record<string, string> = {};
-
+				let tmp = String(value).trim();
+				if (key === 'username' && (tmp.length < 1 || tmp.length > 30 || tmp === userData.username))
+					return toastError("Invalid Alias!");
+				if (key === 'bio' && tmp.length > 200)
+					return toastError("Bio is too long! Max 200 characters.");
 				if (key === 'avatar' && avatar) {
 					requestBody = avatar;
 				} else {
@@ -85,9 +90,9 @@ function SaveChanges()
 				});
 				if (error) {
 					toastError(`Failed to update ${key}.`);
-				} else {
+					return ;
+				} else
 					delete newUserData[key as keyof IUserData];
-				}
 			}
 			navigateBack();
 	});
@@ -113,10 +118,10 @@ function addInputListeners()
 				const upload_avatar = event.target as HTMLInputElement;
 				const userAvatar = $('userAvatar') as HTMLImageElement;
 				if (userAvatar && upload_avatar && upload_avatar.files)
-					userAvatar.src = URL.createObjectURL(upload_avatar.files[0]); // to learn about it
+					userAvatar.src = URL.createObjectURL(upload_avatar.files[0]);
 			}
 			if (value !== userData[name as keyof IUserData])
-				newUserData[name as keyof IUserData] = value as any; //this is the change i made LAAROUBI
+				newUserData[name as keyof IUserData] = value as any;
 			else
 				delete newUserData[name as keyof IUserData];
 		});
@@ -129,7 +134,7 @@ export function confirmPopUp(message: string) : Promise<boolean>
 	return new Promise((resolve) => {
 		const deletePopUp = document.createElement('div');
 		deletePopUp.className = `fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm`;
-		deletePopUp.innerHTML = `
+		deletePopUp.innerHTML = /* html */ `
 			<div class="relative bg-gradient-to-br from-bgColor/95 to-black/90 backdrop-blur-xl
 				rounded-3xl p-8 flex flex-col gap-6 w-[380px] border border-color1/30
 				shadow-2xl transform transition-all duration-300"
@@ -181,19 +186,15 @@ export function confirmPopUp(message: string) : Promise<boolean>
 
 async function deleteAvatar()
 {
-	$('delete-avatar')?.addEventListener('click', async ()=> {
-		const confirmed = await confirmPopUp('Are you sure you want to delete your avatar?');
-		if (!confirmed) return;
-		const { error } = await apiFetch<{message: string}>(`api/user/${userData?.id}/settings-avatar`, {
-			method: 'DELETE',
-		});
-		if (!error) {
-			toastSuccess('Avatar deleted successfully');
-			renderSettings();
-		} else {
-			toastError('Error deleting avatar');
-		}
+	const confirmed = await confirmPopUp('Are you sure you want to delete your avatar?');
+	if (!confirmed) return;
+	const { error } = await apiFetch<{message: string}>(`api/user/${userData?.id}/settings-avatar`, {
+		method: 'DELETE',
 	});
+	if (!error) {
+		toastSuccess('Avatar deleted successfully');
+		renderSettings();
+	}
 }
 
 function sendAvatar() : FormData | null
@@ -204,28 +205,28 @@ function sendAvatar() : FormData | null
 	if (!uploadAvatar.files || uploadAvatar.files.length === 0) return null;
 	const file = uploadAvatar.files[0];
 
-	const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+	const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 	const fileName = file.name.toLowerCase();
 	const fileExtension = fileName.split('.').pop();
 	if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
-		toastWarning(`Invalid file type. Allowed formats: ${allowedExtensions.join(', ').toUpperCase()}`);
+		toastWarning(`Invalid File Type! Allowed Formats: ${allowedExtensions.join(', ').toUpperCase()}`);
 		uploadAvatar.value = '';
 		return null;
 	}
 
-	const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+	const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
 	if (!allowedMimeTypes.includes(file.type)) {
-		toastWarning(`Invalid file type. Please upload a valid image file.`);
+		toastWarning(`Invalid File Type! Please upload a Valid Image File.`);
 		uploadAvatar.value = '';
 		return null;
 	}
 	if (file.size > 2097152) {
-		toastWarning("Image is too large. Max size 2MB.");
+		toastWarning("Image is too large! Max. Size: 2MB");
 		uploadAvatar.value = '';
 		return null;
 	}
 	const formData = new FormData;
-	formData.append("avatar", file); // to learn about it
+	formData.append("avatar", file);
 	return formData;
 }
 
@@ -233,13 +234,13 @@ function avatarSettings() : string
 {
 	return  /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl bg-color4 glow-effect flex-1 flex flex-col gap-6">
-			<p class="text-color1 font-bold text-lg xl:text-2xl">Edit your avatar</p>
-			<div class="flex gap-16">
+			<h2 class="text-color1 font-bold text-lg xl:text-2xl">Your Avatar</h2>
+			<div class="flex gap-10 xl:gap-16 md:flex-row flex-col items-center">
 				<div class="flex flex-col items-center gap-2">
 					<img id="userAvatar" src="${getImageUrl(userData.avatar_url)}" class="
-					w-[150px] h-[150px] xl:w-[200px] xl:h-[200px] rounded-full border-2
+					w-[130px] h-[130px] xl:w-[170px] xl:h-[170px] rounded-full border-2
 					border-color1" alt="user" />
-				<span class="text-sm text-color3">max size 2MB</span>
+					<span class="text-sm text-color3">Max. Size: 2MB</span>
 				</div>
 				<div class="flex justify-center flex-col gap-6">
 						<label class="bg-color1 relative flex items-center
@@ -261,43 +262,19 @@ function avatarSettings() : string
 	`
 }
 
-function render2FA() : string
-{
-	return /* html */ `
-		<div class="flex justify-between mb-6">
-			<div class="logo flex gap-3">
-				<img src="images/2FA.svg" alt="">
-				<h3 class="text-sm text-txtColor" >Activate 2FA <p class="text-xs
-				text-color3" >Authentication (2FA) adds an extra layer of security to your account.</p></h3>
-			</div>
-			<label class="relative inline-flex  cursor-pointer">
-				<input type="checkbox" class="sr-only peer" />
-				<div
-					class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer
-					peer-checked:bg-color1 transition-all duration-300">
-				</div>
-				<div
-					class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full
-					transition-all duration-300 peer-checked:translate-x-5">
-				</div>
-			</label>
-		</div>
-	`
-}
-
 function accountSettings() : string
 {
 	return /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col flex-1 gap-6">
-			<p class="text-color1 font-bold text-lg xl:text-2xl">Account Settings</p>
+			<h2 class="text-color1 font-bold text-lg xl:text-2xl">Personal Info</h2>
 			<div class="settings-name flex flex-col gap-2">
-				<p class="text-txtColor text-sm ">Alias</p>
+				<p class="text-txtColor ">Alias</p>
 				${input("Change Alias", 'text', userData?.username ?? "", "username")}
-				<p class="text-txtColor text-sm ">Mail</p>
+				<p class="text-txtColor ">Email</p>
 				${input("Change Mail", 'text', userData?.email ?? "", "")}
 			</div>
 			<div class="settings-name flex flex-col gap-2 mb-6">
-				<p class="text-txtColor text-sm">Your Bio</p>
+				<p class="text-txtColor">Your Bio</p>
 				<textarea
 					name="bio"
 					placeholder="Say something about yourself"
@@ -329,16 +306,14 @@ function security() : string
 {
 	return /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col gap-6 flex-1">
-			<p class=" text-color1 font-bold text-lg xl:text-2xl">Security</p>
+			<h2 class=" text-color1 font-bold text-lg xl:text-2xl">Change Password</h2>
 			<div class="flex flex-col gap-2">
-				<p class="text-txtColor text-sm">Password</p>
 				<div class="flex gap-6 flex-col 2xl:flex-row">
 					${input("Current Password", "password", "", "current-password")}
 					${input("New Password", "password", "", "new-password")}
 					${input("Confirm Password", "password", "", "confirm-password")}
 				</div>
 			</div>
-			${render2FA()}
 		</div>
 	`
 }
@@ -347,11 +322,12 @@ function Account() : string
 {
 	return /* html */ `
 		<div class="avatar-settings px-10 py-6 rounded-2xl flex bg-color4 glow-effect flex-col gap-6 flex-1">
-			<p class="text-color1 font-bold text-lg xl:text-2xl">Account</p>
-			<div class="flex flex-col gap-4">
-				<p class="2xl:w-[60%] w-full text-white">Permanently delete your account and all associated data. This action cannot be undone.</p>
-				<button id="delete-account" class="bg-red-500 text-white w-full
-				lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account</button>
+			<h2 class="text-color1 font-bold text-lg xl:text-2xl">Delete Account</h2>
+			<div class="flex flex-row gap-4 ">
+				<p class="w-full text-white">Permanently delete your account and all associated data.<br/>This action cannot be undone.</p>
+				<button id="delete-account" class="bg-red-500 text-white w-full h-[60px]
+				lg:w-[60%] 2xl:w-[40%] rounded-2xl py-4 px-4 mb-6 hover:bg-red-600">Delete Account
+				</button>
 			</div>
 		</div>
 	`
@@ -374,7 +350,7 @@ function cancelChanges()
 
 async function deleteAccount() : Promise<void>
 {
-	const confirmed = await confirmPopUp('Are you sure you want to delete your account? This action cannot be undone.');
+	const confirmed = await confirmPopUp('Are you sure you want to delete your account? This action CANNOT be undone!');
 	if (!confirmed) return;
 	const { error } = await apiFetch<{message: string}>(`api/user/deleteAccount/${userData.id}`, {
 		method: 'DELETE',
@@ -383,10 +359,9 @@ async function deleteAccount() : Promise<void>
 		closeNotificationSocket();
 		cleanupGlobalChat();
 		localStorage.clear();
-		navigate('/sign-up');
-		toastSuccess('Account deleted successfully.');
+		logout();
 	} else
-		toastError('Failed to delete account.');
+		toastError('Failed to delete account!');
 }
 
 export async function renderSettings()
@@ -399,10 +374,10 @@ export async function renderSettings()
 			<div class=" flex flex-row justify-between">
 				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Settings</h1>
 				<div class="flex gap-4">
-				<button id="cancel-changes" class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold text-txtColor
+				<button id="cancel-changes" class="h-[50px] xl:text-lg p-2 rounded-2xl font-bold text-txtColor
 				border border-color1 text-sm  hover:scale-105">Cancel Changes</button>
-				<button id="save-changes" class="h-[50px] w-[200px] xl:text-lg rounded-2xl font-bold
-				text-black text-sm bg-color1 hover:scale-105">Save Changes</button>
+				<button id="save-changes" class="h-[50px] xl:text-lg rounded-2xl font-bold
+				text-black text-sm bg-color1 p-2 hover:scale-105">Save Changes</button>
 				</div>
 			</div>
 			<div class="flex flex-col xl:flex-row gap-6">

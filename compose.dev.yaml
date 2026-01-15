@@ -1,174 +1,12 @@
 services:
-  frontend-dev:
-    build:
-      context: ./Front-end
-      dockerfile: Dockerfile.frontend.dev
-    image: frontend-dev:1337
-    container_name: frontend-dev
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./Front-end:/app
-      - ./certs:/app/certs:ro
-      - /app/node_modules
-      - ./waf/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
-      - pong-dist:/app/assets/game:ro
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - SERVICE_EXT=-dev
-    networks:
-      - transcendence-dev-net
-    depends_on:
-      - modSecurity-dev
 
-  auth-service-dev:
-    build:
-      context: ./app/auth
-      dockerfile: ../Dockerfile.microservices.dev
-      args:
-        - PORT=3001
-    image: auth-service-dev:1337
-    container_name: auth-service-dev
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR}
-      - VAULT_SECRET_PATH=${AUTH_SECRET_PATH}
-      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/auth.db
-      - HOST=0.0.0.0
-      - DOMAIN=${AUTH_DOMAIN_DEV}
-      - SERVICE_EXT=-dev
-      - LOG_LEVEL=debug
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./app/auth:/app
-      - ./db/auth:/data
-      - ./app/static:/app/static
-      - /app/node_modules
-    networks:
-      - transcendence-dev-net
-    depends_on:
-      vault-init-dev:
-        condition: service_completed_successfully
-
-  user-service-dev:
-    build:
-      context: ./app/user-service
-      dockerfile: ../Dockerfile.microservices.dev
-      args:
-        - PORT=3002
-    image: user-service-dev:1337
-    container_name: user-service-dev
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR}
-      - VAULT_SECRET_PATH=${USER_SECRET_PATH}
-      - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/users.db
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-dev
-      - LOG_LEVEL=debug
-    ports:
-      - "3002:3002"
-    volumes:
-      - ./app/user-service:/app
-      - ./app/static:/app/static
-      - ./db/users:/data
-      - /app/node_modules
-    networks:
-      - transcendence-dev-net
-    depends_on:
-      vault-init-dev:
-        condition: service_completed_successfully
-
-  global-chat-dev:
-    build:
-      context: ./app/chat/global
-      dockerfile: ../../Dockerfile.microservices.dev
-      args:
-        - PORT=3003
-    image: global-chat-dev:1337
-    container_name: global-chat-dev
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR}
-      - VAULT_SECRET_PATH=${GLOBAL_CHAT_SECRET_PATH}
-      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/global.db
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-dev
-      - LOG_LEVEL=debug
-    ports:
-      - "3003:3003"
-    volumes:
-      - ./app/chat/global:/app
-      - ./app/static:/app/static
-      - ./db/chat:/data
-      - /app/node_modules
-    networks:
-      - transcendence-dev-net
-    depends_on:
-      vault-init-dev:
-        condition: service_completed_successfully
-
-  private-chat-dev:
-    build:
-      context: ./app/chat/private
-      dockerfile: ../../Dockerfile.microservices.dev
-      args:
-        - PORT=8405
-    image: private-chat-dev:1337
-    container_name: private-chat-dev
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR}
-      - VAULT_SECRET_PATH=${PRIVATE_CHAT_SECRET_PATH}
-      - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/private.db
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-dev
-      - LOG_LEVEL=debug
-    ports:
-      - "8405:8405"
-    volumes:
-      - ./app/chat/private:/app
-      - ./app/static:/app/static
-      - ./db/chat:/data
-      - /app/node_modules
-    networks:
-      - transcendence-dev-net
-    depends_on:
-      vault-init-dev:
-        condition: service_completed_successfully
-
-  pong-game-dev:
-    build:
-      context: ./Pong
-      dockerfile: Dockerfile.pong.prod
-      args:
-        - PORT=3005
-    image: pong-game-dev:1337
-    container_name: pong-game-dev
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR}
-      - VAULT_SECRET_PATH=${PONG_SECRET_PATH}
-      - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
-      # - DATABASE_PATH=/data/ma3rftch_wach_3ndk_database.db
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-dev
-      - LOG_LEVEL=debug
-    ports:
-      - "3005:3005"
-    volumes:
-      - pong-dist:/pong-dist
-    networks:
-      - transcendence-dev-net
-    depends_on:
-      vault-init-dev:
-        condition: service_completed_successfully
+  # ====================================================
+  #                HASHICORP VAULT
+  # ====================================================
 
   vault-dev:
     image: hashicorp/vault:1.21.1
     container_name: vault-dev
-    networks:
-      - transcendence-dev-net
     ports:
       - "8200:8200"
     environment:
@@ -176,16 +14,18 @@ services:
       - VAULT_ADDR=http://0.0.0.0:8200
     cap_add:
       - IPC_LOCK
+    networks:
+      - transcendence-dev-net
 
   vault-init-dev:
     image: hashicorp/vault:1.21.1
     container_name: vault-init-dev
-    networks:
-      - transcendence-dev-net
+    depends_on:
+      - vault-dev
     volumes:
-      - ./vault/hashicorpVault.init.sh:/init.sh
+      - ./Security/HashicorpVault/hashicorpVault.init.sh:/hashicorpVault.init.sh
     environment:
-      - VAULT_ADDR=${VAULT_ADDR}
+      - VAULT_ADDR=${VAULT_ADDR_DEV}
       - VAULT_TOKEN=${VAULT_TOKEN}
       - JWT_SECRET_VALUE=${JWT_SECRET_VALUE}
       - COOKIE_SECRET=${COOKIE_SECRET}
@@ -200,74 +40,252 @@ services:
       - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
       - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
       - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
-    entrypoint: /init.sh
+    entrypoint: /hashicorpVault.init.sh
+    networks:
+      - transcendence-dev-net
+
+  # ====================================================
+  #         APPLICATION MICROSERVICES
+  # ====================================================
+
+  auth-service-dev:
+    build:
+      context: ./app/auth
+      dockerfile: ../Dockerfile.microservices.dev
+      args:
+        - PORT=3001
+    image: auth-service-dev:1337
+    container_name: auth-service-dev
     depends_on:
-      - vault-dev
+      vault-init-dev:
+        condition: service_completed_successfully
+    ports:
+      - "3001:3001"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_DEV}
+      - VAULT_SECRET_PATH=${AUTH_SECRET_PATH}
+      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/auth.db
+      - HOST=0.0.0.0
+      - DOMAIN=${AUTH_DOMAIN_DEV}
+      - SERVICE_EXT=-dev
+      - LOG_LEVEL=debug
+    volumes:
+      - ./app/auth:/app
+      - ./db/auth:/data
+      - ./app/static:/app/static
+      - /app/node_modules
+    networks:
+      - transcendence-dev-net
+
+  user-service-dev:
+    build:
+      context: ./app/user-service
+      dockerfile: ../Dockerfile.microservices.dev
+      args:
+        - PORT=3002
+    image: user-service-dev:1337
+    container_name: user-service-dev
+    depends_on:
+      vault-init-dev:
+        condition: service_completed_successfully
+    ports:
+      - "3002:3002"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_DEV}
+      - VAULT_SECRET_PATH=${USER_SECRET_PATH}
+      - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/users.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-dev
+      - LOG_LEVEL=debug
+    volumes:
+      - ./app/user-service:/app
+      - ./app/static:/app/static
+      - ./db/users:/data
+      - /app/node_modules
+    networks:
+      - transcendence-dev-net
+
+  global-chat-dev:
+    build:
+      context: ./app/chat/global
+      dockerfile: ../../Dockerfile.microservices.dev
+      args:
+        - PORT=3003
+    image: global-chat-dev:1337
+    container_name: global-chat-dev
+    depends_on:
+      vault-init-dev:
+        condition: service_completed_successfully
+    ports:
+      - "3003:3003"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_DEV}
+      - VAULT_SECRET_PATH=${GLOBAL_CHAT_SECRET_PATH}
+      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/global.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-dev
+      - LOG_LEVEL=debug
+    volumes:
+      - ./app/chat/global:/app
+      - ./app/static:/app/static
+      - ./db/chat:/data
+      - /app/node_modules
+    networks:
+      - transcendence-dev-net
+
+  private-chat-dev:
+    build:
+      context: ./app/chat/private
+      dockerfile: ../../Dockerfile.microservices.dev
+      args:
+        - PORT=3004
+    image: private-chat-dev:1337
+    container_name: private-chat-dev
+    depends_on:
+      vault-init-dev:
+        condition: service_completed_successfully
+    ports:
+      - "3004:3004"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_DEV}
+      - VAULT_SECRET_PATH=${PRIVATE_CHAT_SECRET_PATH}
+      - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/private.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-dev
+      - LOG_LEVEL=debug
+    volumes:
+      - ./app/chat/private:/app
+      - ./app/static:/app/static
+      - ./db/chat:/data
+      - /app/node_modules
+    networks:
+      - transcendence-dev-net
+
+  pong-game-dev:
+    build:
+      context: ./Pong
+      dockerfile: Dockerfile.pong.prod
+      args:
+        - PORT=3005
+    image: pong-game-dev:1337
+    container_name: pong-game-dev
+    depends_on:
+      vault-init-dev:
+        condition: service_completed_successfully
+    ports:
+      - "3005:3005"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_DEV}
+      - VAULT_SECRET_PATH=${PONG_SECRET_PATH}
+      - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-dev
+      - LOG_LEVEL=debug
+    volumes:
+      - pong-dist:/pong-dist
+    networks:
+      - transcendence-dev-net
+
+  # ====================================================
+  #     MODSECURITY CRS/API GATEWAY & FRONTEND
+  # ====================================================
 
   modSecurity-dev:
     image: owasp/modsecurity-crs:4.21.0-nginx-alpine-202512071012
     container_name: modSecurity-dev
-    networks:
-      - transcendence-dev-net
-    environment:
-      - MODSEC_RULE_ENGINE=on
-      - BLOCKING_PARANOIA=2
-    volumes:
-      - ./waf/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
-      - ./waf/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
-      - ./waf/scan_php.sh:/usr/local/bin/scan_php.sh:ro
-      - ./waf/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     restart: on-failure
+    depends_on:
+      - auth-service-dev
+      - user-service-dev
+      - global-chat-dev
+      - private-chat-dev
+      - pong-game-dev
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 10s
       timeout: 5s
       retries: 3
+    environment:
+      - MODSEC_RULE_ENGINE=on
+      - BLOCKING_PARANOIA=2
+    volumes:
+      - ./Security/ModSecurity/nginx.dev.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
+      - ./Security/ModSecurity/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
+      - ./Security/ModSecurity/scanContent.sh:/usr/local/bin/scanContent.sh:ro
+      - ./Security/ModSecurity/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
+    networks:
+      - transcendence-dev-net
+
+  frontend-dev:
+    build:
+      context: ./Front-end
+      dockerfile: Dockerfile.frontend.dev
+    image: frontend-dev:1337
+    container_name: frontend-dev
     depends_on:
-      - auth-service-dev
-      - user-service-dev
-      - global-chat-dev
-      - private-chat-dev
-      - pong-game-dev
+      - modSecurity-dev
+    ports:
+      - "5173:5173"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - SERVICE_EXT=-dev
+    volumes:
+      - ./Front-end:/app
+      - ./certs:/app/certs:ro
+      - /app/node_modules
+      - ./Security/ModSecurity/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
+      - pong-dist:/app/assets/game:ro
+    networks:
+      - transcendence-dev-net
+
+  # ====================================================
+  #        METRICS PROMETHEUS / GRAFANA
+  # ====================================================
 
   prometheus-dev:
     image: prom/prometheus:v3.8.1
     container_name: prometheus-dev
-    ports:
-      - "9090:9090"
-    networks:
-      - transcendence-dev-net
-    volumes:
-      - ./prometheus/prometheus.dev.yaml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
     depends_on:
       - auth-service-dev
       - user-service-dev
       - global-chat-dev
       - private-chat-dev
       - pong-game-dev
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./Metrics/prometheus/prometheus.dev.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./Metrics/prometheus/alertRules.yaml:/etc/prometheus/alertRules.yaml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - transcendence-dev-net
 
   grafana-dev:
     image: grafana/grafana:12.3.0
     container_name: grafana-dev
-    ports:
-      - "3000:3000"
-    networks:
-      - transcendence-dev-net
-    volumes:
-      - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=${GF_AUTH_ANONYMOUS_ORG_ROLE}
     depends_on:
       - prometheus-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./Metrics/grafana/provisioning.dev:/etc/grafana/provisioning
+      - ./Metrics/grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - transcendence-dev-net
 
 networks:
   transcendence-dev-net:
     name: transcendence-dev-net
     driver: bridge
+
 volumes:
   prometheus-data:
     driver: local

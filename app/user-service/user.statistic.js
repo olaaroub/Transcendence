@@ -4,7 +4,7 @@ async function statisticHandler(req, reply) {
     const id = req.params.id;
 
     const stats = this.db.prepare(`
-        SELECT TotalWins, WinRate, CurrentStreak, Rating
+        SELECT TotalWins, WinRate, MaxStreak, CurrentStreak, Rating
         FROM userInfo
         WHERE id = ?
     `).get(id);

@@ -15,7 +15,6 @@ async function signUpHandler(request, reply) {
 	let newUserData;
 	try {
 		const hashedPassword = await argon2.hash(data.password);
-		// console.log(hashedPassword);
 		newUserData = this.db.prepare("INSERT INTO users(username, password, email) VALUES (?, ?, ?) RETURNING id, username")
 			.get([data.username, hashedPassword, data.email]);
 	}
@@ -29,7 +28,6 @@ async function signUpHandler(request, reply) {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
-			// I will add the secret key to check the request is from the microserves
 		},
 		body: JSON.stringify({
 			user_id: newUserData.id,
@@ -64,7 +62,7 @@ async function loginHandler(req, reply) {
 
 	if (!user) {
 		this.customMetrics.loginCounter.inc({ status: 'failure', provider: 'local' });
-		throw createError.Unauthorized("Invalid credentials");
+		throw createError.Unauthorized("Invalid Alias/Password! Try Again.");
 	}
 
 	if (user.auth_provider !== "local") {
@@ -74,11 +72,10 @@ async function loginHandler(req, reply) {
 	const validPassword = await argon2.verify(user.password, body.password);
 	if (!validPassword) {
 		this.customMetrics.loginCounter.inc({ status: 'failure', provider: 'local' });
-		throw createError.Unauthorized("Invalid credentials");
+		throw createError.Unauthorized("Invalid Alias/Password! Try Again.");
 	}
 
 	req.log.info({ userId: user.id, username: user.username }, "User logged in succcessfully");
-	req.log.warn(">>> DEBUG: INCREMENTING LOGIN COUNTER NOW <<<");
 
 	this.customMetrics.loginCounter.inc({ status: 'success', provider: 'local' });
 
@@ -136,7 +133,6 @@ async function routes(fastify) {
 				}
 			}
 		}
-		// errorHandler: 7yedto (Global Handler hia likhasha tkhdm )
 	}, signUpHandler);
 	fastify.get("/auth/users", getUsers);
 	fastify.get('/auth/users/:id', getUserById);

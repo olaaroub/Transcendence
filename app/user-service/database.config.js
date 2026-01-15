@@ -8,12 +8,12 @@ const creatTable = async () => {
         throw new Error("DB_PATH environment variable is not set for User Service");
     }
     const db = new Database(DB_PATH);
-    db.pragma('journal_mode = WAL'); // bach mli nbghi nktb on 9ra fnafs lwe9t maytblokach liya
+    db.pragma('journal_mode = WAL');
 
     db.exec(`CREATE TABLE IF NOT EXISTS userInfo (
         id INTEGER UNIQUE NOT NULL,
         username TEXT UNIQUE NOT NULL,
-        bio TEXT DEFAULT 'Hello there i am using Pong game!',
+        bio TEXT DEFAULT 'Hello! I am playing SPACE PONG!',
         avatar_url TEXT DEFAULT '/public/default_pfp.png',
         is_read BOOLEAN DEFAULT FALSE,
 
@@ -77,7 +77,17 @@ const creatTable = async () => {
         FOREIGN KEY(player1_id) REFERENCES userInfo(id) ON DELETE CASCADE,
         FOREIGN KEY(player2_id) REFERENCES userInfo(id) ON DELETE CASCADE
     );`);
+
+    db.exec(
+			`INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('mmondad', 2, '/public/mmondad.jpeg', 149, 149, 100, 750, 150, 3100);
+			 INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('ohammou-', 1, '/public/ohammou-.jpeg', 147, 147, 100, 750, 150, 3060);
+             INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('olaaroub', 3, '/public/olaaroub.jpeg', 146, 146, 100, 750, 150, 3050);
+             INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('hes-safi', 4, '/public/hes-safi.jpeg', 145, 145, 100, 750, 150, 3030);
+             INSERT OR IGNORE INTO userInfo (username, id, avatar_url, GamesPlayed, TotalWins, WinRate, GoalsScored, MaxStreak, Rating) VALUES ('oumondad', 5, '/public/oumondad.jpeg', 144, 144, 100, 750, 150, 3020);`)
     return db;
+
 }
 
+
 export default creatTable;
+

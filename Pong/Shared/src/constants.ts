@@ -1,17 +1,14 @@
 import { Input, Diff } from './types.js';
 
-const i = 1;
-
-export const WIDTH = 640 * i;
-export const HEIGHT = 480 * i;
-export const PWIDTH = 20 * i;
-export const PHEIGHT = 80 * i;
+export const WIDTH = 640;
+export const HEIGHT = 480;
+export const PWIDTH = 20;
+export const PHEIGHT = 80;
 export const PSPEED = 400;
 export const BSPEED = 300;
-export const BRADIUS = 10 * i;
+export const BRADIUS = 10;
 export const ULGAP = 5;
 export const DRGAP = HEIGHT - PHEIGHT - 5;
-export const PORT = 3000;
 export const TICKRATE = 60;
 export const TICKDT = 1 / TICKRATE;
 

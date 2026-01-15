@@ -24,7 +24,7 @@ interface IMatchHistory {
 function UserStats(user: IUserData) : string
 {
 	const stats = [
-		{ label: "XP", value: user.Rating ?? 0 },
+		{ label: "RATING", value: user.Rating ?? 0 },
 		{ label: "WINS", value: user.TotalWins ?? 0 },
 		{ label: "LOSSES", value: user.TotalLosses ?? 0 },
 		{ label: "MATCHES", value: user.GamesPlayed ?? 0 },
@@ -187,7 +187,7 @@ function getActionButtonsHTML(status: FriendStatus): string {
 		return /* html */`
 			<button id="edit-profile" class="bg-gradient-to-r from-color1 to-[#af4814]
 			min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center">
-				<img class="inline w-[24px] h-[24px]" src="images/edit.svg">Edit My Profile
+				<img class="inline w-[24px] h-[24px]" src="images/edit.svg">Edit my Profile
 			</button>`;
 	}
 	if (status === 'ACCEPTED') {
@@ -220,7 +220,7 @@ function getActionButtonsHTML(status: FriendStatus): string {
 	return /* html */`
 		<button id="add-friend" class="bg-gradient-to-r from-color1 to-[#af4814]
 		min-w-[150px] rounded-xl text-lg font-bold px-4 py-2 flex gap-2 justify-center hover:opacity-80 transition-opacity">
-			<img class="inline w-[24px] h-[24px]" src="images/addFriend.svg">Add Friend
+			<img class="inline w-[24px] h-[24px]" src="images/addFriendp.svg">Add Friend
 		</button>`;
 }
 
@@ -305,7 +305,6 @@ export async function renderProfile(userId: string | null = null)
 		tmpUserData = userData;
 	else
 		tmpUserData = await getUserDataById(userId);
-	
 	if (!tmpUserData) return;
 
 	const profileUserId = userId || String(userData.id);
@@ -315,9 +314,8 @@ export async function renderProfile(userId: string | null = null)
 	if (!isMyProfile && userId) {
 		const { data: friendData } = await apiFetch<IUserData[]>(`/api/user/${credentials.id}/friends`);
 		const friend = friendData?.find(f => String(f.id) === userId);
-		if (friend && friend.status) {
+		if (friend && friend.status)
 			onlineStatusData = { status: friend.status === 'ONLINE' ? 'ONLINE' : 'OFFLINE' };
-		}
 	}
 
 	const dashContent = document.getElementById('dashboard-content');
@@ -329,15 +327,10 @@ export async function renderProfile(userId: string | null = null)
 
 		dashContent.innerHTML = /* html */`
 			<div class="profile-card w-full flex flex-col gap-6 2xl:gap-8" data-profile-user-id="${profileUserId}">
-				<div class="bg-color4 glow-effect mx-auto w-full rounded-3xl p-6 2xl:pl-12 flex gap-5 items-center
+				<h1 class="text-txtColor font-bold text-2xl 2xl:text-4xl">Profile</h1>
+				<div class="bg-color4 glow-effect mx-auto w-full rounded-3xl p-6 2xl:pl-12 flex flex-col md:flex-row gap-5 items-center
 				border-t-4 border-color1">
-					<div class="relative">
-						<img src="${imageUrl}" alt="avatar" class="w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
-						${!isMyProfile && isFriend ? `
-							<span id="online-status-indicator" class="absolute bottom-2 right-2 w-5 h-5 rounded-full border-2 border-color4 
-								${isOnline ? 'bg-green-500' : 'bg-gray-400'}"></span>
-						` : ''}
-					</div>
+					<img src="${imageUrl}" alt="avatar" class="relative w-[150px] h-[150px] rounded-full border-[3px] border-color1"/>
 					<div class="flex flex-col gap-2">
 						<div class="flex items-center gap-3">
 							<h2 class="font-bold text-txtColor text-3xl">${tmpUserData.username}</h2>
@@ -347,7 +340,7 @@ export async function renderProfile(userId: string | null = null)
 								</span>
 							` : ''}
 						</div>
-						<p class="text-color3 mb-4 w-[70%]">${tmpUserData.bio}</p>
+						<p class="text-color3 mb-4 w-[70%]">${tmpUserData.bio || "No Bio Available."}</p>
 						<div id="action-buttons-container">
 							${getActionButtonsHTML(currentStatus)}
 						</div>
@@ -361,13 +354,8 @@ export async function renderProfile(userId: string | null = null)
 		if (profileCard)
 			attachActionButtonListeners(profileCard, currentStatus, userId, tmpUserData);
 
-		if (!isMyProfile && userId && isFriend) {
-			profileStatusUnsubscribe = subscribeFriendStatus((friendId, status) => {
-				if (friendId === userId) {
-					updateProfileOnlineStatus(status);
-				}
-			});
-		}
+		if (!isMyProfile && userId && isFriend)
+			profileStatusUnsubscribe = subscribeFriendStatus((friendId, status) => {if (friendId === userId) updateProfileOnlineStatus(status);});
 	}
 }
 

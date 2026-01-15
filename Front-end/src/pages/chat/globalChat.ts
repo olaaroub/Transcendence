@@ -1,7 +1,8 @@
 import { credentials, getImageUrl, userData } from "../store";
 import { apiFetch } from "../components/errorsHandler";
-import { formatMessageTime } from "../utils";
+import { formatMessageTime, shortString } from "../utils";
 import { navigate } from "../../router";
+import { toastError } from "../components/toast";
 
 interface ChatMessage {
 	sender_id: string | number;
@@ -13,6 +14,7 @@ interface ChatMessage {
 
 let globalChatMessages: ChatMessage[] = [];
 let golobalChatSocket: WebSocket | null = null;
+let globalChatInitialized = false;
 
 async function fetchPreviousMessages() {
 	const { data } = await apiFetch<ChatMessage[]>(`/api/chat/global/messages`);
@@ -24,20 +26,28 @@ async function fetchPreviousMessages() {
 }
 
 function initializeWebSocket() {
+	if (globalChatInitialized && golobalChatSocket && 
+		golobalChatSocket.readyState === WebSocket.OPEN) {
+		return;
+	}
+	if (golobalChatSocket && golobalChatSocket.readyState === WebSocket.CONNECTING) return;
+	if (golobalChatSocket && golobalChatSocket.readyState !== WebSocket.OPEN) {
+		golobalChatSocket.close();
+		golobalChatSocket = null;
+	}
+	if (golobalChatSocket && golobalChatSocket.readyState === WebSocket.OPEN) return;
 	const token = localStorage.getItem('token');
 	const wsUrl = `wss://${window.location.host}/api/chat/global/${credentials.id}?token=${token}`;
 	golobalChatSocket = new WebSocket(wsUrl);
 
 	golobalChatSocket.onopen = () => {
-		console.log('WebSocket connection established for global chat');
+		globalChatInitialized = true;
 	}
-
 	golobalChatSocket.onmessage = (event) => {
 		try {
 			const data = JSON.parse(event.data);
 
 			if (data.type === 'MESSAGE_SENT_SUCCESSFULLY') {
-				console.log('Message sent successfully confirmation received');
 				return;
 			}
 			const message: ChatMessage = data;
@@ -48,17 +58,13 @@ function initializeWebSocket() {
 				globalChatMessages.push(message);
 				updateChatUI();
 			}
-		} catch(err) {
-			console.error('Error parsing WebSocket message:', err);
-		}
+		} catch(err) {console.error('Error parsing WebSocket message:', err);}
 	}
 
-	golobalChatSocket.onerror = (error) => {
-		console.error("global chat websocket error", error);
-	}
-
+	golobalChatSocket.onerror = (error) => {console.error("global chat websocket error", error);}
 	golobalChatSocket.onclose = (event) => {
-		console.log('WebSocket connection closed:', event.code, event.reason);
+		globalChatInitialized = false;
+		golobalChatSocket = null;
 	};
 }
 
@@ -71,7 +77,6 @@ function updateChatUI() {
 	if (chatCount)
 		chatCount.textContent = `${globalChatMessages.length} messages`;
 	chatContainer.scrollTop = chatContainer.scrollHeight;
-
 	chatContainer.querySelectorAll('.username-link').forEach(el => {
 		el.addEventListener('click', () => {
 			const userId = el.getAttribute('data-user-id');
@@ -93,7 +98,7 @@ function renderChatMessages(): string {
 						${isSystemUser 
 							? `<span class="text-txtColor font-semibold text-sm">${msg.username}</span>`
 							: `<span data-user-id="${msg.sender_id}" class="username-link text-txtColor font-semibold text-sm hover:text-color1
-								cursor-pointer transition-colors">${msg.username}</span>`
+								cursor-pointer transition-colors">${shortString(msg.username, 15)}</span>`
 						}
 						<span class="text-color3 text-xs">${formatMessageTime(msg.created_at)}</span>
 					</div>
@@ -109,17 +114,22 @@ function sendMessage(content: string) {
 		console.error('WebSocket is not connected');
 		return;
 	}
+	const trimmedContent = content.trim();
+	if (trimmedContent.length > 200) {
+		toastError('Message is too long. Maximum 200 characters allowed.');
+		return;
+	}
 
 	const optimisticMessage: ChatMessage = {
 		sender_id: Number(credentials.id),
 		username: userData.username || 'You',
 		avatar_url: userData.avatar_url || '',
-		msg: content.trim(),
+		msg: trimmedContent,
 		created_at: new Date().toISOString()
 	};
 	globalChatMessages.push(optimisticMessage);
 	updateChatUI();
-	golobalChatSocket.send(JSON.stringify({msg: content.trim()}));
+	golobalChatSocket.send(JSON.stringify({msg: trimmedContent}));
 }
 
 function setupChatEventListeners() {
@@ -151,15 +161,8 @@ function renderChat() : string
 			py-6 px-6 flex flex-col rounded-3xl h-[509px] border border-borderColor">
 			<div class="flex items-center justify-between pb-4 border-b border-borderColor mb-4">
 				<div class="flex items-center gap-3">
-					<div class="w-10 h-10 rounded-full bg-color1/20 flex items-center justify-center">
-						<svg class="w-5 h-5 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
-						</svg>
-					</div>
-					<div>
-						<p class="text-txtColor font-semibold">Global Chat</p>
-						<p class="text-color3 text-xs" id="global-chat-count">${globalChatMessages.length} messages</p>
-					</div>
+					<img class="w-10 h-10 " src="images/chat.svg">
+					<h2 class="text-txtColor font-semibold">Global Chat</h2>
 				</div>
 				<div class="flex items-center gap-2">
 					<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -167,7 +170,7 @@ function renderChat() : string
 				</div>
 			</div>
 			<div id="global-chat-messages" class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent
-				hover:scrollbar-thumb-color2 pr-2 space-y-4">
+				hover:scrollbar-thumb-color2 pr-2">
 				${renderChatMessages()}
 			</div>
 
@@ -177,13 +180,8 @@ function renderChat() : string
 						class="flex-1 bg-black/50 text-txtColor px-5 py-3 rounded-xl
 						outline-none border border-borderColor focus:border-color1
 						transition-colors placeholder:text-color3 text-sm">
-					<button id="global-chat-send" class="bg-color1 hover:bg-color2 w-11 h-11
-						rounded-xl flex items-center justify-center
-						transition-all duration-300 hover:scale-105">
-						<svg class="w-5 h-5 text-bgColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-						</svg>
-					</button>
+						<img id="global-chat-send" class="w-11 h-11 text-bgColor rotate-[90deg] border border-borderColor
+						 hover:scale-[1.1] transition duration-200 bg-[linear-gradient(90deg,#0f0f1a,#111111)] rounded-xl p-1" src="images/send.svg">
 				</div>
 			</div>
 		</div>
@@ -198,8 +196,8 @@ export function renderGlobalChat(): string {
 	}, 0);
 
 	return /* html */`
-		<div class="group-chat w-full md:w-[50%] hidden md:block">
-			<h2 class="text-txtColor font-bold text-2xl mb-4">Global Chat</h2>
+		<div class="group-chat w-full md:w-[50%]">
+			<h2 class="text-txtColor font-bold text-2xl mb-4">Social</h2>
 			${renderChat()}
 		</div>
 	`;
@@ -210,4 +208,5 @@ export function cleanupGlobalChat() {
 		golobalChatSocket.close();
 		golobalChatSocket = null;
 	}
+	globalChatInitialized = false;
 }

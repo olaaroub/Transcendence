@@ -21,10 +21,3 @@ db.exec
       FOREIGN KEY (conversationId) REFERENCES conversation(id) ON DELETE CASCADE
     );
 `);
-
-// Migration: Add 'seen' column if it doesn't exist (for existing databases)
-try {
-    db.exec(`ALTER TABLE message ADD COLUMN seen INTEGER DEFAULT 0;`);
-} catch (e) {
-    // Column already exists, ignore error
-}

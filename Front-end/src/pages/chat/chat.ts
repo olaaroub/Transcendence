@@ -1,9 +1,9 @@
 import { navigate } from '../../router';
 import * as data from '../dashboard';
 import { shortString, formatMessageTime } from '../utils';
-import { credentials, getImageUrl, IUserData } from '../store';
+import { credentials, getImageUrl, IUserData, userData } from '../store';
 import { apiFetch } from '../components/errorsHandler';
-import { toastInfo } from '../components/toast';
+import { toastInfo, toastError } from '../components/toast';
 import { io, Socket } from "socket.io-client";
 import { subscribeFriendStatus } from '../components/NavBar';
 
@@ -11,14 +11,11 @@ import { subscribeFriendStatus } from '../components/NavBar';
 let socket: Socket | null = null;
 let friendStatusUnsubscribe: (() => void) | null = null;
 let notificationSocketInitialized = false;
-
 const UNREAD_STORAGE_KEY = 'chat_unread_counts';
 
 function saveUnreadToStorage() {
 	const data: Record<number, number> = {};
-	chatState.unreadCounts.forEach((count, friendId) => {
-		data[friendId] = count;
-	});
+	chatState.unreadCounts.forEach((count, friendId) => {data[friendId] = count;});
 	localStorage.setItem(UNREAD_STORAGE_KEY, JSON.stringify(data));
 }
 
@@ -31,22 +28,21 @@ function loadUnreadFromStorage() {
 				chatState.unreadCounts.set(Number(friendId), count as number);
 			});
 		}
-	} catch (e) {
-		console.error('Error loading unread counts from storage:', e);
-	}
+	} catch (e) {console.error('Error loading unread counts from storage:', e);}
+}
+
+export function getTotalUnreadCount(): number {
+	let total = 0;
+	chatState.unreadCounts.forEach(count => {total += count;});
+	return total;
 }
 
 export function updateMessageIconBadge() {
 	const messageIcon = document.getElementById('message-icon');
 	if (!messageIcon) return;
 
-	let totalUnread = 0;
-	chatState.unreadCounts.forEach(count => {
-		totalUnread += count;
-	});
-
+	let totalUnread = getTotalUnreadCount();
 	let redDot = messageIcon.querySelector('.message-unread-dot');
-
 	if (totalUnread > 0) {
 		if (!redDot) {
 			redDot = document.createElement('span');
@@ -54,19 +50,7 @@ export function updateMessageIconBadge() {
 			messageIcon.classList.add('relative');
 			messageIcon.appendChild(redDot);
 		}
-	} else {
-		if (redDot) {
-			redDot.remove();
-		}
-	}
-}
-
-export function getTotalUnreadCount(): number {
-	let total = 0;
-	chatState.unreadCounts.forEach(count => {
-		total += count;
-	});
-	return total;
+	} else {if (redDot) redDot.remove();}
 }
 
 export function initUnreadFromStorage() {
@@ -107,71 +91,57 @@ const chatState: ChatState = {
 let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
 export function initGlobalChatNotifications() {
-	if (notificationSocketInitialized || socket) return;
+	if (notificationSocketInitialized && socket?.connected) return;
 
-	loadUnreadFromStorage();
-	updateMessageIconBadge();
-
-	socket = io({
-		path: '/api/chat/private/socket.io',
-		transports: ['websocket', 'polling'],
-	});
-
+	initUnreadFromStorage();
+	
+	if (!socket) {
+		socket = io({
+			path: '/api/chat/private/socket.io',
+			transports: ['websocket', 'polling'],
+		});
+	}
+	
+	socket.off("connect");
+	socket.off("connect_error");
+	socket.off("disconnect");
+	socket.off("new_notification");
+	socket.off("unread_messages");
+	socket.off("all_unread_counts");
+	socket.off("error");
+	
 	socket.on("connect", () => {
-		console.log("Connected to private chat");
 		socket?.emit("userId", credentials.id);
 	});
-
-	socket.on("connect_error", (error) => {
-		console.error("Socket connection error:", error.message);
-	});
-
-	socket.on("disconnect", (reason) => {
-		console.log("Disconnected from private chat:", reason);
-	});
-
+	socket.on("connect_error", (error: Error) => {console.error("Socket connection error:", error.message);});
+	socket.on("disconnect", (reason: string) => {});
 	socket.on("new_notification", (data: { type: string; from: number; conversationId: number; text: string }) => {
-		console.log("New notification:", data);
-		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat')) {
+		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat'))
 			toastInfo(`New message received!`, { duration: 4000 });
-		}
 	});
-
 	socket.on("unread_messages", (data: { conversationId: number; friendId: number; unreadCount: number; hasUnread: boolean }) => {
-		console.log("Unread messages update:", data);
-		if (data.hasUnread && data.friendId) {
+		if (data.hasUnread && data.friendId)
 			chatState.unreadCounts.set(data.friendId, data.unreadCount);
-		} else if (data.friendId) {
+		else if (data.friendId)
 			chatState.unreadCounts.delete(data.friendId);
-		}
 		saveUnreadToStorage();
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
 	});
-
 	socket.on("all_unread_counts", (data: { unreadCounts: { conversationId: number; friendId: number; unreadCount: number }[] }) => {
-		console.log("All unread counts:", data);
 		chatState.unreadCounts.clear();
 		data.unreadCounts.forEach(item => {
-			if (item.friendId) {
+			if (item.friendId)
 				chatState.unreadCounts.set(item.friendId, item.unreadCount);
-			}
 		});
 		saveUnreadToStorage();
 		updateMessageIconBadge();
 		updateUnreadIndicatorsUI();
 	});
-
-	socket.on("error", (data) => {
-		console.error("Chat error:", data.message);
-	});
-
-	if (socket.connected) {
+	socket.on("error", (data: { message: string }) => {console.error("Chat error:", data.message);});
+	if (socket.connected)
 		socket.emit("userId", credentials.id);
-	}
-
 	notificationSocketInitialized = true;
-	console.log("Global chat notifications initialized");
 }
 
 function setupChatListeners() {
@@ -184,20 +154,13 @@ function setupChatListeners() {
 	socket.off("user_typing");
 
 	socket.on("chat_initialized", (data: { conversationId: number; messages: ChatMessage[] }) => {
-		console.log("Chat initialized:", data);
 		chatState.currentConversationId = data.conversationId;
 		chatState.messages = data.messages || [];
-		if (chatState.currentFriend) {
-			chatState.unreadCounts.delete(Number(chatState.currentFriend.id));
-		}
-		saveUnreadToStorage();
-		updateMessageIconBadge();
-		updateUnreadIndicatorsUI();
 		updateMessagesUI();
+		markMessagesAsSeen();
 	});
 
 	socket.on("receive_message", (data: ChatMessage) => {
-		console.log("New message received:", data);
 		if (data.conversationId === chatState.currentConversationId) {
 			if (data.senderId === Number(credentials.id ?? 0)) return;
 			chatState.messages.push(data);
@@ -206,24 +169,15 @@ function setupChatListeners() {
 		}
 	});
 
-	socket.on("message_sent", (data) => {
-		console.log("Message sent confirmation:", data);
-	});
-
+	socket.on("message_sent", (data: unknown) => {});
 	socket.on("messages_seen", (data: { conversationId: number; seenBy: number }) => {
-		console.log("Messages seen by:", data);
 		if (data.conversationId === chatState.currentConversationId) {
 			chatState.messages.forEach(msg => {
-				if (msg.senderId === Number(credentials.id)) {
-					msg.seen = true;
-				}
-			});
+				if (msg.senderId === Number(credentials.id)) msg.seen = true;});
 			updateMessagesUI();
 		}
 	});
-
 	socket.on("user_typing", (data: { conversationId: number; userId: number; isTyping: boolean }) => {
-		console.log("User typing:", data);
 		if (data.conversationId === chatState.currentConversationId && data.userId !== Number(credentials.id)) {
 			chatState.isTyping = data.isTyping;
 			chatState.typingUserId = data.isTyping ? data.userId : null;
@@ -239,6 +193,11 @@ function openChat(friend: IUserData) {
 	chatState.messages = [];
 	chatState.isTyping = false;
 	chatState.typingUserId = null;
+
+	chatState.unreadCounts.delete(Number(friend.id));
+	saveUnreadToStorage();
+	updateMessageIconBadge();
+	updateUnreadIndicatorsUI();
 
 	socket.emit("open_chat", {
 		senderId: credentials.id,
@@ -281,15 +240,21 @@ function sendMessage(content: string) {
 	if (!socket || !content.trim() || !chatState.currentConversationId || !chatState.currentFriend)
 		return;
 
+	const trimmedContent = content.trim();
+	if (trimmedContent.length > 200) {
+		toastError('Message is too long. Maximum 200 characters allowed.');
+		return;
+	}
+
 	socket.emit("send_message", {
 		conversationId: chatState.currentConversationId,
 		senderId: Number(credentials.id),
 		receiverId: Number(chatState.currentFriend.id),
-		content: content.trim()
+		content: trimmedContent
 	});
 	const optimisticMessage: ChatMessage = {
 		senderId: Number(credentials.id),
-		content: content.trim(),
+		content: trimmedContent,
 		conversationId: chatState.currentConversationId,
 		createdAt: new Date().toISOString()
 	};
@@ -297,20 +262,157 @@ function sendMessage(content: string) {
 	updateMessagesUI();
 }
 
+interface RoomData {
+	roomId: string;
+	PlayerID: string;
+	playerName: string | null;
+	playerAvatar: string | null;
+}
+
+async function challengeFriend() {
+	if (!chatState.currentFriend) {
+		toastError('No friend selected to challenge');
+		return;
+	}
+
+	if (chatState.currentFriend.status !== 'ONLINE') {
+		toastInfo('Your friend is offline. They can join when they come online!');
+	}
+
+	const { data: roomData, error } = await apiFetch<{ roomId: string }>('/api/game/friendly-match');
+	
+	if (error || !roomData) {
+		toastError('Failed to create game room. Please try again.');
+		return;
+	}
+
+	const challengeMessage = `🎮 I challenge you to a Pong match! Join room: ${roomData.roomId}`;
+	sendMessage(challengeMessage);
+
+	const sessionData: RoomData = {
+		roomId: roomData.roomId,
+		PlayerID: String(userData.id),
+		playerName: shortString(userData.username, 12) || '',
+		playerAvatar: getImageUrl(userData.avatar_url) || '/game/Assets/default.png'
+	};
+	sessionStorage.setItem('room', JSON.stringify(sessionData));
+
+	navigate('/pong-game?mode=online-matchmaking');
+}
+
+function extractRoomId(content: string): string | null {
+	const match = content.match(/Join room: ([a-zA-Z0-9-]+)/);
+	return match ? match[1] : null;
+}
+
+function isChallengeMessage(content: string): boolean {
+	return content.includes('🎮') && content.includes('Join room:');
+}
+
+async function joinGameRoom(roomId: string) {
+	const { data, error } = await apiFetch<{ exists: boolean }>(`/api/game/room/${roomId}`);
+	
+	if (error || !data) {
+		toastError('Failed to check room availability. Please try again.');
+		return;
+	}
+
+	if (!data.exists) {
+		toastInfo('Room is no longer available.');
+		return;
+	}
+
+	const sessionData: RoomData = {
+		roomId: roomId,
+		PlayerID: String(userData.id),
+		playerName: shortString(userData.username, 12) || '',
+		playerAvatar: getImageUrl(userData.avatar_url) || '/game/Assets/default.png'
+	};
+	sessionStorage.setItem('room', JSON.stringify(sessionData));
+
+	navigate('/pong-game?mode=online-matchmaking');
+}
+
+function renderChallengeMessage(msg: ChatMessage, isMine: boolean, seenIcon: string): string {
+	const roomId = extractRoomId(msg.content);
+	
+	if (isMine) {
+		return /* html */`
+			<div class="flex justify-end mb-3">
+				<div class="max-w-[85%] sm:max-w-[70%] bg-color1 text-bgColor px-3 sm:px-4 py-2 rounded-2xl rounded-br-sm">
+					<div class="flex items-center gap-2 mb-1">
+						<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						<span class="font-bold text-sm sm:text-base">Challenge Sent!</span>
+					</div>
+					<p class="text-xs sm:text-sm">Waiting for opponent to join...</p>
+					<span class="text-xs text-bgColor/70 mt-1 flex items-center justify-end">
+						${formatMessageTime(msg.createdAt)}${seenIcon}
+					</span>
+				</div>
+			</div>
+		`;
+	} else {
+		return /* html */`
+			<div class="flex justify-start mb-3">
+				<div class="max-w-[85%] sm:max-w-[70%] bg-gradient-to-r from-[#1a1a2e] to-[#2a1a3e] text-txtColor 
+					px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-bl-sm border border-color1/30">
+					<div class="flex items-center gap-2 mb-2">
+						<svg class="w-4 h-4 sm:w-5 sm:h-5 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						<span class="font-bold text-color1 text-sm sm:text-base">Game Challenge!</span>
+					</div>
+					<p class="text-xs sm:text-sm mb-3">You've been challenged to a Pong match!</p>
+					<button data-room-id="${roomId}" 
+						class="join-game-btn w-full bg-color1 hover:bg-color2 text-bgColor font-bold 
+						py-2 px-3 sm:px-4 rounded-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 text-sm sm:text-base">
+						<svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+						</svg>
+						Join Game
+					</button>
+					<span class="text-xs text-gray-400 mt-2 flex items-center justify-end">
+						${formatMessageTime(msg.createdAt)}
+					</span>
+				</div>
+			</div>
+		`;
+	}
+}
+
+function setupJoinGameListeners() {
+	const joinButtons = document.querySelectorAll('.join-game-btn');
+	joinButtons.forEach(btn => {
+		btn.addEventListener('click', async (e) => {
+			const target = e.currentTarget as HTMLElement;
+			const roomId = target.getAttribute('data-room-id');
+			if (roomId) {
+				await joinGameRoom(roomId);
+			}
+		});
+	});
+}
+
 function updateMessagesUI() {
 	const messagesContainer = document.getElementById('private-chat-messages');
-	const input = document.getElementById('private-chat-input') as HTMLInputElement;
-	const sendBtn = document.getElementById('private-chat-send') as HTMLButtonElement;
-
-	if (input && sendBtn) {
-		if (chatState.currentConversationId) {
-			input.disabled = false;
-			sendBtn.disabled = false;
-		} else {
-			input.disabled = true;
-			sendBtn.disabled = true;
-		}
+	const input = document.getElementById('private-chat-input-div') as HTMLElement;
+	if (input && chatState.currentConversationId) {
+		input.classList.remove("hidden");
+		input.classList.add("flex");
+	} else if (input) {
+		input.classList.add("hidden");
+		input.classList.remove("flex");
 	}
+
 	if (!messagesContainer) return;
 	if (chatState.messages.length === 0) {
 		messagesContainer.innerHTML = /* html */`
@@ -332,11 +434,16 @@ function updateMessagesUI() {
 						</svg>`
 					}
 				</span>` : '';
+			
+			if (isChallengeMessage(msg.content)) {
+				return renderChallengeMessage(msg, isMine, seenIcon);
+			}
+			
 			return /* html */`
 				<div class="flex ${isMine ? 'justify-end' : 'justify-start'} mb-3">
-					<div class="max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'}
-						px-4 py-2 rounded-2xl ${isMine ? 'rounded-br-sm' : 'rounded-bl-sm'}">
-						<p class="text-sm break-words">${msg.content}</p>
+					<div class="max-w-[85%] sm:max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'}
+						px-3 sm:px-4 py-2 rounded-2xl ${isMine ? 'rounded-br-sm' : 'rounded-bl-sm'}">
+						<p class="text-xs sm:text-sm break-words">${msg.content}</p>
 						<span class="text-xs ${isMine ? 'text-bgColor/70' : 'text-gray-400'} mt-1 flex items-center justify-end">
 							${formatMessageTime(msg.createdAt)}${seenIcon}
 						</span>
@@ -346,25 +453,47 @@ function updateMessagesUI() {
 		}).join('');
 	}
 	updateTypingIndicatorUI();
+	setupJoinGameListeners();
 	messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
 function updateChatHeaderUI() {
 	const chatHeader = document.getElementById('private-chat-header');
 	if (!chatHeader || !chatState.currentFriend) return;
-	console.log("chat state : ", chatState);
 	chatHeader.innerHTML = /* html */`
-		<div class="flex gap-3 font-bold items-center">
-			<img class="h-12 w-12 border border-color1 rounded-full object-cover"
-				src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
-			<div class="flex flex-col">
-				<span class="text-txtColor text-lg">${chatState.currentFriend.username}</span>
-				<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm">
-					${chatState.isTyping ? 'typing...' : (chatState.currentFriend.status || 'offline')}
-				</span>
+		<div class="flex justify-between items-center w-full flex-wrap gap-2">
+			<div class="flex gap-2 sm:gap-3 font-bold items-center">
+				<img class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover"
+					src="${getImageUrl(chatState.currentFriend.avatar_url) || '/images/default-avatar.png'}">
+				<div class="flex flex-col">
+					<span class="text-txtColor text-base sm:text-lg">${shortString(chatState.currentFriend.username, 15)}</span>
+					<span id="chat-status-text" class="${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-xs sm:text-sm">
+						${chatState.isTyping ? 'Typing...' : (chatState.currentFriend.status === "ONLINE" ? "Online"  : "Offline")}
+					</span>
+				</div>
 			</div>
+			<button id="challenge-btn" 
+				class="flex items-center gap-1 sm:gap-2 bg-color1 hover:bg-color2 text-bgColor font-bold 
+				px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all duration-300 hover:scale-105 text-sm sm:text-base">
+				<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+						d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+						d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				</svg>
+				<span class="hidden sm:inline">Challenge</span>
+				<span class="sm:hidden">Game</span>
+			</button>
 		</div>
 	`;
+	setupChallengeButtonListener();
+}
+
+function setupChallengeButtonListener() {
+	const challengeBtn = document.getElementById('challenge-btn');
+	if (challengeBtn) {
+		challengeBtn.addEventListener('click', challengeFriend);
+	}
 }
 
 function updateTypingIndicatorUI() {
@@ -373,10 +502,10 @@ function updateTypingIndicatorUI() {
 
 	if (statusText && chatState.currentFriend) {
 		if (chatState.isTyping) {
-			statusText.textContent = 'typing...';
+			statusText.textContent = 'Typing...';
 			statusText.className = 'text-color1 text-sm animate-pulse';
 		} else {
-			statusText.textContent = chatState.currentFriend.status || 'offline';
+			statusText.textContent = chatState.currentFriend.status ===  "ONLINE" ? "Online"  : "Offline";
 			statusText.className = `${chatState.currentFriend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} text-sm`;
 		}
 	}
@@ -414,11 +543,7 @@ function updateUnreadIndicatorsUI() {
 
 		const unreadCount = chatState.unreadCounts.get(Number(friendId)) || 0;
 		const hasUnread = unreadCount > 0;
-
-		if (existingDot) {
-			existingDot.remove();
-		}
-
+		if (existingDot) existingDot.remove();
 		if (hasUnread) {
 			const dot = document.createElement('div');
 			dot.className = 'unread-dot absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full';
@@ -461,14 +586,8 @@ function setupChatEventListeners() {
 		input.addEventListener('input', () => {
 			if (input.value.trim()) {
 				emitTypingStart();
-
-				if (typingTimeout) {
-					clearTimeout(typingTimeout);
-				}
-
-				typingTimeout = setTimeout(() => {
-					emitTypingStop();
-				}, 2000);
+				if (typingTimeout) clearTimeout(typingTimeout);
+				typingTimeout = setTimeout(() => {emitTypingStop();}, 2000);
 			} else {
 				emitTypingStop();
 				if (typingTimeout) {
@@ -487,8 +606,8 @@ function setupFriendsClickListeners() {
 	friendsList.querySelectorAll('[data-friend-id]').forEach(el => {
 		const friendId = el.getAttribute('data-friend-id');
 		const friend = chatState.friends.find(f => String(f.id) === friendId);
-
 		const usernameLink = el.querySelector('.username-link');
+
 		if (usernameLink && friendId) {
 			usernameLink.addEventListener('click', (e) => {
 				e.stopPropagation();
@@ -528,7 +647,6 @@ function updateFriendStatusUI(friendId: string, status: 'ONLINE' | 'OFFLINE'): v
 			statusText.textContent = status.toLowerCase();
 		}
 	}
-
 	if (chatState.currentFriend && String(chatState.currentFriend.id) === friendId) {
 		chatState.currentFriend.status = status;
 		updateChatHeaderUI();
@@ -537,9 +655,11 @@ function updateFriendStatusUI(friendId: string, status: 'ONLINE' | 'OFFLINE'): v
 
 export function cleanupPrivateChat() {
 	if (socket) {
-		socket.removeAllListeners();
-		socket.disconnect();
-		socket = null;
+		socket.off("chat_initialized");
+		socket.off("receive_message");
+		socket.off("message_sent");
+		socket.off("messages_seen");
+		socket.off("user_typing");
 	}
 	if (friendStatusUnsubscribe) {
 		friendStatusUnsubscribe();
@@ -555,7 +675,16 @@ export function cleanupPrivateChat() {
 	chatState.friends = [];
 	chatState.isTyping = false;
 	chatState.typingUserId = null;
+}
+
+export function disconnectChatSocket() {
+	if (socket) {
+		socket.removeAllListeners();
+		socket.disconnect();
+		socket = null;
+	}
 	notificationSocketInitialized = false;
+	chatState.unreadCounts.clear();
 }
 
 export function chatEventHandler() {
@@ -566,38 +695,40 @@ export function chatEventHandler() {
 
 function renderMessages() : string {
 	return /* html */`
-		<div class="relative w-[70%] bg-color4 rounded-2xl min-h-[calc(100vh-200px)]
-		p-6 flex flex-col">
+		<div class="relative w-full lg:w-[70%] bg-color4 rounded-2xl min-h-[calc(100vh-200px)]
+		p-3 sm:p-4 md:p-6 flex flex-col">
 			<div>
-				<h2 class="text-txtColor text-2xl font-bold mb-6">Messages</h2>
+				<h2 class="text-txtColor text-xl sm:text-2xl font-bold mb-2">Messages</h2>
 				<div class="h-[1px] bg-gray-700 mb-4"></div>
 			</div>
-			<div id="private-chat-header" class="bg-black rounded-t-2xl p-3 border-b border-gray-700">
-				<div class="flex gap-3 font-bold items-center text-gray-400">
-					<p>Select a friend to start chatting</p>
+			<div class="bg-[url('/images/space.png')] bg-center flex flex-col h-full rounded-2xl">
+				<div id="private-chat-header" class="rounded-t-2xl p-2 sm:p-3 border-b border-gray-700">
+					<div class="flex gap-2 sm:gap-3 font-bold items-center text-gray-400">
+						<p class="text-sm sm:text-base">Select a friend to start chatting</p>
+					</div>
 				</div>
-			</div>
-			<div id="private-chat-messages" class="flex-1 bg-black p-4 overflow-y-auto min-h-[300px] max-h-[calc(100vh-450px)]
-				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
-				<div class="flex items-center justify-center h-full text-gray-400">
-					<p>Select a conversation from the left</p>
+				<div id="private-chat-messages" class="flex-1 p-2 sm:p-4 overflow-y-auto min-h-[300px] max-h-[calc(100vh-450px)] sm:max-h-[calc(100vh-450px)]
+					scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-1 sm:pr-2">
+					<div class="flex items-center justify-center h-full text-gray-400">
+						<img class="w-[90%] sm:w-[70%] opacity-[50%]" src="/images/chat.gif" alt="Idle">
+
+					</div>
 				</div>
-			</div>
-			<div class="flex justify-center gap-2 mt-0 w-full items-center bg-black rounded-b-2xl p-3">
-				<input type="text" id="private-chat-input" placeholder="Type a message..."
-				class="bg-gray-800 text-txtColor px-4 py-2 rounded-full w-[80%]
-				outline-none border border-color3 focus:border-color1 transition-colors
-				disabled:opacity-50 disabled:cursor-not-allowed"
-				${!chatState.currentConversationId ? 'disabled' : ''}>
-				<button id="private-chat-send"
-				<button id="private-chat-send"
-					class="bg-color1 hover:bg-color2 h-10 w-10 rounded-full flex items-center justify-center
-					transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-					${!chatState.currentConversationId ? 'disabled' : ''}>
-					<svg class="w-5 h-5 text-bgColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-					</svg>
-				</button>
+				<div id="private-chat-input-div" class="hidden justify-center gap-2 mt-0 w-full items-center rounded-b-2xl p-2 sm:p-3">
+					<input type="text" id="private-chat-input" placeholder="Type a message..."
+					class="bg-[#0f0f1a] text-txtColor px-3 sm:px-4 py-2 rounded-full w-full sm:w-[80%]
+					outline-none border border-color3 focus:border-color1 transition-colors text-sm sm:text-base
+					"
+					>
+					<button id="private-chat-send"
+						class="bg-color1 hover:bg-color2 h-9 w-9 sm:h-10 sm:w-10 rounded-full flex items-center justify-center
+						transition-all duration-300 hover:scale-105 flex-shrink-0"
+						>
+						<svg class="w-4 h-4 sm:w-5 sm:h-5 text-bgColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+						</svg>
+					</button>
+				</div>
 			</div>
 		</div>
 		`;
@@ -607,26 +738,25 @@ async function listFriends() : Promise<string> {
 	const { data: friends } = await apiFetch<IUserData[]>(`/api/user/${credentials.id}/friends`);
 	if (!friends || friends.length === 0) {
 		chatState.friends = [];
-		return /* html */`<p class="pt-24 text-txtColor text-center">No friends to display.</p>`;
+		return /* html */`<p class="pt-12 sm:pt-24 text-txtColor text-center text-sm sm:text-base">No friends to display.</p>`;
 	}
 	chatState.friends = friends;
 	return /* html */`
 		<div class="flex flex-col gap-2">
-			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-200px)]
-				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-2">
+			<div id="friends-list" class="flex flex-col gap-2 overflow-y-auto max-h-[300px] sm:max-h-[400px] lg:max-h-[calc(100vh-200px)]
+				scrollbar-thin scrollbar-thumb-color1 scrollbar-track-transparent hover:scrollbar-thumb-color2 pr-1 sm:pr-2">
 				${friends.map((friend: IUserData) => /* html */`
 					<div data-friend-id="${friend.id}"
-						class="flex bg-[#0f0f1a] hover:bg-[#1a1a2e] p-3 rounded-2xl cursor-pointer
-						transition-all duration-200 hover:border-l-2 hover:border-color1">
-						<div class="flex w-full gap-4">
-							<img class="w-[45px] h-[45px] rounded-full object-cover"
+						class="flex bg-[#0f0f1a] hover:bg-[#1a1a2e] p-2 sm:p-3 rounded-xl sm:rounded-2xl cursor-pointer
+						transition-all duration-200 hover:border-l-2 hover:border-color1 active:bg-[#252535]">
+						<div class="flex w-full gap-2 sm:gap-3 items-center">
+							<img class="w-[45px] h-[45px] sm:w-[50px] sm:h-[50px] rounded-full object-cover flex-shrink-0"
 								src="${getImageUrl(friend.avatar_url) || '/images/default-avatar.png'}" alt="">
-							<div class="w-full">
-								<div class="flex justify-between w-full">
-									<span class="username-link text-txtColor font-bold text-lg hover:text-color1 transition-colors">${shortString(friend.username, 15)}</span>
-									<span class="status-dot w-2 h-2 mt-2 rounded-full ${friend.status === 'ONLINE' ? 'bg-green-500' : 'bg-gray-400'}"></span>
+							<div class="flex-1 min-w-0">
+								<div class="flex justify-between items-center w-full gap-2">
+									<span class="username-link text-txtColor font-bold text-sm sm:text-base lg:text-lg hover:text-color1 transition-colors truncate">${shortString(friend.username, 15)}</span>
 								</div>
-								<p class="status-text text-sm ${friend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'}">${friend.status?.toLocaleLowerCase() || 'offline'}</p>
+								<p class="status-text text-xs sm:text-sm ${friend.status === 'ONLINE' ? 'text-green-500' : 'text-gray-400'} truncate">${friend.status ===  "ONLINE" ? "Online"  : "Offline"}</p>
 							</div>
 						</div>
 					</div>
@@ -638,22 +768,20 @@ async function listFriends() : Promise<string> {
 
 export async function renderChat() {
 	await data.initDashboard(false);
-
 	chatState.currentConversationId = null;
 	chatState.currentFriend = null;
 	chatState.messages = [];
-	setupChatListeners();
 
+	setupChatListeners();
 	loadUnreadFromStorage();
 	updateMessageIconBadge();
-
 	const dashContent = document.getElementById('dashboard-content');
 	if (dashContent)
 		dashContent.innerHTML = /* html */`
-		<div class="w-full h-full flex">
-			<div class="w-[30%] bg-color4 rounded-2xl p-6 mr-4">
-				<p class="text-txtColor font-bold mb-2 text-lg">Friends</p>
-				<div class="h-[1px] bg-gray-700 mb-4"></div>
+		<div class="w-full h-full flex flex-col lg:flex-row gap-3 sm:gap-4">
+			<div class="w-full lg:w-[30%] bg-color4 rounded-2xl p-3 sm:p-4 md:p-6 max-h-[400px] lg:max-h-none">
+				<h2 class="text-txtColor font-bold mb-2 text-xl sm:text-2xl">Friends</h2>
+				<div class="h-[1px] bg-gray-700 mb-3 sm:mb-4"></div>
 				${await listFriends()}
 			</div>
 			${renderMessages()}
@@ -664,7 +792,6 @@ export async function renderChat() {
 		setupFriendsClickListeners();
 		updateUnreadIndicatorsUI();
 	}, 0);
-
 	if (friendStatusUnsubscribe)
 		friendStatusUnsubscribe();
 	friendStatusUnsubscribe = subscribeFriendStatus(updateFriendStatusUI);

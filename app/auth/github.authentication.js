@@ -52,7 +52,7 @@ async function githubCallback(req, reply) {
 
         if (!data) {
             data = this.db.prepare("INSERT INTO users(email, username, auth_provider) VALUES (?, ?, ?) RETURNING id, username")
-                .get([emailData.email, userInfo.name, "github"]);
+                .get([emailData.email, userInfo.name || userInfo.login, "github"]);
 
             const createNewUserRes = await fetch(`${USER_SERVICE_URL}/api/user/createNewUser`, {
                 method: 'POST',
@@ -66,7 +66,7 @@ async function githubCallback(req, reply) {
                     bio: userInfo.bio
                 })
             });
-            if (!createNewUserRes.ok) // khasni nmseh avatar hnaya
+            if (!createNewUserRes.ok)
             {
                 await fs.promises.unlink(AvatarUrl.file_path).catch(() => { });
                 this.db.prepare('DELETE FROM users WHERE id = ?').run([data.id]);

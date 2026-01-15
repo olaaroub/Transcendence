@@ -4,7 +4,9 @@ import {
 	Match,
 	keyMap,
 	createScene,
+	loadGameFont,
 	createGUI,
+	disposeGUI,
 	optionsButton,
 	addHUDs,
 	updateGoals,
@@ -58,6 +60,7 @@ let role = 0;
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 
 const { engine, scene, cameras } = createScene(canvas);
+await loadGameFont();
 createGUI();
 
 const sky = createSky(scene);
@@ -125,6 +128,7 @@ const handleResize = () => { engine.resize(); };
 
 function exitGame(): void
 {
+	disposeGUI();
 	document.getElementById("exit-game-btn")?.click();
 	window.removeEventListener('keydown', handleKeyDown);
 	window.removeEventListener('keyup', handleKeyUp);
@@ -139,7 +143,7 @@ socket.on("state", (state: GameState) => {modifyState(state);});
 
 socket.on("gamestate", (state: State) => {match.currState = state;});
 
-socket.on("gameOver", (winner: string) => {createSign(`GAME OVER\n${winner.toUpperCase()} WINS`);});
+socket.on("gameOver", (winner: string) => {createSign(`GAME OVER\n${winner.length > 12 ? winner.slice(0, 12 - 1) + "..." : winner} WINS`);});
 
 socket.on("redirect", () => {exitGame();});
 
@@ -160,10 +164,9 @@ socket.on("session", (session: Match['session']) =>
 
 socket.on("countdown", (count: string) =>
 {
-	if (count === '0')
-		createSign();
-	else
-		createSign(count);
+	createSign(count);
+	if (count === 'GO')
+		setTimeout(() => {createSign();}, 500);
 });
 
 optionsButton(scene, cameras, [ball.material!, paddles.p1.material!, paddles.p2.material!]);
@@ -190,7 +193,6 @@ else
 {
 	socket.on("connect", async () =>
 	{
-		console.log("Connection Established. Joining room...");
 		try
 		{
 			const response = await socket.timeout(60000).emitWithAck("match", roomData);
@@ -201,9 +203,11 @@ else
 				return;
 			}
 			match = response;
-			console.log(`Joined room successfully. Waiting for game to start...`);
-			modifyState(match.state);
-			createSign(`WAITING FOR\nOPPONENT...`);
+			if (role !== 3)
+			{
+				modifyState(match.state);
+				createSign(`WAITING FOR\nOPPONENT...`);
+			}
 		}
 		catch (e)
 		{
@@ -215,12 +219,8 @@ else
 	socket.on("side", (side: number) =>
 	{
 		role = side;
-		console.log(`Assigned as ${side === 3 ? 'Spectator' : `Player ${side}`}`);
 		if (role === 3)
-		{
-			addHUDs(match.session);
 			catchUpGoals(match.state.p1, match.state.p2);
-		}
 	});
 }
 

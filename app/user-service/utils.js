@@ -12,9 +12,4 @@ export async function changeItemInOtherService(url, newValue) {
     if (!response.ok) {
         throw createError.BadGateway("Failed to sync changes with Other Service");
     }
-    // const responsAsJson = await response.json();
-
-    // if (!responsAsJson.ok) {
-    //     throw createError.BadGateway("Failed to sync changes with Other Service");
-    // }
 }
