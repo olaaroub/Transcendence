@@ -1,164 +1,12 @@
 services:
-  frontend-prod:
-    build:
-      context: ./Front-end
-      dockerfile: Dockerfile.frontend.prod
-    image: frontend-prod:1337
-    container_name: frontend-prod
-    ports:
-      - "8443:8443"
-    volumes:
-      - ./certs:/etc/nginx/certs:ro
-      - ./Security/ModSecurity/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
-      - pong-dist:/app/assets/game:ro
-    environment:
-      - SERVICE_EXT=-prod
-    networks:
-      - transcendence-prod-net
-    depends_on:
-      - modSecurity-prod
 
-  auth-service-prod:
-    build:
-      context: ./app/auth
-      dockerfile: ../Dockerfile.microservices.prod
-      args:
-        - PORT=3001
-    image: auth-service-prod:1337
-    container_name: auth-service-prod
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR_PROD}
-      - VAULT_SECRET_PATH=${AUTH_SECRET_PATH}
-      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/auth.db
-      - HOST=0.0.0.0
-      - DOMAIN=${AUTH_DOMAIN_PROD}
-      - SERVICE_EXT=-prod
-      - LOG_LEVEL=debug
-    expose:
-      - 3001
-    user: root
-    volumes:
-      - ./db/auth:/data
-      - ./app/static:/app/static
-    networks:
-      - transcendence-prod-net
-    depends_on:
-      vault-init-prod:
-        condition: service_completed_successfully
-
-  user-service-prod:
-    build:
-      context: ./app/user-service
-      dockerfile: ../Dockerfile.microservices.prod
-      args:
-        - PORT=3002
-    image: user-service-prod:1337
-    container_name: user-service-prod
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR_PROD}
-      - VAULT_SECRET_PATH=${USER_SECRET_PATH}
-      - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/users.db
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-prod
-      - LOG_LEVEL=debug
-    expose:
-      - 3002
-    user: root
-    volumes:
-      - ./db/users:/data
-      - ./app/static:/app/static
-    networks:
-      - transcendence-prod-net
-    depends_on:
-      vault-init-prod:
-        condition: service_completed_successfully
-
-  global-chat-prod:
-    build:
-      context: ./app/chat/global
-      dockerfile: ../../Dockerfile.microservices.prod
-      args:
-        - PORT=3003
-    image: global-chat-prod:1337
-    container_name: global-chat-prod
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR_PROD}
-      - VAULT_SECRET_PATH=${GLOBAL_CHAT_SECRET_PATH}
-      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/global.db
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-prod
-      - LOG_LEVEL=debug
-    expose:
-      - 3003
-    user: root
-    volumes:
-      - ./db/chat:/data
-    networks:
-      - transcendence-prod-net
-    depends_on:
-      vault-init-prod:
-        condition: service_completed_successfully
-
-  private-chat-prod:
-    build:
-      context: ./app/chat/private
-      dockerfile: ../../Dockerfile.microservices.prod
-      args:
-        - PORT=3004
-    image: private-chat-prod:1337
-    container_name: private-chat-prod
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR_PROD}
-      - VAULT_SECRET_PATH=${PRIVATE_CHAT_SECRET_PATH}
-      - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
-      - DATABASE_PATH=/data/private.db
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-prod
-      - LOG_LEVEL=debug
-    expose:
-      - 3004
-    user: root
-    volumes:
-      - ./db/chat:/data
-    networks:
-      - transcendence-prod-net
-    depends_on:
-      vault-init-prod:
-        condition: service_completed_successfully
-
-  pong-game-prod:
-    build:
-      context: ./Pong
-      dockerfile: Dockerfile.pong.prod
-      args:
-        - PORT=3005
-    image: pong-game-prod:1337
-    container_name: pong-game-prod
-    environment:
-      - VAULT_ADDR=${VAULT_ADDR_PROD}
-      - VAULT_SECRET_PATH=${PONG_SECRET_PATH}
-      - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
-      - HOST=0.0.0.0
-      - SERVICE_EXT=-prod
-      - LOG_LEVEL=debug
-    expose:
-      - 3005
-    volumes:
-      - pong-dist:/pong-dist
-    networks:
-      - transcendence-prod-net
-    depends_on:
-      vault-init-prod:
-        condition: service_completed_successfully
+  # ====================================================
+  #                HASHICORP VAULT
+  # ====================================================
 
   vault-prod:
     image: hashicorp/vault:1.21.1
     container_name: vault-prod
-    networks:
-      - transcendence-prod-net
     ports:
       - "8200:8200"
     environment:
@@ -166,14 +14,16 @@ services:
       - VAULT_ADDR=http://0.0.0.0:8200
     cap_add:
       - IPC_LOCK
+    networks:
+      - transcendence-prod-net
 
   vault-init-prod:
     image: hashicorp/vault:1.21.1
     container_name: vault-init-prod
-    networks:
-      - transcendence-prod-net
+    depends_on:
+      - vault-prod
     volumes:
-      - ./Security/HashicorpVault/hashicorpVault.init.sh:/init.sh
+      - ./Security/HashicorpVault/hashicorpVault.init.sh:/hashicorpVault.init.sh
     environment:
       - VAULT_ADDR=${VAULT_ADDR_PROD}
       - VAULT_TOKEN=${VAULT_TOKEN}
@@ -190,76 +40,378 @@ services:
       - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
       - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
       - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
-    entrypoint: /init.sh
+    entrypoint: /hashicorpVault.init.sh
+    networks:
+      - transcendence-prod-net
+
+  # ====================================================
+  #         APPLICATION MICROSERVICES
+  # ====================================================
+
+
+  auth-service-prod:
+    build:
+      context: ./app/auth
+      dockerfile: ../Dockerfile.microservices.prod
+      args:
+        - PORT=3001
+    image: auth-service-prod:1337
+    container_name: auth-service-prod
     depends_on:
-      - vault-prod
+      vault-init-prod:
+        condition: service_completed_successfully
+    expose:
+      - "3001"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_PROD}
+      - VAULT_SECRET_PATH=${AUTH_SECRET_PATH}
+      - AUTH_SERVICE_TOKEN=${AUTH_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/auth.db
+      - HOST=0.0.0.0
+      - DOMAIN=${AUTH_DOMAIN}
+      - SERVICE_EXT=-prod
+      - LOG_LEVEL=info
+    user: root
+    volumes:
+      - ./db/auth:/data
+      - ./app/static:/app/static
+    networks:
+      - transcendence-prod-net
+
+  user-service-prod:
+    build:
+      context: ./app/user-service
+      dockerfile: ../Dockerfile.microservices.prod
+      args:
+        - PORT=3002
+    image: user-service-prod:1337
+    container_name: user-service-prod
+    depends_on:
+      vault-init-prod:
+        condition: service_completed_successfully
+    expose:
+      - "3002"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_PROD}
+      - VAULT_SECRET_PATH=${USER_SECRET_PATH}
+      - USER_SERVICE_TOKEN=${USER_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/users.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-prod
+      - LOG_LEVEL=info
+    user: root
+    volumes:
+      - ./db/users:/data
+      - ./app/static:/app/static
+    networks:
+      - transcendence-prod-net
+
+  global-chat-prod:
+    build:
+      context: ./app/chat/global
+      dockerfile: ../../Dockerfile.microservices.prod
+      args:
+        - PORT=3003
+    image: global-chat-prod:1337
+    container_name: global-chat-prod
+    depends_on:
+      vault-init-prod:
+        condition: service_completed_successfully
+    expose:
+      - "3003"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_PROD}
+      - VAULT_SECRET_PATH=${GLOBAL_CHAT_SECRET_PATH}
+      - GLOBAL_CHAT_SERVICE_TOKEN=${GLOBAL_CHAT_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/global.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-prod
+      - LOG_LEVEL=info
+    user: root
+    volumes:
+      - ./db/chat:/data
+    networks:
+      - transcendence-prod-net
+
+  private-chat-prod:
+    build:
+      context: ./app/chat/private
+      dockerfile: ../../Dockerfile.microservices.prod
+      args:
+        - PORT=3004
+    image: private-chat-prod:1337
+    container_name: private-chat-prod
+    depends_on:
+      vault-init-prod:
+        condition: service_completed_successfully
+    expose:
+      - "3004"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_PROD}
+      - VAULT_SECRET_PATH=${PRIVATE_CHAT_SECRET_PATH}
+      - PRIVATE_CHAT_SERVICE_TOKEN=${PRIVATE_CHAT_SERVICE_TOKEN}
+      - DATABASE_PATH=/data/private.db
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-prod
+      - LOG_LEVEL=info
+    user: root
+    volumes:
+      - ./db/chat:/data
+    networks:
+      - transcendence-prod-net
+
+  pong-game-prod:
+    build:
+      context: ./Pong
+      dockerfile: Dockerfile.pong.prod.multistage
+      args:
+        - PORT=3005
+    image: pong-game-prod:1337
+    container_name: pong-game-prod
+    depends_on:
+      vault-init-prod:
+        condition: service_completed_successfully
+    expose:
+      - "3005"
+    environment:
+      - VAULT_ADDR=${VAULT_ADDR_PROD}
+      - VAULT_SECRET_PATH=${PONG_SECRET_PATH}
+      - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
+      - HOST=0.0.0.0
+      - SERVICE_EXT=-prod
+      - LOG_LEVEL=info
+    user: root
+    volumes:
+      - pong-dist:/pong-dist
+    networks:
+      - transcendence-prod-net
+
+  # ====================================================
+  #     MODSECURITY CRS/API GATEWAY & FRONTEND
+  # ====================================================
 
   modSecurity-prod:
     image: owasp/modsecurity-crs:4.21.0-nginx-alpine-202512071012
     container_name: modSecurity-prod
-    networks:
-      - transcendence-prod-net
-    environment:
-      - MODSEC_RULE_ENGINE=on
-      - BLOCKING_PARANOIA=2
-    volumes:
-      - ./Security/ModSecurity/Nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
-      - ./Security/ModSecurity/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
-      - ./Security/ModSecurity/scan_php.sh:/usr/local/bin/scan_php.sh:ro
-      - ./Security/ModSecurity/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     restart: on-failure
+    depends_on:
+      - auth-service-prod
+      - user-service-prod
+      - global-chat-prod
+      - private-chat-prod
+      - pong-game-prod
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 10s
       timeout: 5s
       retries: 3
+    environment:
+      - MODSEC_RULE_ENGINE=on
+      - BLOCKING_PARANOIA=2
+    volumes:
+      - ./Security/ModSecurity/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
+      - ./Security/ModSecurity/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
+      - ./Security/ModSecurity/scanContent.sh:/usr/local/bin/scanContent.sh:ro
+      - ./Security/ModSecurity/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
+    networks:
+      - transcendence-prod-net
+
+  frontend-prod:
+    build:
+      context: ./Front-end
+      dockerfile: Dockerfile.frontend.prod
+    image: frontend-prod:1337
+    container_name: frontend-prod
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
     depends_on:
-      - auth-service-prod
-      - user-service-prod
-      - global-chat-prod
-      - private-chat-prod
-      - pong-game-prod
+      - modSecurity-prod
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - ./Security/ModSecurity/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
+      - pong-dist:/app/assets/game:ro
+    environment:
+      - SERVICE_EXT=-prod
+    networks:
+      - transcendence-prod-net
+
+  # ====================================================
+  #        METRICS PROMETHEUS / GRAFANA
+  # ====================================================
 
   prometheus-prod:
     image: prom/prometheus:v3.8.1
     container_name: prometheus-prod
-    ports:
-      - "9090:9090"
-    networks:
-      - transcendence-prod-net
-    volumes:
-      - ./Metrics/prometheus/prometheus.prod.yaml:/etc/prometheus/prometheus.yml:ro
-      - ./Metrics/prometheus/alertRules.yaml:/etc/prometheus/alertRules.yaml:ro
-      - prometheus-data:/prometheus
+    expose:
+      - "9090"
     depends_on:
       - auth-service-prod
       - user-service-prod
       - global-chat-prod
       - private-chat-prod
       - pong-game-prod
+    volumes:
+      - ./Metrics/prometheus/prometheus.prod.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./Metrics/prometheus/alertRules.yaml:/etc/prometheus/alertRules.yaml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - transcendence-prod-net
 
   grafana-prod:
     image: grafana/grafana:12.3.0
     container_name: grafana-prod
     ports:
       - "3000:3000"
-    networks:
-      - transcendence-prod-net
+    depends_on:
+      - prometheus-prod
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     volumes:
       - grafana-data:/var/lib/grafana
       - ./Metrics/grafana/provisioning:/etc/grafana/provisioning
       - ./Metrics/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./certs:/etc/grafana/certs:ro
+    networks:
+      - transcendence-prod-net
+
+  # ====================================================
+  #         ELASTIC STACK (ELK + FILEBEAT)
+  # ====================================================
+
+
+  setup-prod:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+    container_name: setup-prod
+    user: "0"
+    command: "bash config/setupInfra.sh"
     environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    volumes:
+      - ./Elastic-Stack/setup/setupInfra.sh:/usr/share/elasticsearch/config/setupInfra.sh:ro
+      - ./Elastic-Stack/kibana/olaaroub-kibanaDashboard.ndjson:/usr/share/elasticsearch/config/dashboard.ndjson:ro
+      - certs:/usr/share/elasticsearch/config/certs
+    networks:
+      - transcendence-prod-net
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+    container_name: elasticsearch
+    restart: on-failure
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -k https://localhost:9200 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/elasticsearch/elasticsearch.key
+      - xpack.security.http.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/elasticsearch/elasticsearch.key
+      - xpack.security.transport.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+      - certs:/usr/share/elasticsearch/config/certs
+    networks:
+      - transcendence-prod-net
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:9.2.2
+    container_name: logstash
+    expose:
+      - "5044"
     depends_on:
-      - prometheus-prod
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-XGET", "http://127.0.0.1:9600/_node/pipelines/main"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    environment:
+      - XPACK_MONITORING_ENABLED=false
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "LS_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - ./Elastic-Stack/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - certs:/usr/share/logstash/config/certs
+    networks:
+      - transcendence-prod-net
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.2.2
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-k", "https://localhost:5601/api/status"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    environment:
+      - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=s52DPjDDyas52DPjDDya4HcJygaYpHFAs52DPjDDyas52DPjDDya4HcJygaYpHFA4
+      - SERVER_SSL_ENABLED=true
+      - SERVER_SSL_CERTIFICATE=config/certs/kibana/kibana.crt
+      - SERVER_SSL_KEY=config/certs/kibana/kibana.key
+    volumes:
+      - certs:/usr/share/kibana/config/certs
+    networks:
+      - transcendence-prod-net
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:9.2.2
+    container_name: filebeat
+    user: root
+    command: ["-e", "--strict.perms=false"]
+    depends_on:
+      - logstash
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./Elastic-Stack/filebeat/config/filebeat.yaml:/usr/share/filebeat/filebeat.yml:ro
+    networks:
+      - transcendence-prod-net
 
 networks:
   transcendence-prod-net:
     name: transcendence-prod-net
     driver: bridge
+
 volumes:
+  elasticsearch-data:
+    driver: local
+  certs:
+    driver: local
   prometheus-data:
     driver: local
   vault-data:

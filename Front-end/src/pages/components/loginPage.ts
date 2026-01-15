@@ -1,5 +1,5 @@
 import { navigate } from "../../router";
-import { sendAuthData } from "../../pages/sendData";
+import { sendAuthData } from "../sendData";
 import { renderHome } from "../home";
 
 const $ = (id : string) => document.getElementById(id as string);
@@ -159,7 +159,7 @@ document.body.addEventListener("submit", (e) => {
 		const errorMSG = validateInfos(inputs);
 		if (errorMSG !== "")
 		{
-			renderAuthPage(true, errorMSG);		
+			renderAuthPage(true, errorMSG);
 			return ;
 		}
 	}

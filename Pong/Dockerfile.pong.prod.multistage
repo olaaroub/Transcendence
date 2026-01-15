@@ -1,5 +1,8 @@
 FROM node:20-alpine
 
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_FUND=false
+
 WORKDIR /app
 
 COPY . .
@@ -35,10 +38,10 @@ COPY --from=0 /app/Shared /app/Shared
 COPY --from=0 /app/Offline /app/Offline
 COPY --from=0 /app/Online /app/Online
 COPY --from=0 /app/Assets /app/Assets
-COPY --from=0 /app/init.sh /app/init.sh
+COPY --from=0 /app/setupGame.sh /app/setupGame.sh
 
 RUN mkdir -p /pong-dist && \
-    chmod +x /app/init.sh && \
+    chmod +x /app/setupGame.sh && \
     chown -R node:node /app /pong-dist
 
 ARG PORT=3000
@@ -47,4 +50,4 @@ EXPOSE ${PORT}
 
 USER node
 
-CMD ["/app/init.sh"]
+CMD ["/app/setupGame.sh"]

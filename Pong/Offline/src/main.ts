@@ -4,6 +4,7 @@ import {
 	createScene,
 	loadGameFont,
 	createGUI,
+	disposeGUI,
 	optionsButton,
 	startButton,
 	addHUDs,
@@ -74,6 +75,7 @@ const handleResize = () => { engine.resize(); };
 
 function exitGame(): void
 {
+	disposeGUI();
 	document.getElementById("exit-game-btn")?.click();
 	if (gameInterval)
 	{

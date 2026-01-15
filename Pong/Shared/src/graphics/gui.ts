@@ -20,8 +20,20 @@ let sign: GUI.Image | null = null;
 let signText: GUI.TextBlock | null = null;
 let p1Goals = 0;
 let p2Goals = 0;
+let disposed: boolean = false;
 
-export function createGUI(): void {ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");}
+export function createGUI(): void
+{
+	disposed = false;
+	ui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+}
+
+export function disposeGUI(): void
+{
+	disposed = true;
+	if (ui)
+		ui.dispose();
+}
 
 export async function loadGameFont(): Promise<void> 
 {
@@ -300,12 +312,15 @@ export function startButton(engine: PongEngine): void
 	{
 		ui.removeControl(button);
 		button.dispose();
-		await new Promise(resolve => setTimeout(resolve, 500));
+		try {await new Promise(resolve => setTimeout(resolve, 500));}
+		catch (error) {};
+		
 		engine.setState('Countdown');
 		for (let count = 3; count > 0; count--)
 		{
 			createSign(`${count}`);
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			try {await new Promise(resolve => setTimeout(resolve, 1000));}
+			catch (error) {};
 		}
 		createSign('GO');
 		engine.setState('Playing');
@@ -315,6 +330,9 @@ export function startButton(engine: PongEngine): void
 
 export function createSign(text?: string): void
 {
+	if (disposed)
+		return;
+
 	if (signText)
 	{
 		signBox?.removeControl(signText);

@@ -38,12 +38,13 @@ interface GameRoom
 const HOST = process.env.HOST as string;
 const PORT = Number(process.env.PORT) || 3005;
 
-const ext = process.env.SERVICE_EXT || '-dev';
+const ext = process.env.SERVICE_EXT || '-prod';
 const USER_SERVICE_URL = `http://user-service${ext}:3002`;
 
 const rooms = new Map<string, GameRoom>();
 const matchmakingQueue: string[] = [];
 const connectedUsers = new Map<string, Socket>();
+const pendingUsers = new Set<string>();
 
 declare module 'fastify' { interface FastifyInstance { customMetrics: { matchCounter: any; } } }
 
@@ -303,15 +304,19 @@ async function jwtChecker(request: any, reply: any)
 	try
 	{
 		const payload = await request.jwtVerify();
-		if (connectedUsers.has(String(payload.id)))
+		const userId = String(payload.id);
+		if (connectedUsers.has(userId) || pendingUsers.has(userId))
 			throw new Error('User Already Connected!');
+		request.userId = userId;
 	}
 	catch (err) {reply.status(401).send({ message: 'Unauthorized' });}
 }
 
-fastify.get('/api/game/matchmaking', {preHandler: [jwtChecker]} ,async (request, reply) =>
+fastify.get('/api/game/matchmaking', {preHandler: [jwtChecker]} ,async (request: any, reply) =>
 {
 	let roomId: string;
+	const userId = request.userId as string;
+	pendingUsers.add(userId);
 
 	if (matchmakingQueue.length > 0)
 	{
@@ -329,8 +334,10 @@ fastify.get('/api/game/matchmaking', {preHandler: [jwtChecker]} ,async (request,
 	return reply.send({ roomId });
 });
 
-fastify.get('/api/game/friendly-match', {preHandler: [jwtChecker]} ,async (request, reply) =>
+fastify.get('/api/game/friendly-match', {preHandler: [jwtChecker]} ,async (request: any, reply) =>
 {
+	const userId = request.userId as string;
+	pendingUsers.add(userId);
 	let roomId: string = generateRoomId();
 	const room = createGameRoom(roomId);
 	rooms.set(roomId, room);
@@ -392,6 +399,7 @@ function initSocketHandlers(): void
 			playerSide = getAvailableSide(room);
 			room.members.set(socket.id, { socket, userID: data.PlayerID, side: playerSide });
 			userID = data.PlayerID;
+			pendingUsers.delete(data.PlayerID);
 			connectedUsers.set(data.PlayerID, socket);
 			socket.emit('side', playerSide);
 

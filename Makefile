@@ -56,6 +56,12 @@ certs:
 		echo "$(GREEN)Certificates already exist.$(RESET)"; \
 	fi
 
+
+db:
+	@mkdir -p $(DB_DIR)
+	@mkdir -p $(DB_DIR)/auth $(DB_DIR)/users $(DB_DIR)/chat/
+	@echo "$(GREEN)Database directories created... $(DB_DIR)$(RESET)"
+
 # --- DEPENDENCIES ---
 deps:
 	@echo "$(YELLOW)Generating package-lock.json files (without installing node_modules)...$(RESET)"
@@ -63,7 +69,7 @@ deps:
 	@find . -name "package.json" -not -path "*/node_modules/*" -execdir npm install --package-lock-only \;
 	@echo "$(GREEN)Lockfiles generated. You can now build with Docker.$(RESET)"
 
-setup-db: # not final, (i did a temporary fix of giving the container uid rood)
+setup-db:
 	@echo "$(YELLOW)Setting up database permissions...$(RESET)"
 	@mkdir -p $(DB_DIR)/auth $(DB_DIR)/users $(DB_DIR)/chat/
 	@sudo chown -R 1000:1000 $(DB_DIR) || echo "$(YELLOW)Warning: Could not chown db folders!$(RESET)"
@@ -71,10 +77,8 @@ setup-db: # not final, (i did a temporary fix of giving the container uid rood)
 # ==========================================
 #              PRODUCTION
 # ==========================================
-up: certs
-	docker compose up --build -d
-	docker compose logs -f auth-service-prod user-service-prod global-chat-prod \
-												private-chat-prod pong-game-prod
+up: certs db
+	docker compose up -d --build
 
 down:
 	docker compose down
@@ -92,7 +96,7 @@ re: clean up
 # ==========================================
 #              DEVELOPMENT
 # ==========================================
-dev: certs
+dev: certs db
 	docker compose -f compose.dev.yaml up -d --build
 	docker compose -f compose.dev.yaml logs -f frontend-dev auth-service-dev user-service-dev global-chat-dev \
 												private-chat-dev pong-game-dev
@@ -115,7 +119,6 @@ re-dev: cleandev dev
 # ==========================================
 elk: certs
 	docker compose -f compose.elk.yaml up -d --build
-# 	docker compose -f compose.elk.yaml logs -f auth-service-elk user-service-elk frontend-elk
 
 down-elk:
 	docker compose -f compose.elk.yaml down
@@ -134,11 +137,6 @@ re-elk: clean-elk elk
 clean-data: clean-deps clean-images
 	@echo "$(YELLOW)Cleaning database data...$(RESET)"
 	@rm -rf $(DB_DIR)/auth/* $(DB_DIR)/users/* $(DB_DIR)/chat/* || echo "$(YELLOW)Permission denied. Try running with sudo.$(RESET)"
-	@echo "$(GREEN)Database data cleaned.$(RESET)"
-
-sudo: clean-deps clean-images
-	@echo "$(YELLOW)Cleaning database data...$(RESET)"
-	@sudo rm -rf $(DB_DIR)/auth/* $(DB_DIR)/users/* $(DB_DIR)/chat/* || echo "$(YELLOW)Permission denied. Try running with sudo.$(RESET)"
 	@echo "$(GREEN)Database data cleaned.$(RESET)"
 
 clean-deps:

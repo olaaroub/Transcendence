@@ -211,7 +211,7 @@ services:
     volumes:
       - ./Security/ModSecurity/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
       - ./Security/ModSecurity/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
-      - ./Security/ModSecurity/scan_php.sh:/usr/local/bin/scan_php.sh:ro
+      - ./Security/ModSecurity/scanContent.sh:/usr/local/bin/scanContent.sh:ro
       - ./Security/ModSecurity/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     networks:
       - transcendence-elk-net

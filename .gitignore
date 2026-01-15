@@ -1,14 +1,13 @@
-# Dependencies
 node_modules/
 database.db
 .env
 app/static/*
 !app/static/default_pfp.png
-
-app/user-service/static/*
-!app/user-service/static/default_pfp.png
-.tap/
-logs/
+!app/static/olaaroub.jpeg
+!app/static/hes-safi.jpeg
+!app/static/oumondad.jpeg
+!app/static/mmondad.jpeg
+!app/static/ohammou-.jpeg
 *.log
 .vscode/
 tmp/
@@ -17,7 +16,6 @@ dist/
 build/
 certs/
 *.tsbuildinfo
-
 *.db
 *-shm
 *-wal

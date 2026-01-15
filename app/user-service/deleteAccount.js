@@ -5,9 +5,10 @@ import createError from 'http-errors';
 const __dirname = import.meta.dirname;
 
 const ext = process.env.SERVICE_EXT || '-prod';
+
 const AUTH_SERVICE_URL = `http://auth-service${ext}:3001`;
 const GLOBAL_CHAT_SERVICE_URL = `http://global-chat${ext}:3003`
-const PRIVATE_CHAT_SERVICE_URL = `http://private-chat${ext}:8405`
+const PRIVATE_CHAT_SERVICE_URL = `http://private-chat${ext}:3004`
 async function deleteAccountHandler(req, reply) {
     const id = req.params.id;
 

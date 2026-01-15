@@ -6,6 +6,7 @@ import {
 	createScene,
 	loadGameFont,
 	createGUI,
+	disposeGUI,
 	optionsButton,
 	addHUDs,
 	updateGoals,
@@ -127,6 +128,7 @@ const handleResize = () => { engine.resize(); };
 
 function exitGame(): void
 {
+	disposeGUI();
 	document.getElementById("exit-game-btn")?.click();
 	window.removeEventListener('keydown', handleKeyDown);
 	window.removeEventListener('keyup', handleKeyUp);
@@ -218,10 +220,7 @@ else
 	{
 		role = side;
 		if (role === 3)
-		{
-			addHUDs(match.session);
 			catchUpGoals(match.state.p1, match.state.p2);
-		}
 	});
 }
 

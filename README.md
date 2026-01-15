@@ -80,11 +80,11 @@
    # Vault Configuration
    VAULT_TOKEN=<your-vault-token>
    VAULT_ADDR_PROD=http://vault-prod:8200
-   
+
    # JWT & Cookie Secrets
    JWT_SECRET_VALUE=<your-jwt-secret>
    COOKIE_SECRET=<your-cookie-secret>
-   
+
    # OAuth Credentials (Optional)
    GITHUB_CLIENT_ID=<github-client-id>
    GITHUB_CLIENT_SECRET=<github-client-secret>
@@ -92,14 +92,14 @@
    GOOGLE_CLIENT_SECRET=<google-client-secret>
    INTRA_CLIENT_ID=<42-intra-client-id>
    INTRA_CLIENT_SECRET=<42-intra-client-secret>
-   
+
    # Service Tokens
    AUTH_SERVICE_TOKEN=<auth-token>
    USER_SERVICE_TOKEN=<user-token>
    GLOBAL_CHAT_SERVICE_TOKEN=<global-chat-token>
    PRIVATE_CHAT_SERVICE_TOKEN=<private-chat-token>
    PONG_SERVICE_TOKEN=<pong-token>
-   
+
    # Elasticsearch (for ELK stack)
    ELASTIC_PASSWORD=<elastic-password>
    ```
@@ -126,14 +126,14 @@ make elk
 
 | Command | Description |
 |---------|-------------|
-| `make up` | Start production environment |
+| `make up` | Generate certificates and start production environment |
 | `make down` | Stop production environment |
-| `make dev` | Start development environment |
+| `make re` | Full restart of production environment |
+| `make fclean` | Stop production and remove all volumes |
+| `make dev` | Start development environment and tail logs |
 | `make down-dev` | Stop development environment |
-| `make elk` | Start with ELK stack monitoring |
-| `make re` | Full restart (production) |
-| `make fclean` | Stop and remove all volumes |
-| `make deps` | Generate package-lock.json files |
+| `make deps` | Generate package-lock.json files without installing |
+| `make hard-reset` | Wipe all containers, images, volumes, and dependencies |
 
 ---
 
@@ -328,14 +328,12 @@ make elk
 ### DevOps (olaaroub)
 | Feature | Description |
 |---------|-------------|
-| Docker Containerization | All services containerized for consistency |
-| WAF/ModSecurity | OWASP CRS with paranoia level 2 for security |
-| HashiCorp Vault | Centralized secrets management |
-| Prometheus Monitoring | Metrics collection from all services |
-| Grafana Dashboards | Custom dashboards for service metrics and user insights |
-| ELK Stack | Centralized logging with Elasticsearch, Logstash, Kibana |
-| HTTPS Everywhere | TLS encryption for all communications |
-| Health Checks | Automated service health monitoring |
+| Container Orchestration | Isolated multi-environment Docker workflows ensuring reproducibility. |
+| Security & WAF | Zero-Trust architecture with ModSecurity (OWASP CRS) and in-memory secret injection via HashiCorp Vault. |
+| Observability Stack | Full ELK stack (Filebeat, Logstash, Elasticsearch, Kibana) with structured ECS-compliant logging. |
+| Monitoring & Alerting | Prometheus and Grafana integration for real-time metrics, custom business analytics, and proactive alerts. |
+| Infrastructure as Code | Automated provisioning of Grafana dashboards, Kibana objects, and ILM policies via initialization scripts. |
+| Network Security | Enforced HTTPS/TLS everywhere with automated certificate generation and strict internal isolation. |
 
 ---
 
@@ -382,15 +380,15 @@ make elk
 - Developed spectator mode for live match viewing
 - Created game customization options
 
-### Oussama LAAROUBI (olaaroub) - DevOps
-- Architected the microservices infrastructure
-- Configured Docker Compose for multiple environments (dev, prod, elk)
-- Set up WAF/ModSecurity with OWASP CRS rules
-- Implemented HashiCorp Vault for secrets management
-- Deployed Prometheus and Grafana monitoring stack
-- Configured ELK stack for centralized logging
-- Created custom Grafana dashboards for metrics and user insights
-- Managed SSL/TLS certificates and HTTPS configuration
+### Oussama LAAROUBI (olaaroub) - DevOps & Security
+- Designed a scalable microservices architecture with strictly isolated databases per service
+- Engineered robust Docker Compose workflows for Development, Production, and ELK environments
+- Deployed ModSecurity (WAF) acting as an API Gateway, tuned with OWASP CRS rules for production traffic
+- Implemented HashiCorp Vault for zero-trust secret management (secrets injected in-memory only)
+- Built a comprehensive monitoring stack using Prometheus and Grafana, featuring dashboards for system metrics and user insights
+- Configured the Elastic Stack (ELK) with Filebeat for centralized, structured, ECS-compliant log parsing and retention policies
+- Managed end-to-end security, including automated SSL/TLS certificate generation and HTTPS enforcement
+- Enforced backend standards and best practices including centralized error handling and structured JSON logging
 
 ### Mohammed MONDAD (mmondad) - Frontend
 - Built the SPA architecture with custom TypeScript router

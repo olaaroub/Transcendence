@@ -225,8 +225,8 @@ async function renderMain() : Promise<string>
 	return /* html */`
 		<div class="w-full">
 			<div class="flex flex-row gap-2">
-				<h2 class="font-bold mb-[20px] text-gray-500 text-3xl">Welcome back,</h2>
-				<h2 class="text-txtColor text-3xl"> ${shortString(userData.username, 10)}</h2>
+				<h2 class="font-bold mb-[20px] text-gray-500 text-xl lg:text-3xl">Welcome back,</h2>
+				<h2 class="text-txtColor text-xl lg:text-3xl"> ${shortString(userData.username, 10)}</h2>
 			</div>
 			<div class="flex-1">
 				<div class="rounded-3xl grid grid-cols-1 xl:grid-cols-2 gap-6">
