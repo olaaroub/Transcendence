@@ -1,6 +1,6 @@
-*This project has been created as part of the 42 curriculum by hes-safi, olaaroub, mmondad, ohammou-, oumondad.*
+#
 
----
+<h1 align="center">🪐 SPACE PONG</h1>
 
 <p align="center">
   <img src="https://img.shields.io/badge/42-ft__transcendence-gold?style=for-the-badge" alt="42 Badge"/>
@@ -9,10 +9,8 @@
   <img src="https://img.shields.io/badge/Babylon.js-BB464B?style=for-the-badge" alt="Babylon.js"/>
 </p>
 
-<h1 align="center">🪐 SPACE PONG</h1>
-
 <p align="center">
-  <b>A real-time multiplayer 3D Pong game with microservices architecture</b>
+  <em>This project has been created as part of the 42 curriculum by hes-safi, olaaroub, mmondad, ohammou-, oumondad.</em>
 </p>
 
 ---
@@ -20,7 +18,7 @@
 ## 📑 Table of Contents
 
 | Section | Description |
-|---------|-------------|
+| --------- | ------------- |
 | [📖 Description](#-description) | Project overview and key features |
 | [🚀 Quick Start](#-quick-start) | Prerequisites, setup, and running the app |
 | [👥 Team Information](#-team-information) | Team members and role responsibilities |
@@ -65,67 +63,42 @@
 ### Environment Setup
 
 1. Clone the repository:
+
    ```bash
-   git clone <repository-url>
+   git clone git@github.com:olaaroub/Transcendence.git
    cd Transcendence
    ```
 
 2. Create your `.env` file from the example:
+
    ```bash
    cp .env.example .env
    ```
 
-3. Configure the following environment variables in `.env`:
-   ```env
-   # Vault Configuration
-   VAULT_TOKEN=<your-vault-token>
-   VAULT_ADDR_PROD=http://vault-prod:8200
-
-   # JWT & Cookie Secrets
-   JWT_SECRET_VALUE=<your-jwt-secret>
-   COOKIE_SECRET=<your-cookie-secret>
-
-   # OAuth Credentials (Optional)
-   GITHUB_CLIENT_ID=<github-client-id>
-   GITHUB_CLIENT_SECRET=<github-client-secret>
-   GOOGLE_CLIENT_ID=<google-client-id>
-   GOOGLE_CLIENT_SECRET=<google-client-secret>
-   INTRA_CLIENT_ID=<42-intra-client-id>
-   INTRA_CLIENT_SECRET=<42-intra-client-secret>
-
-   # Service Tokens
-   AUTH_SERVICE_TOKEN=<auth-token>
-   USER_SERVICE_TOKEN=<user-token>
-   GLOBAL_CHAT_SERVICE_TOKEN=<global-chat-token>
-   PRIVATE_CHAT_SERVICE_TOKEN=<private-chat-token>
-   PONG_SERVICE_TOKEN=<pong-token>
-
-   # Elasticsearch (for ELK stack)
-   ELASTIC_PASSWORD=<elastic-password>
-   ```
+3. Configure the environment variables in `.env`. Please refer to the guide inside the `.env.example` file for detailed instructions.
 
 ### Running the Application
 
 #### Production Mode
+
 ```bash
 make up
 ```
-Access the application at: `https://localhost:8443`
+
+Access the application at: `https://localhost:443`
 
 #### Development Mode
+
 ```bash
 make dev
 ```
 
-#### With ELK Stack (Full Monitoring)
-```bash
-make elk
-```
+Access the application at: `https://localhost:5173`
 
 ### Available Commands
 
 | Command | Description |
-|---------|-------------|
+| --------- | ------------- |
 | `make up` | Generate certificates and start production environment |
 | `make down` | Stop production environment |
 | `make re` | Full restart of production environment |
@@ -140,7 +113,7 @@ make elk
 ## 👥 Team Information
 
 | Name | Login | Role | Main Responsibility |
-|------|-------|------|---------------------|
+| ------ | ------- | ------ | --------------------- |
 | **Hamza ES-SAFI** | `hes-safi` | Product Owner (PO) | Game Development |
 | **Oussama LAAROUBI** | `olaaroub` | Project Manager (PM) | DevOps & Infrastructure |
 | **Mohammed MONDAD** | `mmondad` | Technical Lead | Frontend Development |
@@ -159,12 +132,14 @@ make elk
 ## 📋 Project Management
 
 ### Organization
+
 - **Communication:** On-site meetings and Discord for asynchronous communication
 - **Task Tracking:** Tasks and To-dos logged in dedicated project files (`TODO.md`)
 - **Role Distribution:** Roles were assigned on-site weeks before the project began
 - **Duration:** ~2 months of development
 
 ### Workflow
+
 - Regular team syncs to discuss progress and blockers
 - Clear work breakdown into manageable tasks per team member
 - Code reviews for critical changes
@@ -175,8 +150,9 @@ make elk
 ## 🛠️ Technical Stack
 
 ### Frontend
+
 | Technology | Purpose |
-|------------|---------|
+| ------------ | --------- |
 | **TypeScript** | Type-safe JavaScript development |
 | **Vite** | Fast build tool and development server |
 | **Tailwind CSS** | Utility-first CSS framework |
@@ -185,8 +161,9 @@ make elk
 **Justification:** TypeScript provides type safety and better developer experience. Vite offers extremely fast HMR (Hot Module Replacement) during development. Tailwind CSS enables rapid UI development with a consistent design system.
 
 ### Backend (Microservices)
+
 | Service | Framework | Database | Purpose |
-|---------|-----------|----------|---------|
+| --------- | ----------- | ---------- | --------- |
 | **Auth Service** | Fastify | SQLite (better-sqlite3) | Authentication |
 | **User Service** | Fastify | SQLite (better-sqlite3) | User management, friends, leaderboard |
 | **Global Chat** | Fastify | SQLite (better-sqlite3) | Public chat rooms |
@@ -196,8 +173,9 @@ make elk
 **Justification:** Fastify was chosen for its exceptional performance and low overhead. SQLite with `better-sqlite3` provides a lightweight, file-based database perfect for containerized microservices. The microservices architecture enables independent scaling and deployment of each service.
 
 ### Game Engine
+
 | Technology | Purpose |
-|------------|---------|
+| ------------ | --------- |
 | **Babylon.js** | 3D rendering engine |
 | **Socket.io** | Real-time game state synchronization |
 | **Custom Physics** | Server-authoritative game logic |
@@ -205,8 +183,9 @@ make elk
 **Justification:** Babylon.js provides powerful 3D graphics capabilities with excellent WebGL support. The game engine uses a server-authoritative model to prevent cheating and ensure fair gameplay.
 
 ### DevOps & Security
+
 | Technology | Purpose |
-|------------|---------|
+| ------------ | --------- |
 | **Docker & Docker Compose** | Containerization |
 | **NGINX** | Reverse proxy & static file serving |
 | **ModSecurity (OWASP CRS)** | Web Application Firewall |
@@ -221,7 +200,8 @@ make elk
 ## 🗄️ Database Schema
 
 ### Auth Service Database
-```
+
+```sql
 ┌─────────────────────────────────────────┐
 │                 users                   │
 ├─────────────────────────────────────────┤
@@ -236,7 +216,8 @@ make elk
 ```
 
 ### User Service Database
-```
+
+```sql
 ┌─────────────────────────────────────────┐
 │               userInfo                  │
 ├─────────────────────────────────────────┤
@@ -283,8 +264,9 @@ make elk
 ## ✨ Features List
 
 ### Game (hes-safi)
+
 | Feature | Description |
-|---------|-------------|
+| --------- | ------------- |
 | 3D Pong Game | Immersive Babylon.js-powered 3D environment with advanced lighting and materials |
 | AI Opponent | Intelligent computer opponent with Easy, Medium, and Hard difficulty levels |
 | Remote Multiplayer | Real-time gameplay between players on separate devices |
@@ -293,8 +275,9 @@ make elk
 | Spectator Mode | Watch ongoing matches in real-time |
 
 ### Frontend (mmondad)
+
 | Feature | Description |
-|---------|-------------|
+| --------- | ------------- |
 | Single-Page Application | Smooth navigation without page reloads using custom router |
 | Responsive Design | Mobile-first design adapting to all screen sizes |
 | User Authentication UI | Login, signup & OAuth flows |
@@ -305,8 +288,9 @@ make elk
 | Custom Components | Reusable NavBar, Toast notifications, Search bar, etc. |
 
 ### Backend (ohammou-)
+
 | Feature | Description |
-|---------|-------------|
+| --------- | ------------- |
 | Microservices Architecture | Loosely-coupled services with single responsibilities |
 | RESTful APIs | Well-structured endpoints for all operations |
 | WebSocket Integration | Real-time updates for notifications and presence |
@@ -317,8 +301,9 @@ make elk
 | Match History Recording | Track and store game results |
 
 ### Chat (oumondad)
+
 | Feature | Description |
-|---------|-------------|
+| --------- | ------------- |
 | Global Chat | Public chat rooms for all users |
 | Private Messaging | Direct messages between users |
 | Real-time Updates | Instant message delivery via WebSockets |
@@ -326,8 +311,9 @@ make elk
 | Advanced Features | Block users, typing indicators |
 
 ### DevOps (olaaroub)
+
 | Feature | Description |
-|---------|-------------|
+| --------- | ------------- |
 | Container Orchestration | Isolated multi-environment Docker workflows ensuring reproducibility. |
 | Security & WAF | Zero-Trust architecture with ModSecurity (OWASP CRS) and in-memory secret injection via HashiCorp Vault. |
 | Observability Stack | Full ELK stack (Filebeat, Logstash, Elasticsearch, Kibana) with structured ECS-compliant logging. |
@@ -342,7 +328,7 @@ make elk
 ### Point Calculation
 
 | Module | Type | Points | Owner |
-|--------|------|--------|-------|
+| -------- | ------ | -------- | ------- |
 | Backend as microservices | Major | 2 | olaaroub, ohammou- |
 | WAF/ModSecurity + HashiCorp Vault | Major | 2 | olaaroub |
 | ELK Infrastructure | Major | 2 | olaaroub |
@@ -373,6 +359,7 @@ make elk
 ## 👤 Individual Contributions
 
 ### Hamza ES-SAFI (hes-safi) - Game
+
 - Designed and implemented the 3D Pong game engine using Babylon.js
 - Created the AI opponent with multiple difficulty algorithms
 - Built real-time multiplayer synchronization using Socket.io
@@ -381,6 +368,7 @@ make elk
 - Created game customization options
 
 ### Oussama LAAROUBI (olaaroub) - DevOps & Security
+
 - Designed a scalable microservices architecture with strictly isolated databases per service
 - Engineered robust Docker Compose workflows for Development, Production, and ELK environments
 - Deployed ModSecurity (WAF) acting as an API Gateway, tuned with OWASP CRS rules for production traffic
@@ -391,6 +379,7 @@ make elk
 - Enforced backend standards and best practices including centralized error handling and structured JSON logging
 
 ### Mohammed MONDAD (mmondad) - Frontend
+
 - Built the SPA architecture with custom TypeScript router
 - Designed and implemented the UI with Tailwind CSS
 - Created responsive layouts for all screen sizes
@@ -401,6 +390,7 @@ make elk
 - Built reusable components (NavBar, Toast, Search, etc.)
 
 ### Oussama HAMMOU MESSAOUD (ohammou-) - Backend
+
 - Designed the microservices architecture
 - Implemented Auth Service (local auth, OAuth)
 - Built User Service (profiles, friends, statistics, leaderboard)
@@ -410,6 +400,7 @@ make elk
 - Built Global Chat service
 
 ### Oussama MONDAD (oumondad) - Chat
+
 - Implemented Private Chat service with Socket.io
 - Built real-time messaging system
 - Created conversation management
@@ -420,7 +411,7 @@ make elk
 
 ## 🔧 Architecture Overview
 
-```
+```mmd
                                     ┌─────────────┐
                                     │   Client    │
                                     │  (Browser)  │
@@ -467,6 +458,7 @@ make elk
 ## 📚 Resources
 
 ### Documentation & Tutorials
+
 - [Babylon.js Documentation](https://doc.babylonjs.com/)
 - [Fastify Documentation](https://www.fastify.io/docs/latest/)
 - [Socket.io Documentation](https://socket.io/docs/v4/)
@@ -478,7 +470,9 @@ make elk
 - [Elastic Stack Documentation](https://www.elastic.co/guide/)
 
 ### AI Usage Disclosure
+
 AI tools were used during development for:
+
 - Generating boilerplate code and configurations
 - Debugging complex issues
 - Documentation drafting and refinement
