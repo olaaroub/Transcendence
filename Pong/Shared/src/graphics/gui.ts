@@ -12,8 +12,8 @@ const FONT = 'Bruno Ace SC';
 
 let ui:GUI.AdvancedDynamicTexture;
 let options: boolean = false;
-let camButtons: GUI.Button[] = [];
-let colButtons: GUI.Button[] = [];
+const camButtons: GUI.Button[] = [];
+const colButtons: GUI.Button[] = [];
 let picker: GUI.ColorPicker | null = null;
 let signBox: GUI.Container | null = null;
 let sign: GUI.Image | null = null;
@@ -257,7 +257,7 @@ export function updateGoals(player1: number, player2: number)
 	{
 		p1Goals++;
 		const goal = newGoal(1);
-		let pos = 115 + (26 - 4.5) * p1Goals + 4.5;
+		const pos = 115 + (26 - 4.5) * p1Goals + 4.5;
 		goal.left = `${pos}px`;
 		ui.addControl(goal);
 	}
@@ -265,7 +265,7 @@ export function updateGoals(player1: number, player2: number)
 	{
 		p2Goals++;
 		const goal = newGoal(2);
-		let pos = - (115 + (26 - 4.5) * p2Goals + 4.5);
+		const pos = - (115 + (26 - 4.5) * p2Goals + 4.5);
 		goal.left = `${pos}px`;
 		ui.addControl(goal);
 	}
@@ -355,7 +355,7 @@ export function createSign(text?: string): void
 	if (!text)
 		return ;
 
-	let fontSize = text.length < 3 ? 70 : 48;
+	const fontSize = text.length < 3 ? 70 : 48;
 	
 	signBox = new GUI.Container("BOX");
 	signBox.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;

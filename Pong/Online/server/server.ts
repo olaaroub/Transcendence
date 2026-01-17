@@ -338,7 +338,7 @@ fastify.get('/api/game/friendly-match', {preHandler: [jwtChecker]} ,async (reque
 {
 	const userId = request.userId as string;
 	pendingUsers.add(userId);
-	let roomId: string = generateRoomId();
+	const roomId: string = generateRoomId();
 	const room = createGameRoom(roomId);
 	rooms.set(roomId, room);
 	fastify.log.info(`Friendly Match: Created new room ${roomId}`);

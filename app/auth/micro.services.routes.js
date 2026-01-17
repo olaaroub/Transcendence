@@ -12,7 +12,7 @@ async function deleteAccountHandler(req, reply) {
     reply.code(204).send();
 }
 
-async function changeUserNameHandler(req, reply)
+async function changeUserNameHandler(req)
 {
     const id = req.params.id;
     const { username } = req.body;
@@ -23,7 +23,7 @@ async function changeUserNameHandler(req, reply)
     return { ok: true };
 }
 
-async function getAuthProviderAndEmailHandler(req, reply) {
+async function getAuthProviderAndEmailHandler(req) {
     const id = req.params.id;
     const authprovider = this.db.prepare("SELECT auth_provider, email FROM users WHERE id = ?").get([id]);
 

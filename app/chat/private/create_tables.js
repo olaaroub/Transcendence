@@ -1,7 +1,6 @@
 import db from "./db.js";
 
-db.exec
-(`  
+db.exec(`
     CREATE TABLE IF NOT EXISTS conversation
     (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -2,10 +2,9 @@ import db from "./db.js"
 
 export function getOrCreateConversation(userA, userB)
 {
-    const convo = db.prepare
-    (`
+    const convo = db.prepare(`
         SELECT id FROM conversation
-        WHERE 
+        WHERE
           (senderId = ? AND receiverId = ?)
         OR
           (senderId = ? AND receiverId = ?)
@@ -14,8 +13,7 @@ export function getOrCreateConversation(userA, userB)
     if (convo)
         return convo.id;
 
-    const result = db.prepare
-    (`
+    const result = db.prepare(`
         INSERT INTO conversation (senderId, receiverId)
         VALUES (?, ?)
     `).run(userA, userB);
@@ -25,8 +23,7 @@ export function getOrCreateConversation(userA, userB)
 
 export function sendMessage(conversationId, senderId, content)
 {
-    return db.prepare
-    (`
+    return db.prepare(`
         INSERT INTO message (conversationId, senderId, content, seen)
         VALUES (?, ?, ?, 0)
     `).run(conversationId, senderId, content);
@@ -40,7 +37,7 @@ export function getMessages(conversationId, limit = 20, offset = 0)
             SELECT * FROM message
             WHERE conversationId = ?
             ORDER BY createdAt DESC
-            LIMIT ? OFFSET ? 
+            LIMIT ? OFFSET ?
         ) ORDER BY createdAt ASC
     `).all(conversationId, limit, offset);
 }
@@ -75,16 +72,16 @@ export function getUnreadCount(conversationId, userId)
 export function getUnreadCountsForUser(userId)
 {
     return db.prepare(`
-        SELECT 
+        SELECT
             c.id as conversationId,
-            CASE 
-                WHEN c.senderId = ? THEN c.receiverId 
-                ELSE c.senderId 
+            CASE
+                WHEN c.senderId = ? THEN c.receiverId
+                ELSE c.senderId
             END as friendId,
             COUNT(m.id) as unreadCount
         FROM conversation c
-        LEFT JOIN message m ON m.conversationId = c.id 
-            AND m.senderId != ? 
+        LEFT JOIN message m ON m.conversationId = c.id
+            AND m.senderId != ?
             AND m.seen = 0
         WHERE c.senderId = ? OR c.receiverId = ?
         GROUP BY c.id
@@ -95,10 +92,10 @@ export function getUnreadCountsForUser(userId)
 export function getFriendIdFromConversation(conversationId, userId)
 {
     const result = db.prepare(`
-        SELECT 
-            CASE 
-                WHEN senderId = ? THEN receiverId 
-                ELSE senderId 
+        SELECT
+            CASE
+                WHEN senderId = ? THEN receiverId
+                ELSE senderId
             END as friendId
         FROM conversation
         WHERE id = ?

@@ -1,6 +1,6 @@
 import createError from 'http-errors';
 
-async function getPendingRequestes(req, reply) {
+async function getPendingRequestes(req) {
     const id = req.params.id
     const data = this.db.prepare(`SELECT u.username, u.id, u.avatar_url
                         FROM
@@ -23,7 +23,7 @@ async function getPendingRequestes(req, reply) {
     return response;
 }
 
-async function handleFriendRequest(req, reply) {
+async function handleFriendRequest(req) {
     const body = req.body;
     const receiver_id = req.params.id;
 

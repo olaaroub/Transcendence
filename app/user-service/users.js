@@ -3,7 +3,6 @@ import fastifyJwt from '@fastify/jwt';
 import fastifyCors from '@fastify/cors';
 import websocket from '@fastify/websocket';
 import vault from 'node-vault';
-import createError from 'http-errors';
 import fastifyMetrics from 'fastify-metrics';
 import microServicesRoutes from './micro.services.routes.js';
 import dbconfig from './database.config.js';

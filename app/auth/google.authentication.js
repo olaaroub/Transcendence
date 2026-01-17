@@ -1,10 +1,8 @@
 import oauth2 from '@fastify/oauth2';
 import cookie from '@fastify/cookie';
 import DownoladImageFromUrl from './utils.js';
-import path from 'path';
 import fs from 'fs';
 
-const __dirname = import.meta.dirname;
 const domain = process.env.DOMAIN;
 const ext = process.env.SERVICE_EXT || '-prod';
 const USER_SERVICE_URL = `http://user-service${ext}:3002`;

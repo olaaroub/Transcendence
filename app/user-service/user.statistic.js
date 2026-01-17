@@ -1,6 +1,6 @@
 import createError from 'http-errors';
 
-async function statisticHandler(req, reply) {
+async function statisticHandler(req) {
     const id = req.params.id;
 
     const stats = this.db.prepare(`

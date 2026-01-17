@@ -7,11 +7,11 @@ import { cleanupGlobalChat } from "./chat/globalChat";
 import { apiFetch } from "./components/errorsHandler";
 import { logout } from "./components/profileMenu";
 
-const $ = (id : String) => document.getElementById(id as string);
+const $ = (id : string) => document.getElementById(id as string);
 
 let newUserData: Partial<IUserData> = {};
-let body: BodyInit | null = "";
-let headers : Record<string, string> = {
+const body: BodyInit | null = "";
+const headers : Record<string, string> = {
 	"Authorization": `Bearer ${localStorage.getItem('token')}`
 }
 let avatar : FormData | null = null;
@@ -71,7 +71,7 @@ function SaveChanges()
 				}
 				let requestBody: BodyInit;
 				let contentType: Record<string, string> = {};
-				let tmp = String(value).trim();
+				const tmp = String(value).trim();
 				if (key === 'username' && (tmp.length < 1 || tmp.length > 30 || tmp === userData.username))
 					return toastError("Invalid Alias!");
 				if (key === 'bio' && tmp.length > 200)

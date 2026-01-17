@@ -1,6 +1,6 @@
 import createError from 'http-errors';
 
-async function change_password(req, reply) {
+async function change_password(req) {
 	const id = req.params.id;
 	const data = req.body;
 

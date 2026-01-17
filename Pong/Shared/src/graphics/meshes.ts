@@ -12,7 +12,7 @@ export function createArena(scene: BABYLON.Scene): BABYLON.Mesh
 	ground.position.y = 0.1;
 	leftWall.position = new BABYLON.Vector3(0, 10, -HEIGHT / 2 + 1);
 	rightWall.position = new BABYLON.Vector3(0, 10, HEIGHT / 2 + 1);
-	let mat = createArenaMaterial(scene);
+	const mat = createArenaMaterial(scene);
 	ground.material = mat;
 	leftWall.material = mat;
 	rightWall.material = mat;

@@ -34,7 +34,7 @@ async function UploadToServer(req) {
   return { file_name, file_path };
 }
 
-async function getProfileImages(req, reply) {
+async function getProfileImages(req) {
   const id = req.params.id;
   const img = this.db.prepare("SELECT avatar_url FROM userInfo WHERE id = ?").get([id]);
 
@@ -59,7 +59,7 @@ async function modifyAvatar(req, reply) {
 
     if (oldImgPath !== `default_pfp.png`) {
       await fs.promises.unlink(path.join(__dirname, 'static', oldImgPath)).catch(() => {
-        req.log.warn({ err, file: oldImgPath }, "Failed to delete old avatar");
+        req.log.warn({ file: oldImgPath }, "Failed to delete old avatar");
       });
     }
 
@@ -94,7 +94,7 @@ async function deleteAvatar(req, reply) {
   }
 
   await fs.promises.unlink(path.join(__dirname, 'static', imgpath)).catch(() => {
-    req.log.warn({ err, file: imgpath }, "Failed to delete avatar file from disk");
+    req.log.warn({ file: imgpath }, "Failed to delete avatar file from disk");
   });
 
   this.db.prepare("UPDATE userInfo SET avatar_url = ? WHERE id = ?").run(["/public/default_pfp.png", id]);

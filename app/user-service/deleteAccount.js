@@ -35,7 +35,7 @@ async function deleteAccountHandler(req, reply) {
         const avatarName = path.basename(avatar.avatar_url);
         if (avatarName !== "default_pfp.png") {
             await fs.promises.unlink(path.join(__dirname, 'static', avatarName)).catch(() => {
-                req.log.warn({ err, fileName: avatarName }, "Failed to delete avatar file from disk");
+                req.log.warn({ fileName: avatarName }, "Failed to delete avatar file from disk");
             });
         }
     }

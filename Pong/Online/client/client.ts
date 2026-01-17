@@ -175,7 +175,7 @@ window.addEventListener('keydown', handleKeyDown);
 window.addEventListener('keyup', handleKeyUp);
 window.addEventListener('resize', handleResize);
 
-let roomString: string | null = sessionStorage.getItem('room');
+const roomString: string | null = sessionStorage.getItem('room');
 if (!roomString)
 {
 	console.error("No Room Data Found! Redirecting to dashboard...");

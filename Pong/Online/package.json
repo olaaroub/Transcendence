@@ -6,14 +6,16 @@
   "scripts": {
     "build:client": "cd client && tsc && vite build",
     "build:server": "cd server && tsc",
-    "build": "npm run build:client && npm run build:server"
+    "build": "npm run build:client && npm run build:server",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "pong-shared": "file:../Shared",
+    "@fastify/jwt": "^10.0.0",
     "fastify": "^5.6.2",
     "fastify-metrics": "^12.1.0",
-	"@fastify/jwt": "^10.0.0",
     "node-vault": "^0.10.9",
+    "pong-shared": "file:../Shared",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "typescript": "^5.9.3",
@@ -25,5 +27,11 @@
         "qs": "^6.14.1"
       }
     }
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0",
+    "typescript-eslint": "^8.53.0"
   }
 }

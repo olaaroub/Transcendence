@@ -8,12 +8,20 @@
     ".": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@babylonjs/core": "^8.43.0",
+    "@babylonjs/gui": "^8.43.0",
     "@babylonjs/materials": "^8.43.0",
-	"@babylonjs/gui": "^8.43.0",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0",
+    "typescript-eslint": "^8.53.0"
   }
 }

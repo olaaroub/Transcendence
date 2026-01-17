@@ -41,7 +41,7 @@ export function updateMessageIconBadge() {
 	const messageIcon = document.getElementById('message-icon');
 	if (!messageIcon) return;
 
-	let totalUnread = getTotalUnreadCount();
+	const totalUnread = getTotalUnreadCount();
 	let redDot = messageIcon.querySelector('.message-unread-dot');
 	if (totalUnread > 0) {
 		if (!redDot) {

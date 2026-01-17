@@ -68,6 +68,7 @@ async function start() {
     fastify.log.info("private chat service is starting...");
 
     const { jwtSecret } = await getSecrets(fastify.log);
+    fastify.log.debug({ jwtSecret});
     fastify.log.info("Secrets fetched successfully");
 
     await fastify.register(socketio, {

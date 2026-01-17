@@ -11,7 +11,7 @@ import matchHistory from './matchs.history.js';
 
 import createError from 'http-errors';
 
-async function JwtHandler(request, reply) {
+async function JwtHandler(request) {
   try {
 
     const payload = await request.jwtVerify();
@@ -22,7 +22,7 @@ async function JwtHandler(request, reply) {
     request.log.debug({ userId: payload.id, username: payload.username }, "JWT Token is valid!");
   }
   catch (err) {
-    request.log.warn("Unauthorized access attempt (Invalid or missing token)");
+    request.log.warn("Unauthorized access attempt (Invalid or missing token)" + (err.message ? `: ${err.message}` : ''));
     throw createError.Unauthorized("Invalid or missing token");
   }
 }

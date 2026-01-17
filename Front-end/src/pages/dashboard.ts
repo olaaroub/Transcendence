@@ -22,7 +22,7 @@ interface IUserStatistics {
 	Rating: number;
 }
 
-export let response: Response  | null = null;
+export const response: Response  | null = null;
 
 export async function fetchUserStatistics(userId: string | number | null): Promise<IUserStatistics | null> {
 	if (!userId) {
@@ -327,14 +327,14 @@ export async function renderDashboard(isDashboard: boolean = true)
 	const avatar = $('avatar');
 	if (avatar) {
 		avatar.addEventListener('click', () => {
-			let profile = avatar.querySelector('.profile-menu');
+			const profile = avatar.querySelector('.profile-menu');
 			if (profile) profile.remove();
 			else avatar.appendChild(renderProfileMenu());
 		});
 		document.addEventListener('click', (e) => {
 			const el = e.target as HTMLElement;
 			if (!avatar.contains(el)) {
-				let menu = avatar.querySelector('.profile-menu');
+				const menu = avatar.querySelector('.profile-menu');
 				if (menu) menu.remove();
 			}
 		});

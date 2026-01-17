@@ -36,7 +36,7 @@ export function renderProfileMenu () : HTMLElement
                         ${isLogout ? 'hover:bg-red-500/20 mt-1' : 'hover:bg-color1/20'}`;
         
         div.addEventListener('click', _=>{
-            let menu = document.querySelector('.profile-menu');
+            const menu = document.querySelector('.profile-menu');
 			if (menu) menu.remove();
             if (item.label === 'Logout')
                 logout();

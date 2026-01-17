@@ -17,7 +17,7 @@ interface LeaderboardPlayer {
 	WinRate: number;
 }
 
-let colorArr = ['', 'yellow-500', 'gray-400', 'amber-600', 'color1'];
+const colorArr = ['', 'yellow-500', 'gray-400', 'amber-600', 'color1'];
 let leaderboardData: LeaderboardPlayer[] = [];
 
 async function fetchLeaderboard(start: number = 0, offset: number = 10): Promise<LeaderboardPlayer[]> {
