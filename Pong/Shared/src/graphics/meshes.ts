@@ -1,7 +1,7 @@
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/core/Meshes/meshBuilder.js";
 import { GridMaterial } from "@babylonjs/materials";
-import { WIDTH, HEIGHT, PWIDTH, PHEIGHT } from '../constants.js';
+import { WIDTH, HEIGHT, PHEIGHT } from '../constants.js';
 import { createArenaMaterial, createPaddleMaterial, createBallMaterial, createSkyMaterial} from './materials.js';
 
 export function createArena(scene: BABYLON.Scene): BABYLON.Mesh

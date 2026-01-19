@@ -4,7 +4,7 @@ import { renderHome } from "../home";
 
 const $ = (id : string) => document.getElementById(id as string);
 
-function inputField(label: string, type: string, placeholder: string, isSignup: boolean) {
+function inputField(label: string, type: string, placeholder: string) {
 	return /* html */ `
     	<li>
 			<h3 class="text-[#F0F0F0] text-xs md:text-sm my-1">${label}</h3>
@@ -48,10 +48,10 @@ function authForm(isSignup: boolean) {
 	return /* html */ `
     <form class="space-y-2 md:space-y-3">
 		<ul class="space-y-0.5 xs:space-y-1 md:space-y-2">
-        ${inputField(isSignup ? "Alias" : "Alias/Email", "text", isSignup ? "Alias" : "Alias or email", isSignup)}
-		${isSignup ? inputField("Email", "email", "Email", isSignup) : ""}
-        ${inputField("Password", "password", "Password", isSignup)}
-        ${isSignup ? inputField("Confirm Password", "password", "Confirm password", isSignup) : ''}
+        ${inputField(isSignup ? "Alias" : "Alias/Email", "text", isSignup ? "Alias" : "Alias or email")}
+		${isSignup ? inputField("Email", "email", "Email") : ""}
+        ${inputField("Password", "password", "Password")}
+        ${isSignup ? inputField("Confirm Password", "password", "Confirm password") : ''}
 		</ul>
 		${mainButton(isSignup ? "Create Account" : "Sign In")}
     </form>

@@ -9,18 +9,21 @@ COPY . .
 
 WORKDIR /app/Shared
 RUN npm ci && \
+    npm run lint && \
     npm run build && \
     npm prune --production && \
     rm -rf src tsconfig.json
 
 WORKDIR /app/Offline
 RUN npm ci && \
+    npm run lint && \
     npm run build && \
     npm prune --production && \
     rm -rf src tsconfig.json
 
 WORKDIR /app/Online
 RUN npm ci && \
+    npm run lint && \
     npm run build && \
     npm prune --production && \
     rm -rf client server

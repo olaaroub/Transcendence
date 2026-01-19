@@ -15,9 +15,8 @@ module.exports = {
 				'4xl': '2560px',
 			},
 			colors: {
-				main : '#00FFC6',         
-				txtColor : '#EDEFFF',     
-				borderColor : '#5A5F7A66',
+				main : '#00FFC6',
+				txtColor : '#EDEFFF',
 
 				color1 : '#ed6f30',
 				color2 : '#d18a10',

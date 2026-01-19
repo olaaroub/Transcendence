@@ -47,6 +47,7 @@ function initNotificationSocket(): void {
 		console.error('WebSocket error:', error);
 	};
 	socket.onclose = (event) => {
+		console.warn(`Notification WebSocket closed: code=${event.code}, reason=${event.reason}`);
 		socket = null;
 	};
 }

@@ -94,14 +94,14 @@ export function initGlobalChatNotifications() {
 	if (notificationSocketInitialized && socket?.connected) return;
 
 	initUnreadFromStorage();
-	
+
 	if (!socket) {
 		socket = io({
 			path: '/api/chat/private/socket.io',
 			transports: ['websocket', 'polling'],
 		});
 	}
-	
+
 	socket.off("connect");
 	socket.off("connect_error");
 	socket.off("disconnect");
@@ -109,12 +109,12 @@ export function initGlobalChatNotifications() {
 	socket.off("unread_messages");
 	socket.off("all_unread_counts");
 	socket.off("error");
-	
+
 	socket.on("connect", () => {
 		socket?.emit("userId", credentials.id);
 	});
 	socket.on("connect_error", (error: Error) => {console.error("Socket connection error:", error.message);});
-	socket.on("disconnect", (reason: string) => {});
+	socket.on("disconnect", (reason: string) => { console.warn("Socket disconnected:", reason);});
 	socket.on("new_notification", (data: { type: string; from: number; conversationId: number; text: string }) => {
 		if (data.type === "NEW_MESSAGE" && !window.location.pathname.includes('/chat'))
 			toastInfo(`New message received!`, { duration: 4000 });
@@ -169,7 +169,7 @@ function setupChatListeners() {
 		}
 	});
 
-	socket.on("message_sent", (data: unknown) => {});
+	// socket.on("message_sent", (data: unknown) => {});
 	socket.on("messages_seen", (data: { conversationId: number; seenBy: number }) => {
 		if (data.conversationId === chatState.currentConversationId) {
 			chatState.messages.forEach(msg => {
@@ -280,7 +280,7 @@ async function challengeFriend() {
 	}
 
 	const { data: roomData, error } = await apiFetch<{ roomId: string }>('/api/game/friendly-match');
-	
+
 	if (error || !roomData) {
 		toastError('Failed to create game room. Please try again.');
 		return;
@@ -311,7 +311,7 @@ function isChallengeMessage(content: string): boolean {
 
 async function joinGameRoom(roomId: string) {
 	const { data, error } = await apiFetch<{ exists: boolean }>(`/api/game/room/${roomId}`);
-	
+
 	if (error || !data) {
 		toastError('Failed to check room availability. Please try again.');
 		return;
@@ -335,16 +335,16 @@ async function joinGameRoom(roomId: string) {
 
 function renderChallengeMessage(msg: ChatMessage, isMine: boolean, seenIcon: string): string {
 	const roomId = extractRoomId(msg.content);
-	
+
 	if (isMine) {
 		return /* html */`
 			<div class="flex justify-end mb-3">
 				<div class="max-w-[85%] sm:max-w-[70%] bg-color1 text-bgColor px-3 sm:px-4 py-2 rounded-2xl rounded-br-sm">
 					<div class="flex items-center gap-2 mb-1">
 						<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 								d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
 						<span class="font-bold text-sm sm:text-base">Challenge Sent!</span>
@@ -359,23 +359,23 @@ function renderChallengeMessage(msg: ChatMessage, isMine: boolean, seenIcon: str
 	} else {
 		return /* html */`
 			<div class="flex justify-start mb-3">
-				<div class="max-w-[85%] sm:max-w-[70%] bg-gradient-to-r from-[#1a1a2e] to-[#2a1a3e] text-txtColor 
+				<div class="max-w-[85%] sm:max-w-[70%] bg-gradient-to-r from-[#1a1a2e] to-[#2a1a3e] text-txtColor
 					px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-bl-sm border border-color1/30">
 					<div class="flex items-center gap-2 mb-2">
 						<svg class="w-4 h-4 sm:w-5 sm:h-5 text-color1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 								d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
 						<span class="font-bold text-color1 text-sm sm:text-base">Game Challenge!</span>
 					</div>
 					<p class="text-xs sm:text-sm mb-3">You've been challenged to a Pong match!</p>
-					<button data-room-id="${roomId}" 
-						class="join-game-btn w-full bg-color1 hover:bg-color2 text-bgColor font-bold 
+					<button data-room-id="${roomId}"
+						class="join-game-btn w-full bg-color1 hover:bg-color2 text-bgColor font-bold
 						py-2 px-3 sm:px-4 rounded-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 text-sm sm:text-base">
 						<svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 								d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
 						</svg>
 						Join Game
@@ -434,11 +434,11 @@ function updateMessagesUI() {
 						</svg>`
 					}
 				</span>` : '';
-			
+
 			if (isChallengeMessage(msg.content)) {
 				return renderChallengeMessage(msg, isMine, seenIcon);
 			}
-			
+
 			return /* html */`
 				<div class="flex ${isMine ? 'justify-end' : 'justify-start'} mb-3">
 					<div class="max-w-[85%] sm:max-w-[70%] ${isMine ? 'bg-color1 text-bgColor' : 'bg-[#1a1a2e] text-txtColor'}
@@ -472,13 +472,13 @@ function updateChatHeaderUI() {
 					</span>
 				</div>
 			</div>
-			<button id="challenge-btn" 
-				class="flex items-center gap-1 sm:gap-2 bg-color1 hover:bg-color2 text-bgColor font-bold 
+			<button id="challenge-btn"
+				class="flex items-center gap-1 sm:gap-2 bg-color1 hover:bg-color2 text-bgColor font-bold
 				px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all duration-300 hover:scale-105 text-sm sm:text-base">
 				<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 						d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 						d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 				</svg>
 				<span class="hidden sm:inline">Challenge</span>

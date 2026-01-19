@@ -1,6 +1,5 @@
 import { renderAuthPage } from "./components/loginPage"
 import { navigate } from "../router";
-import { apiFetch } from "./components/errorsHandler";
 
 export async function sendAuthData(data: Record<string, string>, path:string) {
 	const isSignup = (path === 'signUp');

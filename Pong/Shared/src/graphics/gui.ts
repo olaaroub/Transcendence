@@ -35,7 +35,7 @@ export function disposeGUI(): void
 		ui.dispose();
 }
 
-export async function loadGameFont(): Promise<void> 
+export async function loadGameFont(): Promise<void>
 {
     try
 	{
@@ -313,14 +313,14 @@ export function startButton(engine: PongEngine): void
 		ui.removeControl(button);
 		button.dispose();
 		try {await new Promise(resolve => setTimeout(resolve, 500));}
-		catch (error) {};
-		
+		catch (error) { console.warn("Error during start delay:", error); };
+
 		engine.setState('Countdown');
 		for (let count = 3; count > 0; count--)
 		{
 			createSign(`${count}`);
 			try {await new Promise(resolve => setTimeout(resolve, 1000));}
-			catch (error) {};
+			catch (error) { console.warn("Error during countdown delay:", error);};
 		}
 		createSign('GO');
 		engine.setState('Playing');
@@ -356,7 +356,7 @@ export function createSign(text?: string): void
 		return ;
 
 	const fontSize = text.length < 3 ? 70 : 48;
-	
+
 	signBox = new GUI.Container("BOX");
 	signBox.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
 	signBox.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;

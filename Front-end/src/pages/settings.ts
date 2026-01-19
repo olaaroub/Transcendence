@@ -1,5 +1,5 @@
 import * as data from "./dashboard"
-import { navigate, navigateBack } from "../router";
+import { navigateBack } from "../router";
 import { IUserData, userData, getImageUrl} from "./store"
 import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/toast";
 import { closeNotificationSocket } from "./components/NavBar";
@@ -10,10 +10,10 @@ import { logout } from "./components/profileMenu";
 const $ = (id : string) => document.getElementById(id as string);
 
 let newUserData: Partial<IUserData> = {};
-const body: BodyInit | null = "";
-const headers : Record<string, string> = {
-	"Authorization": `Bearer ${localStorage.getItem('token')}`
-}
+// const body: BodyInit | null = "";
+// const headers : Record<string, string> = {
+// 	"Authorization": `Bearer ${localStorage.getItem('token')}`
+// }
 let avatar : FormData | null = null;
 
 async function checkPasswordChange() : Promise<boolean>
@@ -122,6 +122,7 @@ function addInputListeners()
 			}
 			if (value !== userData[name as keyof IUserData])
 				newUserData[name as keyof IUserData] = value as any;
+			
 			else
 				delete newUserData[name as keyof IUserData];
 		});

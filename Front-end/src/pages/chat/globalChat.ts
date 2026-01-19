@@ -26,7 +26,7 @@ async function fetchPreviousMessages() {
 }
 
 function initializeWebSocket() {
-	if (globalChatInitialized && golobalChatSocket && 
+	if (globalChatInitialized && golobalChatSocket &&
 		golobalChatSocket.readyState === WebSocket.OPEN) {
 		return;
 	}
@@ -63,6 +63,7 @@ function initializeWebSocket() {
 
 	golobalChatSocket.onerror = (error) => {console.error("global chat websocket error", error);}
 	golobalChatSocket.onclose = (event) => {
+		console.warn(`Global chat WebSocket closed: code=${event.code}, reason=${event.reason}`);
 		globalChatInitialized = false;
 		golobalChatSocket = null;
 	};
@@ -95,7 +96,7 @@ function renderChatMessages(): string {
 					group-hover:border-color1 transition-colors duration-200" alt="${msg.username}">
 				<div class="flex-1 min-w-0">
 					<div class="flex items-center gap-2 mb-1">
-						${isSystemUser 
+						${isSystemUser
 							? `<span class="text-txtColor font-semibold text-sm">${msg.username}</span>`
 							: `<span data-user-id="${msg.sender_id}" class="username-link text-txtColor font-semibold text-sm hover:text-color1
 								cursor-pointer transition-colors">${shortString(msg.username, 15)}</span>`
