@@ -1,0 +1,55 @@
+name: Transcendence Production CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify-builds:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: auth-service
+            context: ./app/auth
+            file: ./app/Dockerfile.microservices.prod
+            port: 3001
+          - service: user-service
+            context: ./app/user-service
+            file: ./app/Dockerfile.microservices.prod
+            port: 3002
+          - service: global-chat
+            context: ./app/chat/global
+            file: ./app/Dockerfile.microservices.prod
+            port: 3003
+          - service: private-chat
+            context: ./app/chat/private
+            file: ./app/Dockerfile.microservices.prod
+            port: 3004
+          - service: pong-game
+            context: ./Pong
+            file: ./Pong/Dockerfile.pong.prod.multistage
+            port: 3005
+          - service: frontend
+            context: ./Front-end
+            file: ./Front-end/Dockerfile.frontend.prod
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6.0.1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.12.0
+
+      - name: Build and Verify
+        uses: docker/build-push-action@v6.18.0
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          push: false
+          build-args: |
+            PORT=${{ matrix.port }}
