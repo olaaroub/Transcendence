@@ -12,8 +12,8 @@ const FONT = 'Bruno Ace SC';
 
 let ui:GUI.AdvancedDynamicTexture;
 let options: boolean = false;
-let camButtons: GUI.Button[] = [];
-let colButtons: GUI.Button[] = [];
+const camButtons: GUI.Button[] = [];
+const colButtons: GUI.Button[] = [];
 let picker: GUI.ColorPicker | null = null;
 let signBox: GUI.Container | null = null;
 let sign: GUI.Image | null = null;
@@ -35,7 +35,7 @@ export function disposeGUI(): void
 		ui.dispose();
 }
 
-export async function loadGameFont(): Promise<void> 
+export async function loadGameFont(): Promise<void>
 {
     try
 	{
@@ -257,7 +257,7 @@ export function updateGoals(player1: number, player2: number)
 	{
 		p1Goals++;
 		const goal = newGoal(1);
-		let pos = 115 + (26 - 4.5) * p1Goals + 4.5;
+		const pos = 115 + (26 - 4.5) * p1Goals + 4.5;
 		goal.left = `${pos}px`;
 		ui.addControl(goal);
 	}
@@ -265,7 +265,7 @@ export function updateGoals(player1: number, player2: number)
 	{
 		p2Goals++;
 		const goal = newGoal(2);
-		let pos = - (115 + (26 - 4.5) * p2Goals + 4.5);
+		const pos = - (115 + (26 - 4.5) * p2Goals + 4.5);
 		goal.left = `${pos}px`;
 		ui.addControl(goal);
 	}
@@ -313,14 +313,14 @@ export function startButton(engine: PongEngine): void
 		ui.removeControl(button);
 		button.dispose();
 		try {await new Promise(resolve => setTimeout(resolve, 500));}
-		catch (error) {};
-		
+		catch (error) { console.warn("Error during start delay:", error); };
+
 		engine.setState('Countdown');
 		for (let count = 3; count > 0; count--)
 		{
 			createSign(`${count}`);
 			try {await new Promise(resolve => setTimeout(resolve, 1000));}
-			catch (error) {};
+			catch (error) { console.warn("Error during countdown delay:", error);};
 		}
 		createSign('GO');
 		engine.setState('Playing');
@@ -355,8 +355,8 @@ export function createSign(text?: string): void
 	if (!text)
 		return ;
 
-	let fontSize = text.length < 3 ? 70 : 48;
-	
+	const fontSize = text.length < 3 ? 70 : 48;
+
 	signBox = new GUI.Container("BOX");
 	signBox.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
 	signBox.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;

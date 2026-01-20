@@ -1,4 +1,4 @@
-async function leaderboardHandler(req, reply) {
+async function leaderboardHandler(req) {
     let start = parseInt(req.query.start);
     let offset = parseInt(req.query.offset);
 

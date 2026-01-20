@@ -20,7 +20,7 @@ function calculateRating(p1CurrentRating, p2CurrentRating, p1win)
 
 
 
-async function matchDataController(req, reply)
+async function matchDataController(req)
 {
     const p1 = req.body.p1;
     const p2 = req.body.p2;
@@ -63,12 +63,12 @@ async function matchDataController(req, reply)
 
         const Rating = calculateRating(p1Rating.Rating , p2Rating.Rating, p1.win)
         const stmt = this.db.prepare(`UPDATE userInfo SET Rating = ? WHERE id = ?`);
-    
+
         const p1Changes = stmt.run(Rating.p1Rating, p1.userID);
         const p2Changes = stmt.run(Rating.p2Rating, p2.userID);
         if (p1Changes.changes === 0 || p2Changes.changes === 0)
             throw createError.NotFound("this users not found to change it!");
-    
+
         const insertMatch = this.db.prepare(`INSERT INTO matchHistory (player1_id, player2_id, player1_score, player2_score)
             VALUES (?, ?, ?, ?)`);
         insertMatch.run(p1.userID, p2.userID, p1.scored, p2.scored);

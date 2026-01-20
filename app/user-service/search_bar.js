@@ -1,4 +1,4 @@
-async function searchBarHandler(req, reply) {
+async function searchBarHandler(req) {
 
     const query = String(req.query.username) || "";
 

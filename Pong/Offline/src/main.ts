@@ -106,7 +106,7 @@ const renderLoop = () =>
 	if (gameEngine.getCurrentState() === 'Over' && !gameOver)
 	{
 		gameOver = true;
-		let winner: string = gameEngine.getWinner();
+		const winner: string = gameEngine.getWinner();
 		setTimeout(() => {createSign(`GAME OVER\n${winner.length > 12 ? winner.slice(0, 12 - 1) + "..." : winner} WINS`);}, 50);
 		setTimeout(() => {exitGame();}, 3000);
 	}

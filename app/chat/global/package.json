@@ -8,16 +8,19 @@
   "main": "chat.js",
   "scripts": {
     "start": "node chat.js",
-    "dev": "nodemon --delay 2s chat.js"
+    "dev": "nodemon --delay 2s chat.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "node --test"
   },
   "dependencies": {
+    "@fastify/jwt": "^10.0.0",
     "@fastify/websocket": "^11.2.0",
     "better-sqlite3": "^12.5.0",
-    "@fastify/jwt": "^10.0.0",
     "fastify": "^5.6.2",
-    "node-vault": "^0.10.9",
     "fastify-metrics": "^12.1.0",
-    "http-errors": "^2.0.1"
+    "http-errors": "^2.0.1",
+    "node-vault": "^0.10.9"
   },
   "overrides": {
     "node-vault": {
@@ -27,6 +30,9 @@
     }
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0"
   }
 }

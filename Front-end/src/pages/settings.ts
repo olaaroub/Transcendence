@@ -1,5 +1,5 @@
 import * as data from "./dashboard"
-import { navigate, navigateBack } from "../router";
+import { navigateBack } from "../router";
 import { IUserData, userData, getImageUrl} from "./store"
 import { toastSuccess, toastError, toastWarning, toastInfo } from "./components/toast";
 import { closeNotificationSocket } from "./components/NavBar";
@@ -7,13 +7,13 @@ import { cleanupGlobalChat } from "./chat/globalChat";
 import { apiFetch } from "./components/errorsHandler";
 import { logout } from "./components/profileMenu";
 
-const $ = (id : String) => document.getElementById(id as string);
+const $ = (id : string) => document.getElementById(id as string);
 
 let newUserData: Partial<IUserData> = {};
-let body: BodyInit | null = "";
-let headers : Record<string, string> = {
-	"Authorization": `Bearer ${localStorage.getItem('token')}`
-}
+// const body: BodyInit | null = "";
+// const headers : Record<string, string> = {
+// 	"Authorization": `Bearer ${localStorage.getItem('token')}`
+// }
 let avatar : FormData | null = null;
 
 async function checkPasswordChange() : Promise<boolean>
@@ -71,7 +71,7 @@ function SaveChanges()
 				}
 				let requestBody: BodyInit;
 				let contentType: Record<string, string> = {};
-				let tmp = String(value).trim();
+				const tmp = String(value).trim();
 				if (key === 'username' && (tmp.length < 1 || tmp.length > 30 || tmp === userData.username))
 					return toastError("Invalid Alias!");
 				if (key === 'bio' && tmp.length > 200)
@@ -122,6 +122,7 @@ function addInputListeners()
 			}
 			if (value !== userData[name as keyof IUserData])
 				newUserData[name as keyof IUserData] = value as any;
+			
 			else
 				delete newUserData[name as keyof IUserData];
 		});

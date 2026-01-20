@@ -1,7 +1,6 @@
-import { navigate } from "../../router";
 import { closeNotificationSocket } from "./NavBar";
 import { cleanupGlobalChat } from "../chat/globalChat";
-import { toastError, toastWarning } from "./toast";
+import { toastError} from "./toast";
 import { logout } from "./profileMenu";
 
 export interface ApiError {
@@ -141,7 +140,7 @@ export function showErrorMessage(message: string, statusCode: number): void {
 			</div>
 			<h2 class="text-2xl font-bold mb-2 text-red-400">Error ${statusCode}</h2>
 			<p class="mb-6 text-gray-300">${message}</p>
-			<button onclick="window.location.reload()" 
+			<button onclick="window.location.reload()"
 				class="bg-color1 hover:bg-color1/80 text-white font-bold py-2 px-6 rounded-xl transition-colors">
 				Reload Page
 			</button>

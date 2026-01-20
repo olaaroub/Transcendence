@@ -5,7 +5,6 @@ import {
     markMessagesAsSeen,
     getUnreadCount,
     getUnreadCountsForUser,
-    getFriendIdFromConversation
 } from "../conversation.js";
 
 export default async function chatRoutes(fastify)

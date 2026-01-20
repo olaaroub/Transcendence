@@ -53,7 +53,7 @@ async function signUpHandler(request, reply) {
 	});
 }
 
-async function loginHandler(req, reply) {
+async function loginHandler(req) {
 
 	const body = req.body;
 
@@ -89,13 +89,13 @@ async function loginHandler(req, reply) {
 	};
 }
 
-async function getUsers(req, reply) {
+async function getUsers() {
 
 	const data = this.db.prepare("SELECT id, username, auth_provider, email FROM users").all();
 	return data;
 }
 
-async function getUserById(req, reply) {
+async function getUserById(req) {
 
 	const responseData = await this.db.prepare('SELECT id, username, email FROM users WHERE id = ?').get([req.params.id]);
 

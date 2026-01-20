@@ -1,6 +1,6 @@
 
 
-export async function updateUsername(req, reply)
+export async function updateUsername(req)
 {
     const id = req.params.id;
     const { username } = req.body;
@@ -15,7 +15,7 @@ export async function updateUsername(req, reply)
     }
 }
 
-export async function updateAvatarUrl(req, reply)
+export async function updateAvatarUrl(req)
 {
     const id = req.params.id;
     const { newAvatarUrl } = req.body;
@@ -25,7 +25,7 @@ export async function updateAvatarUrl(req, reply)
 }
 
 
-export async function deleteAccount(req, reply)
+export async function deleteAccount(req)
 {
     const id = req.params.id;
 

@@ -1,5 +1,5 @@
 
-async function matchHistoryHandler(req, reply) {
+async function matchHistoryHandler(req) {
     const userId = req.userId || req.params.id;
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 20;

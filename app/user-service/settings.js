@@ -5,7 +5,7 @@ const ext = process.env.SERVICE_EXT || '-prod';
 const AUTH_SERVICE_URL = `http://auth-service${ext}:3001`;
 const GLOBAL_CHAT_SERVICE_URL = `http://global-chat${ext}:3003`;
 
-async function change_username(req, reply) {
+async function change_username(req) {
 	const id = req.params.id;
 	const { username } = req.body;
 
@@ -33,7 +33,7 @@ async function change_username(req, reply) {
 }
 
 
-async function change_bio(req, reply) {
+async function change_bio(req) {
 	const id = req.params.id;
 	const { bio } = req.body;
 
@@ -46,7 +46,7 @@ async function change_bio(req, reply) {
 	};
 }
 
-async function getProfileData(req, reply) {
+async function getProfileData(req) {
 	const user_id = req.userId;
 	const profile_id = req.params.id;
 

@@ -1,1 +1,6 @@
 Dockerfile.pong.prod.multistage
+Dockerfile.pong.prod
+node_modules
+dist
+.git
+.env

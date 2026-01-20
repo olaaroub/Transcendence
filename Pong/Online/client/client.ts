@@ -175,7 +175,7 @@ window.addEventListener('keydown', handleKeyDown);
 window.addEventListener('keyup', handleKeyUp);
 window.addEventListener('resize', handleResize);
 
-let roomString: string | null = sessionStorage.getItem('room');
+const roomString: string | null = sessionStorage.getItem('room');
 if (!roomString)
 {
 	console.error("No Room Data Found! Redirecting to dashboard...");
@@ -183,7 +183,7 @@ if (!roomString)
 }
 sessionStorage.removeItem('room');
 let roomData: RoomData | null = null;
-try { roomData = JSON.parse(roomString || 'null'); } catch {}
+try { roomData = JSON.parse(roomString || 'null'); } catch { roomData = null; }
 if (!roomData)
 {
 	console.error("Invalid Room Data! Redirecting to dashboard...");
@@ -211,7 +211,7 @@ else
 		}
 		catch (e)
 		{
-			console.error("Connection timeout. Please try again.");
+			console.error("Connection timeout. Please try again.", e);
 			exitGame();
 		}
 	});

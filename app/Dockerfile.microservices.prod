@@ -5,13 +5,28 @@ ENV NPM_CONFIG_FUND=false
 
 WORKDIR /app
 
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+RUN npm run lint
+
+FROM node:20-alpine
+
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_FUND=false
+
+WORKDIR /app
+
 ENV NODE_ENV=production
 
-COPY package*.json ./
+COPY --from=0 /app/package*.json ./
 
 RUN npm ci --omit=dev && npm cache clean --force
 
-COPY . .
+COPY --from=0 /app .
 
 RUN mkdir -p /data && chown -R node:node /data
 

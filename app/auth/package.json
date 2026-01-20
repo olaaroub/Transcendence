@@ -1,14 +1,14 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "",
   "type": "module",
   "main": "auth.js",
   "scripts": {
     "start": "node auth.js",
-    "dev": "nodemon --delay 2s auth.js"
+    "dev": "nodemon --delay 2s auth.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "node --test"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
@@ -32,6 +32,9 @@
     }
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0"
   }
 }

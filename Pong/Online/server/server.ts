@@ -2,6 +2,7 @@ import Fastify, { FastifyBaseLogger } from 'fastify';
 import FastifyJwt from '@fastify/jwt';
 import Vault from 'node-vault';
 import fastifyMetrics from 'fastify-metrics';
+import { Counter } from 'prom-client'
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import {
 	PongEngine,
@@ -46,7 +47,13 @@ const matchmakingQueue: string[] = [];
 const connectedUsers = new Map<string, Socket>();
 const pendingUsers = new Set<string>();
 
-declare module 'fastify' { interface FastifyInstance { customMetrics: { matchCounter: any; } } }
+declare module 'fastify' {
+	interface FastifyInstance {
+		customMetrics: {
+			 matchCounter: Counter<string>;
+		}
+	}
+}
 
 async function getSecrets(logger: FastifyBaseLogger)
 {
@@ -86,7 +93,7 @@ const fastify = Fastify(
 		redact: ['req.headers.authorization', 'req.headers.cookie', 'body.password']
 	}
 });
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 await fastify.register(fastifyMetrics as any,
 {
 	endpoint: '/metrics',
@@ -130,18 +137,18 @@ function createGameRoom(roomId: string): GameRoom
 		p2Alias: 'Player 2',
 		p2Avatar: '/game/Assets/default.png',
 	};
-	const p1: Player =
-	{
-		userID:	'',
-		win: false,
-		scored: 0
-	}
-	const p2: Player =
-	{
-		userID:	'',
-		win: false,
-		scored: 0
-	}
+	// const p1: Player =
+	// {
+	// 	userID:	'',
+	// 	win: false,
+	// 	scored: 0
+	// }
+	// const p2: Player =
+	// {
+	// 	userID:	'',
+	// 	win: false,
+	// 	scored: 0
+	// }
 	const engine = new PongEngine(session);
 	return {
 		id: roomId,
@@ -298,7 +305,7 @@ function cleanupRoom(roomId: string): void
 // =============================================================================
 // REST API ROUTES
 // =============================================================================
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function jwtChecker(request: any, reply: any)
 {
 	try
@@ -309,9 +316,9 @@ async function jwtChecker(request: any, reply: any)
 			throw new Error('User Already Connected!');
 		request.userId = userId;
 	}
-	catch (err) {reply.status(401).send({ message: 'Unauthorized' });}
+	catch (_err) {reply.status(401).send({ message: 'Unauthorized' });}
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 fastify.get('/api/game/matchmaking', {preHandler: [jwtChecker]} ,async (request: any, reply) =>
 {
 	let roomId: string;
@@ -333,12 +340,12 @@ fastify.get('/api/game/matchmaking', {preHandler: [jwtChecker]} ,async (request:
 	}
 	return reply.send({ roomId });
 });
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 fastify.get('/api/game/friendly-match', {preHandler: [jwtChecker]} ,async (request: any, reply) =>
 {
 	const userId = request.userId as string;
 	pendingUsers.add(userId);
-	let roomId: string = generateRoomId();
+	const roomId: string = generateRoomId();
 	const room = createGameRoom(roomId);
 	rooms.set(roomId, room);
 	fastify.log.info(`Friendly Match: Created new room ${roomId}`);

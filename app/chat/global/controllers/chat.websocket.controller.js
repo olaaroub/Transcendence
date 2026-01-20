@@ -62,7 +62,7 @@ async function handleMessageEvent(socket, fastify, userId, message) {
         }
 
         const sockets = fastify.sockets;
-        sockets.forEach((userSockets, user_id) => {
+        sockets.forEach((userSockets) => {
             userSockets.forEach(userSocket => {
                 if (userSocket !== socket)
                     userSocket.send(JSON.stringify(response));

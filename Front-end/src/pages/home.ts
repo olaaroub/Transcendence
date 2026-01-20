@@ -1,6 +1,6 @@
 import { navigate } from "../router";
 import { renderNavBar } from "./components/NavBar";
-import { credentials, userData } from "./store";
+import { userData } from "./store";
 
 const $ = (id: string) => document.getElementById(id as string)
 

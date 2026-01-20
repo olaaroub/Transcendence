@@ -2,7 +2,7 @@ import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
 import createError from 'http-errors';
 
-async function setupTowFaHandler(req, reply) {
+async function setupTowFaHandler(req) {
     const id = req.params.id;
     const { towFaEnabled } = this.db.prepare("SELECT towFaEnabled FROM users WHERE id = ?").get(id);
 
@@ -24,7 +24,7 @@ async function setupTowFaHandler(req, reply) {
     }
 }
 
-async function verifyTowFaHandler(req, reply) {
+async function verifyTowFaHandler(req) {
     const { token } = req.body;
     const id = req.params.id;
 
@@ -55,7 +55,7 @@ async function verifyTowFaHandler(req, reply) {
     return { success: true, message: "Verification successful" }
 }
 
-async function towFaDisablingHandler(req, reply) {
+async function towFaDisablingHandler(req) {
     const id = req.params.id;
     this.db.prepare('UPDATE users SET towFaEnabled = FALSE, towFaSecret = NULL WHERE id = ?').run(id);
 

@@ -1,7 +1,7 @@
 
 import createError from 'http-errors';
 import gameEndPoints from './game.match.js';
-async function chatProfileHandler(req, reply)
+async function chatProfileHandler(req)
 {
     const id = req.params.id;
 

@@ -168,7 +168,7 @@ services:
   pong-game-dev:
     build:
       context: ./Pong
-      dockerfile: Dockerfile.pong.prod
+      dockerfile: Dockerfile.pong.prod.multistage
       args:
         - PORT=3005
     image: pong-game-dev:1337

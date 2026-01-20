@@ -16,7 +16,7 @@ async function add_friend(req, reply) {
     try {
         this.db.prepare(`INSERT  INTO friendships(userRequester, userReceiver) VALUES(?, ?)`)
             .run([requester_id, receiver_id]);
-            
+
         this.customMetrics.friendCounter.inc({ action: 'sent' });
     }
     catch (err) {
@@ -56,7 +56,7 @@ async function add_friend(req, reply) {
     reply.code(201).send({ success: true, message: "Friend request sent" });
 }
 
-export async function getFriendsQuery(id, fastify) 
+export async function getFriendsQuery(id, fastify)
 {
     return fastify.db.prepare(`SELECT u.id, u.username, u.avatar_url
                                 FROM
@@ -73,7 +73,7 @@ export async function getFriendsQuery(id, fastify)
                                    `).all([id, id, id, id]);
 }
 
-async function getFriends(req, reply) {
+async function getFriends(req) {
     const id = req.params.id;
     const friends = await getFriendsQuery(id, this);
     friends.forEach((friendData) => {
@@ -89,11 +89,11 @@ async function getFriends(req, reply) {
     return (friends);
 }
 
-async function delete_friend(req, reply) 
+async function delete_friend(req, reply)
 {
     const { friend_id } = req.body;
     const user_id = req.userId || req.params.id;
-    
+
     if (!friend_id)
         throw createError.BadRequest("Friend ID (friend_id) is required");
 

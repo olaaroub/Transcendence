@@ -37,7 +37,7 @@ export default defineConfig(({ command }) => {
         cert: fs.readFileSync('/app/certs/nginx.crt'),
       };
     } catch (e) {
-      console.warn("SSL Certs not found. Falling back to HTTP for Dev Server.");
+      console.warn("SSL Certs not found. Falling back to HTTP for Dev Server.", e);
     }
   }
 

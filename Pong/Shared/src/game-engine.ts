@@ -124,7 +124,7 @@ export class PongEngine
 			this.aiInstance.target = predictedY;
 		}
 		const i: number = Math.floor(Math.random() * 8) + 1;
-		let p2C: number = this.state.p2Y + PHEIGHT / 2;
+		const p2C: number = this.state.p2Y + PHEIGHT / 2;
 		this.state.p2Input = 0;
 		if (Math.abs(p2C - this.aiInstance.target) > 5)
 		{
