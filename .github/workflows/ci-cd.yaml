@@ -50,7 +50,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.10.0
         with:
-          images: ghcr.io/${{ github.repository }}/${{ matrix.service }}
+          images: ghcr.io/olaaroub/transcendence/${{ matrix.service }}
           tags: |
             type=raw,value=latest
             type=sha,format=long
@@ -70,8 +70,38 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.file }}
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             PORT=${{ matrix.port }}
+  deploy:
+    name: Deploy to DigitalOcean
+    runs-on: ubuntu-24.04
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6.0.1
+
+      - name: Sync Orchestration Files
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "compose.deploy.yaml,Security/,Metrics/,Elastic-Stack/,certs/"
+          target: "~/app"
+
+      - name: Remote SSH Deployment
+        uses: appleboy/ssh-action@v1.2.4
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/app
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker compose -f compose.deploy.yaml pull
+            docker compose -f compose.deploy.yaml up -d --remove-orphans

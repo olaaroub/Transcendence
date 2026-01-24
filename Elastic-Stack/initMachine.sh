@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# A script that installs docker and its components to a Minimal debian vm
+# A script that installs docker and its components to a Minimal Ubuntu 24.04 vm
 
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script must be run as root. Please use sudo or switch to root."
     exit 1
 fi
 
-# rm -f /etc/apt/sources.list.d/docker.list
+rm -f /etc/apt/sources.list.d/docker.list
 
 echo "Updating package lists..."
 apt-get update
@@ -17,12 +17,12 @@ apt-get install -y ca-certificates curl gnupg lsb-release git make
 
 echo "Adding Docker's official GPG key..."
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 chmod a+r /etc/apt/keyrings/docker.asc
 
 echo "Adding Docker repository..."
 echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 
