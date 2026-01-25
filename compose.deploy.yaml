@@ -16,7 +16,7 @@ services:
     cap_add:
       - IPC_LOCK
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   vault-init-prod:
     image: hashicorp/vault:1.21.1
@@ -44,7 +44,7 @@ services:
       - PONG_SERVICE_TOKEN=${PONG_SERVICE_TOKEN}
     entrypoint: /hashicorpVault.init.sh
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   # ====================================================
   #         APPLICATION MICROSERVICES (GHCR)
@@ -73,7 +73,7 @@ services:
       - ./db/auth:/data
       - ./app/static:/app/static
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   user-service-prod:
     image: ghcr.io/olaaroub/transcendence/user-service:latest
@@ -97,7 +97,7 @@ services:
       - ./db/users:/data
       - ./app/static:/app/static
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   global-chat-prod:
     image: ghcr.io/olaaroub/transcendence/global-chat:latest
@@ -120,7 +120,7 @@ services:
     volumes:
       - ./db/chat:/data
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   private-chat-prod:
     image: ghcr.io/olaaroub/transcendence/private-chat:latest
@@ -143,7 +143,7 @@ services:
     volumes:
       - ./db/chat:/data
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   pong-game-prod:
     image: ghcr.io/olaaroub/transcendence/pong-game:latest
@@ -165,7 +165,7 @@ services:
     volumes:
       - pong-dist:/pong-dist
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   # ====================================================
   #     MODSECURITY CRS/API GATEWAY & FRONTEND
@@ -195,7 +195,7 @@ services:
       - ./Security/ModSecurity/scanContent.sh:/usr/local/bin/scanContent.sh:ro
       - ./Security/ModSecurity/gateway_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   frontend-prod:
     image: ghcr.io/olaaroub/transcendence/frontend:latest
@@ -214,7 +214,7 @@ services:
     environment:
       - SERVICE_EXT=-prod
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   # ====================================================
   #        METRICS PROMETHEUS / GRAFANA
@@ -237,7 +237,7 @@ services:
       - ./Metrics/prometheus/alertRules.yaml:/etc/prometheus/alertRules.yaml:ro
       - prometheus-data:/prometheus
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   grafana-prod:
     image: grafana/grafana:12.3.0
@@ -257,145 +257,145 @@ services:
       - ./Metrics/grafana/dashboards:/var/lib/grafana/dashboards
       - ./certs:/etc/grafana/certs:ro
     networks:
-      - transcendence-prod-net
+      - transcendence-deploy-net
 
   # ====================================================
   #         ELASTIC STACK (ELK + FILEBEAT)
   # ====================================================
 
-  setup-prod:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
-    container_name: setup-prod
-    restart: "no"
-    user: "0"
-    command: "bash config/setupInfra.sh"
-    environment:
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-    volumes:
-      - ./Elastic-Stack/setup/setupInfra.sh:/usr/share/elasticsearch/config/setupInfra.sh:ro
-      - ./Elastic-Stack/kibana/olaaroub-kibanaDashboard.ndjson:/usr/share/elasticsearch/config/dashboard.ndjson:ro
-      - certs:/usr/share/elasticsearch/config/certs
-    networks:
-      - transcendence-prod-net
+  # setup-prod:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+  #   container_name: setup-prod
+  #   restart: "no"
+  #   user: "0"
+  #   command: "bash config/setupInfra.sh"
+  #   environment:
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #   volumes:
+  #     - ./Elastic-Stack/setup/setupInfra.sh:/usr/share/elasticsearch/config/setupInfra.sh:ro
+  #     - ./Elastic-Stack/kibana/olaaroub-kibanaDashboard.ndjson:/usr/share/elasticsearch/config/dashboard.ndjson:ro
+  #     - certs:/usr/share/elasticsearch/config/certs
+  #   networks:
+  #     - transcendence-deploy-net
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
-    container_name: elasticsearch
-    restart: always
-    ports:
-      - "9200:9200"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s -k https://localhost:9200 >/dev/null || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-    environment:
-      - discovery.type=single-node
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=true
-      - xpack.security.http.ssl.key=certs/elasticsearch/elasticsearch.key
-      - xpack.security.http.ssl.certificate=certs/elasticsearch/elasticsearch.crt
-      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
-      - xpack.security.transport.ssl.enabled=true
-      - xpack.security.transport.ssl.key=certs/elasticsearch/elasticsearch.key
-      - xpack.security.transport.ssl.certificate=certs/elasticsearch/elasticsearch.crt
-      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
-      - certs:/usr/share/elasticsearch/config/certs
-    networks:
-      - transcendence-prod-net
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+  #   container_name: elasticsearch
+  #   restart: always
+  #   ports:
+  #     - "9200:9200"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -s -k https://localhost:9200 >/dev/null || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 2G
+  #   environment:
+  #     - discovery.type=single-node
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #     - xpack.security.enabled=true
+  #     - xpack.security.http.ssl.enabled=true
+  #     - xpack.security.http.ssl.key=certs/elasticsearch/elasticsearch.key
+  #     - xpack.security.http.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+  #     - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+  #     - xpack.security.transport.ssl.enabled=true
+  #     - xpack.security.transport.ssl.key=certs/elasticsearch/elasticsearch.key
+  #     - xpack.security.transport.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+  #     - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #     - certs:/usr/share/elasticsearch/config/certs
+  #   networks:
+  #     - transcendence-deploy-net
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:9.2.2
-    container_name: logstash
-    restart: always
-    expose:
-      - "5044"
-    depends_on:
-      - elasticsearch
-    healthcheck:
-      test: ["CMD", "curl", "-s", "-XGET", "http://127.0.0.1:9600/_node/pipelines/main"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-    environment:
-      - XPACK_MONITORING_ENABLED=false
-      - ELASTIC_USER=elastic
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - "LS_JAVA_OPTS=-Xms512m -Xmx512m"
-    volumes:
-      - ./Elastic-Stack/logstash/pipeline:/usr/share/logstash/pipeline:ro
-      - certs:/usr/share/logstash/config/certs
-    networks:
-      - transcendence-prod-net
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:9.2.2
+  #   container_name: logstash
+  #   restart: always
+  #   expose:
+  #     - "5044"
+  #   depends_on:
+  #     - elasticsearch
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-s", "-XGET", "http://127.0.0.1:9600/_node/pipelines/main"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 10
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 1G
+  #   environment:
+  #     - XPACK_MONITORING_ENABLED=false
+  #     - ELASTIC_USER=elastic
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #     - "LS_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   volumes:
+  #     - ./Elastic-Stack/logstash/pipeline:/usr/share/logstash/pipeline:ro
+  #     - certs:/usr/share/logstash/config/certs
+  #   networks:
+  #     - transcendence-deploy-net
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:9.2.2
-    container_name: kibana
-    restart: always
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-    healthcheck:
-      test: ["CMD", "curl", "-s", "-k", "https://localhost:5601/api/status"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-    environment:
-      - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
-      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
-      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=s52DPjDDyas52DPjDDya4HcJygaYpHFAs52DPjDDyas52DPjDDya4HcJygaYpHFA4
-      - SERVER_SSL_ENABLED=true
-      - SERVER_SSL_CERTIFICATE=config/certs/kibana/kibana.crt
-      - SERVER_SSL_KEY=config/certs/kibana/kibana.key
-    volumes:
-      - certs:/usr/share/kibana/config/certs
-    networks:
-      - transcendence-prod-net
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:9.2.2
+  #   container_name: kibana
+  #   restart: always
+  #   ports:
+  #     - "5601:5601"
+  #   depends_on:
+  #     - elasticsearch
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-s", "-k", "https://localhost:5601/api/status"]
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 10
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 1G
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
+  #     - ELASTICSEARCH_USERNAME=kibana_system
+  #     - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+  #     - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+  #     - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=s52DPjDDyas52DPjDDya4HcJygaYpHFAs52DPjDDyas52DPjDDya4HcJygaYpHFA4
+  #     - SERVER_SSL_ENABLED=true
+  #     - SERVER_SSL_CERTIFICATE=config/certs/kibana/kibana.crt
+  #     - SERVER_SSL_KEY=config/certs/kibana/kibana.key
+  #   volumes:
+  #     - certs:/usr/share/kibana/config/certs
+  #   networks:
+  #     - transcendence-deploy-net
 
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:9.2.2
-    container_name: filebeat
-    restart: always
-    user: root
-    command: ["-e", "--strict.perms=false"]
-    depends_on:
-      - logstash
-    volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./Elastic-Stack/filebeat/config/filebeat.yaml:/usr/share/filebeat/filebeat.yml:ro
-    networks:
-      - transcendence-prod-net
+  # filebeat:
+  #   image: docker.elastic.co/beats/filebeat:9.2.2
+  #   container_name: filebeat
+  #   restart: always
+  #   user: root
+  #   command: ["-e", "--strict.perms=false"]
+  #   depends_on:
+  #     - logstash
+  #   volumes:
+  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - ./Elastic-Stack/filebeat/config/filebeat.yaml:/usr/share/filebeat/filebeat.yml:ro
+  #   networks:
+  #     - transcendence-deploy-net
 
 networks:
-  transcendence-prod-net:
-    name: transcendence-prod-net
+  transcendence-deploy-net:
+    name: transcendence-deploy-net
     driver: bridge
 
 volumes:
-  elasticsearch-data:
-    driver: local
-  certs:
-    driver: local
+  # elasticsearch-data:
+  #   driver: local
+  # certs:
+  #   driver: local
   prometheus-data:
     driver: local
   vault-data:
