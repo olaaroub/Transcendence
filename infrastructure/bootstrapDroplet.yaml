@@ -1,6 +1,6 @@
 ---
 - name: Install Docker
-  hosts: vms
+  hosts: do_droplets
   become: true
 
   tasks:
