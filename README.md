@@ -1,6 +1,10 @@
 #
 
 <h1 align="center">🪐 SPACE PONG</h1>
+<p align="center">
+       <a href="https://olaaroub.dev" target="_blank">
+       <img src="https://img.shields.io/badge/Live_Demo-olaaroub.dev-blue?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Live Demo"/></a>
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/42-ft__transcendence-gold?style=for-the-badge" alt="42 Badge"/>

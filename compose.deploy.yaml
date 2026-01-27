@@ -73,7 +73,7 @@ services:
     user: root
     volumes:
       - ./db/auth:/data
-      - ./app/static:/app/static
+      - ./static:/app/static
     networks:
       - transcendence-deploy-net
       - transcendence-shared-net
@@ -98,7 +98,7 @@ services:
     user: root
     volumes:
       - ./db/users:/data
-      - ./app/static:/app/static
+      - ./static:/app/static
     networks:
       - transcendence-deploy-net
       - transcendence-shared-net
@@ -265,7 +265,6 @@ services:
       - grafana-data:/var/lib/grafana
       - ./Metrics/grafana/provisioning:/etc/grafana/provisioning
       - ./Metrics/grafana/dashboards:/var/lib/grafana/dashboards
-      # - ./certs:/etc/grafana/certs:ro
     networks:
       - transcendence-deploy-net
       - transcendence-shared-net
