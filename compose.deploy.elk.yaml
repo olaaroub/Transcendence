@@ -17,13 +17,14 @@ services:
       - certs:/usr/share/elasticsearch/config/certs
     networks:
       - transcendence-deploy-elk-net
+      - transcendence-shared-net
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
     container_name: elasticsearch
     restart: always
-    ports:
-      - "9200:9200"
+    expose:
+      - "9200"
     healthcheck:
       test: ["CMD-SHELL", "curl -s -k https://localhost:9200 >/dev/null || exit 1"]
       interval: 30s
@@ -51,6 +52,7 @@ services:
       - certs:/usr/share/elasticsearch/config/certs
     networks:
       - transcendence-deploy-elk-net
+      - transcendence-shared-net
 
   logstash:
     image: docker.elastic.co/logstash/logstash:9.2.2
@@ -79,13 +81,14 @@ services:
       - certs:/usr/share/logstash/config/certs
     networks:
       - transcendence-deploy-elk-net
+      - transcendence-shared-net
 
   kibana:
     image: docker.elastic.co/kibana/kibana:9.2.2
     container_name: kibana
     restart: always
-    ports:
-      - "5601:5601"
+    expose:
+      - "5601"
     depends_on:
       - elasticsearch
     healthcheck:
@@ -110,6 +113,7 @@ services:
       - certs:/usr/share/kibana/config/certs
     networks:
       - transcendence-deploy-elk-net
+      - transcendence-shared-net
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:9.2.2
@@ -125,11 +129,14 @@ services:
       - ./Elastic-Stack/filebeat/config/filebeat.yaml:/usr/share/filebeat/filebeat.yml:ro
     networks:
       - transcendence-deploy-elk-net
+      - transcendence-shared-net
 
 networks:
   transcendence-deploy-elk-net:
     name: transcendence-deploy-elk-net
     driver: bridge
+  transcendence-shared-net:
+    external: true
 
 volumes:
   elasticsearch-data:

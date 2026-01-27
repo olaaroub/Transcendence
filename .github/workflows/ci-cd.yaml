@@ -91,7 +91,7 @@ jobs:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "compose.deploy.yaml,compose.deploy.elk.yaml,Security/,Metrics/,Elastic-Stack/,certs/"
+          source: "compose.deploy.yaml,compose.deploy.elk.yaml,Security/,Metrics/,Elastic-Stack/"
           target: "~/app"
       - name: copy static images..
         uses: appleboy/scp-action@v1.0.0
@@ -99,8 +99,8 @@ jobs:
           host: ${{ secrets.DROPLET_IP }}
           username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "app/static/*"
-          target: "~/app/app"
+          source: "./app/static/*"
+          target: "~/app/app/"
 
       - name: Remote SSH Deployment
         uses: appleboy/ssh-action@v1.2.4
