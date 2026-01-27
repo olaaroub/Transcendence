@@ -46,8 +46,6 @@ fi
 echo "Docker and Docker Compose installation completed successfully!"
 
 
-
-
 # sysctl vm.max_map_count
 
 # sudo sysctl -w vm.max_map_count=262144
