@@ -7,11 +7,12 @@ services:
   vault-prod:
     image: hashicorp/vault:1.21.1
     container_name: vault-prod
-    ports:
-      - "8200:8200"
+    expose:
+      - "8200"
     environment:
       - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN}
       - VAULT_ADDR=http://0.0.0.0:8200
+      - VAULT_API_ADDR=https://localhost/vault/
     cap_add:
       - IPC_LOCK
     networks:
@@ -223,7 +224,7 @@ services:
     image: frontend-prod:1337
     container_name: frontend-prod
     ports:
-      - "80:80"
+      # - "80:80"
       - "443:443"
       - "8080:8080"
     depends_on:
@@ -262,19 +263,22 @@ services:
   grafana-prod:
     image: grafana/grafana:12.3.0
     container_name: grafana-prod
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
+    expose:
+      - "3000"
     depends_on:
       - prometheus-prod
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=${GF_AUTH_ANONYMOUS_ENABLED}
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SERVER_ROOT_URL=https://localhost/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     volumes:
       - grafana-data:/var/lib/grafana
       - ./Metrics/grafana/provisioning:/etc/grafana/provisioning
       - ./Metrics/grafana/dashboards:/var/lib/grafana/dashboards
-      - ./certs:/etc/grafana/certs:ro
     networks:
       - transcendence-prod-net
 
@@ -283,124 +287,124 @@ services:
   # ====================================================
 
 
-  setup-prod:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
-    container_name: setup-prod
-    user: "0"
-    command: "bash config/setupInfra.sh"
-    environment:
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-    volumes:
-      - ./Elastic-Stack/setup/setupInfra.sh:/usr/share/elasticsearch/config/setupInfra.sh:ro
-      - ./Elastic-Stack/kibana/olaaroub-kibanaDashboard.ndjson:/usr/share/elasticsearch/config/dashboard.ndjson:ro
-      - certs:/usr/share/elasticsearch/config/certs
-    networks:
-      - transcendence-prod-net
+  # setup-prod:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+  #   container_name: setup-prod
+  #   user: "0"
+  #   command: "bash config/setupInfra.sh"
+  #   environment:
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #   volumes:
+  #     - ./Elastic-Stack/setup/setupInfra.sh:/usr/share/elasticsearch/config/setupInfra.sh:ro
+  #     - ./Elastic-Stack/kibana/olaaroub-kibanaDashboard.ndjson:/usr/share/elasticsearch/config/dashboard.ndjson:ro
+  #     - certs:/usr/share/elasticsearch/config/certs
+  #   networks:
+  #     - transcendence-prod-net
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
-    container_name: elasticsearch
-    restart: on-failure
-    ports:
-      - "9200:9200"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s -k https://localhost:9200 >/dev/null || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-    environment:
-      - discovery.type=single-node
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=true
-      - xpack.security.http.ssl.key=certs/elasticsearch/elasticsearch.key
-      - xpack.security.http.ssl.certificate=certs/elasticsearch/elasticsearch.crt
-      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
-      - xpack.security.transport.ssl.enabled=true
-      - xpack.security.transport.ssl.key=certs/elasticsearch/elasticsearch.key
-      - xpack.security.transport.ssl.certificate=certs/elasticsearch/elasticsearch.crt
-      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
-      - certs:/usr/share/elasticsearch/config/certs
-    networks:
-      - transcendence-prod-net
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
+  #   container_name: elasticsearch
+  #   restart: on-failure
+  #   ports:
+  #     - "9200:9200"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -s -k https://localhost:9200 >/dev/null || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 2G
+  #   environment:
+  #     - discovery.type=single-node
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #     - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+  #     - xpack.security.enabled=true
+  #     - xpack.security.http.ssl.enabled=true
+  #     - xpack.security.http.ssl.key=certs/elasticsearch/elasticsearch.key
+  #     - xpack.security.http.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+  #     - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+  #     - xpack.security.transport.ssl.enabled=true
+  #     - xpack.security.transport.ssl.key=certs/elasticsearch/elasticsearch.key
+  #     - xpack.security.transport.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+  #     - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #     - certs:/usr/share/elasticsearch/config/certs
+  #   networks:
+  #     - transcendence-prod-net
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:9.2.2
-    container_name: logstash
-    expose:
-      - "5044"
-    depends_on:
-      - elasticsearch
-    healthcheck:
-      test: ["CMD", "curl", "-s", "-XGET", "http://127.0.0.1:9600/_node/pipelines/main"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-    environment:
-      - XPACK_MONITORING_ENABLED=false
-      - ELASTIC_USER=elastic
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - "LS_JAVA_OPTS=-Xms1g -Xmx1g"
-    volumes:
-      - ./Elastic-Stack/logstash/pipeline:/usr/share/logstash/pipeline:ro
-      - certs:/usr/share/logstash/config/certs
-    networks:
-      - transcendence-prod-net
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:9.2.2
+  #   container_name: logstash
+  #   expose:
+  #     - "5044"
+  #   depends_on:
+  #     - elasticsearch
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-s", "-XGET", "http://127.0.0.1:9600/_node/pipelines/main"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 10
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 2G
+  #   environment:
+  #     - XPACK_MONITORING_ENABLED=false
+  #     - ELASTIC_USER=elastic
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #     - "LS_JAVA_OPTS=-Xms1g -Xmx1g"
+  #   volumes:
+  #     - ./Elastic-Stack/logstash/pipeline:/usr/share/logstash/pipeline:ro
+  #     - certs:/usr/share/logstash/config/certs
+  #   networks:
+  #     - transcendence-prod-net
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:9.2.2
-    container_name: kibana
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-    healthcheck:
-      test: ["CMD", "curl", "-s", "-k", "https://localhost:5601/api/status"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-    environment:
-      - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
-      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
-      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${KIBANA_ENCRYPTION_KEY}
-      - SERVER_SSL_ENABLED=true
-      - SERVER_SSL_CERTIFICATE=config/certs/kibana/kibana.crt
-      - SERVER_SSL_KEY=config/certs/kibana/kibana.key
-    volumes:
-      - certs:/usr/share/kibana/config/certs
-    networks:
-      - transcendence-prod-net
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:9.2.2
+  #   container_name: kibana
+  #   ports:
+  #     - "5601:5601"
+  #   depends_on:
+  #     - elasticsearch
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-s", "-k", "https://localhost:5601/api/status"]
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 10
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 1G
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
+  #     - ELASTICSEARCH_USERNAME=kibana_system
+  #     - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+  #     - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+  #     - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${KIBANA_ENCRYPTION_KEY}
+  #     - SERVER_SSL_ENABLED=true
+  #     - SERVER_SSL_CERTIFICATE=config/certs/kibana/kibana.crt
+  #     - SERVER_SSL_KEY=config/certs/kibana/kibana.key
+  #   volumes:
+  #     - certs:/usr/share/kibana/config/certs
+  #   networks:
+  #     - transcendence-prod-net
 
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:9.2.2
-    container_name: filebeat
-    user: root
-    command: ["-e", "--strict.perms=false"]
-    depends_on:
-      - logstash
-    volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./Elastic-Stack/filebeat/config/filebeat.yaml:/usr/share/filebeat/filebeat.yml:ro
-    networks:
-      - transcendence-prod-net
+  # filebeat:
+  #   image: docker.elastic.co/beats/filebeat:9.2.2
+  #   container_name: filebeat
+  #   user: root
+  #   command: ["-e", "--strict.perms=false"]
+  #   depends_on:
+  #     - logstash
+  #   volumes:
+  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - ./Elastic-Stack/filebeat/config/filebeat.yaml:/usr/share/filebeat/filebeat.yml:ro
+  #   networks:
+  #     - transcendence-prod-net
 
 networks:
   transcendence-prod-net:
@@ -408,10 +412,10 @@ networks:
     driver: bridge
 
 volumes:
-  elasticsearch-data:
-    driver: local
-  certs:
-    driver: local
+  # elasticsearch-data:
+  #   driver: local
+  # certs:
+  #   driver: local
   prometheus-data:
     driver: local
   vault-data:
