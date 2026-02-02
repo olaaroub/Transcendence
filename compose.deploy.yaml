@@ -13,7 +13,6 @@ services:
     environment:
       - VAULT_DEV_ROOT_TOKEN_ID=${VAULT_TOKEN}
       - VAULT_ADDR=http://0.0.0.0:8200
-      - VAULT_API_ADDR=https://olaaroub.dev/vault
     cap_add:
       - IPC_LOCK
     networks:
@@ -189,6 +188,10 @@ services:
       - global-chat-prod
       - private-chat-prod
       - pong-game-prod
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 10s
@@ -198,6 +201,7 @@ services:
       - MODSEC_RULE_ENGINE=on
       - BLOCKING_PARANOIA=2
     volumes:
+      - ./certs:/etc/nginx/certs:ro
       - ./Security/ModSecurity/nginx.conf:/etc/nginx/templates/conf.d/default.conf.template:ro
       - ./Security/ModSecurity/rules/exceptions.conf:/etc/modsecurity.d/owasp-crs/rules/REQUEST-900-CUSTOM-EXCLUSIONS.conf:ro
       - ./Security/ModSecurity/scanContent.sh:/usr/local/bin/scanContent.sh:ro
@@ -210,14 +214,11 @@ services:
     image: ghcr.io/olaaroub/transcendence/frontend:latest
     container_name: frontend-prod
     restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
+    expose:
+      - "8080"
     depends_on:
       - modSecurity-prod
     volumes:
-      - ./certs:/etc/nginx/certs:ro
       - ./Security/ModSecurity/frontend_logs.conf:/etc/nginx/conf.d/00_logging.conf:ro
       - pong-dist:/app/assets/game:ro
     environment:
