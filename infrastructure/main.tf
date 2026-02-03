@@ -17,9 +17,13 @@ resource "digitalocean_vpc" "olaaroub_vpc" {
 	ip_range = "10.10.10.0/24"
 }
 
+resource "digitalocean_tag" "project_tag" {
+	name = "transcendence"
+}
+
 resource "digitalocean_firewall" "olaaroub_firewall" {
 	name = "olaaroub-firewall"
-	tags = ["transcendence"]
+	tags = [digitalocean_tag.project_tag.id]
 	inbound_rule {
 	  protocol = "tcp"
 	  port_range = "22"
@@ -56,6 +60,6 @@ resource "digitalocean_droplet" "provisioned-droplet" {
 	size = "s-1vcpu-2gb"
 	monitoring = true
 	vpc_uuid = digitalocean_vpc.olaaroub_vpc.id
-	tags = ["transcendence"]
+	tags = [digitalocean_tag.project_tag.id]
 	ssh_keys = data.digitalocean_ssh_keys.all_keys.ssh_keys[*].id
 }

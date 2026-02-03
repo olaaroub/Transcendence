@@ -1,4 +1,4 @@
-do_token = "dop_v1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+do_token = "api_dialihh"
 
 region = "fra1"
 
@@ -7,4 +7,4 @@ my_ip = [ "0.0.0.0/0", "::/0"]
 # user_data = <<-EOF
 #     #cloud-config
 #     ssh_pwauth: false
-#   EOF 
+#   EOF
