@@ -24,6 +24,7 @@
 | Section | Description |
 | --------- | ------------- |
 | [📖 Description](#-description) | Project overview and key features |
+| [🔧 Architecture Overview](#-architecture-overview) | System architecture diagram |
 | [🚀 Quick Start](#-quick-start) | Prerequisites, setup, and running the app |
 | [👥 Team Information](#-team-information) | Team members and role responsibilities |
 | [📋 Project Management](#-project-management) | Organization and workflow |
@@ -32,7 +33,6 @@
 | [✨ Features List](#-features-list) | Complete feature breakdown by area |
 | [📊 Modules](#-modules) | Point calculation and module ownership |
 | [👤 Individual Contributions](#-individual-contributions) | Detailed work per team member |
-| [🔧 Architecture Overview](#-architecture-overview) | System architecture diagram |
 | [📚 Resources](#-resources) | Documentation and AI usage disclosure |
 | [📄 License](#-license) | License information |
 
@@ -53,6 +53,75 @@
 - 🔐 **Secure Authentication** - Local & OAuth 2.0 (Google, GitHub, 42 Intra)
 - 🛡️ **Security** - WAF/ModSecurity hardened with HashiCorp Vault for secrets
 - 📈 **Monitoring** - Prometheus + Grafana dashboards with ELK stack logging
+
+---
+
+## 🔧 Architecture Overview
+
+```mermaid
+flowchart LR
+    Client([Client])
+    WAF[ModSecurity WAF/Gateway]
+    Vault[HashiCorp Vault]
+    SPA[Frontend SPA]
+
+    subgraph Backend [Backend Microservices]
+        direction TB
+        Auth[Auth Service]
+        User[User Service]
+        Chat[Chat Services]
+        Pong[Pong Game]
+
+        DB_Auth[(Auth DB)]
+        DB_User[(User DB)]
+        DB_Chat[(Chat DB)]
+        DB_Pong[(Pong DB)]
+
+        Auth --- DB_Auth
+        User --- DB_User
+        Chat --- DB_Chat
+        Pong --- DB_Pong
+    end
+
+    %% --- Observability (ECS & Metrics) ---
+    subgraph Observability [Observability Stack]
+        direction TB
+        ELK["ELK Stack<br/>(Filebeat → Logstash → Elastic)"]
+        Metrics[Prometheus & Grafana]
+
+        Note_Log["Stream: ECS JSON<br/>(No Log Files)"]
+    end
+
+    %% --- Flow Connections ---
+    Client ==>|HTTPS| WAF
+    WAF -->|Static Assets| SPA
+
+    %% Routing to separate services
+    WAF -->|API/WS| Auth
+    WAF -->|API/WS| User
+    WAF -->|API/WS| Chat
+    WAF -->|API/WS| Pong
+
+    %% Secrets Injection (In-Memory)
+    Vault -.->|Inject Secrets| Backend
+
+    %% Observability Flows
+    Backend -.->|Scrape| Metrics
+    Backend -.->|Stdout Stream| Note_Log
+    Note_Log -.-> ELK
+
+    %% --- Styling ---
+    classDef security fill:#ffcccc,stroke:#d32f2f,stroke-width:2px,color:black;
+    classDef infra fill:#bbdefb,stroke:#1976d2,stroke-width:2px,color:black;
+    classDef db fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:black;
+    classDef obs fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px,color:black;
+
+    class WAF security;
+    class Auth,User,Chat,Pong,SPA,Vault infra;
+    class DB_Auth,DB_User,DB_Chat,DB_Pong db;
+    class ELK,Metrics,Note_Log obs;
+
+```
 
 ---
 
@@ -410,52 +479,6 @@ Access the application at: `https://localhost:5173`
 - Created conversation management
 - Implemented chat history persistence
 - Added advanced chat features (blocking, notifications)
-
----
-
-## 🔧 Architecture Overview
-
-```mmd
-                                    ┌─────────────┐
-                                    │   Client    │
-                                    │  (Browser)  │
-                                    └──────┬──────┘
-                                           │ HTTPS
-                                    ┌──────▼──────┐
-                                    │   NGINX     │
-                                    │  Frontend   │
-                                    └──────┬──────┘
-                                           │
-                                    ┌──────▼──────┐
-                                    │ ModSecurity │
-                                    │    (WAF)    │
-                                    └──────┬──────┘
-                                           │
-            ┌──────────────┬───────────────┼───────────────┬──────────────┐
-            │              │               │               │              │
-     ┌──────▼──────┐ ┌─────▼─────┐ ┌───────▼───────┐ ┌─────▼─────┐ ┌──────▼──────┐
-     │ Auth Service│ │Usr Service│ │  Global Chat  │ │Privte Chat│ │  Pong Game  │
-     │   :3001     │ │   :3002   │ │     :3003     │ │   :3004   │ │    :3005    │
-     └──────┬──────┘ └─────┬─────┘ └───────┬───────┘ └─────┬─────┘ └──────┬──────┘
-            │              │               │               │              │
-            └──────────────┴───────────────┼───────────────┴──────────────┘
-                                           │
-                                    ┌──────▼──────┐
-                                    │   Vault     │
-                                    │  (Secrets)  │
-                                    └─────────────┘
-
-     ┌────────────────────────────────────────────────────────────────────┐
-     │                        Monitoring Stack                            │
-     │  ┌───────────┐    ┌───────────┐    ┌───────────┐    ┌───────────┐  │
-     │  │Prometheus │───▶│  Grafana  │    │Elasticsrch│◀───│ Logstash  │  │
-     │  └───────────┘    └───────────┘    └─────┬─────┘    └─────┬─────┘  │
-     │                                          │                │        │
-     │                                    ┌─────▼─────┐    ┌─────▼─────┐  │
-     │                                    │  Kibana   │    │ Filebeat  │  │
-     │                                    └───────────┘    └───────────┘  │
-     └────────────────────────────────────────────────────────────────────┘
-```
 
 ---
 

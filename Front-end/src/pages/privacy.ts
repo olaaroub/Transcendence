@@ -7,26 +7,26 @@ export function renderPrivacy() {
 	document.body.innerHTML = /* html */ `
 		<div id="app" class="flex-grow w-[90%] max-w-5xl mx-auto min-h-screen">
 			${renderNavBar(true)}
-			
+
 			<div class="content mx-auto py-8 sm:py-12">
 				<div class="bg-gradient-to-br from-bgColor/95 to-black/90 backdrop-blur-xl rounded-3xl p-6 sm:p-8 md:p-10 border-2 border-color1/30 shadow-2xl">
 					<h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-txtColor glow-stroke mb-6 sm:mb-8 text-center">
 						Privacy Policy
 					</h1>
-					
+
 					<div class="text-gray-300 space-y-6 leading-relaxed">
 						<p class="text-sm text-gray-400 text-center mb-8">Last Updated: January 10, 2026</p>
-						
+
 						<section class="space-y-4">
 							<p class="text-sm sm:text-base">
-								At SPACE PONG ("we", "our", or "us"), we are committed to protecting your privacy. This Privacy Policy explains how 
+								At SPACE PONG ("we", "our", or "us"), we are committed to protecting your privacy. This Privacy Policy explains how
 								we collect, use, disclose, and safeguard your information when you use our gaming service.
 							</p>
 						</section>
 
 						<section class="space-y-4">
 							<h2 class="text-xl sm:text-2xl font-bold text-color2 mt-8 mb-4">1. Information We Collect</h2>
-							
+
 							<h3 class="text-lg sm:text-xl font-semibold text-color1 mt-6 mb-3">1.1 Personal Information</h3>
 							<p class="text-sm sm:text-base">
 								When you create an account, we may collect:
@@ -107,7 +107,7 @@ export function renderPrivacy() {
 								<li>Access controls and authentication tokens</li>
 							</ul>
 							<p class="text-sm sm:text-base mt-4">
-								However, no method of transmission over the Internet is 100% secure. While we strive to protect your personal information, 
+								However, no method of transmission over the Internet is 100% secure. While we strive to protect your personal information,
 								we cannot guarantee its absolute security.
 							</p>
 						</section>
@@ -143,8 +143,8 @@ export function renderPrivacy() {
 						<section class="space-y-4">
 							<h2 class="text-xl sm:text-2xl font-bold text-color2 mt-8 mb-4">7. Data Retention</h2>
 							<p class="text-sm sm:text-base">
-								We retain your information for as long as your account is active or as needed to provide you services. 
-								If you delete your account, we will delete or anonymize your personal information, except where we are required 
+								We retain your information for as long as your account is active or as needed to provide you services.
+								If you delete your account, we will delete or anonymize your personal information, except where we are required
 								to retain it for legal or legitimate business purposes.
 							</p>
 						</section>
@@ -152,7 +152,7 @@ export function renderPrivacy() {
 						<section class="space-y-4">
 							<h2 class="text-xl sm:text-2xl font-bold text-color2 mt-8 mb-4">8. Children's Privacy</h2>
 							<p class="text-sm sm:text-base">
-								Our Service is not intended for children under 13 years of age. We do not knowingly collect personal information 
+								Our Service is not intended for children under 13 years of age. We do not knowingly collect personal information
 								from children under 13. If you become aware that a child has provided us with personal information, please contact us.
 							</p>
 						</section>
@@ -160,7 +160,7 @@ export function renderPrivacy() {
 						<section class="space-y-4">
 							<h2 class="text-xl sm:text-2xl font-bold text-color2 mt-8 mb-4">9. International Data Transfers</h2>
 							<p class="text-sm sm:text-base">
-								Your information may be transferred to and maintained on servers located outside of your state, province, country, 
+								Your information may be transferred to and maintained on servers located outside of your state, province, country,
 								or other governmental jurisdiction where data protection laws may differ. By using our Service, you consent to this transfer.
 							</p>
 						</section>
@@ -168,7 +168,7 @@ export function renderPrivacy() {
 						<section class="space-y-4">
 							<h2 class="text-xl sm:text-2xl font-bold text-color2 mt-8 mb-4">10. Changes to This Privacy Policy</h2>
 							<p class="text-sm sm:text-base">
-								We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy 
+								We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy
 								on this page and updating the "Last Updated" date. You are advised to review this Privacy Policy periodically for any changes.
 							</p>
 						</section>
@@ -192,7 +192,7 @@ export function renderPrivacy() {
 		</div>
 
 		<footer id="footer" class="w-[90%] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 py-8 text-white border-t border-slate-500 mt-auto">
-			<p class="text-[#878787] text-sm sm:text-base">© 2025 SPACE PONG</p>
+			<p class="text-[#878787] text-sm sm:text-base">© 2026 SPACE PONG</p>
 			<div class="flex flex-wrap justify-center gap-3 sm:gap-4">
 				<button id="terms-link" class="text-color2 hover:text-color1 transition-colors text-xs sm:text-sm underline">Terms of Service</button>
 				<button id="about-us" class="py-2 px-4 sm:px-6 border text-color2 border-color2 rounded-lg transition-all opacity-70 duration-500 hover:bg-color2 hover:text-black font-bold text-sm sm:text-base">About Us</button>
