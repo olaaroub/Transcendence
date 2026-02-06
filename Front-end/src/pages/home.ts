@@ -4,42 +4,83 @@ import { userData } from "./store";
 
 const $ = (id: string) => document.getElementById(id as string)
 
+// export function renderHomeText (isLoged: boolean)
+// {
+//     return /* html */ `
+// 		<div class="data flex flex-col sm:flex-row items-center justify-center sm:justify-between min-h-[calc(100vh-200px)]
+// 		gap-4 xs:gap-5 sm:gap-8 md:gap-10 xl:gap-12 2xl:gap-16 px-3 xs:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-0">
+// 			<div class="txt w-full sm:w-1/2 text-center sm:text-left transition-all duration-500 ${isLoged ? 'opacity-0' : ''}">
+// 				<h1
+// 					class="text-[28px] xs:text-[36px] sm:text-[50px] md:text-[70px] lg:text-[90px] xl:text-[120px] 2xl:text-[135px]
+// 					font-bold text-txtColor glow-stroke leading-[1.1] mb-3 xs:mb-4 sm:mb-6 xl:mb-8">
+// 					Let's play<br/>Together...
+// 				</h1>
+// 				<p
+// 					class="text-[#878787] max-w-full mx-auto sm:mx-0
+// 					sm:max-w-[431px] xl:max-w-[500px] text-[14px] xs:text-[15px] sm:text-[17px]
+// 					md:text-[19px] xl:text-[22px] leading-[1.5] xs:leading-[1.6] sm:leading-[1.7] xl:leading-[1.75] px-2 sm:px-0">
+// 						Welcome to SPACE PONG, where you can experience the legendary original Pong game in all its glory.
+// 						<br class="hidden sm:block"> From Competitive Matchmaking to Friendly Bouts, a challenging AI or just Spectating, you are sure to find your favorite way to enjoy this symbol of VideoGame history.
+// 				</p>
+// 			</div>
+// 			<video
+// 			class="fixed top-0 left-0 w-full h-full object-cover blur-[3px] z-[-2] pointer-events-none"
+// 			autoplay
+// 			muted
+// 			loop
+// 			playsinline
+// 			preload="auto"
+// 			disablepictureinpicture
+// 			tabindex="-1"
+// 			aria-hidden="true"
+// 			style="pointer-events: none;"
+// 			>
+// 			<source src="images/login.webm" type="video/webm">
+// 			</video>
+// 		</div>
+//     `
+// }
+
+
+
 export function renderHomeText (isLoged: boolean)
 {
     return /* html */ `
-		<div class="data flex flex-col sm:flex-row items-center justify-center sm:justify-between min-h-[calc(100vh-200px)]
-		gap-4 xs:gap-5 sm:gap-8 md:gap-10 xl:gap-12 2xl:gap-16 px-3 xs:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-0">
-			<div class="txt w-full sm:w-1/2 text-center sm:text-left transition-all duration-500 ${isLoged ? 'opacity-0' : ''}">
-				<h1
-					class="text-[28px] xs:text-[36px] sm:text-[50px] md:text-[70px] lg:text-[90px] xl:text-[120px] 2xl:text-[135px]
-					font-bold text-txtColor glow-stroke leading-[1.1] mb-3 xs:mb-4 sm:mb-6 xl:mb-8">
-					Let's play<br/>Together...
-				</h1>
-				<p
-					class="text-[#878787] max-w-full mx-auto sm:mx-0
-					sm:max-w-[431px] xl:max-w-[500px] text-[14px] xs:text-[15px] sm:text-[17px]
-					md:text-[19px] xl:text-[22px] leading-[1.5] xs:leading-[1.6] sm:leading-[1.7] xl:leading-[1.75] px-2 sm:px-0">
-						Welcome to SPACE PONG, where you can experience the legendary original Pong game in all its glory.
-						<br class="hidden sm:block"> From Competitive Matchmaking to Friendly Bouts, a challenging AI or just Spectating, you are sure to find your favorite way to enjoy this symbol of VideoGame history.
-				</p>
-			</div>
-			<video
-			class="fixed top-0 left-0 w-full h-full object-cover blur-[3px] z-[-2] pointer-events-none"
-			autoplay
-			muted
-			loop
-			playsinline
-			preload="auto"
-			disablepictureinpicture
-			tabindex="-1"
-			aria-hidden="true"
-			style="pointer-events: none;"
-			>
-			<source src="images/login.webm" type="video/webm">
-			</video>
-		</div>
+        <div class="data flex flex-col sm:flex-row items-center justify-center sm:justify-between min-h-[calc(100vh-200px)]
+        gap-4 xs:gap-5 sm:gap-8 md:gap-10 xl:gap-12 2xl:gap-16 px-3 xs:px-4 md:px-6 xl:px-8 2xl:px-10 py-4 sm:py-0">
+            <div class="txt w-full sm:w-1/2 text-center sm:text-left transition-all duration-500 ${isLoged ? 'opacity-0' : ''}">
+                <h1
+                    class="text-[28px] xs:text-[36px] sm:text-[50px] md:text-[70px] lg:text-[90px] xl:text-[120px] 2xl:text-[135px]
+                    font-bold text-txtColor glow-stroke leading-[1.1] mb-3 xs:mb-4 sm:mb-6 xl:mb-8">
+                    ENTER<br/>ORBIT...
+                </h1>
+                <p
+                    class="text-[#878787] max-w-full mx-auto sm:mx-0
+                    sm:max-w-[431px] xl:max-w-[500px] text-[14px] xs:text-[15px] sm:text-[17px]
+                    md:text-[19px] xl:text-[22px] leading-[1.5] xs:leading-[1.6] sm:leading-[1.7] xl:leading-[1.75] px-2 sm:px-0">
+                        Welcome to SPACE PONG, where you can experience the legendary original Pong game in all its glory.
+                        <br class="hidden sm:block"> From Competitive Matchmaking to Friendly Bouts, a challenging AI or just Spectating, you are sure to find your favorite way to enjoy this symbol of VideoGame history.
+                </p>
+            </div>
+            <video
+            class="fixed top-0 left-0 w-full h-full object-cover blur-[3px] z-[-2] pointer-events-none"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="auto"
+            disablepictureinpicture
+            tabindex="-1"
+            aria-hidden="true"
+            style="pointer-events: none;"
+            >
+            <source src="images/login.webm" type="video/webm">
+            </video>
+        </div>
     `
 }
+
+
 
 export function AliasPopUp(item: string)
 {
@@ -127,7 +168,7 @@ export async function renderHome()
 		</div>
 	<footer id="footer" class="w-full mx-auto flex flex-col sm:flex-row
 	justify-between items-center gap-3 xs:gap-4 py-4 xs:py-6 sm:py-8 px-3 xs:px-4 text-white border-t border-slate-500 mt-auto">
-			<p class="text-[#878787] text-xs xs:text-sm sm:text-base">© 2025 SPACE PONG</p>
+			<p class="text-[#878787] text-xs xs:text-sm sm:text-base">© 2026 SPACE PONG</p>
 			<div class="flex flex-wrap justify-center gap-2 xs:gap-3 sm:gap-4">
 				<button id="terms-link" class="text-color2 hover:text-color1 transition-colors text-[10px] xs:text-xs sm:text-sm underline">Terms of Service</button>
 				<button id="privacy-link" class="text-color2 hover:text-color1 transition-colors text-[10px] xs:text-xs sm:text-sm underline">Privacy Policy</button>
